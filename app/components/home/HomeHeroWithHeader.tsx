@@ -202,7 +202,7 @@ export default function HomeHeroWithHeader({
               <div className="relative w-full max-w-lg aspect-square">
                 {/* Badge Overlay */}
                 {hero.badges && (
-                  <div className="absolute top-8 left-1/2 -translate-x-1/2 bg-white/10 backdrop-blur-md rounded-[30px] p-4 border border-white/20 z-20 shadow-lg flex items-center gap-4">
+                  <div className="absolute top-0 left-0 bg-white/10 backdrop-blur-md rounded-[30px] p-4 border border-white/20 z-20 shadow-lg flex items-center gap-6 w-[318px] h-[105px]">
                     {/* Avatar Images - Left Side */}
                     <div className="flex items-center -space-x-3">
                       {avatars.slice(0, 2).map((avatar, index) => {
@@ -238,8 +238,8 @@ export default function HomeHeroWithHeader({
                     
                     {/* Text - Right Side */}
                     <div className="text-white">
-                      <div className="text-xl text-white">{badgeTitle}</div>
-                      <div className="text-sm text-white">{badgeSubtitle}</div>
+                      <div className="text-[18px] font-normal text-[#FFFFFF]" style={{ lineHeight: '30px' }}>{badgeTitle}</div>
+                      <div className="text-[18px] font-normal text-[#FFFFFF]" style={{ lineHeight: '30px' }}>{badgeSubtitle}</div>
                     </div>
                   </div>
                 )}
