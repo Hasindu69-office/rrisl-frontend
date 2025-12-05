@@ -7,12 +7,14 @@ import Button from '../ui/Button';
 import LanguageSwitcher from '../ui/LanguageSwitcher';
 import { MenuItem } from '@/app/lib/types';
 import { addLocaleToUrl } from '@/app/lib/locale';
+import MobileMenu from './MobileMenu';
 
 interface HeaderActionsProps {
   menuItems?: MenuItem[];
+  leftMenuItems?: MenuItem[];
 }
 
-export default function HeaderActions({ menuItems = [] }: HeaderActionsProps) {
+export default function HeaderActions({ menuItems = [], leftMenuItems = [] }: HeaderActionsProps) {
   const searchParams = useSearchParams();
   const currentLocale = searchParams.get('locale') || 'en';
 
@@ -30,7 +32,7 @@ export default function HeaderActions({ menuItems = [] }: HeaderActionsProps) {
   };
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
       {/* Action Buttons from Strapi menu or default */}
       {hasMenuItems ? (
         menuItems.map((item, index) => (
@@ -52,7 +54,7 @@ export default function HeaderActions({ menuItems = [] }: HeaderActionsProps) {
             <Button 
               variant="primary" 
               size="sm"
-              className="!w-[178px] !h-[56px] !rounded-[30px] !bg-[#2E7D32] hover:!bg-[#2E7D32]/90"
+              className="!w-[106px] !h-[35px] !rounded-[30px] !bg-[#2E7D32] hover:!bg-[#2E7D32]/90"
             >
               Researchers
             </Button>
@@ -68,6 +70,14 @@ export default function HeaderActions({ menuItems = [] }: HeaderActionsProps) {
 
       {/* Language Switcher */}
       <LanguageSwitcher />
+
+      {/* Mobile Menu Hamburger - Only on mobile (hide on tablet and up) */}
+      <div className="md:hidden">
+        <MobileMenu 
+          menuItems={leftMenuItems} 
+          headerRightMenuItems={menuItems}
+        />
+      </div>
     </div>
   );
 }

@@ -11,7 +11,6 @@ import Button from '../ui/Button';
 import LogoSection from '../header/LogoSection';
 import Navigation from '../header/Navigation';
 import HeaderActions from '../header/HeaderActions';
-import MobileMenu from '../header/MobileMenu';
 
 interface HomeHeroWithHeaderProps {
   hero: Hero;
@@ -83,10 +82,10 @@ export default function HomeHeroWithHeader({
 
   return (
     <section className="relative min-h-screen flex flex-col overflow-hidden">
-      {/* Background Images - Fixed to cover entire viewport from top */}
+      {/* Background Images - Cover navigation bar and hero content area */}
       {desktopBgUrl && (
         <>
-          <div className="hidden md:block fixed top-0 left-0 w-full h-screen z-0">
+          <div className="hidden md:block absolute top-0 left-0 w-full h-full z-0">
             <Image
               src={desktopBgUrl}
               alt="Hero Background"
@@ -99,7 +98,7 @@ export default function HomeHeroWithHeader({
             <div className="absolute inset-0 bg-black/40" />
           </div>
           {mobileBgUrl && (
-            <div className="block md:hidden fixed top-0 left-0 w-full h-screen z-0">
+            <div className="block md:hidden absolute top-0 left-0 w-full h-full z-0">
               <Image
                 src={mobileBgUrl}
                 alt="Hero Background"
@@ -119,27 +118,21 @@ export default function HomeHeroWithHeader({
       <div className="relative z-50 bg-transparent">
         <div className="relative z-10">
           {/* Top Section - Logo and Actions */}
-          <div className="container mx-auto px-4 py-3">
+          <div className="container mx-auto px-3 sm:px-4 md:px-5 lg:px-8 py-2 sm:py-3 md:py-3 max-w-[1440px] w-full">
             <div className="flex items-center justify-between">
               {/* Left: Logo Section */}
               <LogoSection globalLayout={globalLayout} />
 
-              {/* Right: Actions (Buttons + Language Switcher) */}
-              <HeaderActions menuItems={rightMenuItems} />
+              {/* Right: Actions (Buttons + Language Switcher + Hamburger) */}
+              <HeaderActions menuItems={rightMenuItems} leftMenuItems={leftMenuItems} />
             </div>
           </div>
 
-          {/* Bottom Section - Navigation */}
-          <div className="container mx-auto px-4 pb-3">
+          {/* Bottom Section - Navigation (Tablet and Desktop) */}
+          <div className="hidden md:block container mx-auto px-3 sm:px-4 md:px-5 lg:px-8 pb-2 sm:pb-3 md:pb-3 max-w-[1440px] w-full">
             <div className="flex items-center justify-between">
               {/* Desktop Navigation */}
               <Navigation menuItems={leftMenuItems} />
-
-              {/* Mobile Menu Button */}
-              <MobileMenu 
-                menuItems={leftMenuItems} 
-                headerRightMenuItems={rightMenuItems}
-              />
             </div>
           </div>
         </div>

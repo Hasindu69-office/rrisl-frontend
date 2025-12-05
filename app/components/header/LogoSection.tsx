@@ -46,13 +46,13 @@ export default function LogoSection({ globalLayout }: LogoSectionProps) {
         <img
           src={desktopLogoUrl}
           alt={logoAlt}
-          className="hidden md:block object-contain h-auto max-h-16 w-auto"
+          className="hidden md:block object-contain w-[280px] md:w-[380px] lg:w-[496px] h-auto md:h-[55px] lg:h-[80px]"
           onError={() => console.error('Failed to load logo:', desktopLogoUrl)}
         />
         <img
           src={mobileLogoUrl}
           alt={logoAlt}
-          className="block md:hidden object-contain h-auto max-h-12 w-auto"
+          className="block md:hidden object-contain h-auto max-h-10 sm:max-h-12 w-auto"
           onError={() => console.error('Failed to load logo:', mobileLogoUrl)}
         />
       </div>
@@ -67,7 +67,7 @@ export default function LogoSection({ globalLayout }: LogoSectionProps) {
         alt={logoAlt}
         width={desktopWidth}
         height={desktopHeight}
-        className="hidden md:block object-contain h-auto max-h-16 w-auto"
+        className="hidden md:block object-contain w-[280px] md:w-[380px] lg:w-[496px] h-auto md:h-[55px] lg:h-[80px]"
         priority
         unoptimized={isLocalhost}
         onError={() => {
@@ -81,7 +81,7 @@ export default function LogoSection({ globalLayout }: LogoSectionProps) {
         alt={logoAlt}
         width={mobileWidth}
         height={mobileHeight}
-        className="block md:hidden object-contain h-auto max-h-12 w-auto"
+        className="block md:hidden object-contain h-auto max-h-10 sm:max-h-12 w-auto"
         priority
         unoptimized={isLocalhost}
         onError={() => {

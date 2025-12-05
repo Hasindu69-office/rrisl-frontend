@@ -288,6 +288,10 @@ function getHomePagePopulateFields(): string[] {
     'hero.badges',
     'hero.badges.avatars',
     'hero.labels',
+    'hero.hero_news_items',
+    'hero.hero_news_items.featuredImage',
+    'hero.hero_annoucements_items',
+    'hero.hero_annoucements_items.image',
   ];
 }
 

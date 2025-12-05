@@ -53,16 +53,14 @@ export default function Navigation({ menuItems }: NavigationProps) {
 
   return (
     <nav 
-      className="hidden lg:flex items-center bg-gray-200 rounded-lg px-6 py-3" 
-      style={{ gap: '55px' }}
-      aria-label="Main navigation"
+      className="hidden md:flex items-center justify-center bg-white/85 rounded-[20px] md:rounded-[25px] lg:rounded-[30px] w-full max-w-[1440px] h-[50px] md:h-[58px] lg:h-[78px] opacity-100 gap-[15px] md:gap-[20px] lg:gap-[55px] px-3 md:px-4 lg:px-8 mx-auto" 
     >
       {topLevelItems.map((item) => (
         <Link
           key={item.id || item.url}
           href={getLocalizedUrl(item.url)}
           target={item.target || '_self'}
-          className={`text-sm font-medium transition-colors ${
+          className={`text-[10px] md:text-xs lg:text-base font-medium transition-colors whitespace-nowrap ${
             isActive(item.url)
               ? 'text-green-600 font-semibold'
               : 'text-gray-800 hover:text-green-600'

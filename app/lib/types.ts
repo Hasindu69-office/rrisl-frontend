@@ -112,6 +112,33 @@ export interface HeroCta {
   openInNewTab: boolean;
 }
 
+export interface HeroNewsItem {
+  id: number;
+  documentId?: string;
+  title: string;
+  slug: string;
+  publishedDate: string;
+  featuredImage: StrapiImage | null;
+  createdAt?: string;
+  updatedAt?: string;
+  publishedAt?: string;
+  locale?: string;
+}
+
+export interface HeroAnnouncementItem {
+  id: number;
+  documentId?: string;
+  title: string;
+  slug: string;
+  summary: string | null;
+  image: StrapiImage | null;
+  isActive?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  publishedAt?: string;
+  locale?: string;
+}
+
 export interface Hero {
   id: number;
   title: string;
@@ -123,6 +150,12 @@ export interface Hero {
   primaryCta: HeroCta;
   backgroundImageDesktop: StrapiImage | null;
   backgroundImageMobile: StrapiImage | null;
+  showNewsCard?: boolean;
+  newsCardTitle?: string;
+  showAnnouncementCard?: boolean;
+  announcementCardTitle?: string;
+  hero_news_items?: HeroNewsItem[];
+  hero_annoucements_items?: HeroAnnouncementItem;
 }
 
 export interface HomePage {
