@@ -129,7 +129,7 @@ export default function HomeHeroWithHeader({
           </div>
 
           {/* Bottom Section - Navigation (Tablet and Desktop) */}
-          <div className="hidden md:block container mx-auto px-3 sm:px-4 md:px-5 lg:px-8 pb-2 sm:pb-3 md:pb-3 max-w-[1440px] w-full">
+          <div className="hidden md:block container mx-auto px-3 sm:px-4 md:px-5 lg:px-8 pb-2 sm:pb-3 md:pb-3 max-w-[1440px] w-full mt-[10px]">
             <div className="flex items-center justify-between">
               {/* Desktop Navigation */}
               <Navigation menuItems={leftMenuItems} />
@@ -139,20 +139,27 @@ export default function HomeHeroWithHeader({
       </div>
 
       {/* Hero Content Section */}
-      <div className="flex-1 flex items-center relative z-10">
-        <div className="container mx-auto px-4 py-16 md:py-24 w-full">
+      <div className="flex-1 flex items-start relative z-10">
+        <div className="container mx-auto px-4 pt-4 md:pt-6 pb-8 md:pb-12 w-[1440px]">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             {/* Left Content */}
             <div className="text-white space-y-6 z-10">
               {/* Title */}
-              <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight">
-                {hero.title}{' '}
-                <span className="text-green-400">{hero.highlightedText}</span>
+              <h1 className="text-[40px] md:text-[56px] lg:text-[60px] font-semibold text-white" style={{ lineHeight: '128%' }}>
+                {/* First Line - White */}
+                <div className="block">
+                  {hero.title}
+                </div>
+                
+                {/* Second Line - Gradient with Indentation */}
+                <div className="block bg-gradient-to-r from-[#20C997] to-[#A1DF0A] bg-clip-text text-transparent">
+                  {hero.highlightedText}
+                </div>
               </h1>
 
               {/* Description */}
               {descriptionText && (
-                <p className="text-base md:text-lg lg:text-xl text-gray-200 leading-relaxed max-w-2xl">
+                <p className="text-[18px] font-normal text-[#FFFFFF] max-w-2xl" style={{ lineHeight: '35px' }}>
                   {descriptionText}
                 </p>
               )}
@@ -164,8 +171,8 @@ export default function HomeHeroWithHeader({
                     <Link href={getLocalizedUrl(cta.url)}>
                       <Button
                         variant="primary"
-                        size="lg"
-                        className="text-lg px-8 py-4"
+                        size="sm"
+                        className="!w-[178px] !h-[56px] !rounded-[30px] !bg-[#2E7D32] hover:!bg-[#2E7D32]/90"
                       >
                         {cta.label}
                       </Button>
@@ -178,8 +185,8 @@ export default function HomeHeroWithHeader({
                     >
                       <Button
                         variant="primary"
-                        size="lg"
-                        className="text-lg px-8 py-4"
+                        size="sm"
+                        className="!w-[178px] !h-[56px] !rounded-[30px] !bg-[#2E7D32] hover:!bg-[#2E7D32]/90"
                       >
                         {cta.label}
                       </Button>
@@ -195,37 +202,44 @@ export default function HomeHeroWithHeader({
               <div className="relative w-full max-w-lg aspect-square">
                 {/* Badge Overlay */}
                 {hero.badges && (
-                  <div className="absolute top-8 left-1/2 -translate-x-1/2 bg-green-900/90 backdrop-blur-md rounded-xl p-3 border border-green-500/40 z-20 shadow-lg">
-                    <div className="flex items-center gap-2 mb-2">
-                      {/* Avatar Images */}
+                  <div className="absolute top-8 left-1/2 -translate-x-1/2 bg-white/10 backdrop-blur-md rounded-[30px] p-4 border border-white/20 z-20 shadow-lg flex items-center gap-4">
+                    {/* Avatar Images - Left Side */}
+                    <div className="flex items-center -space-x-3">
                       {avatars.slice(0, 2).map((avatar, index) => {
                         const avatarUrl = getOptimizedImageUrl(avatar, 'thumbnail') || getStrapiImageUrl(avatar);
                         return avatarUrl ? (
                           <div
                             key={avatar.id || index}
-                            className="w-10 h-10 rounded-full overflow-hidden border-2 border-green-400 shadow-lg"
+                            className="w-12 h-12 rounded-full overflow-hidden shadow-lg relative"
+                            style={{ zIndex: index + 1 }}
                           >
                             <Image
                               src={avatarUrl}
                               alt={`Avatar ${index + 1}`}
-                              width={40}
-                              height={40}
+                              width={48}
+                              height={48}
                               className="object-cover"
                               unoptimized={isLocalhost}
                             />
+                            {/* Star badge on first avatar */}
+                            {index === 0 && (
+                              <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-orange-500 rounded-full border-2 border-white flex items-center justify-center z-20">
+                                <span className="text-white text-[10px]">★</span>
+                              </div>
+                            )}
                           </div>
                         ) : null;
                       })}
-                      {/* Plus Icon */}
-                      {avatars.length > 2 && (
-                        <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center text-white text-sm font-bold shadow-lg">
-                          +
-                        </div>
-                      )}
+                      {/* Plus Icon - Dark Green Circle */}
+                      <div className="w-12 h-12 rounded-full bg-[#2E7D32] flex items-center justify-center text-white text-xl font-bold shadow-lg relative z-10">
+                        +
+                      </div>
                     </div>
+                    
+                    {/* Text - Right Side */}
                     <div className="text-white">
-                      <div className="text-xl font-bold text-green-400">{badgeTitle}</div>
-                      <div className="text-xs text-white uppercase tracking-wider font-semibold">{badgeSubtitle}</div>
+                      <div className="text-xl text-white">{badgeTitle}</div>
+                      <div className="text-sm text-white">{badgeSubtitle}</div>
                     </div>
                   </div>
                 )}
