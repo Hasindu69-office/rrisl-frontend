@@ -11,6 +11,7 @@ import Button from '../ui/Button';
 import LogoSection from '../header/LogoSection';
 import Navigation from '../header/Navigation';
 import HeaderActions from '../header/HeaderActions';
+import HeroStatistics from './HeroStatistics';
 
 interface HomeHeroWithHeaderProps {
   hero: Hero;
@@ -139,7 +140,7 @@ export default function HomeHeroWithHeader({
       </div>
 
       {/* Hero Content Section */}
-      <div className="flex-1 flex items-start relative z-10">
+      <div className="flex-1 flex items-start relative z-10" style={{ marginTop: '120px' }}>
         <div className="container mx-auto px-4 pt-4 md:pt-6 pb-8 md:pb-12 w-[1440px]">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             {/* Left Content */}
@@ -194,6 +195,11 @@ export default function HomeHeroWithHeader({
                   )}
                 </div>
               )}
+
+              {/* Statistics Section */}
+              <div className="pt-[86px]">
+                <HeroStatistics />
+              </div>
             </div>
 
             {/* Right Visual Area */}
@@ -244,20 +250,56 @@ export default function HomeHeroWithHeader({
                   </div>
                 )}
 
-                {/* Label Overlay - Bottom Right with connecting line */}
+                {/* Label Overlay - Bottom Left with L-shaped connecting line to top right marker */}
                 {labelText && (
-                  <div className={`absolute ${labelPosition === 'right' ? 'bottom-4 right-4' : 'bottom-4 left-4'} z-20`}>
-                    {/* Connecting line */}
-                    <div className={`absolute ${labelPosition === 'right' ? 'right-full top-1/2 -translate-y-1/2' : 'left-full top-1/2 -translate-y-1/2'} w-12 h-0.5 bg-green-400`}>
-                      <div className={`absolute ${labelPosition === 'right' ? 'right-0' : 'left-0'} top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-green-400`} />
+                  <div className="absolute bottom-12 left-0 z-20">
+                    {/* Label box */}
+                    <div className='absolute bottom-31 right-4 z-10'>
+                      <span className="text-white text-sm font-medium whitespace-nowrap">{labelText}</span>
                     </div>
                     
-                    {/* Label box */}
-                    <div className="bg-green-900/90 backdrop-blur-md rounded-lg px-4 py-2 border border-green-500/40 shadow-lg">
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-green-400" />
-                        <span className="text-white text-sm font-medium">{labelText}</span>
-                      </div>
+                    {/* L-shaped connecting line */}
+                    <svg 
+                      className="absolute left-full -top-64 pointer-events-none"
+                      style={{ width: '300px', height: '120px' }}
+                      viewBox="0 -150 200 150"
+                      preserveAspectRatio="none"
+                    >
+                      {/* Horizontal line from label */}
+                      <line 
+                        x1="0" 
+                        y1="0" 
+                        x2="100" 
+                        y2="0" 
+                        stroke="white" 
+                        strokeWidth="2"
+                      />
+                      {/* Vertical line going up */}
+                      <line 
+                        x1="100" 
+                        y1="0" 
+                        x2="100" 
+                        y2="-120" 
+                        stroke="white" 
+                        strokeWidth="1"
+                      />
+                      {/* Horizontal line going right */}
+                      
+                    </svg>
+                    
+                    {/* Circular marker at the end of the line (top right) */}
+                    <div 
+                      className="absolute pointer-events-none"
+                      style={{ 
+                        left: '150px', 
+                        top: '-235px',
+                        transform: 'translateY(-50%)'
+                      }}
+                    >
+                      {/* Outer translucent ring */}
+                      <div className="absolute w-16 h-16 rounded-full bg-gray-300/30 border-gray-300/50 -translate-x-1/2 -translate-y-1/2" />
+                      {/* Inner solid circle */}
+                      <div className="absolute w-6 h-6 rounded-full bg-gray-300 -translate-x-1/2 -translate-y-1/2" />
                     </div>
                   </div>
                 )}
