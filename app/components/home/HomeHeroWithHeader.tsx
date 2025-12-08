@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
@@ -59,12 +59,40 @@ export default function HomeHeroWithHeader({
     return addLocaleToUrl(url, currentLocale);
   };
 
-  // Get background images
-  const desktopBgUrl = hero.backgroundImageDesktop
-    ? getOptimizedImageUrl(hero.backgroundImageDesktop, 'large') || getStrapiImageUrl(hero.backgroundImageDesktop)
+  // Get background images - handle both array (multiple) and single image formats
+  const desktopBgImages = hero.backgroundImageDesktop
+    ? Array.isArray(hero.backgroundImageDesktop)
+      ? hero.backgroundImageDesktop
+      : [hero.backgroundImageDesktop]
+    : [];
+  const mobileBgImages = hero.backgroundImageMobile
+    ? [hero.backgroundImageMobile]
+    : [];
+
+  // Slider state
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const totalSlides = Math.max(desktopBgImages.length, mobileBgImages.length);
+
+  // Auto-play slider
+  useEffect(() => {
+    if (totalSlides <= 1) return; // Don't auto-play if only one slide
+
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % totalSlides);
+    }, 5000); // Change slide every 5 seconds
+
+    return () => clearInterval(interval);
+  }, [totalSlides]);
+
+  // Get current slide images
+  const currentDesktopImage = desktopBgImages[currentSlide] || null;
+  const currentMobileImage = mobileBgImages[currentSlide] || null;
+
+  const desktopBgUrl = currentDesktopImage
+    ? getOptimizedImageUrl(currentDesktopImage, 'large') || getStrapiImageUrl(currentDesktopImage)
     : null;
-  const mobileBgUrl = hero.backgroundImageMobile
-    ? getOptimizedImageUrl(hero.backgroundImageMobile, 'small') || getStrapiImageUrl(hero.backgroundImageMobile)
+  const mobileBgUrl = currentMobileImage
+    ? getOptimizedImageUrl(currentMobileImage, 'small') || getStrapiImageUrl(currentMobileImage)
     : null;
 
   // Get badge avatars
@@ -81,38 +109,90 @@ export default function HomeHeroWithHeader({
   // Check for localhost in URLs
   const isLocalhost = desktopBgUrl?.includes('localhost') || mobileBgUrl?.includes('localhost') || false;
 
+  // Navigation handler
+  const goToSlide = (index: number) => {
+    setCurrentSlide(index);
+  };
+
   return (
     <section className="relative min-h-screen flex flex-col overflow-hidden">
-      {/* Background Images - Cover navigation bar and hero content area */}
-      {desktopBgUrl && (
-        <>
-          <div className="hidden md:block absolute top-0 left-0 w-full h-full z-0">
-            <Image
-              src={desktopBgUrl}
-              alt="Hero Background"
-              fill
-              className="object-cover object-top"
-              priority
-              unoptimized={isLocalhost}
-            />
-            {/* Dark overlay for better text readability */}
-            <div className="absolute inset-0 bg-black/40" />
+      {/* Background Image Slider - Cover navigation bar and hero content area */}
+      {totalSlides > 0 && (
+        <div className="absolute top-0 left-0 w-full h-full z-0">
+          {/* Desktop Slider */}
+          <div className="hidden md:block absolute top-0 left-0 w-full h-full">
+            {desktopBgImages.map((image, index) => {
+              const imageUrl = getOptimizedImageUrl(image, 'large') || getStrapiImageUrl(image);
+              if (!imageUrl) return null;
+              
+              return (
+                <div
+                  key={index}
+                  className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+                    index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'
+                  }`}
+                >
+                  <Image
+                    src={imageUrl}
+                    alt={`Hero Background ${index + 1}`}
+                    fill
+                    className="object-cover object-top"
+                    priority={index === 0}
+                    unoptimized={imageUrl.includes('localhost')}
+                  />
+                  {/* Dark overlay for better text readability */}
+                  <div className="absolute inset-0 bg-black/40" />
+                </div>
+              );
+            })}
           </div>
-          {mobileBgUrl && (
-            <div className="block md:hidden absolute top-0 left-0 w-full h-full z-0">
-              <Image
-                src={mobileBgUrl}
-                alt="Hero Background"
-                fill
-                className="object-cover object-top"
-                priority
-                unoptimized={isLocalhost}
-              />
-              {/* Dark overlay for better text readability */}
-              <div className="absolute inset-0 bg-black/40" />
+
+          {/* Mobile Slider */}
+          <div className="block md:hidden absolute top-0 left-0 w-full h-full">
+            {mobileBgImages.map((image, index) => {
+              const imageUrl = getOptimizedImageUrl(image, 'small') || getStrapiImageUrl(image);
+              if (!imageUrl) return null;
+              
+              return (
+                <div
+                  key={index}
+                  className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+                    index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'
+                  }`}
+                >
+                  <Image
+                    src={imageUrl}
+                    alt={`Hero Background ${index + 1}`}
+                    fill
+                    className="object-cover object-top"
+                    priority={index === 0}
+                    unoptimized={imageUrl.includes('localhost')}
+                  />
+                  {/* Dark overlay for better text readability */}
+                  <div className="absolute inset-0 bg-black/40" />
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Slider Navigation Dots - Right Side */}
+          {totalSlides > 1 && (
+            <div className="absolute right-8 top-1/2 transform -translate-y-1/2 z-30 flex flex-col gap-2">
+              {Array.from({ length: totalSlides }).map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => goToSlide(index)}
+                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                    index === currentSlide
+                      ? 'bg-white h-8'
+                      : 'bg-white/50 hover:bg-white/75'
+                  }`}
+                  aria-label={`Go to slide ${index + 1}`}
+                />
+              ))}
             </div>
           )}
-        </>
+        </div>
       )}
 
       {/* Header Section */}
@@ -203,12 +283,12 @@ export default function HomeHeroWithHeader({
             </div>
 
             {/* Right Visual Area */}
-            <div className="relative flex items-center justify-center lg:justify-end min-h-[400px] lg:min-h-[600px]">
+            <div className="relative flex items-start justify-center lg:justify-end min-h-[400px] lg:min-h-[600px]">
               {/* Container for overlays */}
-              <div className="relative w-full max-w-lg aspect-square">
+              <div className="relative w-full max-w-lg aspect-square" style={{ marginTop: '-100px' }}>
                 {/* Badge Overlay */}
                 {hero.badges && (
-                  <div className="absolute top-0 left-0 bg-white/10 backdrop-blur-md rounded-[30px] p-4 border border-white/20 z-20 shadow-lg flex items-center gap-6 w-[318px] h-[105px]">
+                  <div className="absolute -top-4 -left-12 bg-white/10 backdrop-blur-md rounded-[30px] p-4 border border-white/20 z-20 shadow-lg flex items-center gap-6 w-[318px] h-[105px]">
                     {/* Avatar Images - Left Side */}
                     <div className="flex items-center -space-x-3">
                       {avatars.slice(0, 2).map((avatar, index) => {

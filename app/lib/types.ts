@@ -148,7 +148,7 @@ export interface Hero {
   labels: HeroLabel;
   badges: HeroBadge;
   primaryCta: HeroCta;
-  backgroundImageDesktop: StrapiImage | null;
+  backgroundImageDesktop: StrapiImage[] | StrapiImage | null;
   backgroundImageMobile: StrapiImage | null;
   showNewsCard?: boolean;
   newsCardTitle?: string;
