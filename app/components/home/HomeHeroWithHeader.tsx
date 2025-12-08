@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
@@ -11,6 +11,7 @@ import Button from '../ui/Button';
 import LogoSection from '../header/LogoSection';
 import Navigation from '../header/Navigation';
 import HeaderActions from '../header/HeaderActions';
+import HeroStatistics from './HeroStatistics';
 
 interface HomeHeroWithHeaderProps {
   hero: Hero;
@@ -58,12 +59,40 @@ export default function HomeHeroWithHeader({
     return addLocaleToUrl(url, currentLocale);
   };
 
-  // Get background images
-  const desktopBgUrl = hero.backgroundImageDesktop
-    ? getOptimizedImageUrl(hero.backgroundImageDesktop, 'large') || getStrapiImageUrl(hero.backgroundImageDesktop)
+  // Get background images - handle both array (multiple) and single image formats
+  const desktopBgImages = hero.backgroundImageDesktop
+    ? Array.isArray(hero.backgroundImageDesktop)
+      ? hero.backgroundImageDesktop
+      : [hero.backgroundImageDesktop]
+    : [];
+  const mobileBgImages = hero.backgroundImageMobile
+    ? [hero.backgroundImageMobile]
+    : [];
+
+  // Slider state
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const totalSlides = Math.max(desktopBgImages.length, mobileBgImages.length);
+
+  // Auto-play slider
+  useEffect(() => {
+    if (totalSlides <= 1) return; // Don't auto-play if only one slide
+
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % totalSlides);
+    }, 5000); // Change slide every 5 seconds
+
+    return () => clearInterval(interval);
+  }, [totalSlides]);
+
+  // Get current slide images
+  const currentDesktopImage = desktopBgImages[currentSlide] || null;
+  const currentMobileImage = mobileBgImages[currentSlide] || null;
+
+  const desktopBgUrl = currentDesktopImage
+    ? getOptimizedImageUrl(currentDesktopImage, 'large') || getStrapiImageUrl(currentDesktopImage)
     : null;
-  const mobileBgUrl = hero.backgroundImageMobile
-    ? getOptimizedImageUrl(hero.backgroundImageMobile, 'small') || getStrapiImageUrl(hero.backgroundImageMobile)
+  const mobileBgUrl = currentMobileImage
+    ? getOptimizedImageUrl(currentMobileImage, 'small') || getStrapiImageUrl(currentMobileImage)
     : null;
 
   // Get badge avatars
@@ -80,38 +109,90 @@ export default function HomeHeroWithHeader({
   // Check for localhost in URLs
   const isLocalhost = desktopBgUrl?.includes('localhost') || mobileBgUrl?.includes('localhost') || false;
 
+  // Navigation handler
+  const goToSlide = (index: number) => {
+    setCurrentSlide(index);
+  };
+
   return (
     <section className="relative min-h-screen flex flex-col overflow-hidden">
-      {/* Background Images - Cover navigation bar and hero content area */}
-      {desktopBgUrl && (
-        <>
-          <div className="hidden md:block absolute top-0 left-0 w-full h-full z-0">
-            <Image
-              src={desktopBgUrl}
-              alt="Hero Background"
-              fill
-              className="object-cover object-top"
-              priority
-              unoptimized={isLocalhost}
-            />
-            {/* Dark overlay for better text readability */}
-            <div className="absolute inset-0 bg-black/40" />
+      {/* Background Image Slider - Cover navigation bar and hero content area */}
+      {totalSlides > 0 && (
+        <div className="absolute top-0 left-0 w-full h-full z-0">
+          {/* Desktop Slider */}
+          <div className="hidden md:block absolute top-0 left-0 w-full h-full">
+            {desktopBgImages.map((image, index) => {
+              const imageUrl = getOptimizedImageUrl(image, 'large') || getStrapiImageUrl(image);
+              if (!imageUrl) return null;
+              
+              return (
+                <div
+                  key={index}
+                  className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+                    index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'
+                  }`}
+                >
+                  <Image
+                    src={imageUrl}
+                    alt={`Hero Background ${index + 1}`}
+                    fill
+                    className="object-cover object-top"
+                    priority={index === 0}
+                    unoptimized={imageUrl.includes('localhost')}
+                  />
+                  {/* Dark overlay for better text readability */}
+                  <div className="absolute inset-0 bg-black/40" />
+                </div>
+              );
+            })}
           </div>
-          {mobileBgUrl && (
-            <div className="block md:hidden absolute top-0 left-0 w-full h-full z-0">
-              <Image
-                src={mobileBgUrl}
-                alt="Hero Background"
-                fill
-                className="object-cover object-top"
-                priority
-                unoptimized={isLocalhost}
-              />
-              {/* Dark overlay for better text readability */}
-              <div className="absolute inset-0 bg-black/40" />
+
+          {/* Mobile Slider */}
+          <div className="block md:hidden absolute top-0 left-0 w-full h-full">
+            {mobileBgImages.map((image, index) => {
+              const imageUrl = getOptimizedImageUrl(image, 'small') || getStrapiImageUrl(image);
+              if (!imageUrl) return null;
+              
+              return (
+                <div
+                  key={index}
+                  className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+                    index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'
+                  }`}
+                >
+                  <Image
+                    src={imageUrl}
+                    alt={`Hero Background ${index + 1}`}
+                    fill
+                    className="object-cover object-top"
+                    priority={index === 0}
+                    unoptimized={imageUrl.includes('localhost')}
+                  />
+                  {/* Dark overlay for better text readability */}
+                  <div className="absolute inset-0 bg-black/40" />
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Slider Navigation Dots - Right Side */}
+          {totalSlides > 1 && (
+            <div className="absolute right-8 top-1/2 transform -translate-y-1/2 z-30 flex flex-col gap-2">
+              {Array.from({ length: totalSlides }).map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => goToSlide(index)}
+                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                    index === currentSlide
+                      ? 'bg-white h-8'
+                      : 'bg-white/50 hover:bg-white/75'
+                  }`}
+                  aria-label={`Go to slide ${index + 1}`}
+                />
+              ))}
             </div>
           )}
-        </>
+        </div>
       )}
 
       {/* Header Section */}
@@ -139,7 +220,7 @@ export default function HomeHeroWithHeader({
       </div>
 
       {/* Hero Content Section */}
-      <div className="flex-1 flex items-start relative z-10">
+      <div className="flex-1 flex items-start relative z-10" style={{ marginTop: '120px' }}>
         <div className="container mx-auto px-4 pt-4 md:pt-6 pb-8 md:pb-12 w-[1440px]">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             {/* Left Content */}
@@ -194,15 +275,20 @@ export default function HomeHeroWithHeader({
                   )}
                 </div>
               )}
+
+              {/* Statistics Section */}
+              <div className="pt-[86px]">
+                <HeroStatistics />
+              </div>
             </div>
 
             {/* Right Visual Area */}
-            <div className="relative flex items-center justify-center lg:justify-end min-h-[400px] lg:min-h-[600px]">
+            <div className="relative flex items-start justify-center lg:justify-end min-h-[400px] lg:min-h-[600px]">
               {/* Container for overlays */}
-              <div className="relative w-full max-w-lg aspect-square">
+              <div className="relative w-full max-w-lg aspect-square" style={{ marginTop: '-100px' }}>
                 {/* Badge Overlay */}
                 {hero.badges && (
-                  <div className="absolute top-8 left-1/2 -translate-x-1/2 bg-white/10 backdrop-blur-md rounded-[30px] p-4 border border-white/20 z-20 shadow-lg flex items-center gap-4">
+                  <div className="absolute -top-4 -left-12 bg-white/10 backdrop-blur-md rounded-[30px] p-4 border border-white/20 z-20 shadow-lg flex items-center gap-6 w-[318px] h-[105px]">
                     {/* Avatar Images - Left Side */}
                     <div className="flex items-center -space-x-3">
                       {avatars.slice(0, 2).map((avatar, index) => {
@@ -238,26 +324,62 @@ export default function HomeHeroWithHeader({
                     
                     {/* Text - Right Side */}
                     <div className="text-white">
-                      <div className="text-xl text-white">{badgeTitle}</div>
-                      <div className="text-sm text-white">{badgeSubtitle}</div>
+                      <div className="text-[18px] font-normal text-[#FFFFFF]" style={{ lineHeight: '30px' }}>{badgeTitle}</div>
+                      <div className="text-[18px] font-normal text-[#FFFFFF]" style={{ lineHeight: '30px' }}>{badgeSubtitle}</div>
                     </div>
                   </div>
                 )}
 
-                {/* Label Overlay - Bottom Right with connecting line */}
+                {/* Label Overlay - Bottom Left with L-shaped connecting line to top right marker */}
                 {labelText && (
-                  <div className={`absolute ${labelPosition === 'right' ? 'bottom-4 right-4' : 'bottom-4 left-4'} z-20`}>
-                    {/* Connecting line */}
-                    <div className={`absolute ${labelPosition === 'right' ? 'right-full top-1/2 -translate-y-1/2' : 'left-full top-1/2 -translate-y-1/2'} w-12 h-0.5 bg-green-400`}>
-                      <div className={`absolute ${labelPosition === 'right' ? 'right-0' : 'left-0'} top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-green-400`} />
+                  <div className="absolute bottom-12 left-0 z-20">
+                    {/* Label box */}
+                    <div className='absolute bottom-31 right-4 z-10'>
+                      <span className="text-white text-sm font-medium whitespace-nowrap">{labelText}</span>
                     </div>
                     
-                    {/* Label box */}
-                    <div className="bg-green-900/90 backdrop-blur-md rounded-lg px-4 py-2 border border-green-500/40 shadow-lg">
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-green-400" />
-                        <span className="text-white text-sm font-medium">{labelText}</span>
-                      </div>
+                    {/* L-shaped connecting line */}
+                    <svg 
+                      className="absolute left-full -top-64 pointer-events-none"
+                      style={{ width: '300px', height: '120px' }}
+                      viewBox="0 -150 200 150"
+                      preserveAspectRatio="none"
+                    >
+                      {/* Horizontal line from label */}
+                      <line 
+                        x1="0" 
+                        y1="0" 
+                        x2="100" 
+                        y2="0" 
+                        stroke="white" 
+                        strokeWidth="2"
+                      />
+                      {/* Vertical line going up */}
+                      <line 
+                        x1="100" 
+                        y1="0" 
+                        x2="100" 
+                        y2="-120" 
+                        stroke="white" 
+                        strokeWidth="1"
+                      />
+                      {/* Horizontal line going right */}
+                      
+                    </svg>
+                    
+                    {/* Circular marker at the end of the line (top right) */}
+                    <div 
+                      className="absolute pointer-events-none"
+                      style={{ 
+                        left: '150px', 
+                        top: '-235px',
+                        transform: 'translateY(-50%)'
+                      }}
+                    >
+                      {/* Outer translucent ring */}
+                      <div className="absolute w-16 h-16 rounded-full bg-gray-300/30 border-gray-300/50 -translate-x-1/2 -translate-y-1/2" />
+                      {/* Inner solid circle */}
+                      <div className="absolute w-6 h-6 rounded-full bg-gray-300 -translate-x-1/2 -translate-y-1/2" />
                     </div>
                   </div>
                 )}
