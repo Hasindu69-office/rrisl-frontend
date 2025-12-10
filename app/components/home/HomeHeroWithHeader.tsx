@@ -12,12 +12,15 @@ import LogoSection from '../header/LogoSection';
 import Navigation from '../header/Navigation';
 import HeaderActions from '../header/HeaderActions';
 import HeroStatistics from './HeroStatistics';
+import AnnouncementSlider from './AnnouncementSlider';
+import { HeroAnnouncementItem } from '@/app/lib/types';
 
 interface HomeHeroWithHeaderProps {
   hero: Hero;
   globalLayout: GlobalLayout | null;
   leftMenuItems: MenuItem[];
   rightMenuItems: MenuItem[];
+  announcements?: HeroAnnouncementItem[];
 }
 
 /**
@@ -42,7 +45,8 @@ export default function HomeHeroWithHeader({
   hero, 
   globalLayout, 
   leftMenuItems, 
-  rightMenuItems 
+  rightMenuItems,
+  announcements = []
 }: HomeHeroWithHeaderProps) {
   const searchParams = useSearchParams();
   const currentLocale = searchParams.get('locale') || 'en';
@@ -115,7 +119,7 @@ export default function HomeHeroWithHeader({
   };
 
   return (
-    <section className="relative min-h-screen flex flex-col overflow-hidden">
+    <section className="relative min-h-screen flex flex-col">
       {/* Background Image Slider - Cover navigation bar and hero content area */}
       {totalSlides > 0 && (
         <div className="absolute top-0 left-0 w-full h-full z-0">
@@ -389,8 +393,19 @@ export default function HomeHeroWithHeader({
         </div>
       </div>
 
+      {/* Announcement Slider Section - Bottom Right Above White Curved Cutout */}
+      {announcements && announcements.length > 0 && (
+        <div className="absolute -bottom-76 -right-20 z-30 pointer-events-auto pr-8" style={{ overflow: 'visible' }}>
+          <div className="flex justify-end" style={{ overflow: 'visible' }}>
+            <AnnouncementSlider
+              announcements={announcements}
+            />
+          </div>
+        </div>
+      )}
+
       {/* White Curved Cutout at Bottom Right */}
-      <div className="absolute bottom-0 right-0 z-40 pointer-events-none">
+      <div className="absolute bottom-0 right-0 z-20 pointer-events-none">
         <svg
           width="1077"
           height="151"

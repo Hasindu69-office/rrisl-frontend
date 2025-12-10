@@ -83,21 +83,23 @@ export default async function Home({ searchParams }: HomeProps) {
         globalLayout={globalLayout}
         leftMenuItems={leftMenuItems}
         rightMenuItems={rightMenuItems}
+        announcements={showAnnouncementCard && allAnnouncements && allAnnouncements.length > 0 ? allAnnouncements : []}
       />
       
-      {/* Announcement Slider Section */}
-      {showAnnouncementCard && allAnnouncements && allAnnouncements.length > 0 && (
-        <section className="relative z-10 bg-white py-12 md:py-16">
-          <div className="container mx-auto px-4 max-w-7xl">
-            {/* Announcement Slider */}
-            <AnnouncementSlider
-              announcements={allAnnouncements}
-            />
+      {/* Next Section - Placeholder */}
+      <section className="relative bg-white py-16 md:py-24">
+        <div className="container mx-auto px-4 max-w-7xl">
+          <div className="text-center">
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+              Next Section
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              This is a placeholder section to help visualize the layout and test scrolling.
+              You can replace this with your actual content.
+            </p>
           </div>
-        </section>
-      )}
-      
-      {/* Other sections will go here */}
+        </div>
+      </section>
     </div>
   );
 }
