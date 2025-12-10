@@ -395,7 +395,7 @@ export default function HomeHeroWithHeader({
 
       {/* Announcement Slider Section - Bottom Right Above White Curved Cutout */}
       {announcements && announcements.length > 0 && (
-        <div className="absolute -bottom-76 -right-20 z-30 pointer-events-auto pr-8" style={{ overflow: 'visible' }}>
+        <div className="absolute -bottom-54 -right-20 z-30 pointer-events-auto pr-8" style={{ overflow: 'visible' }}>
           <div className="flex justify-end" style={{ overflow: 'visible' }}>
             <AnnouncementSlider
               announcements={announcements}

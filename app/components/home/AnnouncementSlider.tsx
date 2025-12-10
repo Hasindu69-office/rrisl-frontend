@@ -62,7 +62,7 @@ export default function AnnouncementSlider({ announcements }: AnnouncementSlider
   const searchParams = useSearchParams();
   const currentLocale = searchParams.get('locale') || 'en';
   const [currentIndex, setCurrentIndex] = useState(0);
-  
+  const [isHovered, setIsHovered] = useState(false);
 
   // Helper to preserve locale in links
   const getLocalizedUrl = (slug: string) => {
@@ -91,8 +91,9 @@ export default function AnnouncementSlider({ announcements }: AnnouncementSlider
   }
 
   // Auto-slide functionality - infinite loop without reset
+  // Pause when hovering
   useEffect(() => {
-    if (totalAnnouncements === 0) return;
+    if (totalAnnouncements === 0 || isHovered) return;
     
     // Always slide continuously - never reset to 0
     const interval = setInterval(() => {
@@ -104,7 +105,7 @@ export default function AnnouncementSlider({ announcements }: AnnouncementSlider
     }, 5000); // Change every 5 seconds
 
     return () => clearInterval(interval);
-  }, [totalAnnouncements]);
+  }, [totalAnnouncements, isHovered]);
 
   const handleNext = () => {
     setCurrentIndex((prev) => prev + 1); // Keep incrementing
@@ -128,7 +129,12 @@ export default function AnnouncementSlider({ announcements }: AnnouncementSlider
   const transformIndex = currentIndex % displayAnnouncements.length;
 
   return (
-    <div className="w-full" style={{ overflow: 'visible' }}>
+    <div 
+      className="w-full" 
+      style={{ overflow: 'visible' }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       {/* Slider Container - Shows exactly 3 cards */}
       <div className="relative" style={{ overflow: 'hidden', width: `${(303 + 16) * 3 - 16}px` }}>
         <div 
@@ -316,68 +322,6 @@ export default function AnnouncementSlider({ announcements }: AnnouncementSlider
           })}
         </div>
       </div>
-
-      {/* Navigation Arrows */}
-      {totalAnnouncements > 3 && (
-        <div className="flex justify-center gap-4 mt-6">
-          <button
-            onClick={handlePrevious}
-            className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
-            aria-label="Previous announcements"
-          >
-            <svg
-              className="w-5 h-5 text-gray-700"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-          </button>
-          <button
-            onClick={handleNext}
-            className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
-            aria-label="Next announcements"
-          >
-            <svg
-              className="w-5 h-5 text-gray-700"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
-          </button>
-        </div>
-      )}
-
-      {/* Dots Indicator */}
-      {totalAnnouncements > 3 && (
-        <div className="flex justify-center gap-2 mt-4">
-          {Array.from({ length: totalAnnouncements }).map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentIndex(index)}
-              className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                index === normalizedIndex
-                  ? 'bg-[#2E7D32] w-8'
-                  : 'bg-gray-300 hover:bg-gray-400'
-              }`}
-              aria-label={`Go to slide ${index + 1}`}
-            />
-          ))}
-        </div>
-      )}
     </div>
   );
 }
