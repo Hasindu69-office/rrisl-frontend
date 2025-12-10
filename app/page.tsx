@@ -3,6 +3,7 @@ import HomeHeroWithHeader from './components/home/HomeHeroWithHeader';
 import AnnouncementCard from './components/home/AnnouncementCard';
 import AnnouncementSlider from './components/home/AnnouncementSlider';
 import ContentSection from './components/home/ContentSection';
+import IndustrySupportSection from './components/home/IndustrySupportSection';
 
 interface HomeProps {
   searchParams: Promise<{ locale?: string }>;
@@ -100,6 +101,9 @@ export default async function Home({ searchParams }: HomeProps) {
           buttonLink="#"
         />
       </div>
+
+      {/* Industry Support Section */}
+      <IndustrySupportSection />
     </div>
   );
 }
