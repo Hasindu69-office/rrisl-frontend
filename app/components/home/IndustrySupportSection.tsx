@@ -3,6 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import GradientTag from '@/app/components/ui/GradientTag';
+import ServiceCard from './ServiceCard';
 
 /**
  * Industry Support Section Component
@@ -73,6 +74,101 @@ export default function IndustrySupportSection() {
                 quality={90}
               />
             </div>
+          </div>
+
+          {/* Service Cards - Positioned around the plant */}
+          {/* Top Left - Research & Innovation (White) */}
+          <div className="absolute left-[10%] top-[35%] z-30">
+            <ServiceCard
+              title="Research & Innovation"
+              description="Advancing rubber science through multidisciplinary research."
+              variant="white"
+            />
+          </div>
+
+          {/* Middle Left - Training & Development (Green) */}
+          <div className="absolute left-[8%] top-[50%] z-30">
+            <ServiceCard
+              title="Training & Development"
+              description="Workshops and programs to boost industry knowledge."
+              variant="green"
+            />
+          </div>
+
+          {/* Bottom Left - Statistics & Market Insights (Green) */}
+          <div className="absolute left-[10%] top-[65%] z-30">
+            <ServiceCard
+              title="Statistics & Market Insights"
+              description="Trusted rubber production data and industry analysis."
+              variant="green"
+            />
+          </div>
+
+          {/* Top Right - Field Advisory Services (Green) */}
+          <div className="absolute right-[10%] top-[35%] z-30">
+            <ServiceCard
+              title="Field Advisory Services"
+              description="Providing expert, on-ground support for rubber growers."
+              variant="green"
+            />
+          </div>
+
+          {/* Middle Right - Laboratory Services (Green) */}
+          <div className="absolute right-[8%] top-[50%] z-30">
+            <ServiceCard
+              title="Laboratory Services"
+              description="Soil testing, plant diagnostics, and quality analysis."
+              variant="green"
+            />
+          </div>
+
+          {/* Bottom Right - Rubber Clone Development (Green) */}
+          <div className="absolute right-[10%] top-[65%] z-30">
+            <ServiceCard
+              title="Rubber Clone Development"
+              description="High-performing clones for sustainable cultivation."
+              variant="green"
+            />
+          </div>
+
+          {/* Vertical "What We Do" Text - Right side, rotated -90 degrees (reads bottom to top) */}
+          <div 
+            className="absolute top-1/2 z-20"
+            style={{
+              right: '-300px',
+              transform: 'translateY(-50%) rotate(-90deg)',
+              transformOrigin: 'center',
+            }}
+          >
+            <svg
+              width="400"
+              height="600"
+              viewBox="0 0 400 600"
+              style={{
+                overflow: 'visible',
+              }}
+            >
+              <defs>
+                <linearGradient id="textGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="#20C997" />
+                  <stop offset="100%" stopColor="#A1DF0A" />
+                </linearGradient>
+              </defs>
+              <text
+                x="200"
+                y="300"
+                textAnchor="middle"
+                dominantBaseline="middle"
+                fill="transparent"
+                stroke="url(#textGradient)"
+                strokeWidth="1"
+                fontSize="100"
+                fontWeight="bold"
+                fontFamily="sans-serif"
+              >
+                What We Do
+              </text>
+            </svg>
           </div>
         </div>
       </div>
