@@ -50,3 +50,6 @@ export default function HeroStatistics({ statistics = defaultStatistics }: HeroS
   );
 }
 
+
+
+
