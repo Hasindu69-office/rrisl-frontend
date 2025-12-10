@@ -1,5 +1,5 @@
 // Strapi API Client
-import type { GlobalLayout, Menu, HomePage, StrapiResponse } from './types';
+import type { GlobalLayout, Menu, HomePage, StrapiResponse, HeroAnnouncementItem } from './types';
 
 const STRAPI_API_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL || 'http://localhost:1337';
 
@@ -359,6 +359,88 @@ export async function getHomePage(locale: string = 'en'): Promise<HomePage | nul
       return getHomePage('en');
     }
     return null;
+  }
+}
+
+/**
+ * Fetch all active announcements from Strapi
+ */
+export async function getAllAnnouncements(locale: string = 'en'): Promise<HeroAnnouncementItem[]> {
+  try {
+    const populateFields = ['image'];
+    const populateQuery = buildPopulateQuery(populateFields);
+    
+    // Build query string with locale, populate, and filters
+    // Note: URLSearchParams will convert boolean to string, which Strapi accepts
+    const queryParams = new URLSearchParams();
+    queryParams.append('locale', locale);
+    queryParams.append('filters[isActive][$eq]', 'true');
+    queryParams.append('sort', 'publishedAt:desc');
+    const queryString = queryParams.toString();
+    
+    // Combine query with populate
+    const url = `/api/annoucements?${queryString}&${populateQuery}`;
+    
+    const response = await fetchStrapi<any>(url);
+    
+    if (!response) {
+      // Fallback to English if no data found for current locale
+      if (locale !== 'en') {
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`[Strapi API] No announcements found for locale "${locale}", falling back to "en"`);
+        }
+        return getAllAnnouncements('en');
+      }
+      return [];
+    }
+    
+    let announcements: HeroAnnouncementItem[] = [];
+    
+    // Handle Strapi v4 response format with data wrapper
+    if (response.data) {
+      announcements = Array.isArray(response.data) ? response.data : [response.data];
+    } else if (Array.isArray(response)) {
+      announcements = response;
+    } else if (response.id) {
+      announcements = [response];
+    }
+    
+    // If no announcements found and locale is not 'en', fallback to default locale
+    if (announcements.length === 0 && locale !== 'en') {
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`[Strapi API] No announcements found for locale "${locale}", falling back to "en"`);
+      }
+      return getAllAnnouncements('en');
+    }
+    
+    // Map to HeroAnnouncementItem format
+    return announcements.map((item: any) => {
+      // Handle Strapi v4 response format
+      const attributes = item.attributes || item;
+      return {
+        id: item.id || attributes.id,
+        documentId: item.documentId || attributes.documentId,
+        title: attributes.title || item.title,
+        slug: attributes.slug || item.slug,
+        summary: attributes.summary || item.summary,
+        image: attributes.image || item.image,
+        isActive: attributes.isActive !== undefined ? attributes.isActive : item.isActive,
+        createdAt: attributes.createdAt || item.createdAt,
+        updatedAt: attributes.updatedAt || item.updatedAt,
+        publishedAt: attributes.publishedAt || item.publishedAt,
+        locale: attributes.locale || item.locale || locale,
+      };
+    });
+  } catch (error) {
+    console.error(`Error fetching announcements with locale "${locale}":`, error);
+    // Fallback to English if requested locale fails
+    if (locale !== 'en') {
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`[Strapi API] Error fetching locale "${locale}", falling back to "en" for announcements`);
+      }
+      return getAllAnnouncements('en');
+    }
+    return [];
   }
 }
 

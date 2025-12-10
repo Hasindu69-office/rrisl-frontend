@@ -388,6 +388,30 @@ export default function HomeHeroWithHeader({
           </div>
         </div>
       </div>
+
+      {/* White Curved Cutout at Bottom Right */}
+      <div className="absolute bottom-0 right-0 z-40 pointer-events-none">
+        <svg
+          width="1077"
+          height="151"
+          viewBox="0 0 1077 151"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="block"
+        >
+          <g clipPath="url(#clip0_251_42)">
+            <path
+              d="M0 151.831C5.29879 151.288 10.641 150.204 15.9181 150.312C32.8785 150.681 45.8866 143.631 55.1812 129.834C73.9441 101.98 92.2076 73.8003 111.144 46.0763C115.661 39.4599 119.874 32.5615 124.5 26.0101C136.009 9.67516 154.816 0 174.817 0H1077V154C1071.64 154 1066.01 154 1060.41 154"
+              fill="white"
+            />
+          </g>
+          <defs>
+            <clipPath id="clip0_251_42">
+              <rect width="1077" height="154" fill="white" />
+            </clipPath>
+          </defs>
+        </svg>
+      </div>
     </section>
   );
 }
