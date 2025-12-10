@@ -88,16 +88,18 @@ export default async function Home({ searchParams }: HomeProps) {
       />
       
       {/* Announcement Content Section */}
-      <ContentSection
-        imageSrc="/images/sec1-img 1.png"
-        imageAlt="Rubber Research Institute of Sri Lanka"
-        tagText="Announcement"
-        titlePart1="Advancing Rubber"
-        titlePart2="Research for Sri Lanka's Future"
-        description="Rubber Research Institute of Sri Lanka is the oldest research institute on rubber in the world and is the nodal agency in Sri Lanka with the statutory responsibility for research and development on all aspects of rubber cultivation and processing for the benefit of the rubber industry."
-        buttonText="Read More"
-        buttonLink="#"
-      />
+      <div className="mt-48 md:mt-56">
+        <ContentSection
+          imageSrc="/images/sec1-img 1.png"
+          imageAlt="Rubber Research Institute of Sri Lanka"
+          tagText="Announcement"
+          titlePart1="Advancing Rubber"
+          titlePart2="Research for Sri Lanka's Future"
+          description="Rubber Research Institute of Sri Lanka is the oldest research institute on rubber in the world and is the nodal agency in Sri Lanka with the statutory responsibility for research and development on all aspects of rubber cultivation and processing for the benefit of the rubber industry."
+          buttonText="Read More"
+          buttonLink="#"
+        />
+      </div>
     </div>
   );
 }

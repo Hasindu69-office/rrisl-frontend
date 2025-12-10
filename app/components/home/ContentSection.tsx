@@ -12,13 +12,11 @@ interface ContentSectionProps {
   imageAlt: string;
   
   // Gradient tag props
-  tagText: string;
-  gradientFrom?: string;
-  gradientTo?: string;
+  tagText: string; // Text inside the gradient tag (changeable)
   
   // Title props
   titlePart1: string; // "Advancing Rubber" - dark green
-  titlePart2: string; // "Research for Sri Lanka's Future" - lime green
+  titlePart2: string; // "Research for Sri Lanka's Future" - with gradient
   
   // Content props
   description: string;
@@ -36,8 +34,6 @@ export default function ContentSection({
   imageSrc,
   imageAlt,
   tagText,
-  gradientFrom = '#20C997',
-  gradientTo = '#A1DF0A',
   titlePart1,
   titlePart2,
   description,
@@ -45,48 +41,73 @@ export default function ContentSection({
   buttonLink = '#',
 }: ContentSectionProps) {
   return (
-    <section className="relative bg-white py-16 md:py-24">
-      <div className="container mx-auto px-4 max-w-7xl">
-        <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
-          {/* Left Side - Image */}
-          <div className="flex-shrink-0 w-full lg:w-1/2">
-            <div className="relative w-full aspect-square max-w-lg mx-auto">
-              <Image
-                src={imageSrc}
-                alt={imageAlt}
-                fill
-                className="object-cover rounded-lg"
-                priority
-              />
-            </div>
+    <section className="relative bg-white py-16 md:py-24 overflow-hidden">
+      <div className="flex flex-col lg:flex-row items-center w-full">
+        {/* Left Side - Image (Full Width, extends to left edge) */}
+        <div className="w-full lg:w-1/2 flex justify-center lg:justify-start lg:ml-0">
+          <div 
+            className="relative"
+            style={{
+              width: '854px',
+              height: '854px',
+              maxWidth: '100%',
+              aspectRatio: '1 / 1',
+            }}
+          >
+            <Image
+              src={imageSrc}
+              alt={imageAlt}
+              width={854}
+              height={854}
+              className="object-cover rounded-lg w-full h-full"
+              priority
+            />
           </div>
+        </div>
 
-          {/* Right Side - Content */}
-          <div className="flex-1 w-full lg:w-1/2 flex flex-col gap-6">
-            {/* Gradient Tag */}
+        {/* Right Side - Content (Left-aligned with image) */}
+        <div className="w-full lg:w-1/2 flex flex-col gap-6 px-4 lg:px-0 lg:-ml-8 xl:-ml-12">
+          <div className="w-full">
+            {/* Gradient Tag - Gradient is constant (#20C997 to #A1DF0A), only text changes */}
             <div>
               <GradientTag 
                 text={tagText}
                 className="inline-block"
-                gradientFrom={gradientFrom}
-                gradientTo={gradientTo}
+                gradientFrom="#20C997"
+                gradientTo="#A1DF0A"
               />
             </div>
 
             {/* Title */}
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold leading-tight">
+            <h2 
+              className="mt-6"
+              style={{
+                fontSize: '50px',
+                lineHeight: '130%',
+                fontWeight: 'bold',
+              }}
+            >
               <span className="text-[#0F3F1D]">{titlePart1}</span>
               <br />
-              <span className="text-[#A1DF0A]">{titlePart2}</span>
+              <span className="bg-gradient-to-r from-[#20C997] to-[#A1DF0A] bg-clip-text text-transparent">
+                {titlePart2}
+              </span>
             </h2>
 
             {/* Description */}
-            <p className="text-lg md:text-xl text-gray-700 leading-relaxed max-w-2xl">
+            <p 
+              className="text-gray-700 mt-6 max-w-2xl"
+              style={{
+                fontSize: '18px',
+                fontWeight: 400, // regular
+                lineHeight: '35px',
+              }}
+            >
               {description}
             </p>
 
             {/* Read More Button */}
-            <div className="pt-2">
+            <div className="pt-2 mt-6">
               <Link href={buttonLink}>
                 <Button variant="primary" size="md">
                   {buttonText}

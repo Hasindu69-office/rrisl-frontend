@@ -40,7 +40,7 @@ export default function GradientTag({
           style={{
             color: '#2E7D32',
             fontSize: '20px',
-            fontWeight: 400,
+            fontWeight: 600, // semibold
           }}
         >
           {text}
