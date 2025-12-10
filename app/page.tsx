@@ -2,6 +2,7 @@ import { getHomePage, getGlobalLayout, getMenuBySlug, getAllAnnouncements } from
 import HomeHeroWithHeader from './components/home/HomeHeroWithHeader';
 import AnnouncementCard from './components/home/AnnouncementCard';
 import AnnouncementSlider from './components/home/AnnouncementSlider';
+import ContentSection from './components/home/ContentSection';
 
 interface HomeProps {
   searchParams: Promise<{ locale?: string }>;
@@ -86,20 +87,17 @@ export default async function Home({ searchParams }: HomeProps) {
         announcements={showAnnouncementCard && allAnnouncements && allAnnouncements.length > 0 ? allAnnouncements : []}
       />
       
-      {/* Next Section - Placeholder */}
-      <section className="relative bg-white py-16 md:py-24">
-        <div className="container mx-auto px-4 max-w-7xl">
-          <div className="text-center">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-              Next Section
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              This is a placeholder section to help visualize the layout and test scrolling.
-              You can replace this with your actual content.
-            </p>
-          </div>
-        </div>
-      </section>
+      {/* Announcement Content Section */}
+      <ContentSection
+        imageSrc="/images/sec1-img 1.png"
+        imageAlt="Rubber Research Institute of Sri Lanka"
+        tagText="Announcement"
+        titlePart1="Advancing Rubber"
+        titlePart2="Research for Sri Lanka's Future"
+        description="Rubber Research Institute of Sri Lanka is the oldest research institute on rubber in the world and is the nodal agency in Sri Lanka with the statutory responsibility for research and development on all aspects of rubber cultivation and processing for the benefit of the rubber industry."
+        buttonText="Read More"
+        buttonLink="#"
+      />
     </div>
   );
 }

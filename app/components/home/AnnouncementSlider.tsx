@@ -130,13 +130,39 @@ export default function AnnouncementSlider({ announcements }: AnnouncementSlider
 
   return (
     <div 
-      className="w-full" 
-      style={{ overflow: 'visible' }}
+      className="w-full flex items-center" 
+      style={{ 
+        overflow: 'visible',
+        position: 'relative',
+        gap: '80px' // Gap between title and slider - ADJUST THIS VALUE
+      }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Slider Container - Shows exactly 3 cards */}
-      <div className="relative" style={{ overflow: 'hidden', width: `${(303 + 16) * 3 - 16}px` }}>
+      {/* Left: Title Section */}
+      <div 
+        className="flex flex-col gap-4 flex-shrink-0 items-start" 
+        style={{ 
+          transform: 'translateX(-200px) translateY(89px)', // Move title left and down - ADJUST translateY VALUE (positive = down, negative = up)
+          position: 'relative',
+          zIndex: 10
+        }}
+      >
+        {/* Main Title with Gradient */}
+        <h2 
+          className="font-semibold bg-gradient-to-r from-[#20C997] to-[#A1DF0A] bg-clip-text text-transparent"
+          style={{
+            fontSize: '50px',
+            lineHeight: '130%',
+          }}
+        >
+          Research & Institute<br />
+          Updates
+        </h2>
+      </div>
+
+      {/* Right: Slider Container - Shows exactly 3 cards */}
+      <div className="relative flex-shrink-0" style={{ overflow: 'hidden', width: `${(303 + 16) * 3 - 16}px` }}>
         <div 
           className="flex gap-4 transition-transform duration-500 ease-in-out"
           style={{ 
