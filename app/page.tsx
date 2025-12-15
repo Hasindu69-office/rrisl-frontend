@@ -4,6 +4,7 @@ import ContentSection from './components/home/ContentSection';
 import IndustrySupportSection from './components/home/IndustrySupportSection';
 import ResearchSection from './components/home/ResearchSection';
 import NewsBlogSection from './components/home/NewsBlogSection';
+import ResearchNetworkSection from './components/home/ResearchNetworkSection';
 
 interface HomeProps {
   searchParams: Promise<{ locale?: string }>;
@@ -110,6 +111,11 @@ export default async function Home({ searchParams }: HomeProps) {
 
       {/* News & Blog Section */}
       <NewsBlogSection />
+
+      {/* Research Network Section */}
+      <div className="mt-[150px]">
+        <ResearchNetworkSection />
+      </div>
       
     </div>
   );
