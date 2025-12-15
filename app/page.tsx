@@ -3,6 +3,7 @@ import HomeHeroWithHeader from './components/home/HomeHeroWithHeader';
 import ContentSection from './components/home/ContentSection';
 import IndustrySupportSection from './components/home/IndustrySupportSection';
 import ResearchSection from './components/home/ResearchSection';
+import NewsBlogSection from './components/home/NewsBlogSection';
 
 interface HomeProps {
   searchParams: Promise<{ locale?: string }>;
@@ -101,12 +102,14 @@ export default async function Home({ searchParams }: HomeProps) {
         />
       </div>
 
-      {/* Research Section */}
-      <ResearchSection />
-
       {/* Industry Support Section */}
       <IndustrySupportSection />
 
+      {/* Research Section */}
+      <ResearchSection />
+
+      {/* News & Blog Section */}
+      <NewsBlogSection />
       
     </div>
   );
