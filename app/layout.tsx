@@ -3,6 +3,7 @@ import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import Header from "./components/header/Header";
 import LocaleUpdater from "./components/ui/LocaleUpdater";
+import Footer from "./components/footer/Footer";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta-sans",
@@ -26,7 +27,10 @@ export default function RootLayout({
         className={`${plusJakartaSans.variable} font-sans antialiased`}
       >
         <LocaleUpdater />
-        <main>{children}</main>
+        <div className="flex min-h-screen flex-col">
+          <main className="flex-1">{children}</main>
+          <Footer />
+        </div>
       </body>
     </html>
   );
