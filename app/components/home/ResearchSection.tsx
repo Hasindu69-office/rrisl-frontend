@@ -7,6 +7,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import GradientTag from '@/app/components/ui/GradientTag';
 import Button from '@/app/components/ui/Button';
+import GradientTitle from '@/app/components/ui/GradientTitle';
 
 // Register ScrollTrigger plugin
 if (typeof window !== 'undefined') {
@@ -167,20 +168,17 @@ export default function ResearchSection() {
               </div>
 
               {/* Main Heading */}
-              <h2 
-                className="mb-6"
-                style={{
-                  fontSize: '50px',
-                  lineHeight: '130%',
-                  fontWeight: 'bold',
-                }}
-              >
-                <span className="text-[#0F3F1D]">Your Gateway to</span>
-                <br />
-                <span className="bg-gradient-to-r from-[#20C997] to-[#A1DF0A] bg-clip-text text-transparent">
-                  Research & Innovation
-                </span>
-              </h2>
+              <div className="mb-6">
+                <GradientTitle
+                  part1="Your Gateway to"
+                  part2="Research & Innovation"
+                  part1Color="dark-green"
+                  size="custom"
+                  customSize="50px"
+                  className="font-bold"
+                  style={{ lineHeight: '130%' }}
+                />
+              </div>
 
               {/* Description */}
               <p 

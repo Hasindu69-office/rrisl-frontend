@@ -2,6 +2,7 @@
 
 import React from 'react';
 import GradientTag from '@/app/components/ui/GradientTag';
+import GradientTitle from '@/app/components/ui/GradientTitle';
 
 /**
  * Data Insights Section Component
@@ -33,18 +34,15 @@ export default function DataInsightsSection() {
           </div>
 
           {/* Title */}
-          <h2 
-            className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight"
-            style={{
-              lineHeight: '130%',
-            }}
-          >
-            <span className="text-white">Real-Time Data &</span>
-            <br />
-            <span className="bg-gradient-to-r from-[#20C997] to-[#A1DF0A] bg-clip-text text-transparent">
-              Insights
-            </span>
-          </h2>
+          <GradientTitle
+            part1="Real-Time Data &"
+            part2="Insights"
+            part1Color="white"
+            size="lg"
+            align="center"
+            className="font-bold"
+            style={{ lineHeight: '130%' }}
+          />
         </div>
       </div>
     </section>

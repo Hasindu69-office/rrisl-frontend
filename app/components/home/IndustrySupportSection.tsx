@@ -4,6 +4,7 @@ import React from 'react';
 import Image from 'next/image';
 import GradientTag from '@/app/components/ui/GradientTag';
 import ServiceCard from './ServiceCard';
+import GradientTitle from '@/app/components/ui/GradientTitle';
 
 /**
  * Industry Support Section Component
@@ -42,19 +43,18 @@ export default function IndustrySupportSection() {
           </div>
 
           {/* Title */}
-          <h2 
-            className="text-center mb-16 md:mb-20"
-            style={{
-              fontSize: '50px',
-              lineHeight: '130%',
-              fontWeight: 'bold',
-            }}
-          >
-            <span className="text-white">How We </span>
-            <span className="bg-gradient-to-r from-[#20C997] to-[#A1DF0A] bg-clip-text text-transparent">
-              Support <br /> the Industry
-            </span>
-          </h2>
+          <div className="mb-16 md:mb-20">
+            <GradientTitle
+              part1="How We"
+              part2="Support the Industry"
+              part1Color="white"
+              size="custom"
+              customSize="50px"
+              align="center"
+              className="font-bold"
+              style={{ lineHeight: '130%' }}
+            />
+          </div>
 
           {/* Central Plant Image - Absolutely positioned to center in section */}
           <div 

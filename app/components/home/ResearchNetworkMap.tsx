@@ -4,6 +4,7 @@ import React from 'react';
 import Image from 'next/image';
 import LocationMarker from './LocationMarker';
 import GradientTag from '@/app/components/ui/GradientTag';
+import GradientTitle from '@/app/components/ui/GradientTitle';
 
 interface LocationMarker {
   id: string;
@@ -54,20 +55,18 @@ export default function ResearchNetworkMap({
       </div>
 
       {/* Title */}
-      <h2
-        className="mb-6 text-right"
-        style={{
-          fontSize: '50px',
-          lineHeight: '130%',
-          fontWeight: 'bold',
-        }}
-      >
-        <span className="text-white">{titlePart1}</span>
-        <br />
-        <span className="bg-gradient-to-r from-[#20C997] to-[#A1DF0A] bg-clip-text text-transparent">
-          {titlePart2}
-        </span>
-      </h2>
+      <div className="mb-6">
+        <GradientTitle
+          part1={titlePart1}
+          part2={titlePart2}
+          part1Color="white"
+          size="custom"
+          customSize="50px"
+          align="right"
+          className="font-bold"
+          style={{ lineHeight: '130%' }}
+        />
+      </div>
 
       {/* Map Container */}
       <div className="relative" style={{ width: '635px', height: '725px' }}>

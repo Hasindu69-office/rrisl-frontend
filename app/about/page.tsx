@@ -1,4 +1,5 @@
 import PageHero from '../components/shared/PageHero';
+import GradientTitle from '../components/ui/GradientTitle';
 
 interface AboutProps {
   searchParams: Promise<{ locale?: string }>;
@@ -42,13 +43,13 @@ export default async function About({ searchParams }: AboutProps) {
           <div className="max-w-4xl">
             {/* Title Section */}
             <div className="mb-8 md:mb-12">
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold mb-2">
-                <span className="text-[#0F3F1D]">Driving the Future of</span>
-                <br />
-                <span className="bg-gradient-to-r from-[#20C997] to-[#A1DF0A] bg-clip-text text-transparent">
-                  Sri Lanka's Rubber Industry
-                </span>
-              </h2>
+              <GradientTitle
+                part1="Driving the Future of"
+                part2="Sri Lanka's Rubber Industry"
+                part1Color="dark-green"
+                size="md"
+                className="font-semibold"
+              />
             </div>
 
             {/* Description */}
