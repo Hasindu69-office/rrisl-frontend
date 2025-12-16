@@ -151,7 +151,7 @@ export default function ResearchNetworkSection() {
   };
 
   return (
-    <section className="relative w-full overflow-hidden py-16 md:py-24 bg-white">
+    <section className="relative w-full overflow-hidden py-16 md:py-24 pb-[350px] bg-white">
       {/* Background Image - Behind content with overlay */}
       <div className="absolute inset-0 z-0">
         <Image
@@ -167,7 +167,7 @@ export default function ResearchNetworkSection() {
       </div>
 
       {/* Content Container */}
-      <div className="relative z-10 container mx-auto px-4 md:px-6 lg:px-8" style={{ marginTop: '206px' }}>
+      <div className="relative z-10 container mx-auto px-4 md:px-6 lg:px-8 mb-[200px]" style={{ marginTop: '206px' }}>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
           {/* Left Side - Research Station Card */}
           <div className="w-full">

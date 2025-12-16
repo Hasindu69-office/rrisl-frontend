@@ -3,6 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import GradientTag from '@/app/components/ui/GradientTag';
+import GradientTitle from '@/app/components/ui/GradientTitle';
 import FeaturedArticleCard from './FeaturedArticleCard';
 import SmallArticleCard from './SmallArticleCard';
 
@@ -106,18 +107,15 @@ export default function NewsBlogSection({
           </div>
 
           {/* Title */}
-          <h2 
-            className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight"
-            style={{
-              lineHeight: '130%',
-            }}
-          >
-            <span className="text-[#0F3F1D]">Tips, Stories, and Updates from</span>
-            <br />
-            <span className="bg-gradient-to-r from-[#20C997] to-[#A1DF0A] bg-clip-text text-transparent">
-              Our Research Institute
-            </span>
-          </h2>
+          <GradientTitle
+            part1="Tips, Stories, and Updates from"
+            part2="Our Research Institute"
+            part1Color="dark-green"
+            size="md"
+            align="center"
+            className="font-bold"
+            style={{ lineHeight: '130%' }}
+          />
         </div>
 
         {/* Articles Grid */}

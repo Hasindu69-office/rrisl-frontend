@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import GradientTag from '@/app/components/ui/GradientTag';
 import Button from '@/app/components/ui/Button';
+import GradientTitle from '@/app/components/ui/GradientTitle';
 
 interface ContentSectionProps {
   // Image props
@@ -79,20 +80,17 @@ export default function ContentSection({
             </div>
 
             {/* Title */}
-            <h2 
-              className="mt-6"
-              style={{
-                fontSize: '50px',
-                lineHeight: '130%',
-                fontWeight: 'bold',
-              }}
-            >
-              <span className="text-[#0F3F1D]">{titlePart1}</span>
-              <br />
-              <span className="bg-gradient-to-r from-[#20C997] to-[#A1DF0A] bg-clip-text text-transparent">
-                {titlePart2}
-              </span>
-            </h2>
+            <div className="mt-6">
+              <GradientTitle
+                part1={titlePart1}
+                part2={titlePart2}
+                part1Color="dark-green"
+                size="custom"
+                customSize="50px"
+                className="font-bold"
+                style={{ lineHeight: '130%' }}
+              />
+            </div>
 
             {/* Description */}
             <p 

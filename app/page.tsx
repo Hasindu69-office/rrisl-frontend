@@ -3,6 +3,7 @@ import HomeHeroWithHeader from './components/home/HomeHeroWithHeader';
 import ContentSection from './components/home/ContentSection';
 import IndustrySupportSection from './components/home/IndustrySupportSection';
 import ResearchSection from './components/home/ResearchSection';
+import DataInsightsSection from './components/home/DataInsightsSection';
 import NewsBlogSection from './components/home/NewsBlogSection';
 import ResearchNetworkSection from './components/home/ResearchNetworkSection';
 
@@ -109,8 +110,13 @@ export default async function Home({ searchParams }: HomeProps) {
       {/* Research Section */}
       <ResearchSection />
 
+      {/* Data Insights Section */}
+      <DataInsightsSection />
+
       {/* News & Blog Section */}
-      <NewsBlogSection />
+      <div className="mt-[150px]">
+        <NewsBlogSection />
+      </div>
 
       {/* Research Network Section */}
       <div className="mt-[150px]">
