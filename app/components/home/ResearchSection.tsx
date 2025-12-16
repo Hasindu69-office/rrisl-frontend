@@ -234,7 +234,7 @@ export default function ResearchSection() {
                   <div className="flex flex-col gap-4 items-start">
                     {/* Publications Heading */}
                     <h3 
-                      className="text-gray-700"
+                      className="text-[#0f422c]"
                       style={{
                         fontSize: '20px',
                         lineHeight: '137%',

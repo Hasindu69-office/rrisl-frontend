@@ -78,7 +78,7 @@ export default function IndustrySupportSection() {
 
           {/* Service Cards - Positioned around the plant */}
           {/* Top Left - Research & Innovation (White) */}
-          <div className="absolute left-[10%] top-[35%] z-30">
+          <div className="absolute left-[10%] top-[25%] z-30">
             <ServiceCard
               title="Research & Innovation"
               description="Advancing rubber science through multidisciplinary research."
@@ -87,7 +87,7 @@ export default function IndustrySupportSection() {
           </div>
 
           {/* Middle Left - Training & Development (Green) */}
-          <div className="absolute left-[8%] top-[50%] z-30">
+          <div className="absolute left-[8%] top-[45%] z-30">
             <ServiceCard
               title="Training & Development"
               description="Workshops and programs to boost industry knowledge."
@@ -105,7 +105,7 @@ export default function IndustrySupportSection() {
           </div>
 
           {/* Top Right - Field Advisory Services (Green) */}
-          <div className="absolute right-[10%] top-[35%] z-30">
+          <div className="absolute right-[10%] top-[25%] z-30">
             <ServiceCard
               title="Field Advisory Services"
               description="Providing expert, on-ground support for rubber growers."
@@ -114,7 +114,7 @@ export default function IndustrySupportSection() {
           </div>
 
           {/* Middle Right - Laboratory Services (Green) */}
-          <div className="absolute right-[8%] top-[50%] z-30">
+          <div className="absolute right-[8%] top-[45%] z-30">
             <ServiceCard
               title="Laboratory Services"
               description="Soil testing, plant diagnostics, and quality analysis."

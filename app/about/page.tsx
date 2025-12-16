@@ -53,7 +53,7 @@ export default async function About({ searchParams }: AboutProps) {
             </div>
 
             {/* Description */}
-            <div className="prose prose-lg max-w-none">
+            <div className="prose prose-lg max-w-none mb-96">
               <p className="text-gray-700 text-base md:text-lg leading-relaxed">
                 Rubber Research Institute of Sri Lanka is the oldest research institute on rubber in the world and is the nodal agency in Sri Lanka with the statutory responsibility for research and development on all aspects of rubber cultivation and processing for the benefit of the rubber industry.
               </p>
