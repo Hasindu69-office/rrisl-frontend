@@ -54,6 +54,7 @@ export const footerConfig: FooterConfig = {
     { type: 'facebook', href: '#' },
     { type: 'instagram', href: '#' },
     { type: 'linkedin', href: '#' },
+    { type: 'youtube', href: '#' },
   ],
 };
 

@@ -81,7 +81,7 @@ export default function FooterMain() {
         {/* Vertical socials on large screens */}
         <FooterSocials
           links={socialLinks}
-          className="pointer-events-auto absolute right-6 top-1/2 hidden -translate-y-1/2 lg:flex"
+          className="pointer-events-auto absolute right-16 top-1/4 hidden -translate-y-1/2 lg:flex"
         />
 
         {/* Socials for mobile / tablet */}
