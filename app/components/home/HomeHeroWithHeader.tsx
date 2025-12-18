@@ -83,7 +83,7 @@ export default function HomeHeroWithHeader({
 
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % totalSlides);
-    }, 5000); // Change slide every 5 seconds
+    }, 9000); // Change slide every 5 seconds
 
     return () => clearInterval(interval);
   }, [totalSlides]);
@@ -107,6 +107,15 @@ export default function HomeHeroWithHeader({
   // Get label
   const labelText = hero.labels?.text || '';
   const labelPosition = hero.labels?.position || 'right';
+
+  // Animation state for label section - triggers on each slide change
+  const [animationKey, setAnimationKey] = useState(0);
+
+  // Reset animation when slide changes
+  useEffect(() => {
+    // Increment key to force re-render and restart animations
+    setAnimationKey(prev => prev + 1);
+  }, [currentSlide]);
 
   // CTA
   const cta = hero.primaryCta;
@@ -292,7 +301,7 @@ export default function HomeHeroWithHeader({
               <div className="relative w-full max-w-lg aspect-square" style={{ marginTop: '-100px' }}>
                 {/* Badge Overlay */}
                 {hero.badges && (
-                  <div className="absolute -top-4 -left-12 bg-white/10 backdrop-blur-md rounded-[30px] p-4 border border-white/20 z-20 shadow-lg flex items-center gap-6 w-[318px] h-[105px]">
+                  <div className="absolute -top-4 -left-12 bg-white/10 backdrop-blur-md rounded-[30px] p-4 border border-white/20 z-20 shadow-lg flex items-center gap-6 w-[318px] h-[105px] floating-badge">
                     {/* Avatar Images - Left Side */}
                     <div className="flex items-center -space-x-3">
                       {avatars.slice(0, 2).map((avatar, index) => {
@@ -322,7 +331,7 @@ export default function HomeHeroWithHeader({
                       })}
                       {/* Plus Icon - Dark Green Circle */}
                       <div className="w-12 h-12 rounded-full bg-[#2E7D32] flex items-center justify-center text-white text-xl font-bold shadow-lg relative z-10">
-                        +
+                        + 
                       </div>
                     </div>
                     
@@ -337,53 +346,140 @@ export default function HomeHeroWithHeader({
                 {/* Label Overlay - Bottom Left with L-shaped connecting line to top right marker */}
                 {labelText && (
                   <div className="absolute bottom-12 left-0 z-20">
-                    {/* Label box */}
-                    <div className='absolute bottom-31 right-4 z-10'>
-                      <span className="text-white text-sm font-medium whitespace-nowrap">{labelText}</span>
-                    </div>
-                    
-                    {/* L-shaped connecting line */}
-                    <svg 
-                      className="absolute left-full -top-64 pointer-events-none"
-                      style={{ width: '300px', height: '120px' }}
-                      viewBox="0 -150 200 150"
-                      preserveAspectRatio="none"
-                    >
-                      {/* Horizontal line from label */}
-                      <line 
-                        x1="0" 
-                        y1="0" 
-                        x2="100" 
-                        y2="0" 
-                        stroke="white" 
-                        strokeWidth="2"
-                      />
-                      {/* Vertical line going up */}
-                      <line 
-                        x1="100" 
-                        y1="0" 
-                        x2="100" 
-                        y2="-120" 
-                        stroke="white" 
-                        strokeWidth="1"
-                      />
-                      {/* Horizontal line going right */}
+                    {/* CSS Animations */}
+                    <style jsx>{`
+                      @keyframes circleFadeIn {
+                        0% { opacity: 0; transform: scale(0.5); }
+                        100% { opacity: 1; transform: scale(1); }
+                      }
                       
-                    </svg>
+                      @keyframes ripplePulse {
+                        0% { transform: scale(1); opacity: 0.6; }
+                        50% { transform: scale(1.4); opacity: 0.3; }
+                        100% { transform: scale(1.8); opacity: 0; }
+                      }
+                      
+                      @keyframes drawVerticalLine {
+                        0% { stroke-dashoffset: 120; }
+                        100% { stroke-dashoffset: 0; }
+                      }
+                      
+                      @keyframes drawHorizontalLine {
+                        0% { stroke-dashoffset: 100; }
+                        100% { stroke-dashoffset: 0; }
+                      }
+                      
+                      @keyframes labelFadeIn {
+                        0% { opacity: 0; transform: translateX(-10px); }
+                        100% { opacity: 1; transform: translateX(0); }
+                      }
+                      
+                      .circle-inner {
+                        opacity: 0;
+                      }
+                      
+                      .circle-outer {
+                        opacity: 0;
+                      }
+                      
+                      .circle-ripple {
+                        opacity: 0;
+                      }
+                      
+                      .vertical-line {
+                        stroke-dasharray: 120;
+                        stroke-dashoffset: 120;
+                      }
+                      
+                      .horizontal-line {
+                        stroke-dasharray: 100;
+                        stroke-dashoffset: 100;
+                      }
+                      
+                      .label-text {
+                        opacity: 0;
+                      }
+                      
+                      /* Animated states */
+                      .animate .circle-inner {
+                        animation: circleFadeIn 0.5s ease-out forwards;
+                      }
+                      
+                      .animate .circle-outer {
+                        animation: circleFadeIn 0.5s ease-out forwards;
+                      }
+                      
+                      .animate .circle-ripple {
+                        animation: circleFadeIn 0.3s ease-out 0.3s forwards,
+                                   ripplePulse 1.5s ease-out 0.6s infinite;
+                      }
+                      
+                      .animate .vertical-line {
+                        animation: drawVerticalLine 0.5s ease-out 0.8s forwards;
+                      }
+                      
+                      .animate .horizontal-line {
+                        animation: drawHorizontalLine 0.4s ease-out 1.3s forwards;
+                      }
+                      
+                      .animate .label-text {
+                        animation: labelFadeIn 0.4s ease-out 1.7s forwards;
+                      }
+                    `}</style>
                     
-                    {/* Circular marker at the end of the line (top right) */}
-                    <div 
-                      className="absolute pointer-events-none"
-                      style={{ 
-                        left: '150px', 
-                        top: '-235px',
-                        transform: 'translateY(-50%)'
-                      }}
-                    >
-                      {/* Outer translucent ring */}
-                      <div className="absolute w-16 h-16 rounded-full bg-gray-300/30 border-gray-300/50 -translate-x-1/2 -translate-y-1/2" />
-                      {/* Inner solid circle */}
-                      <div className="absolute w-6 h-6 rounded-full bg-gray-300 -translate-x-1/2 -translate-y-1/2" />
+                    <div key={animationKey} className="animate">
+                      {/* Label box */}
+                      <div className='absolute bottom-31 right-4 z-10'>
+                        <span className="label-text text-white text-sm font-medium whitespace-nowrap">{labelText}</span>
+                      </div>
+                      
+                      {/* L-shaped connecting line */}
+                      <svg 
+                        className="absolute left-full -top-64 pointer-events-none"
+                        style={{ width: '300px', height: '120px' }}
+                        viewBox="0 -150 200 150"
+                        preserveAspectRatio="none"
+                      >
+                        {/* Vertical line going up (draws from top to bottom, visually from circle down) */}
+                        <line 
+                          className="vertical-line"
+                          x1="100" 
+                          y1="-120" 
+                          x2="100" 
+                          y2="0" 
+                          stroke="white" 
+                          strokeWidth="1"
+                        />
+                        {/* Horizontal line from vertical to label (draws from right to left) */}
+                        <line 
+                          className="horizontal-line"
+                          x1="100" 
+                          y1="0" 
+                          x2="0" 
+                          y2="0" 
+                          stroke="white" 
+                          strokeWidth="2"
+                        />
+                      </svg>
+                      
+                      {/* Circular marker at the end of the line (top right) */}
+                      <div 
+                        className="absolute pointer-events-none flex items-center justify-center"
+                        style={{ 
+                          left: '150px', 
+                          top: '-235px',
+                          width: '80px',
+                          height: '80px',
+                          transform: 'translate(-50%, -50%)'
+                        }}
+                      >
+                        {/* Ripple ring (animated pulse) - emanates from center */}
+                        <div className="circle-ripple absolute w-20 h-20 rounded-full bg-gray-300/20" />
+                        {/* Outer translucent ring */}
+                        <div className="circle-outer absolute w-16 h-16 rounded-full bg-gray-300/30" />
+                        {/* Inner solid circle - centered in outer ring */}
+                        <div className="circle-inner absolute w-6 h-6 rounded-full bg-gray-300" />
+                      </div>
                     </div>
                   </div>
                 )}

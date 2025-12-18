@@ -1,4 +1,6 @@
-import React from 'react';
+'use client';
+
+import React, { useEffect, useRef, useState } from 'react';
 import type { FooterSocialLink } from './footerData';
 
 interface FooterSocialsProps {
@@ -39,35 +41,75 @@ const SocialIcon = ({ type }: { type: FooterSocialLink['type'] }) => {
 export default function FooterSocials({ links, className = '' }: FooterSocialsProps) {
   if (!links.length) return null;
 
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [hasEnteredView, setHasEnteredView] = useState(false);
+
+  // Detect when the socials column scrolls into view
+  useEffect(() => {
+    const element = containerRef.current;
+    if (!element) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setHasEnteredView(true);
+            observer.disconnect();
+          }
+        });
+      },
+      {
+        root: null,
+        threshold: 0.2,
+      }
+    );
+
+    observer.observe(element);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
   return (
     <div
+      ref={containerRef}
       className={`flex flex-col items-center gap-3 ${className}`}
       aria-label="Social media links"
     >
-      {links.map((link, index) => (
-        <a
-          key={link.type}
-          href={link.href}
-          target="_blank"
-          rel="noreferrer"
-          aria-label={`Visit our ${link.type} page`}
-          className="group relative flex h-[66px] w-[66px] items-center justify-center transition-opacity hover:opacity-90"
-        >
-          {/* Gradient border using mask */}
-          <div
-            className="absolute inset-0 rounded-full"
+      {links.map((link, index) => {
+        const delay = 0.15 * index; // stagger each icon a bit
+
+        return (
+          <a
+            key={link.type}
+            href={link.href}
+            target="_blank"
+            rel="noreferrer"
+            aria-label={`Visit our ${link.type} page`}
+            className="group relative flex h-[66px] w-[66px] items-center justify-center transition-transform transition-opacity duration-500 hover:opacity-90"
             style={{
-              background: 'linear-gradient(to right, #20C997, #A1DF0A)',
-              maskImage: `radial-gradient(circle, transparent 32px, black 32px, black 33px, transparent 33px)`,
-              WebkitMaskImage: `radial-gradient(circle, transparent 32px, black 32px, black 33px, transparent 33px)`,
+              opacity: hasEnteredView ? 1 : 0,
+              transform: hasEnteredView ? 'translateY(0)' : 'translateY(-40px)',
+              transitionDelay: `${delay}s`,
             }}
-          />
-          {/* Icon on top */}
-          <div className="relative z-10">
-            <SocialIcon type={link.type} />
-          </div>
-        </a>
-      ))}
+          >
+            {/* Gradient border using mask */}
+            <div
+              className="absolute inset-0 rounded-full"
+              style={{
+                background: 'linear-gradient(to right, #20C997, #A1DF0A)',
+                maskImage: `radial-gradient(circle, transparent 32px, black 32px, black 33px, transparent 33px)`,
+                WebkitMaskImage: `radial-gradient(circle, transparent 32px, black 32px, black 33px, transparent 33px)`,
+              }}
+            />
+            {/* Icon on top */}
+            <div className="relative z-10">
+              <SocialIcon type={link.type} />
+            </div>
+          </a>
+        );
+      })}
     </div>
   );
 }

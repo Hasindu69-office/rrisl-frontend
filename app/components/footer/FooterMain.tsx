@@ -38,7 +38,7 @@ export default function FooterMain() {
 
       {/* Content */}
       <div className="relative z-10 px-4 pb-10 pt-[237px] md:px-6 lg:px-8">
-        <div className="mx-auto flex max-w-[1200px] flex-col gap-12">
+        <div className="mx-auto flex max-w-[1440px] flex-col gap-12">
           {/* Logo + institute text */}
           <div className="flex flex-col items-center gap-6 text-center">
             <div className="flex flex-wrap items-center justify-center gap-4 md:gap-8">
@@ -53,8 +53,7 @@ export default function FooterMain() {
           </div>
 
           {/* Columns */}
-          <div className="grid gap-10 md:grid-cols-[minmax(0,0.9fr)_minmax(0,0.9fr)_minmax(0,1.4fr)] md:gap-12" style={{ marginTop: '91px' }}>
-            <FooterLinksColumn title="Quick Links" links={quickLinks} />
+          <div className="grid gap-2 md:gap-2 md:grid-cols-[minmax(0,0.9fr)_minmax(0,0.9fr)_minmax(0,1.4fr)]" style={{ marginTop: '91px' }}>            <FooterLinksColumn title="Quick Links" links={quickLinks} />
             <FooterLinksColumn title="Important links" links={importantLinks} />
             <FooterContact
               addressLines={addressLines}

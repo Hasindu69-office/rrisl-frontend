@@ -34,6 +34,7 @@ export default function ResearchSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const scrollTriggerRef = useRef<ScrollTrigger | null>(null);
   const lastCardIndexRef = useRef(0);
+  const leftContentRef = useRef<HTMLDivElement>(null);
 
   // Define 4 cards with different content
   const cards: ResearchCard[] = [
@@ -134,6 +135,27 @@ export default function ResearchSection() {
     };
   }, [cards.length]);
 
+  // Fade-in animation for left content when section first enters view
+  useEffect(() => {
+    if (!sectionRef.current || !leftContentRef.current) return;
+
+    gsap.fromTo(
+      leftContentRef.current,
+      { opacity: 0, y: 30 },
+      {
+        opacity: 1,
+        y: 0,
+        duration: 1,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top 45%',
+          once: true,
+        },
+      }
+    );
+  }, []);
+
   return (
     <section 
       ref={sectionRef}
@@ -153,8 +175,8 @@ export default function ResearchSection() {
           }}
         >
           <div className="flex flex-col lg:flex-row items-start gap-12 lg:gap-16 relative h-full">
-            {/* Left Side - Content (Sticky) */}
-            <div className="flex-1 flex flex-col z-20">
+            {/* Left Side - Content (Sticky, fades in on scroll) */}
+            <div ref={leftContentRef} className="flex-1 flex flex-col z-20">
               {/* Our Research Tag */}
               <div className="mb-6">
                 <GradientTag 

@@ -109,3 +109,7 @@ export default function NewsCard({ title, newsItems }: NewsCardProps) {
 
 
 
+
+
+
+

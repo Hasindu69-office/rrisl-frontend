@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import GradientTag from '@/app/components/ui/GradientTag';
 import ServiceCard from './ServiceCard';
@@ -11,8 +11,54 @@ import GradientTitle from '@/app/components/ui/GradientTitle';
  * Features a dark background with plant image, "What We Do" tag, and title
  */
 export default function IndustrySupportSection() {
+  const sectionRef = useRef<HTMLDivElement | null>(null);
+  const [hasEnteredView, setHasEnteredView] = useState(false);
+
+  // Detect when the section scrolls into view
+  useEffect(() => {
+    const element = sectionRef.current;
+    if (!element) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setHasEnteredView(true);
+            observer.disconnect();
+          }
+        });
+      },
+      {
+        root: null,
+        threshold: 0.2,
+      }
+    );
+
+    observer.observe(element);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
+  const getCardAnimationStyle = (side: 'left' | 'right', order: number) => {
+    const delay = 0.5 * order;
+    const initialOffset = side === 'left' ? '-40px' : '40px';
+
+    return {
+      opacity: hasEnteredView ? 1 : 0,
+      transform: hasEnteredView ? 'translateX(0)' : `translateX(${initialOffset})`,
+      transition: 'opacity 600ms ease-out, transform 600ms ease-out',
+      transitionDelay: `${delay}s`,
+    } as React.CSSProperties;
+  };
+
   return (
-    <section className="relative w-full overflow-hidden" style={{ height: '1200px' }}>
+    <section
+      ref={sectionRef}
+      className="relative w-full overflow-hidden"
+      style={{ height: '1200px' }}
+    >
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <Image
@@ -78,7 +124,10 @@ export default function IndustrySupportSection() {
 
           {/* Service Cards - Positioned around the plant */}
           {/* Top Left - Research & Innovation (White) */}
-          <div className="absolute left-[10%] top-[25%] z-30">
+          <div
+            className="absolute left-[25%] top-[25%] z-30"
+            style={getCardAnimationStyle('left', 0)}
+          >
             <ServiceCard
               title="Research & Innovation"
               description="Advancing rubber science through multidisciplinary research."
@@ -87,7 +136,10 @@ export default function IndustrySupportSection() {
           </div>
 
           {/* Middle Left - Training & Development (Green) */}
-          <div className="absolute left-[8%] top-[45%] z-30">
+          <div
+            className="absolute left-[20%] top-[50%] z-30"
+            style={getCardAnimationStyle('left', 1)}
+          >
             <ServiceCard
               title="Training & Development"
               description="Workshops and programs to boost industry knowledge."
@@ -96,7 +148,10 @@ export default function IndustrySupportSection() {
           </div>
 
           {/* Bottom Left - Statistics & Market Insights (Green) */}
-          <div className="absolute left-[10%] top-[65%] z-30">
+          <div
+            className="absolute left-[20%] top-[77%] z-30"
+            style={getCardAnimationStyle('left', 2)}
+          >
             <ServiceCard
               title="Statistics & Market Insights"
               description="Trusted rubber production data and industry analysis."
@@ -105,7 +160,10 @@ export default function IndustrySupportSection() {
           </div>
 
           {/* Top Right - Field Advisory Services (Green) */}
-          <div className="absolute right-[10%] top-[25%] z-30">
+          <div
+            className="absolute right-[22%] top-[30%] z-30"
+            style={getCardAnimationStyle('right', 0)}
+          >
             <ServiceCard
               title="Field Advisory Services"
               description="Providing expert, on-ground support for rubber growers."
@@ -114,7 +172,10 @@ export default function IndustrySupportSection() {
           </div>
 
           {/* Middle Right - Laboratory Services (Green) */}
-          <div className="absolute right-[8%] top-[45%] z-30">
+          <div
+            className="absolute right-[18%] top-[58%] z-30"
+            style={getCardAnimationStyle('right', 1)}
+          >
             <ServiceCard
               title="Laboratory Services"
               description="Soil testing, plant diagnostics, and quality analysis."
@@ -123,7 +184,10 @@ export default function IndustrySupportSection() {
           </div>
 
           {/* Bottom Right - Rubber Clone Development (Green) */}
-          <div className="absolute right-[10%] top-[65%] z-30">
+          <div
+            className="absolute right-[30%] top-[75%] z-30"
+            style={getCardAnimationStyle('right', 2)}
+          >
             <ServiceCard
               title="Rubber Clone Development"
               description="High-performing clones for sustainable cultivation."

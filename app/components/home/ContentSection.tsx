@@ -45,12 +45,12 @@ export default function ContentSection({
     <section className="relative bg-white py-16 md:py-24 overflow-hidden">
       <div className="flex flex-col lg:flex-row items-center w-full">
         {/* Left Side - Image (Full Width, extends to left edge) */}
-        <div className="w-full lg:w-1/2 flex justify-center lg:justify-start lg:ml-0">
+        <div className="w-full lg:w-1/2 flex justify-center lg:justify-start lg:ml-8">
           <div 
-            className="relative"
+            className="relative lg:ml-36"
             style={{
-              width: '854px',
-              height: '854px',
+              width: '700px',
+              height: '700px',
               maxWidth: '100%',
               aspectRatio: '1 / 1',
             }}
