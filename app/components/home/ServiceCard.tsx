@@ -56,13 +56,14 @@ export default function ServiceCard({
         <path
           d="M30 0.5H211.5C227.792 0.5 241 13.7076 241 30V47.3145C241 63.2115 253.211 76.4423 269.057 77.7158L297.46 79.998L297.479 80H297.5C310.203 80 320.5 90.2975 320.5 103V137C320.5 153.292 307.292 166.5 291 166.5H30C13.7076 166.5 0.5 153.292 0.5 137V30L0.509766 29.2383C0.913784 13.2979 13.9623 0.5 30 0.5Z"
           fill={isHovered ? '#FFFFFF' : 'url(#serviceCardBackgroundGradient)'}
+          className="transition-all duration-500 ease-in-out"
         />
       </svg>
 
       {/* Text Content - constrained to left-side container area */}
       <div className="absolute inset-y-0 left-0 flex items-center pl-8 pr-20 z-0">
         <div className="max-w-[190px]">
-          <h2 className={`${textColor} group-hover:text-[#2E7D32] text-md font-semibold leading-tight`}>
+          <h2 className={`${textColor} group-hover:text-[#2E7D32] text-md font-semibold leading-tight transition-colors duration-500 ease-in-out`}>
             {title.split('\n').map((line, index) => (
               <React.Fragment key={index}>
                 {line}
@@ -71,7 +72,7 @@ export default function ServiceCard({
             ))}
           </h2>
           {description && (
-            <p className={`${textColor} group-hover:text-black text-sm mt-2 opacity-90`}>
+            <p className={`${textColor} group-hover:text-black text-sm mt-2 opacity-90 transition-colors duration-500 ease-in-out`}>
               {description}
             </p>
           )}
@@ -80,7 +81,7 @@ export default function ServiceCard({
 
       {/* Top-right circle with arrow */}
       <div
-        className={`absolute top-2 right-2 w-16 h-16 rounded-full flex items-center justify-center shadow-md bg-white group-hover:bg-[#A1DF0A]`}
+        className={`absolute top-2 right-2 w-16 h-16 rounded-full flex items-center justify-center shadow-md bg-white group-hover:bg-[#A1DF0A] transition-colors duration-500 ease-in-out`}
       >
         <svg
           width="19"

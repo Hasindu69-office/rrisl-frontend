@@ -143,7 +143,7 @@ export default function AnnouncementSlider({ announcements }: AnnouncementSlider
       <div 
         className="flex flex-col gap-4 flex-shrink-0 items-start" 
         style={{ 
-          transform: 'translateX(-200px) translateY(89px)', // Move title left and down - ADJUST translateY VALUE (positive = down, negative = up)
+          transform: 'translateX(-200px) translateY(100px)', // Move title left and down - ADJUST translateY VALUE (positive = down, negative = up)
           position: 'relative',
           zIndex: 10
         }}

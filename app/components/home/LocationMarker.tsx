@@ -63,33 +63,36 @@ export default function LocationMarker({
           transform: `scale(${scale})`,
         }}
       >
-        {/* Outer Glow Effect on Hover/Active */}
-        {(isHovered || isActive) && (
-          <div
-            className="absolute inset-0 rounded-full bg-[#A1DF0A] opacity-50 blur-md"
-            style={{
-              transform: 'scale(1.5)',
-            }}
-          />
-        )}
-
-        {/* Main Pin Circle */}
+        {/* Main Pin Circle + Ripple (mirrors hero banner ripple style) */}
         <div
-          className="relative rounded-full bg-[#A1DF0A] flex items-center justify-center"
-          style={{
-            width: '24px',
-            height: '24px',
-            boxShadow: isHovered || isActive ? '0 0 20px rgba(161, 223, 10, 0.8)' : 'none',
-          }}
+          className={`relative flex items-center justify-center ${
+            isHovered || isActive ? 'animate' : ''
+          }`}
         >
-          {/* Inner Dot */}
+          {/* Ripple ring */}
+          <div className="circle-ripple absolute w-10 h-10 rounded-full bg-[#A1DF0A]/15" />
+
+          {/* Outer translucent ring */}
+          <div className="circle-outer absolute w-8 h-8 rounded-full bg-[#A1DF0A]/30" />
+
+          {/* Main Pin Circle */}
           <div
-            className="rounded-full bg-white"
+            className="circle-inner relative rounded-full bg-[#A1DF0A] flex items-center justify-center"
             style={{
-              width: '10px',
-              height: '10px',
+              width: '24px',
+              height: '24px',
+              boxShadow: isHovered || isActive ? '0 0 20px rgba(161, 223, 10, 0.8)' : 'none',
             }}
-          />
+          >
+            {/* Inner Dot */}
+            <div
+              className="rounded-full bg-white"
+              style={{
+                width: '10px',
+                height: '10px',
+              }}
+            />
+          </div>
         </div>
       </div>
 
@@ -123,9 +126,61 @@ export default function LocationMarker({
           />
         </div>
       )}
+
+      <style jsx>{`
+        @keyframes circleFadeIn {
+          0% {
+            opacity: 0;
+            transform: scale(0.5);
+          }
+          100% {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+
+        @keyframes ripplePulse {
+          0% {
+            transform: scale(1);
+            opacity: 0.6;
+          }
+          50% {
+            transform: scale(1.4);
+            opacity: 0.3;
+          }
+          100% {
+            transform: scale(1.8);
+            opacity: 0;
+          }
+        }
+
+        /* Base visibility: inner pin always visible, outer/ripple only when animated */
+        .circle-inner {
+          opacity: 1;
+        }
+
+        .circle-outer,
+        .circle-ripple {
+          opacity: 0;
+        }
+
+        .animate .circle-outer {
+          animation: circleFadeIn 0.5s ease-out forwards;
+        }
+
+        .animate .circle-ripple {
+          animation:
+            circleFadeIn 0.3s ease-out 0.3s forwards,
+            ripplePulse 1.5s ease-out 0.6s infinite;
+        }
+      `}</style>
     </div>
   );
 }
+
+
+
+
 
 
 

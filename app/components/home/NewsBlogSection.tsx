@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import GradientTag from '@/app/components/ui/GradientTag';
 import GradientTitle from '@/app/components/ui/GradientTitle';
@@ -72,8 +72,41 @@ export default function NewsBlogSection({
   const featured = featuredArticle || defaultFeaturedArticle;
   const articles = smallArticles.length > 0 ? smallArticles : defaultSmallArticles;
 
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const [hasEnteredView, setHasEnteredView] = useState(false);
+
+  // Detect when the section scrolls into view
+  useEffect(() => {
+    const element = sectionRef.current;
+    if (!element) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setHasEnteredView(true);
+            observer.disconnect();
+          }
+        });
+      },
+      {
+        root: null,
+        threshold: 0.2,
+      }
+    );
+
+    observer.observe(element);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
   return (
-    <section className="relative pb-16 md:pb-24 overflow-hidden">
+    <section
+      ref={sectionRef}
+      className="relative pb-16 md:pb-24 overflow-hidden"
+    >
       {/* Background Image - Centered with 48px margins and 100px radius */}
       <div 
         className="absolute inset-y-0"
@@ -121,7 +154,14 @@ export default function NewsBlogSection({
         {/* Articles Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
           {/* Featured Article - Left Column */}
-          <div>
+          <div
+            style={{
+              opacity: hasEnteredView ? 1 : 0,
+              transform: hasEnteredView ? 'translateY(0)' : 'translateY(20px)',
+              transition: 'opacity 600ms ease-out, transform 600ms ease-out',
+              transitionDelay: '0.1s',
+            }}
+          >
             <FeaturedArticleCard
               imageSrc={featured.imageSrc}
               imageAlt={featured.imageAlt}
@@ -134,17 +174,26 @@ export default function NewsBlogSection({
           </div>
 
           {/* Small Articles - Right Column */}
-          <div className="space-y-6">
+          <div className="space-y-8 mt-1">
             {articles.map((article, index) => (
-              <SmallArticleCard
+              <div
                 key={index}
-                imageSrc={article.imageSrc}
-                imageAlt={article.imageAlt}
-                title={article.title}
-                author={article.author}
-                date={article.date}
-                link={article.link}
-              />
+                style={{
+                  opacity: hasEnteredView ? 1 : 0,
+                  transform: hasEnteredView ? 'translateY(0)' : 'translateY(-25px)',
+                  transition: 'opacity 600ms ease-out, transform 600ms ease-out',
+                  transitionDelay: hasEnteredView ? `${0.4 + index * 0.2}s` : '0s',
+                }}
+              >
+                <SmallArticleCard
+                  imageSrc={article.imageSrc}
+                  imageAlt={article.imageAlt}
+                  title={article.title}
+                  author={article.author}
+                  date={article.date}
+                  link={article.link}
+                />
+              </div>
             ))}
           </div>
         </div>

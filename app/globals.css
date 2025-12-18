@@ -61,3 +61,20 @@ html {
     opacity: 1;
   }
 }
+
+/* Floating badge animation for hero overlay */
+@keyframes badgeFloat {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.floating-badge {
+  animation: badgeFloat 4s ease-in-out infinite;
+}
