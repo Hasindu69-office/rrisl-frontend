@@ -73,9 +73,22 @@ export default function HomeHeroWithHeader({
     ? [hero.backgroundImageMobile]
     : [];
 
-  // Slider state
+  // Check if mobile images are valid (can produce URLs)
+  const hasValidMobileImages = mobileBgImages.length > 0 && 
+    mobileBgImages.some(img => {
+      const url = getOptimizedImageUrl(img, 'small') || getStrapiImageUrl(img);
+      return url !== null;
+    });
+
+  // Use desktop images as fallback for mobile if mobile images are not available or invalid
+  const effectiveMobileImages = hasValidMobileImages ? mobileBgImages : desktopBgImages;
+
+  // Slider state - ensure we have slides if desktop images exist
   const [currentSlide, setCurrentSlide] = useState(0);
-  const totalSlides = Math.max(desktopBgImages.length, mobileBgImages.length);
+  // Use the maximum of desktop and effective mobile images, but prioritize desktop if it exists
+  const totalSlides = desktopBgImages.length > 0 
+    ? Math.max(desktopBgImages.length, effectiveMobileImages.length)
+    : effectiveMobileImages.length;
 
   // Auto-play slider
   useEffect(() => {
@@ -90,7 +103,7 @@ export default function HomeHeroWithHeader({
 
   // Get current slide images
   const currentDesktopImage = desktopBgImages[currentSlide] || null;
-  const currentMobileImage = mobileBgImages[currentSlide] || null;
+  const currentMobileImage = effectiveMobileImages[currentSlide] || null;
 
   const desktopBgUrl = currentDesktopImage
     ? getOptimizedImageUrl(currentDesktopImage, 'large') || getStrapiImageUrl(currentDesktopImage)
@@ -133,7 +146,7 @@ export default function HomeHeroWithHeader({
       {totalSlides > 0 && (
         <div className="absolute top-0 left-0 w-full h-full z-0">
           {/* Desktop Slider */}
-          <div className="hidden md:block absolute top-0 left-0 w-full h-full">
+          <div className="hidden lg:block absolute top-0 left-0 w-full h-full">
             {desktopBgImages.map((image, index) => {
               const imageUrl = getOptimizedImageUrl(image, 'large') || getStrapiImageUrl(image);
               if (!imageUrl) return null;
@@ -160,10 +173,39 @@ export default function HomeHeroWithHeader({
             })}
           </div>
 
-          {/* Mobile Slider */}
-          <div className="block md:hidden absolute top-0 left-0 w-full h-full">
-            {mobileBgImages.map((image, index) => {
-              const imageUrl = getOptimizedImageUrl(image, 'small') || getStrapiImageUrl(image);
+          {/* Tablet Slider - Extended to cover content but still smaller than desktop */}
+          <div className="hidden md:block lg:hidden absolute top-0 left-0 w-full z-0" style={{ height: '85%', minHeight: '600px' }}>
+            {desktopBgImages.map((image, index) => {
+              const imageUrl = getOptimizedImageUrl(image, 'large') || getStrapiImageUrl(image);
+              if (!imageUrl) return null;
+              
+              return (
+                <div
+                  key={index}
+                  className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+                    index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'
+                  }`}
+                >
+                  <Image
+                    src={imageUrl}
+                    alt={`Hero Background ${index + 1}`}
+                    fill
+                    className="object-cover object-top"
+                    priority={index === 0}
+                    unoptimized={imageUrl.includes('localhost')}
+                  />
+                  {/* Dark overlay for better text readability */}
+                  <div className="absolute inset-0 bg-black/40" />
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Mobile Slider - Extended to cover content but still smaller than desktop */}
+          <div className="block md:hidden absolute top-0 left-0 w-full z-0" style={{ height: '80%', minHeight: '500px' }}>
+            {effectiveMobileImages.map((image, index) => {
+              // Use 'small' optimization for mobile, but if using desktop images as fallback, use 'large' for better quality
+              const imageUrl = getOptimizedImageUrl(image, hasValidMobileImages ? 'small' : 'large') || getStrapiImageUrl(image);
               if (!imageUrl) return null;
               
               return (
@@ -233,13 +275,61 @@ export default function HomeHeroWithHeader({
       </div>
 
       {/* Hero Content Section */}
-      <div className="flex-1 flex items-start relative z-10" style={{ marginTop: '120px' }}>
-        <div className="container mx-auto px-4 pt-4 md:pt-6 pb-8 md:pb-12 w-[1440px]">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+      <div className="flex-1 flex items-start relative z-10 mt-16 md:mt-24 lg:mt-[120px]">
+        <div className="container mx-auto px-4 pt-4 md:pt-6 pb-8 md:pb-12 w-full max-w-[1440px]">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 lg:gap-12 items-center">
             {/* Left Content */}
-            <div className="text-white space-y-6 z-10">
+            <div className="text-white space-y-4 md:space-y-6 z-10 relative">
+              {/* Badge Overlay - Mobile/Tablet: Positioned on right side of left content */}
+              {hero.badges && (
+                <div className="lg:hidden absolute bottom-12 right-0 md:top-0 md:bottom-auto md:right-12 bg-white/10 backdrop-blur-md rounded-[20px] md:rounded-[25px] p-3 md:p-3.5 border border-white/20 z-20 shadow-lg floating-badge
+                  flex flex-col items-center gap-2 md:gap-3
+                  w-[calc(100%-1rem)] md:w-[150px] 
+                  max-w-[calc(40%-1rem)] md:max-w-[280px]
+                  h-auto min-h-[60px] md:min-h-[60px]">
+                  {/* Avatar Images - Top */}
+                  <div className="flex items-center justify-center -space-x-2 md:-space-x-3">
+                    {avatars.slice(0, 2).map((avatar, index) => {
+                      const avatarUrl = getOptimizedImageUrl(avatar, 'thumbnail') || getStrapiImageUrl(avatar);
+                      return avatarUrl ? (
+                        <div
+                          key={avatar.id || index}
+                          className="w-10 h-10 md:w-11 md:h-11 rounded-full overflow-hidden shadow-lg relative"
+                          style={{ zIndex: index + 1 }}
+                        >
+                          <Image
+                            src={avatarUrl}
+                            alt={`Avatar ${index + 1}`}
+                            width={48}
+                            height={48}
+                            className="object-cover w-full h-full"
+                            unoptimized={isLocalhost}
+                          />
+                          {/* Star badge on first avatar */}
+                          {index === 0 && (
+                            <div className="absolute -bottom-0.5 -right-0.5 md:-bottom-1 md:-right-1 w-4 h-4 md:w-5 md:h-5 bg-orange-500 rounded-full border-2 border-white flex items-center justify-center z-20">
+                              <span className="text-white text-[8px] md:text-[10px]">★</span>
+                            </div>
+                          )}
+                        </div>
+                      ) : null;
+                    })}
+                    {/* Plus Icon - Dark Green Circle */}
+                    <div className="w-10 h-10 md:w-11 md:h-11 rounded-full bg-[#2E7D32] flex items-center justify-center text-white text-lg md:text-xl font-bold shadow-lg relative z-10">
+                      + 
+                    </div>
+                  </div>
+                  
+                  {/* Text - Bottom */}
+                  <div className="text-white text-center w-full">
+                    <div className="text-[12px] md:text-[14px] font-normal text-[#FFFFFF] leading-tight">{badgeTitle}</div>
+                    <div className="text-[12px] md:text-[14px] font-normal text-[#FFFFFF] leading-tight">{badgeSubtitle}</div>
+                  </div>
+                </div>
+              )}
+
               {/* Title */}
-              <h1 className="text-[40px] md:text-[56px] lg:text-[60px] font-semibold text-white" style={{ lineHeight: '128%' }}>
+              <h1 className="text-[28px] md:text-[40px] lg:text-[60px] font-semibold text-white" style={{ lineHeight: '128%' }}>
                 {/* First Line - White */}
                 <div className="block">
                   {hero.title}
@@ -253,20 +343,20 @@ export default function HomeHeroWithHeader({
 
               {/* Description */}
               {descriptionText && (
-                <p className="text-[18px] font-normal text-[#FFFFFF] max-w-2xl" style={{ lineHeight: '35px' }}>
+                <p className="text-[14px] md:text-[16px] lg:text-[18px] font-normal text-[#FFFFFF] max-w-2xl" style={{ lineHeight: '1.5' }}>
                   {descriptionText}
                 </p>
               )}
 
               {/* CTA Button */}
               {cta && (
-                <div className="pt-4">
+                <div className="pt-2 md:pt-4">
                   {cta.linkType === 'internal' ? (
                     <Link href={getLocalizedUrl(cta.url)}>
                       <Button
                         variant="primary"
                         size="sm"
-                        className="!w-[178px] !h-[56px] !rounded-[30px] !bg-[#2E7D32] hover:!bg-[#2E7D32]/90"
+                        className="!w-[150px] !h-[48px] md:!w-[178px] md:!h-[56px] !rounded-[30px] !bg-[#2E7D32] hover:!bg-[#2E7D32]/90 !text-sm md:!text-base"
                       >
                         {cta.label}
                       </Button>
@@ -280,7 +370,7 @@ export default function HomeHeroWithHeader({
                       <Button
                         variant="primary"
                         size="sm"
-                        className="!w-[178px] !h-[56px] !rounded-[30px] !bg-[#2E7D32] hover:!bg-[#2E7D32]/90"
+                        className="!w-[150px] !h-[48px] md:!w-[178px] md:!h-[56px] !rounded-[30px] !bg-[#2E7D32] hover:!bg-[#2E7D32]/90 !text-sm md:!text-base"
                       >
                         {cta.label}
                       </Button>
@@ -290,7 +380,7 @@ export default function HomeHeroWithHeader({
               )}
 
               {/* Statistics Section */}
-              <div className="pt-[86px]">
+              <div className="pt-8 md:pt-12 lg:pt-[86px]">
                 <HeroStatistics />
               </div>
             </div>
@@ -299,9 +389,9 @@ export default function HomeHeroWithHeader({
             <div className="relative flex items-start justify-center lg:justify-end min-h-[400px] lg:min-h-[600px]">
               {/* Container for overlays */}
               <div className="relative w-full max-w-lg aspect-square" style={{ marginTop: '-100px' }}>
-                {/* Badge Overlay */}
+                {/* Badge Overlay - Desktop: Keep original position */}
                 {hero.badges && (
-                  <div className="absolute -top-4 -left-12 bg-white/10 backdrop-blur-md rounded-[30px] p-4 border border-white/20 z-20 shadow-lg flex items-center gap-6 w-[318px] h-[105px] floating-badge">
+                  <div className="hidden lg:flex absolute -top-4 -left-12 bg-white/10 backdrop-blur-md rounded-[30px] p-4 border border-white/20 z-20 shadow-lg items-center gap-6 w-[318px] h-[105px] floating-badge">
                     {/* Avatar Images - Left Side */}
                     <div className="flex items-center -space-x-3">
                       {avatars.slice(0, 2).map((avatar, index) => {

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
+import { Suspense } from "react";
 import "./globals.css";
 import Header from "./components/header/Header";
 import LocaleUpdater from "./components/ui/LocaleUpdater";
@@ -22,11 +23,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${plusJakartaSans.variable} font-sans antialiased`}
+        suppressHydrationWarning
       >
-        <LocaleUpdater />
+        <Suspense fallback={null}>
+          <LocaleUpdater />
+        </Suspense>
         <div className="flex min-h-screen flex-col">
           <main className="flex-1">{children}</main>
           <Footer />

@@ -152,7 +152,7 @@ export default function NewsBlogSection({
         </div>
 
         {/* Articles Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+        <div className="pl-10 grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
           {/* Featured Article - Left Column */}
           <div
             style={{

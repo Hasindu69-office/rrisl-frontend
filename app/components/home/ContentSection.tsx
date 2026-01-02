@@ -47,7 +47,7 @@ export default function ContentSection({
         {/* Left Side - Image (Full Width, extends to left edge) */}
         <div className="w-full lg:w-1/2 flex justify-center lg:justify-start lg:ml-8">
           <div 
-            className="relative lg:ml-36"
+            className="relative lg:ml-18"
             style={{
               width: '700px',
               height: '700px',
