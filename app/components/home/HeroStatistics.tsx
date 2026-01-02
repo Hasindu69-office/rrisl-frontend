@@ -25,7 +25,7 @@ export default function HeroStatistics({ statistics = defaultStatistics }: HeroS
         <div key={index} className="flex flex-col items-start">
           {/* Percentage Text */}
           <div 
-            className="text-white font-bold text-[40px] md:text-[55px] lg:text-[70px]"
+            className="text-white font-bold text-[28px] md:text-[40px] lg:text-[70px]"
             style={{ 
               lineHeight: '128%'
             }}
@@ -35,7 +35,7 @@ export default function HeroStatistics({ statistics = defaultStatistics }: HeroS
           
           {/* Label Text */}
           <div 
-            className="text-white text-[14px] md:text-[20px] lg:text-[25px]"
+            className="text-white text-[12px] md:text-[16px] lg:text-[25px]"
             style={{ 
               lineHeight: '120%'
             }}

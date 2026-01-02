@@ -130,6 +130,24 @@ export default function HomeHeroWithHeader({
     setAnimationKey(prev => prev + 1);
   }, [currentSlide]);
 
+  // Detect mobile and tablet view for responsive adjustments
+  const [isMobile, setIsMobile] = useState(false);
+  const [isTablet, setIsTablet] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(0);
+
+  useEffect(() => {
+    const checkScreenSize = () => {
+      const width = window.innerWidth;
+      setWindowWidth(width);
+      setIsMobile(width < 640); // sm breakpoint in Tailwind
+      setIsTablet(width >= 640 && width < 1024); // sm to lg breakpoint
+    };
+    
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
+
   // CTA
   const cta = hero.primaryCta;
   // Check for localhost in URLs
@@ -141,10 +159,10 @@ export default function HomeHeroWithHeader({
   };
 
   return (
-    <section className="relative min-h-screen flex flex-col">
+    <section className="relative md:min-h-screen flex flex-col">
       {/* Background Image Slider - Cover navigation bar and hero content area */}
       {totalSlides > 0 && (
-        <div className="absolute top-0 left-0 w-full h-full z-0">
+        <div className="absolute top-0 left-0 w-full h-[75%] lg:w-full lg:h-full z-0">
           {/* Desktop Slider */}
           <div className="hidden lg:block absolute top-0 left-0 w-full h-full">
             {desktopBgImages.map((image, index) => {
@@ -275,7 +293,7 @@ export default function HomeHeroWithHeader({
       </div>
 
       {/* Hero Content Section */}
-      <div className="flex-1 flex items-start relative z-10 mt-16 md:mt-24 lg:mt-[120px]">
+      <div className="flex-1 flex items-start relative z-10 mt-6 md:mt-8 lg:mt-[120px]">
         <div className="container mx-auto px-4 pt-4 md:pt-6 pb-8 md:pb-12 w-full max-w-[1440px]">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 lg:gap-12 items-center">
             {/* Left Content */}
@@ -386,7 +404,7 @@ export default function HomeHeroWithHeader({
             </div>
 
             {/* Right Visual Area */}
-            <div className="relative flex items-start justify-center lg:justify-end min-h-[400px] lg:min-h-[600px]">
+            <div className="relative flex items-start justify-center lg:justify-end h-auto lg:min-h-[600px]">
               {/* Container for overlays */}
               <div className="relative w-full max-w-lg aspect-square" style={{ marginTop: '-100px' }}>
                 {/* Badge Overlay - Desktop: Keep original position */}
@@ -435,7 +453,7 @@ export default function HomeHeroWithHeader({
 
                 {/* Label Overlay - Bottom Left with L-shaped connecting line to top right marker */}
                 {labelText && (
-                  <div className="absolute bottom-12 left-0 z-20">
+                  <div className="hidden md:block absolute bottom-12 left-38 sm:bottom-8 sm:left-8 md:bottom-110 md:left-100 lg:bottom-12 lg:left-0 z-20">
                     {/* CSS Animations */}
                     <style jsx>{`
                       @keyframes circleFadeIn {
@@ -519,13 +537,13 @@ export default function HomeHeroWithHeader({
                     
                     <div key={animationKey} className="animate">
                       {/* Label box */}
-                      <div className='absolute bottom-31 right-4 z-10'>
+                      <div className={`absolute right-4 z-10 ${isMobile ? 'bottom-48' : 'bottom-31'}`}>
                         <span className="label-text text-white text-sm font-medium whitespace-nowrap">{labelText}</span>
                       </div>
                       
                       {/* L-shaped connecting line */}
                       <svg 
-                        className="absolute left-full -top-64 pointer-events-none"
+                        className={`absolute left-full pointer-events-none ${isMobile ? '-top-80' : '-top-64'}`}
                         style={{ width: '300px', height: '120px' }}
                         viewBox="0 -150 200 150"
                         preserveAspectRatio="none"
@@ -534,7 +552,7 @@ export default function HomeHeroWithHeader({
                         <line 
                           className="vertical-line"
                           x1="100" 
-                          y1="-120" 
+                          y1={isMobile ? "-40" : "-120"} 
                           x2="100" 
                           y2="0" 
                           stroke="white" 
@@ -579,6 +597,40 @@ export default function HomeHeroWithHeader({
         </div>
       </div>
 
+      
+
+      {/* White Curved Cutout at Bottom Right */}
+      <div className="absolute z-20 pointer-events-none
+        bottom-[30%] right-0 
+        md:bottom-[32%] md:right-0
+        lg:bottom-0 lg:right-0 lg:translate-y-0 lg:-right-10
+        w-[300px] 
+        md:w-[500px] 
+        lg:w-[1077px]
+        lg:h-[151px]">
+        <svg
+          width="100%"
+          height="80"
+          className="md:h-[120px] lg:h-[151px]"
+          viewBox="0 0 1077 151"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          preserveAspectRatio="xMinYMin meet"
+        >
+          <g clipPath="url(#clip0_251_42)">
+            <path
+              d="M0 151.831C5.29879 151.288 10.641 150.204 15.9181 150.312C32.8785 150.681 45.8866 143.631 55.1812 129.834C73.9441 101.98 92.2076 73.8003 111.144 46.0763C115.661 39.4599 119.874 32.5615 124.5 26.0101C136.009 9.67516 154.816 0 174.817 0H1077V154C1071.64 154 1066.01 154 1060.41 154"
+              fill="white"
+            />
+          </g>
+          <defs>
+            <clipPath id="clip0_251_42">
+              <rect width="1077" height="184" fill="white" />
+            </clipPath>
+          </defs>
+        </svg>
+      </div>
+
       {/* Announcement Slider Section - Bottom Right Above White Curved Cutout */}
       {announcements && announcements.length > 0 && (
         <div className="absolute -bottom-54 -right-20 z-30 pointer-events-auto pr-8" style={{ overflow: 'visible' }}>
@@ -589,30 +641,6 @@ export default function HomeHeroWithHeader({
           </div>
         </div>
       )}
-
-      {/* White Curved Cutout at Bottom Right */}
-      <div className="absolute bottom-0 right-0 z-20 pointer-events-none">
-        <svg
-          width="1077"
-          height="151"
-          viewBox="0 0 1077 151"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="block"
-        >
-          <g clipPath="url(#clip0_251_42)">
-            <path
-              d="M0 151.831C5.29879 151.288 10.641 150.204 15.9181 150.312C32.8785 150.681 45.8866 143.631 55.1812 129.834C73.9441 101.98 92.2076 73.8003 111.144 46.0763C115.661 39.4599 119.874 32.5615 124.5 26.0101C136.009 9.67516 154.816 0 174.817 0H1077V154C1071.64 154 1066.01 154 1060.41 154"
-              fill="white"
-            />
-          </g>
-          <defs>
-            <clipPath id="clip0_251_42">
-              <rect width="1077" height="154" fill="white" />
-            </clipPath>
-          </defs>
-        </svg>
-      </div>
     </section>
   );
 }
