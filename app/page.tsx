@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { getHomePage, getGlobalLayout, getMenuBySlug, getAllAnnouncements } from '@/app/lib/strapi';
 import HomeHeroWithHeader from './components/home/HomeHeroWithHeader';
 import ContentSection from './components/home/ContentSection';
@@ -82,16 +83,25 @@ export default async function Home({ searchParams }: HomeProps) {
   return (
     <div className="min-h-screen">
       {/* Combined Header and Hero Section */}
-      <HomeHeroWithHeader
-        hero={hero}
-        globalLayout={globalLayout}
-        leftMenuItems={leftMenuItems}
-        rightMenuItems={rightMenuItems}
-        announcements={showAnnouncementCard && allAnnouncements && allAnnouncements.length > 0 ? allAnnouncements : []}
-      />
+      <Suspense fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading...</p>
+          </div>
+        </div>
+      }>
+        <HomeHeroWithHeader
+          hero={hero}
+          globalLayout={globalLayout}
+          leftMenuItems={leftMenuItems}
+          rightMenuItems={rightMenuItems}
+          announcements={showAnnouncementCard && allAnnouncements && allAnnouncements.length > 0 ? allAnnouncements : []}
+        />
+      </Suspense>
 
       {/* Announcement Content Section */}
-      <div className="mt-48 md:mt-56">
+      <div className="mt-2 md:mt-6 lg:mt-56">
         <ContentSection
           imageSrc="/images/sec1-img 1.png"
           imageAlt="Rubber Research Institute of Sri Lanka"
