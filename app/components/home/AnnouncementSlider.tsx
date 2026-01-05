@@ -63,6 +63,19 @@ export default function AnnouncementSlider({ announcements }: AnnouncementSlider
   const currentLocale = searchParams.get('locale') || 'en';
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(0);
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Detect screen size for responsive calculations - only after mount to prevent hydration errors
+  useEffect(() => {
+    setIsMounted(true);
+    const updateWidth = () => {
+      setWindowWidth(window.innerWidth);
+    };
+    updateWidth();
+    window.addEventListener('resize', updateWidth);
+    return () => window.removeEventListener('resize', updateWidth);
+  }, []);
 
   // Helper to preserve locale in links
   const getLocalizedUrl = (slug: string) => {
@@ -128,31 +141,79 @@ export default function AnnouncementSlider({ announcements }: AnnouncementSlider
   // This prevents the slider from going off-screen while maintaining smooth transitions
   const transformIndex = currentIndex % displayAnnouncements.length;
 
+  // Calculate responsive values based on screen size
+  // Use default desktop values during SSR to prevent hydration mismatch
+  const isMobile = isMounted && windowWidth > 0 && windowWidth < 640;
+  const isTablet = isMounted && windowWidth >= 640 && windowWidth < 1024;
+  const isDesktop = !isMounted || windowWidth >= 1024;
+
+  // Card dimensions
+  const baseCardWidth = 303;
+  const baseCardGap = 16;
+  
+  // Scale factors - reduced mobile scale to fit better in viewport
+  const mobileScale = 0.4; // 40% of original size for mobile (smaller)
+  const tabletScale = 0.7; // 70% of original size for tablet
+  
+  // Calculate scale and visible cards
+  const scale = isMobile ? mobileScale : isTablet ? tabletScale : 1;
+  const visibleCards = isMobile ? 1 : isTablet ? 2 : 3;
+  
+  // Calculate actual dimensions (scaled)
+  const cardWidth = baseCardWidth * scale;
+  const cardGap = baseCardGap * scale;
+  
+  // Calculate container width (based on scaled dimensions)
+  const calculatedWidth = (cardWidth * visibleCards) + (cardGap * (visibleCards - 1));
+  
+  // For tablet, ensure container doesn't exceed available viewport space
+  // Account for title section width, gaps, and padding
+  const titleEstimatedWidth = isMobile ? 100 : isTablet ? 180 : 0;
+  const gapAndPadding = isMobile ? 20 : isTablet ? 60 : 0;
+  const maxAvailableWidth = isTablet && windowWidth > 0
+    ? Math.max(0, windowWidth - titleEstimatedWidth - gapAndPadding)
+    : calculatedWidth;
+  
+  // Use the smaller of calculated width or max available width (only for tablet)
+  const containerWidth = isTablet 
+    ? Math.min(calculatedWidth, maxAvailableWidth)
+    : calculatedWidth;
+  
+  // Calculate transform (based on scaled dimensions)
+  // For mobile, position the selected card at the start (0 position)
+  const transformValue = transformIndex * (cardWidth + cardGap);
+
   return (
     <div 
-      className="w-full flex items-center" 
+      className="w-full flex flex-row items-center gap-6 md:gap-6 lg:gap-20" 
       style={{ 
         overflow: 'visible',
         position: 'relative',
-        gap: '80px' // Gap between title and slider - ADJUST THIS VALUE
+        maxWidth: '100%',
+        marginLeft: isMobile ? '-16px' : isDesktop ? '0' : '0', // Remove any container padding on mobile, keep desktop original
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Left: Title Section */}
       <div 
-        className="flex flex-col gap-4 flex-shrink-0 items-start" 
+        className="flex flex-col gap-2 md:gap-3 lg:gap-4 flex-shrink-0 items-start" 
         style={{ 
-          transform: 'translateX(-100px) translateY(100px)', // Move title left and down - ADJUST translateY VALUE (positive = down, negative = up)
           position: 'relative',
-          zIndex: 10
+          zIndex: 10,
+          transform: isMobile 
+            ? 'translateX(0) translateY(0)' 
+            : isTablet 
+            ? 'translateX(-20px) translateY(40px)' 
+            : 'translateX(-100px) translateY(100px)',
+          marginLeft: isDesktop ? '100px' : isMobile ? '16px' : '0', // Desktop original, mobile compensation
+          paddingLeft: isTablet ? '24px' : isDesktop ? '0' : '0', // Only tablet has padding
         }}
       >
         {/* Main Title with Gradient */}
         <h2 
-          className="font-semibold bg-gradient-to-r from-[#20C997] to-[#A1DF0A] bg-clip-text text-transparent"
+          className="font-semibold bg-gradient-to-r from-[#20C997] to-[#A1DF0A] bg-clip-text text-transparent text-[20px] md:text-[28px] lg:text-[50px]"
           style={{
-            fontSize: '50px',
             lineHeight: '130%',
           }}
         >
@@ -161,12 +222,21 @@ export default function AnnouncementSlider({ announcements }: AnnouncementSlider
         </h2>
       </div>
 
-      {/* Right: Slider Container - Shows exactly 3 cards */}
-      <div className="relative flex-shrink-0" style={{ overflow: 'hidden', width: `${(303 + 16) * 3 - 16}px` }}>
+      {/* Right: Slider Container - Responsive cards */}
+      <div 
+        className="relative flex-shrink"
+        style={{ 
+          overflow: 'hidden',
+          width: isMobile ? `${cardWidth}px` : `${containerWidth}px`,
+          maxWidth: isMobile ? 'calc(100vw - 120px)' : isTablet ? `${maxAvailableWidth}px` : 'none',
+          minWidth: 0,
+        }}
+      >
         <div 
-          className="flex gap-4 transition-transform duration-500 ease-in-out"
+          className="flex transition-transform duration-500 ease-in-out"
           style={{ 
-            transform: `translateX(-${transformIndex * (303 + 16)}px)`, // 303px card width + 16px gap (gap-4 = 16px)
+            gap: `${cardGap}px`,
+            transform: `translateX(-${transformValue}px)`,
             willChange: 'transform'
           }}
         >
@@ -183,7 +253,13 @@ export default function AnnouncementSlider({ announcements }: AnnouncementSlider
             // Leftmost card (relativeIndex === 0) is always selected (green filled)
             const isSelected = relativeIndex === 0;
             
-            // Render all cards - overflow:hidden on parent will clip them
+            // On tablet, hide cards beyond the second one
+            // On mobile, render all cards but container width shows only one (handled by overflow)
+            const shouldHide = isTablet && relativeIndex >= 2;
+            
+            if (shouldHide) {
+              return null;
+            }
             
             const imageUrl = actualAnnouncement?.image
               ? getOptimizedImageUrl(actualAnnouncement.image, 'medium') || 
@@ -192,14 +268,30 @@ export default function AnnouncementSlider({ announcements }: AnnouncementSlider
             const isLocalhost = imageUrl?.includes('localhost') || false;
             const summaryText = limitWords(extractTextFromSummary(actualAnnouncement?.summary || null), 10);
 
+            // Calculate responsive text sizes
+            const titleFontSize = isMobile ? '14px' : isTablet ? '16px' : '20px';
+            const summaryFontSize = isMobile ? '12px' : isTablet ? '14px' : '18px';
+
             return (
               <div
                 key={`announcement-${originalIndex}-${index}`}
                 className="flex-shrink-0"
-                style={{ width: '303px', height: '307px' }}
+                style={{ 
+                  width: `${cardWidth}px`, 
+                  height: `${cardWidth * (307 / 303)}px`,
+                }}
               >
-                {/* Card with SVG Path Shape */}
-                <div className="relative w-full h-full" style={{ overflow: 'visible' }}>
+                {/* Card with SVG Path Shape - Scale all content together */}
+                <div 
+                  className="relative" 
+                  style={{ 
+                    overflow: 'visible',
+                    transform: `scale(${scale})`,
+                    transformOrigin: 'top left',
+                    width: `${baseCardWidth}px`,
+                    height: `${baseCardWidth * (307 / 303)}px`
+                  }}
+                >
                   {/* SVG Container with Path Shape */}
                   <svg
                     width="303"
@@ -238,7 +330,7 @@ export default function AnnouncementSlider({ announcements }: AnnouncementSlider
                     href={getAnnouncementsPageUrl()}
                     className="absolute top-0 right-0 z-20 transition-all duration-300 hover:opacity-90 flex items-center justify-center"
                     style={{
-                      transform: 'translate(1%, -1%)', // Center the circle on the corner
+                      transform: 'translate(1%, -1%)',
                       width: '70px',
                       height: '70px',
                       borderRadius: '50%',
@@ -299,7 +391,7 @@ export default function AnnouncementSlider({ announcements }: AnnouncementSlider
                       >
                         <h3
                           style={{
-                            fontSize: '20px',
+                            fontSize: titleFontSize,
                             lineHeight: '137%',
                             fontWeight: 600, // semi-bold
                             whiteSpace: 'pre-line',
@@ -318,7 +410,7 @@ export default function AnnouncementSlider({ announcements }: AnnouncementSlider
                             isSelected ? 'text-white/90' : 'text-[#0F3F1D]/80'
                           }`}
                           style={{
-                            fontSize: '18px',
+                            fontSize: summaryFontSize,
                             lineHeight: '35px',
                             fontWeight: 400, // regular
                           }}

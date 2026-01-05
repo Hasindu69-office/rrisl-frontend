@@ -101,7 +101,7 @@ export default async function Home({ searchParams }: HomeProps) {
       </Suspense>
 
       {/* Announcement Content Section */}
-      <div className="mt-48 md:mt-56">
+      <div className="mt-2 md:mt-6 lg:mt-56">
         <ContentSection
           imageSrc="/images/sec1-img 1.png"
           imageAlt="Rubber Research Institute of Sri Lanka"

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { GlobalLayout } from '@/app/lib/types';
 import { getStrapiImageUrl, getOptimizedImageUrl } from '@/app/lib/strapi';
@@ -10,27 +10,57 @@ interface LogoSectionProps {
 }
 
 export default function LogoSection({ globalLayout }: LogoSectionProps) {
-  const [useFallback, setUseFallback] = useState(false);
-
   const logoAlt = globalLayout?.logoAlt || 'RRISL Logo';
   
   // Get logo from Strapi
   const logo = globalLayout?.logo;
   
-  if (!logo) {
-    return null;
-  }
+  // Fallback logo image
+  const fallbackLogo = '/images/rrisl_logo.png';
+  
+  // Get Strapi logo URLs (without fallback yet)
+  const strapiDesktopUrl = getOptimizedImageUrl(logo, 'medium') || getStrapiImageUrl(logo);
+  const strapiMobileUrl = getOptimizedImageUrl(logo, 'small') || getStrapiImageUrl(logo);
 
-  // Get logo URLs - use medium for desktop, small for mobile
-  const desktopLogoUrl = getOptimizedImageUrl(logo, 'medium') || getStrapiImageUrl(logo);
-  const mobileLogoUrl = getOptimizedImageUrl(logo, 'small') || getStrapiImageUrl(logo);
+  // Check if Strapi URLs contain localhost
+  const hasLocalhostUrl = strapiDesktopUrl?.includes('localhost') || strapiMobileUrl?.includes('localhost') || false;
 
-  // Get dimensions from Strapi logo data
-  const desktopWidth = logo.formats?.medium?.width || logo.width || 750;
-  const desktopHeight = logo.formats?.medium?.height || logo.height || 122;
-  const mobileWidth = logo.formats?.small?.width || logo.width || 500;
-  const mobileHeight = logo.formats?.small?.height || logo.height || 81;
+  // Check if we're accessing from a non-localhost hostname (e.g., mobile device via port forwarding)
+  // Initialize fallback state based on whether localhost URLs will be accessible
+  const [useFallback, setUseFallback] = useState(() => {
+    if (typeof window !== 'undefined' && hasLocalhostUrl) {
+      const currentHostname = window.location.hostname;
+      // If accessing from anything other than localhost/127.0.0.1, localhost URLs won't work
+      // This includes IP addresses (192.168.x.x, 10.x.x.x, etc.) and domain names
+      return currentHostname !== 'localhost' && currentHostname !== '127.0.0.1';
+    }
+    return false;
+  });
 
+  // Also handle dynamic changes (in case hostname changes, though unlikely)
+  useEffect(() => {
+    if (typeof window !== 'undefined' && hasLocalhostUrl) {
+      const currentHostname = window.location.hostname;
+      const isRemoteAccess = currentHostname !== 'localhost' && currentHostname !== '127.0.0.1';
+      
+      // If accessing remotely and Strapi URL is localhost, use fallback immediately
+      if (isRemoteAccess) {
+        setUseFallback(true);
+      }
+    }
+  }, [hasLocalhostUrl]);
+
+  // Get logo URLs - use fallback if Strapi URL is not available or if we're using fallback
+  const desktopLogoUrl = (useFallback || !strapiDesktopUrl) ? fallbackLogo : strapiDesktopUrl;
+  const mobileLogoUrl = (useFallback || !strapiMobileUrl) ? fallbackLogo : strapiMobileUrl;
+
+  // Get dimensions from Strapi logo data, or use defaults for fallback
+  const desktopWidth = logo?.formats?.medium?.width || logo?.width || 750;
+  const desktopHeight = logo?.formats?.medium?.height || logo?.height || 122;
+  const mobileWidth = logo?.formats?.small?.width || logo?.width || 500;
+  const mobileHeight = logo?.formats?.small?.height || logo?.height || 81;
+
+  // If no logo at all (neither Strapi nor fallback), return null
   if (!desktopLogoUrl || !mobileLogoUrl) {
     return null;
   }

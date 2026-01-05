@@ -42,7 +42,7 @@ export default function ContentSection({
   buttonLink = '#',
 }: ContentSectionProps) {
   return (
-    <section className="relative bg-white py-16 md:py-24 overflow-hidden">
+    <section className="relative bg-white pt-0 md:pt-24 lg:pt-24 pb-16 md:pb-24 lg:pb-24 overflow-hidden">
       <div className="flex flex-col lg:flex-row items-center w-full">
         {/* Left Side - Image (Full Width, extends to left edge) */}
         <div className="w-full lg:w-1/2 flex justify-center lg:justify-start lg:ml-8">

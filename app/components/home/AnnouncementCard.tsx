@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { HeroAnnouncementItem } from '@/app/lib/types';
@@ -17,9 +17,24 @@ export default function AnnouncementCard({ title, announcement }: AnnouncementCa
   const searchParams = useSearchParams();
   const currentLocale = searchParams.get('locale') || 'en';
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [windowWidth, setWindowWidth] = useState(0);
+
+  // Detect screen size for responsive adjustments
+  useEffect(() => {
+    const updateWidth = () => {
+      setWindowWidth(window.innerWidth);
+    };
+    updateWidth();
+    window.addEventListener('resize', updateWidth);
+    return () => window.removeEventListener('resize', updateWidth);
+  }, []);
 
   // For now, we have a single announcement, but structure supports multiple
   const announcements = announcement ? [announcement] : [];
+
+  // Calculate responsive values
+  const isMobile = windowWidth > 0 && windowWidth < 640;
+  const isTablet = windowWidth >= 640 && windowWidth < 1024;
 
   // Helper to preserve locale in links
   const getLocalizedUrl = (slug: string) => {
@@ -47,15 +62,15 @@ export default function AnnouncementCard({ title, announcement }: AnnouncementCa
   };
 
   return (
-    <div className="rounded-xl bg-white border border-green-500/40 p-6 shadow-lg">
+    <div className="rounded-xl bg-white border border-green-500/40 p-3 md:p-4 lg:p-6 shadow-lg">
       {/* Title */}
-      <h2 className="text-gray-900 text-xl font-bold mb-4">{title}</h2>
+      <h2 className="text-gray-900 text-[16px] md:text-[18px] lg:text-xl font-bold mb-3 md:mb-4">{title}</h2>
 
       {/* Announcement Content */}
-      <div className="space-y-4">
+      <div className="space-y-3 md:space-y-4">
         {/* Image */}
         {imageUrl && (
-          <div className="w-full h-48 rounded-lg overflow-hidden border border-green-500/20">
+          <div className="w-full h-32 md:h-40 lg:h-48 rounded-lg overflow-hidden border border-green-500/20">
             <Image
               src={imageUrl}
               alt={currentAnnouncement.title}
@@ -69,7 +84,7 @@ export default function AnnouncementCard({ title, announcement }: AnnouncementCa
 
         {/* Summary Text */}
         {currentAnnouncement.summary && (
-          <p className="text-gray-700 text-sm leading-relaxed">
+          <p className="text-gray-700 text-[12px] md:text-[13px] lg:text-sm leading-relaxed">
             {currentAnnouncement.summary}
           </p>
         )}
@@ -78,12 +93,12 @@ export default function AnnouncementCard({ title, announcement }: AnnouncementCa
         <div className="flex justify-end gap-2 pt-2">
           <button
             onClick={handlePrevious}
-            className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={announcements.length <= 1}
             aria-label="Previous announcement"
           >
             <svg
-              className="w-4 h-4 text-gray-700"
+              className="w-3 h-3 md:w-4 md:h-4 text-gray-700"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -98,12 +113,12 @@ export default function AnnouncementCard({ title, announcement }: AnnouncementCa
           </button>
           <button
             onClick={handleNext}
-            className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={announcements.length <= 1}
             aria-label="Next announcement"
           >
             <svg
-              className="w-4 h-4 text-gray-700"
+              className="w-3 h-3 md:w-4 md:h-4 text-gray-700"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"

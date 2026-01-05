@@ -63,6 +63,9 @@ export default function HomeHeroWithHeader({
     return addLocaleToUrl(url, currentLocale);
   };
 
+  // Fallback images for hero backgrounds
+  const heroDesktopFallbacks = ['/images/homeBannerimg1.png', '/images/homeBannerimg2.jpg'];
+  
   // Get background images - handle both array (multiple) and single image formats
   const desktopBgImages = hero.backgroundImageDesktop
     ? Array.isArray(hero.backgroundImageDesktop)
@@ -72,6 +75,14 @@ export default function HomeHeroWithHeader({
   const mobileBgImages = hero.backgroundImageMobile
     ? [hero.backgroundImageMobile]
     : [];
+
+  // Helper function to get hero background image URL with fallback
+  const getHeroBgImageUrl = (image: any, index: number): string | null => {
+    const strapiUrl = getOptimizedImageUrl(image, 'large') || getStrapiImageUrl(image);
+    if (strapiUrl) return strapiUrl;
+    // Use fallback based on index
+    return heroDesktopFallbacks[index % heroDesktopFallbacks.length] || null;
+  };
 
   // Check if mobile images are valid (can produce URLs)
   const hasValidMobileImages = mobileBgImages.length > 0 && 
@@ -112,10 +123,21 @@ export default function HomeHeroWithHeader({
     ? getOptimizedImageUrl(currentMobileImage, 'small') || getStrapiImageUrl(currentMobileImage)
     : null;
 
+  // Fallback images for badge avatars
+  const avatarFallbacks = ['/images/avatarimg1.png', '/images/avatarimg2.png'];
+  
   // Get badge avatars
   const avatars = hero.badges?.avatars || [];
   const badgeTitle = hero.badges?.title || '';
   const badgeSubtitle = hero.badges?.subtitle || '';
+
+  // Helper function to get avatar URL with fallback
+  const getAvatarUrl = (avatar: any, index: number): string | null => {
+    const strapiUrl = getOptimizedImageUrl(avatar, 'thumbnail') || getStrapiImageUrl(avatar);
+    if (strapiUrl) return strapiUrl;
+    // Use fallback based on index
+    return avatarFallbacks[index % avatarFallbacks.length] || null;
+  };
 
   // Get label
   const labelText = hero.labels?.text || '';
@@ -166,7 +188,7 @@ export default function HomeHeroWithHeader({
           {/* Desktop Slider */}
           <div className="hidden lg:block absolute top-0 left-0 w-full h-full">
             {desktopBgImages.map((image, index) => {
-              const imageUrl = getOptimizedImageUrl(image, 'large') || getStrapiImageUrl(image);
+              const imageUrl = getHeroBgImageUrl(image, index);
               if (!imageUrl) return null;
               
               return (
@@ -194,7 +216,7 @@ export default function HomeHeroWithHeader({
           {/* Tablet Slider - Extended to cover content but still smaller than desktop */}
           <div className="hidden md:block lg:hidden absolute top-0 left-0 w-full z-0" style={{ height: '85%', minHeight: '600px' }}>
             {desktopBgImages.map((image, index) => {
-              const imageUrl = getOptimizedImageUrl(image, 'large') || getStrapiImageUrl(image);
+              const imageUrl = getHeroBgImageUrl(image, index);
               if (!imageUrl) return null;
               
               return (
@@ -223,7 +245,8 @@ export default function HomeHeroWithHeader({
           <div className="block md:hidden absolute top-0 left-0 w-full z-0" style={{ height: '80%', minHeight: '500px' }}>
             {effectiveMobileImages.map((image, index) => {
               // Use 'small' optimization for mobile, but if using desktop images as fallback, use 'large' for better quality
-              const imageUrl = getOptimizedImageUrl(image, hasValidMobileImages ? 'small' : 'large') || getStrapiImageUrl(image);
+              const strapiUrl = getOptimizedImageUrl(image, hasValidMobileImages ? 'small' : 'large') || getStrapiImageUrl(image);
+              const imageUrl = strapiUrl || getHeroBgImageUrl(image, index);
               if (!imageUrl) return null;
               
               return (
@@ -308,7 +331,7 @@ export default function HomeHeroWithHeader({
                   {/* Avatar Images - Top */}
                   <div className="flex items-center justify-center -space-x-2 md:-space-x-3">
                     {avatars.slice(0, 2).map((avatar, index) => {
-                      const avatarUrl = getOptimizedImageUrl(avatar, 'thumbnail') || getStrapiImageUrl(avatar);
+                      const avatarUrl = getAvatarUrl(avatar, index);
                       return avatarUrl ? (
                         <div
                           key={avatar.id || index}
@@ -413,7 +436,7 @@ export default function HomeHeroWithHeader({
                     {/* Avatar Images - Left Side */}
                     <div className="flex items-center -space-x-3">
                       {avatars.slice(0, 2).map((avatar, index) => {
-                        const avatarUrl = getOptimizedImageUrl(avatar, 'thumbnail') || getStrapiImageUrl(avatar);
+                        const avatarUrl = getAvatarUrl(avatar, index);
                         return avatarUrl ? (
                           <div
                             key={avatar.id || index}
@@ -633,8 +656,8 @@ export default function HomeHeroWithHeader({
 
       {/* Announcement Slider Section - Bottom Right Above White Curved Cutout */}
       {announcements && announcements.length > 0 && (
-        <div className="absolute -bottom-54 -right-20 z-30 pointer-events-auto pr-8" style={{ overflow: 'visible' }}>
-          <div className="flex justify-end" style={{ overflow: 'visible' }}>
+        <div className="absolute bottom-36 md:bottom-0 lg:-bottom-54 right-0 md:-right-20 z-30 pointer-events-auto pr-0 md:pr-8 lg:pr-8 left-[20px] lg:left-auto" style={{ overflow: 'visible' }}>
+          <div className="flex justify-start md:justify-end lg:justify-end" style={{ overflow: 'visible', maxWidth: '100%' }}>
             <AnnouncementSlider
               announcements={announcements}
             />
