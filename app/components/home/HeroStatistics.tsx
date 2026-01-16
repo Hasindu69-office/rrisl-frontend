@@ -20,12 +20,12 @@ const defaultStatistics: StatisticItem[] = [
 
 export default function HeroStatistics({ statistics = defaultStatistics }: HeroStatisticsProps) {
   return (
-    <div className="flex items-center gap-4 md:gap-8 lg:gap-16">
+    <div className="flex items-center gap-4 md:gap-8 lg:gap-8">
       {statistics.map((stat, index) => (
         <div key={index} className="flex flex-col items-start">
           {/* Percentage Text */}
           <div 
-            className="text-white font-bold text-[28px] md:text-[40px] lg:text-[70px]"
+            className="text-white font-bold text-[28px] md:text-[40px] lg:text-[40px]"
             style={{ 
               lineHeight: '128%'
             }}
