@@ -42,19 +42,19 @@ function limitWords(text: string, maxWords: number = 5): string {
 function formatTitle(title: string): string {
   if (!title) return '';
   const words = title.split(/\s+/).filter(word => word.length > 0);
-  
+
   // If more than 8 words, show only first word with ellipsis
   if (words.length > 8) {
     return words[0] + '...';
   }
-  
+
   // Group words into pairs (2 words per line)
   const lines: string[] = [];
   for (let i = 0; i < words.length; i += 3) {
     const line = words.slice(i, i + 3).join(' ');
     lines.push(line);
   }
-  
+
   return lines.join('\n');
 }
 
@@ -107,7 +107,7 @@ export default function AnnouncementSlider({ announcements }: AnnouncementSlider
   // Pause when hovering
   useEffect(() => {
     if (totalAnnouncements === 0 || isHovered) return;
-    
+
     // Always slide continuously - never reset to 0
     const interval = setInterval(() => {
       setCurrentIndex((prev) => {
@@ -150,22 +150,22 @@ export default function AnnouncementSlider({ announcements }: AnnouncementSlider
   // Card dimensions
   const baseCardWidth = 303;
   const baseCardGap = 16;
-  
+
   // Scale factors - reduced mobile scale to fit better in viewport
   const mobileScale = 0.4; // 40% of original size for mobile (smaller)
   const tabletScale = 0.7; // 70% of original size for tablet
-  
+
   // Calculate scale and visible cards
   const scale = isMobile ? mobileScale : isTablet ? tabletScale : 1;
   const visibleCards = isMobile ? 1 : isTablet ? 2 : 3;
-  
+
   // Calculate actual dimensions (scaled)
   const cardWidth = baseCardWidth * scale;
   const cardGap = baseCardGap * scale;
-  
+
   // Calculate container width (based on scaled dimensions)
   const calculatedWidth = (cardWidth * visibleCards) + (cardGap * (visibleCards - 1));
-  
+
   // For tablet, ensure container doesn't exceed available viewport space
   // Account for title section width, gaps, and padding
   const titleEstimatedWidth = isMobile ? 100 : isTablet ? 180 : 0;
@@ -173,20 +173,20 @@ export default function AnnouncementSlider({ announcements }: AnnouncementSlider
   const maxAvailableWidth = isTablet && windowWidth > 0
     ? Math.max(0, windowWidth - titleEstimatedWidth - gapAndPadding)
     : calculatedWidth;
-  
+
   // Use the smaller of calculated width or max available width (only for tablet)
-  const containerWidth = isTablet 
+  const containerWidth = isTablet
     ? Math.min(calculatedWidth, maxAvailableWidth)
     : calculatedWidth;
-  
+
   // Calculate transform (based on scaled dimensions)
   // For mobile, position the selected card at the start (0 position)
   const transformValue = transformIndex * (cardWidth + cardGap);
 
   return (
-    <div 
-      className="w-full flex flex-row items-center gap-6 md:gap-6 lg:gap-20" 
-      style={{ 
+    <div
+      className="w-full flex flex-row items-center gap-6 md:gap-6 lg:gap-18"
+      style={{
         overflow: 'visible',
         position: 'relative',
         maxWidth: '100%',
@@ -196,23 +196,21 @@ export default function AnnouncementSlider({ announcements }: AnnouncementSlider
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Left: Title Section */}
-      <div 
-        className="flex flex-col gap-2 md:gap-3 lg:gap-4 flex-shrink-0 items-start" 
-        style={{ 
+      <div
+        className="flex flex-col gap-2 md:gap-3 lg:gap-4 flex-shrink-0 items-start ml-[100px] pl-0 max-[1024px]:ml-0 max-[1024px]:pl-6 max-[432px]:ml-8 max-[415px]:ml-6 max-[392px]:ml-4 max-[376px]:ml-2 max-[640px]:pl-0"
+        style={{
           position: 'relative',
           zIndex: 10,
-          transform: isMobile 
-            ? 'translateX(0) translateY(0)' 
-            : isTablet 
-            ? 'translateX(-20px) translateY(40px)' 
-            : 'translateX(-100px) translateY(100px)',
-          marginLeft: isDesktop ? '100px' : isMobile ? '16px' : '0', // Desktop original, mobile compensation
-          paddingLeft: isTablet ? '24px' : isDesktop ? '0' : '0', // Only tablet has padding
+          transform: isMobile
+            ? 'translateX(0) translateY(0)'
+            : isTablet
+              ? 'translateX(-20px) translateY(40px)'
+              : 'translateX(-100px) translateY(100px)'
         }}
       >
         {/* Main Title with Gradient */}
-        <h2 
-          className="font-semibold bg-gradient-to-r from-[#20C997] to-[#A1DF0A] bg-clip-text text-transparent text-[20px] md:text-[28px] lg:text-[50px]"
+        <h2
+          className="font-semibold bg-gradient-to-r from-[#20C997] to-[#A1DF0A] bg-clip-text text-transparent text-[20px] md:text-[28px] lg:text-[50px] md:ml-8 ml-0"
           style={{
             lineHeight: '130%',
           }}
@@ -223,18 +221,18 @@ export default function AnnouncementSlider({ announcements }: AnnouncementSlider
       </div>
 
       {/* Right: Slider Container - Responsive cards */}
-      <div 
+      <div
         className="relative flex-shrink"
-        style={{ 
+        style={{
           overflow: 'hidden',
           width: isMobile ? `${cardWidth}px` : `${containerWidth}px`,
           maxWidth: isMobile ? 'calc(100vw - 120px)' : isTablet ? `${maxAvailableWidth}px` : 'none',
           minWidth: 0,
         }}
       >
-        <div 
+        <div
           className="flex transition-transform duration-500 ease-in-out"
-          style={{ 
+          style={{
             gap: `${cardGap}px`,
             transform: `translateX(-${transformValue}px)`,
             willChange: 'transform'
@@ -243,27 +241,27 @@ export default function AnnouncementSlider({ announcements }: AnnouncementSlider
           {displayAnnouncements.map((announcement, index) => {
             // Calculate relative position to transformIndex for proper card positioning
             const relativeIndex = index - transformIndex;
-            
+
             // Calculate which original announcement should be shown at this position
             // Use modulo to get the actual announcement, creating seamless loop
             const displayIndex = transformIndex + relativeIndex;
             const originalIndex = displayIndex % totalAnnouncements;
             const actualAnnouncement = announcements[originalIndex];
-            
+
             // Leftmost card (relativeIndex === 0) is always selected (green filled)
             const isSelected = relativeIndex === 0;
-            
+
             // On tablet, hide cards beyond the second one
             // On mobile, render all cards but container width shows only one (handled by overflow)
             const shouldHide = isTablet && relativeIndex >= 2;
-            
+
             if (shouldHide) {
               return null;
             }
-            
+
             const imageUrl = actualAnnouncement?.image
-              ? getOptimizedImageUrl(actualAnnouncement.image, 'medium') || 
-                getStrapiImageUrl(actualAnnouncement.image)
+              ? getOptimizedImageUrl(actualAnnouncement.image, 'medium') ||
+              getStrapiImageUrl(actualAnnouncement.image)
               : null;
             const isLocalhost = imageUrl?.includes('localhost') || false;
             const summaryText = limitWords(extractTextFromSummary(actualAnnouncement?.summary || null), 10);
@@ -276,15 +274,15 @@ export default function AnnouncementSlider({ announcements }: AnnouncementSlider
               <div
                 key={`announcement-${originalIndex}-${index}`}
                 className="flex-shrink-0"
-                style={{ 
-                  width: `${cardWidth}px`, 
+                style={{
+                  width: `${cardWidth}px`,
                   height: `${cardWidth * (307 / 303)}px`,
                 }}
               >
                 {/* Card with SVG Path Shape - Scale all content together */}
-                <div 
-                  className="relative" 
-                  style={{ 
+                <div
+                  className="relative"
+                  style={{
                     overflow: 'visible',
                     transform: `scale(${scale})`,
                     transformOrigin: 'top left',
@@ -360,26 +358,24 @@ export default function AnnouncementSlider({ announcements }: AnnouncementSlider
                   <div
                     className="absolute inset-0"
                     style={{
-                      clipPath: isSelected 
+                      clipPath: isSelected
                         ? `url(#announcement-clip-selected-${index})`
                         : `url(#announcement-clip-unselected-${index})`,
                     }}
                   >
                     <div
-                      className={`w-full h-full pl-6 pr-6 pb-6 flex flex-col transition-all duration-300 ${
-                        isSelected
-                          ? 'bg-[#0F3F1D] text-white'
-                          : 'bg-white text-[#0F3F1D]'
-                      }`}
+                      className={`w-full h-full pl-6 pr-6 pb-6 flex flex-col transition-all duration-300 ${isSelected
+                        ? 'bg-[#0F3F1D] text-white'
+                        : 'bg-white text-[#0F3F1D]'
+                        }`}
                       style={{
                         paddingTop: '50px',
                       }}
                     >
                       {/* Title */}
                       <div
-                        className={`mb-3 ${
-                          isSelected ? 'text-white' : 'text-[#0F3F1D]'
-                        }`}
+                        className={`mb-3 ${isSelected ? 'text-white' : 'text-[#0F3F1D]'
+                          }`}
                         style={{
                           width: '201px',
                           height: '108px',
@@ -406,9 +402,8 @@ export default function AnnouncementSlider({ announcements }: AnnouncementSlider
                       {/* Summary */}
                       {summaryText && (
                         <p
-                          className={`flex-grow ${
-                            isSelected ? 'text-white/90' : 'text-[#0F3F1D]/80'
-                          }`}
+                          className={`flex-grow ${isSelected ? 'text-white/90' : 'text-[#0F3F1D]/80'
+                            }`}
                           style={{
                             fontSize: summaryFontSize,
                             lineHeight: '35px',

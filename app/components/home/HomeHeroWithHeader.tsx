@@ -28,7 +28,7 @@ interface HomeHeroWithHeaderProps {
  */
 function extractTextFromBlocks(blocks: any[]): string {
   if (!blocks || !Array.isArray(blocks)) return '';
-  
+
   return blocks
     .map((block) => {
       if (block.children && Array.isArray(block.children)) {
@@ -41,10 +41,10 @@ function extractTextFromBlocks(blocks: any[]): string {
     .join(' ');
 }
 
-export default function HomeHeroWithHeader({ 
-  hero, 
-  globalLayout, 
-  leftMenuItems, 
+export default function HomeHeroWithHeader({
+  hero,
+  globalLayout,
+  leftMenuItems,
   rightMenuItems,
   announcements = []
 }: HomeHeroWithHeaderProps) {
@@ -65,7 +65,7 @@ export default function HomeHeroWithHeader({
 
   // Fallback images for hero backgrounds
   const heroDesktopFallbacks = ['/images/homeBannerimg1.png', '/images/homeBannerimg2.jpg'];
-  
+
   // Get background images - handle both array (multiple) and single image formats
   const desktopBgImages = hero.backgroundImageDesktop
     ? Array.isArray(hero.backgroundImageDesktop)
@@ -85,7 +85,7 @@ export default function HomeHeroWithHeader({
   };
 
   // Check if mobile images are valid (can produce URLs)
-  const hasValidMobileImages = mobileBgImages.length > 0 && 
+  const hasValidMobileImages = mobileBgImages.length > 0 &&
     mobileBgImages.some(img => {
       const url = getOptimizedImageUrl(img, 'small') || getStrapiImageUrl(img);
       return url !== null;
@@ -97,7 +97,7 @@ export default function HomeHeroWithHeader({
   // Slider state - ensure we have slides if desktop images exist
   const [currentSlide, setCurrentSlide] = useState(0);
   // Use the maximum of desktop and effective mobile images, but prioritize desktop if it exists
-  const totalSlides = desktopBgImages.length > 0 
+  const totalSlides = desktopBgImages.length > 0
     ? Math.max(desktopBgImages.length, effectiveMobileImages.length)
     : effectiveMobileImages.length;
 
@@ -125,7 +125,7 @@ export default function HomeHeroWithHeader({
 
   // Fallback images for badge avatars
   const avatarFallbacks = ['/images/avatarimg1.png', '/images/avatarimg2.png'];
-  
+
   // Get badge avatars
   const avatars = hero.badges?.avatars || [];
   const badgeTitle = hero.badges?.title || '';
@@ -164,7 +164,7 @@ export default function HomeHeroWithHeader({
       setIsMobile(width < 640); // sm breakpoint in Tailwind
       setIsTablet(width >= 640 && width < 1024); // sm to lg breakpoint
     };
-    
+
     checkScreenSize();
     window.addEventListener('resize', checkScreenSize);
     return () => window.removeEventListener('resize', checkScreenSize);
@@ -190,13 +190,12 @@ export default function HomeHeroWithHeader({
             {desktopBgImages.map((image, index) => {
               const imageUrl = getHeroBgImageUrl(image, index);
               if (!imageUrl) return null;
-              
+
               return (
                 <div
                   key={index}
-                  className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-                    index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'
-                  }`}
+                  className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'
+                    }`}
                 >
                   <Image
                     src={imageUrl}
@@ -218,13 +217,12 @@ export default function HomeHeroWithHeader({
             {desktopBgImages.map((image, index) => {
               const imageUrl = getHeroBgImageUrl(image, index);
               if (!imageUrl) return null;
-              
+
               return (
                 <div
                   key={index}
-                  className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-                    index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'
-                  }`}
+                  className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'
+                    }`}
                 >
                   <Image
                     src={imageUrl}
@@ -248,13 +246,12 @@ export default function HomeHeroWithHeader({
               const strapiUrl = getOptimizedImageUrl(image, hasValidMobileImages ? 'small' : 'large') || getStrapiImageUrl(image);
               const imageUrl = strapiUrl || getHeroBgImageUrl(image, index);
               if (!imageUrl) return null;
-              
+
               return (
                 <div
                   key={index}
-                  className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-                    index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'
-                  }`}
+                  className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'
+                    }`}
                 >
                   <Image
                     src={imageUrl}
@@ -278,11 +275,10 @@ export default function HomeHeroWithHeader({
                 <button
                   key={index}
                   onClick={() => goToSlide(index)}
-                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                    index === currentSlide
-                      ? 'bg-white h-8'
-                      : 'bg-white/50 hover:bg-white/75'
-                  }`}
+                  className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentSlide
+                    ? 'bg-white h-8'
+                    : 'bg-white/50 hover:bg-white/75'
+                    }`}
                   aria-label={`Go to slide ${index + 1}`}
                 />
               ))}
@@ -357,10 +353,10 @@ export default function HomeHeroWithHeader({
                     })}
                     {/* Plus Icon - Dark Green Circle */}
                     <div className="w-10 h-10 md:w-11 md:h-11 rounded-full bg-[#2E7D32] flex items-center justify-center text-white text-lg md:text-xl font-bold shadow-lg relative z-10">
-                      + 
+                      +
                     </div>
                   </div>
-                  
+
                   {/* Text - Bottom */}
                   <div className="text-white text-center w-full">
                     <div className="text-[12px] md:text-[14px] font-normal text-[#FFFFFF] leading-tight">{badgeTitle}</div>
@@ -375,7 +371,7 @@ export default function HomeHeroWithHeader({
                 <div className="block">
                   {hero.title}
                 </div>
-                
+
                 {/* Second Line - Gradient with Indentation */}
                 <div className="block bg-gradient-to-r from-[#20C997] to-[#A1DF0A] bg-clip-text text-transparent">
                   {hero.highlightedText}
@@ -429,7 +425,7 @@ export default function HomeHeroWithHeader({
             {/* Right Visual Area */}
             <div className="relative flex items-start justify-center lg:justify-end h-auto lg:min-h-[600px]">
               {/* Container for overlays */}
-              <div className="relative w-full max-w-lg aspect-square" style={{ marginTop: '-100px' }}>
+              <div className="relative w-full max-w-lg aspect-square mt-[-100px] max-[1028px]:mt-[-80px] max-[825px]:mt-[-50px] max-[780px]:mt-[-50px] max-[480px]:mt-[-100px] max-[400px]:mt-[-60px] max-[345px]:mt-[-40px]">
                 {/* Badge Overlay - Desktop: Keep original position */}
                 {hero.badges && (
                   <div className="hidden lg:flex absolute -top-4 -left-12 bg-white/10 backdrop-blur-md rounded-[30px] p-4 border border-white/20 z-20 shadow-lg items-center gap-6 w-[318px] h-[105px] floating-badge">
@@ -462,10 +458,10 @@ export default function HomeHeroWithHeader({
                       })}
                       {/* Plus Icon - Dark Green Circle */}
                       <div className="w-12 h-12 rounded-full bg-[#2E7D32] flex items-center justify-center text-white text-xl font-bold shadow-lg relative z-10">
-                        + 
+                        +
                       </div>
                     </div>
-                    
+
                     {/* Text - Right Side */}
                     <div className="text-white">
                       <div className="text-[18px] font-normal text-[#FFFFFF]" style={{ lineHeight: '30px' }}>{badgeTitle}</div>
@@ -557,47 +553,47 @@ export default function HomeHeroWithHeader({
                         animation: labelFadeIn 0.4s ease-out 1.7s forwards;
                       }
                     `}</style>
-                    
+
                     <div key={animationKey} className="animate">
                       {/* Label box */}
                       <div className={`absolute right-4 z-10 ${isMobile ? 'bottom-48' : 'bottom-31'}`}>
                         <span className="label-text text-white text-sm font-medium whitespace-nowrap">{labelText}</span>
                       </div>
-                      
+
                       {/* L-shaped connecting line */}
-                      <svg 
+                      <svg
                         className={`absolute left-full pointer-events-none ${isMobile ? '-top-80' : '-top-64'}`}
                         style={{ width: '300px', height: '120px' }}
                         viewBox="0 -150 200 150"
                         preserveAspectRatio="none"
                       >
                         {/* Vertical line going up (draws from top to bottom, visually from circle down) */}
-                        <line 
+                        <line
                           className="vertical-line"
-                          x1="100" 
-                          y1={isMobile ? "-40" : "-120"} 
-                          x2="100" 
-                          y2="0" 
-                          stroke="white" 
+                          x1="100"
+                          y1={isMobile ? "-40" : "-120"}
+                          x2="100"
+                          y2="0"
+                          stroke="white"
                           strokeWidth="1"
                         />
                         {/* Horizontal line from vertical to label (draws from right to left) */}
-                        <line 
+                        <line
                           className="horizontal-line"
-                          x1="100" 
-                          y1="0" 
-                          x2="0" 
-                          y2="0" 
-                          stroke="white" 
+                          x1="100"
+                          y1="0"
+                          x2="0"
+                          y2="0"
+                          stroke="white"
                           strokeWidth="2"
                         />
                       </svg>
-                      
+
                       {/* Circular marker at the end of the line (top right) */}
-                      <div 
+                      <div
                         className="absolute pointer-events-none flex items-center justify-center"
-                        style={{ 
-                          left: '150px', 
+                        style={{
+                          left: '150px',
                           top: '-235px',
                           width: '80px',
                           height: '80px',
@@ -620,7 +616,7 @@ export default function HomeHeroWithHeader({
         </div>
       </div>
 
-      
+
 
       {/* White Curved Cutout at Bottom Right */}
       <div className="absolute z-20 pointer-events-none
