@@ -1,15 +1,14 @@
 // Strapi API Client
 import type { GlobalLayout, Menu, HomePage, StrapiResponse, HeroAnnouncementItem } from './types';
 
-const STRAPI_API_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL || 'http://localhost:1337';
+const STRAPI_API_URL = (process.env.NEXT_PUBLIC_STRAPI_API_URL || 'http://localhost:1337').replace(/\/$/, '');
 
 /**
  * Get the full Strapi API URL
  */
 export function getStrapiUrl(path: string): string {
-  const baseUrl = STRAPI_API_URL.replace(/\/$/, '');
   const apiPath = path.startsWith('/') ? path : `/${path}`;
-  return `${baseUrl}${apiPath}`;
+  return `${STRAPI_API_URL}${apiPath}`;
 }
 
 /**
