@@ -50,7 +50,6 @@ export default function ContentSection({
             className="relative lg:ml-18"
             style={{
               width: '700px',
-              height: '700px',
               maxWidth: '100%',
               aspectRatio: '1 / 1',
             }}
@@ -60,7 +59,7 @@ export default function ContentSection({
               alt={imageAlt}
               width={854}
               height={854}
-              className="object-cover rounded-lg w-full h-full"
+              className="object-cover rounded-lg lg:w-full lg:h-full"
               priority
             />
           </div>
