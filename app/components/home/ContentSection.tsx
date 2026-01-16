@@ -11,17 +11,17 @@ interface ContentSectionProps {
   // Image props
   imageSrc: string;
   imageAlt: string;
-  
+
   // Gradient tag props
   tagText: string; // Text inside the gradient tag (changeable)
-  
+
   // Title props
   titlePart1: string; // "Advancing Rubber" - dark green
   titlePart2: string; // "Research for Sri Lanka's Future" - with gradient
-  
+
   // Content props
   description: string;
-  
+
   // Button props
   buttonText?: string;
   buttonLink?: string;
@@ -42,35 +42,41 @@ export default function ContentSection({
   buttonLink = '#',
 }: ContentSectionProps) {
   return (
-    <section className="relative bg-white pt-0 md:pt-24 lg:pt-24 pb-16 md:pb-24 lg:pb-24 overflow-hidden">
+    <section className="relative bg-white pt-0 md:pt-24 lg:pt-24 pb-8 md:pb-24 lg:pb-24">
       <div className="flex flex-col lg:flex-row items-center w-full">
         {/* Left Side - Image (Full Width, extends to left edge) */}
-        <div className="w-full lg:w-1/2 flex justify-center lg:justify-start lg:ml-8">
-          <div 
-            className="relative lg:ml-18"
+        <div className="w-full lg:w-1/2 flex justify-center lg:justify-start lg:ml-8 relative">
+          {/* Spacer for mobile/tablet to maintain height since image is absolute */}
+          <div className="w-full pt-[100%] lg:pt-0 lg:hidden"></div>
+
+          <div
+            className="absolute lg:relative top-0 left-0 w-full lg:w-auto h-full lg:h-auto lg:ml-18 mt-[-115px] lg:mt-0 z-10"
             style={{
-              width: '700px',
-              maxWidth: '100%',
-              aspectRatio: '1 / 1',
+              // Mobile/Tablet: Absolute positioning logic handled by classes above
+              // Desktop: Keep original sizing
             }}
           >
-            <Image
-              src={imageSrc}
-              alt={imageAlt}
-              width={854}
-              height={854}
-              className="object-cover rounded-lg lg:w-full lg:h-full"
-              priority
-            />
+            <div
+              className="relative w-full h-full lg:w-[700px] lg:max-w-full lg:aspect-square"
+            >
+              <Image
+                src={imageSrc}
+                alt={imageAlt}
+                width={854}
+                height={854}
+                className="object-cover rounded-lg w-full h-full lg:w-full lg:h-full"
+                priority
+              />
+            </div>
           </div>
         </div>
 
         {/* Right Side - Content (Left-aligned with image) */}
-        <div className="w-full lg:w-1/2 flex flex-col gap-6 px-4 lg:px-0 lg:-ml-8 xl:-ml-12">
+        <div className="w-full lg:w-1/2 flex flex-col gap-6 px-4 lg:px-0 lg:-ml-8 xl:-ml-12 mt-[-50px] md:mt-0">
           <div className="w-full">
             {/* Gradient Tag - Gradient is constant (#20C997 to #A1DF0A), only text changes */}
             <div>
-              <GradientTag 
+              <GradientTag
                 text={tagText}
                 className="inline-block"
                 gradientFrom="#20C997"
@@ -79,25 +85,23 @@ export default function ContentSection({
             </div>
 
             {/* Title */}
+            {/* Title */}
             <div className="mt-6">
               <GradientTitle
                 part1={titlePart1}
                 part2={titlePart2}
                 part1Color="dark-green"
                 size="custom"
-                customSize="50px"
-                className="font-bold"
+                className="font-bold text-[28px] md:text-[40px] lg:text-[50px]"
                 style={{ lineHeight: '130%' }}
               />
             </div>
 
             {/* Description */}
-            <p 
-              className="text-gray-700 mt-6 max-w-2xl"
+            <p
+              className="text-gray-700 mt-6 max-w-2xl text-[14px] md:text-[16px] lg:text-[18px] leading-[1.5] lg:leading-[35px]"
               style={{
-                fontSize: '18px',
                 fontWeight: 400, // regular
-                lineHeight: '35px',
               }}
             >
               {description}
@@ -106,7 +110,11 @@ export default function ContentSection({
             {/* Read More Button */}
             <div className="pt-2 mt-6">
               <Link href={buttonLink}>
-                <Button variant="primary" size="md">
+                <Button
+                  variant="primary"
+                  size="sm"
+                  className="!w-[150px] !h-[48px] md:!w-[178px] md:!h-[56px] !rounded-[30px] !text-sm md:!text-base"
+                >
                   {buttonText}
                 </Button>
               </Link>

@@ -14,8 +14,8 @@ interface GradientTagProps {
  * Outer pill has linear gradient from #20C997 to #A1DF0A (default)
  * Text color is #2E7D32, text size 20px
  */
-export default function GradientTag({ 
-  text, 
+export default function GradientTag({
+  text,
   className = '',
   backgroundColor = 'white',
   gradientFrom = '#20C997',
@@ -23,16 +23,16 @@ export default function GradientTag({
   textColor = '#2E7D32'
 }: GradientTagProps) {
   // Check if background is transparent
-  const isTransparent = backgroundColor === 'transparent' || 
-                        backgroundColor === 'rgba(255, 255, 255, 0)' ||
-                        (backgroundColor?.includes('rgba') && backgroundColor.includes(', 0)'));
-  
+  const isTransparent = backgroundColor === 'transparent' ||
+    backgroundColor === 'rgba(255, 255, 255, 0)' ||
+    (backgroundColor?.includes('rgba') && backgroundColor.includes(', 0)'));
+
   // For transparent backgrounds, we use a CSS mask technique
   // The mask creates a "donut" effect showing only the border area
   // We need to keep the text visible by positioning it separately
   if (isTransparent) {
     return (
-      <div 
+      <div
         className={`inline-block ${className}`}
         style={{
           position: 'relative',
@@ -78,9 +78,9 @@ export default function GradientTag({
           <span
             style={{
               color: textColor,
-              fontSize: '20px',
               fontWeight: 600,
             }}
+            className="text-[12px] md:text-[14px] lg:text-[20px]"
           >
             {text}
           </span>
@@ -88,9 +88,9 @@ export default function GradientTag({
       </div>
     );
   }
-  
+
   return (
-    <div 
+    <div
       className={`inline-block ${className}`}
       style={{
         background: `linear-gradient(to right, ${gradientFrom}, ${gradientTo})`,
@@ -108,9 +108,9 @@ export default function GradientTag({
         <span
           style={{
             color: textColor,
-            fontSize: '20px',
             fontWeight: 600,
           }}
+          className="text-[12px] md:text-[14px] lg:text-[20px]"
         >
           {text}
         </span>

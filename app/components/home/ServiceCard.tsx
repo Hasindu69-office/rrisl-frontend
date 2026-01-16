@@ -49,13 +49,14 @@ export default function ServiceCard({
             y2="0"
             gradientUnits="userSpaceOnUse"
           >
-            <stop offset="0%" stopColor="#A1DF0A" />
-            <stop offset="100%" stopColor="#577905" />
+            <stop offset="0%" stopColor="#A1DF0A" stopOpacity="0.9" />
+            <stop offset="100%" stopColor="#577905" stopOpacity="0.9" />
           </linearGradient>
         </defs>
         <path
           d="M30 0.5H211.5C227.792 0.5 241 13.7076 241 30V47.3145C241 63.2115 253.211 76.4423 269.057 77.7158L297.46 79.998L297.479 80H297.5C310.203 80 320.5 90.2975 320.5 103V137C320.5 153.292 307.292 166.5 291 166.5H30C13.7076 166.5 0.5 153.292 0.5 137V30L0.509766 29.2383C0.913784 13.2979 13.9623 0.5 30 0.5Z"
           fill={isHovered ? '#FFFFFF' : 'url(#serviceCardBackgroundGradient)'}
+          fillOpacity="0.9"
           className="transition-all duration-500 ease-in-out"
         />
       </svg>
