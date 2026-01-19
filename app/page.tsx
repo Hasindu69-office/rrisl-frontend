@@ -132,7 +132,7 @@ export default async function Home({ searchParams }: HomeProps) {
       <div className="mt-[150px]">
         <ResearchNetworkSection />
       </div>
-      
+
     </div>
   );
 }

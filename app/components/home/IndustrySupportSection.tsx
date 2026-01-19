@@ -56,8 +56,7 @@ export default function IndustrySupportSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full overflow-hidden"
-      style={{ height: '1200px' }}
+      className="relative w-full overflow-hidden h-[1100px] md:h-[1200px] lg:h-[1200px]"
     >
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
@@ -77,8 +76,8 @@ export default function IndustrySupportSection() {
       <div className="relative z-10 container mx-auto px-4 md:px-6 lg:px-8 h-full">
         <div className="relative h-full flex flex-col items-center">
           {/* What We Do Tag */}
-          <div style={{ marginTop: '75px', marginBottom: '14px' }}>
-            <GradientTag 
+          <div className="mt-8 mb-4 md:mt-16 md:mb-8 lg:mt-[75px] lg:mb-[14px]">
+            <GradientTag
               text="What We Do"
               className="inline-block"
               gradientFrom="#20C997"
@@ -89,26 +88,21 @@ export default function IndustrySupportSection() {
           </div>
 
           {/* Title */}
-          <div className="mb-16 md:mb-20">
+          <div className="mb-8 md:mb-20">
             <GradientTitle
               part1="How We"
               part2="Support the Industry"
               part1Color="white"
               size="custom"
-              customSize="50px"
               align="center"
-              className="font-bold"
+              className="font-bold text-[28px] md:text-[40px] lg:text-[50px]"
               style={{ lineHeight: '130%' }}
             />
           </div>
 
           {/* Central Plant Image - Absolutely positioned to center in section */}
-          <div 
-            className="absolute left-1/2 top-[60%] -translate-x-1/2 -translate-y-1/2"
-            style={{
-              width: '1080px',
-              height: '1080px',
-            }}
+          <div
+            className="absolute left-1/2 top-[60%] -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] md:w-[900px] md:h-[900px] lg:w-[1080px] lg:h-[1080px]"
           >
             <div className="relative w-full h-full">
               <Image
@@ -125,7 +119,7 @@ export default function IndustrySupportSection() {
           {/* Service Cards - Positioned around the plant */}
           {/* Top Left - Research & Innovation (White) */}
           <div
-            className="absolute left-[25%] top-[25%] z-30"
+            className="absolute right-[75%] left-[0%] top-[12%] md:left-[15%] md:top-[20%] lg:left-[25%] lg:top-[25%] z-30 transform scale-[0.6] md:scale-[0.8] lg:scale-100 origin-center"
             style={getCardAnimationStyle('left', 0)}
           >
             <ServiceCard
@@ -137,7 +131,7 @@ export default function IndustrySupportSection() {
 
           {/* Middle Left - Training & Development (Green) */}
           <div
-            className="absolute left-[20%] top-[50%] z-30"
+            className="absolute right-[75%] left-[0%] top-[36%] md:left-[15%] md:top-[47%] lg:left-[20%] lg:top-[50%] z-30 transform scale-[0.6] md:scale-[0.8] lg:scale-100 origin-center"
             style={getCardAnimationStyle('left', 1)}
           >
             <ServiceCard
@@ -149,7 +143,7 @@ export default function IndustrySupportSection() {
 
           {/* Bottom Left - Statistics & Market Insights (Green) */}
           <div
-            className="absolute left-[20%] top-[77%] z-30"
+            className="absolute right-[75%] left-[0%] top-[60%] md:left-[10%] md:top-[72%] lg:left-[20%] lg:top-[77%] z-30 transform scale-[0.6] md:scale-[0.8] lg:scale-100 origin-center"
             style={getCardAnimationStyle('left', 2)}
           >
             <ServiceCard
@@ -161,7 +155,7 @@ export default function IndustrySupportSection() {
 
           {/* Top Right - Field Advisory Services (Green) */}
           <div
-            className="absolute right-[22%] top-[30%] z-30"
+            className="absolute -right-[15%] top-[24%] md:right-[15%] md:top-[33%] lg:right-[22%] lg:top-[30%] z-30 transform scale-[0.6] md:scale-[0.8] lg:scale-100 origin-center"
             style={getCardAnimationStyle('right', 0)}
           >
             <ServiceCard
@@ -173,7 +167,7 @@ export default function IndustrySupportSection() {
 
           {/* Middle Right - Laboratory Services (Green) */}
           <div
-            className="absolute right-[18%] top-[58%] z-30"
+            className="absolute -right-[15%] top-[48%] md:right-[10%] md:top-[60%] lg:right-[18%] lg:top-[58%] z-30 transform scale-[0.6] md:scale-[0.8] lg:scale-100 origin-center"
             style={getCardAnimationStyle('right', 1)}
           >
             <ServiceCard
@@ -185,7 +179,7 @@ export default function IndustrySupportSection() {
 
           {/* Bottom Right - Rubber Clone Development (Green) */}
           <div
-            className="absolute right-[30%] top-[75%] z-30"
+            className="absolute -right-[15%] top-[72%] md:right-[10%] md:top-[84%] lg:right-[30%] lg:top-[75%] z-30 transform scale-[0.6] md:scale-[0.8] lg:scale-100 origin-center"
             style={getCardAnimationStyle('right', 2)}
           >
             <ServiceCard
@@ -196,7 +190,7 @@ export default function IndustrySupportSection() {
           </div>
 
           {/* Vertical "What We Do" Text - Right side, rotated -90 degrees (reads bottom to top) */}
-          <div 
+          <div
             className="absolute top-1/2 z-20"
             style={{
               right: '-300px',
