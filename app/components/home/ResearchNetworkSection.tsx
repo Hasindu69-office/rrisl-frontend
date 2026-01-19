@@ -167,7 +167,7 @@ export default function ResearchNetworkSection() {
       </div>
 
       {/* Content Container */}
-      <div className="relative z-10 container mx-auto px-4 md:px-6 lg:px-8 mt-10 md:mt-20 lg:mt-[206px] mb-[200px]">
+      <div className="relative z-10 container mx-auto px-4 md:px-6 lg:px-8 mt-10 md:mt-20 lg:mt-[206px] mb-[200px] md:mb-[150px] lg:mb-[0px]">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-start">
           {/* Left Side - Research Station Card */}
           <div className="w-full order-2 lg:order-1">
