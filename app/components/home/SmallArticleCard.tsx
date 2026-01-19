@@ -27,38 +27,54 @@ export default function SmallArticleCard({
   link,
 }: SmallArticleCardProps) {
   return (
-    <Link href={link} className="block group">
-      <div 
-        className="bg-white overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 flex"
-        style={{ 
+    <Link href={link} className="block group w-full lg:w-[675px]">
+      <div
+        className="bg-white overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 flex flex-col lg:flex-row mb-4"
+        style={{
           border: '1px solid #A1DF0A',
           borderRadius: '30px',
-          width: '675px',
-          height: '200px',
         }}
       >
-        {/* Image on the left */}
-        <div className="relative flex-shrink-0" style={{ width: '276px', height: '200px' }}>
+        {/* Image - Top on mobile, Left on desktop */}
+        <div className="relative w-full lg:w-[276px] h-32 lg:h-[200px] flex-shrink-0">
           <Image
             src={imageSrc}
             alt={imageAlt}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-300"
-            style={{ 
+            style={{
               borderTopLeftRadius: '30px',
-              borderBottomLeftRadius: '30px',
+              borderTopRightRadius: '30px',
+              borderBottomLeftRadius: '0px',
             }}
           />
+          {/* Reset border radius for desktop view via utility classes or conditional logic if necessary, 
+              but since we use style object for border, let's stick to a clean approach */}
+          <div className="hidden lg:block absolute inset-0">
+            <div className="relative w-full h-full">
+              <Image
+                src={imageSrc}
+                alt={imageAlt}
+                fill
+                className="object-cover group-hover:scale-105 transition-transform duration-300"
+                style={{
+                  borderTopLeftRadius: '30px',
+                  borderBottomLeftRadius: '30px',
+                  borderTopRightRadius: '0px',
+                }}
+              />
+            </div>
+          </div>
         </div>
 
-        {/* Content on the right */}
-        <div className="flex-1 flex flex-col p-4">
+        {/* Content - Bottom on mobile, Right on desktop */}
+        <div className="flex-1 flex flex-col p-3 lg:p-6 justify-center">
           {/* Date */}
-          <div className="mb-2">
+          <div className="mb-1 lg:mb-2">
             <div className="flex items-center gap-2 text-[#2E7D32]">
               <svg
-                width="16"
-                height="16"
+                width="14"
+                height="14"
                 viewBox="0 0 24 24"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
@@ -71,11 +87,10 @@ export default function SmallArticleCard({
                   strokeLinejoin="round"
                 />
               </svg>
-              <span 
-                className="font-bold"
+              <span
+                className="font-bold text-[12px] lg:text-[18px]"
                 style={{
-                  fontSize: '18px',
-                  lineHeight: '35px',
+                  lineHeight: '1.5',
                 }}
               >
                 {date}
@@ -84,19 +99,18 @@ export default function SmallArticleCard({
           </div>
 
           {/* Title */}
-          <h3 
-            className="text-[#0F3F1D] font-bold line-clamp-2 group-hover:text-[#2E7D32] transition-colors flex-1 mb-2"
+          <h3
+            className="text-[#0F3F1D] font-bold line-clamp-2 group-hover:text-[#2E7D32] transition-colors mb-1 lg:mb-2 text-[14px] lg:text-[18px]"
             style={{
-              fontSize: '18px',
-              lineHeight: '35px',
+              lineHeight: '1.4',
             }}
           >
             {title}
           </h3>
 
           {/* Dotted Line */}
-          <div 
-            className="mb-2"
+          <div
+            className="mb-2 lg:mb-3"
             style={{
               width: '100%',
               height: '1px',
@@ -105,11 +119,11 @@ export default function SmallArticleCard({
           ></div>
 
           {/* Metadata Bar */}
-          <div className="flex items-center gap-4 text-[#2E7D32]">
+          <div className="flex items-center gap-3 lg:gap-4 text-[#2E7D32]">
             <div className="flex items-center gap-2">
               <svg
-                width="16"
-                height="16"
+                width="12"
+                height="12"
                 viewBox="0 0 24 24"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
@@ -122,20 +136,12 @@ export default function SmallArticleCard({
                   strokeLinejoin="round"
                 />
               </svg>
-              <span 
-                className="font-bold"
-                style={{
-                  fontSize: '18px',
-                  lineHeight: '35px',
-                }}
-              >
-                Blog
-              </span>
+              <span className="font-bold text-[12px] lg:text-[18px]">Blog</span>
             </div>
             <div className="flex items-center gap-2">
               <svg
-                width="16"
-                height="16"
+                width="12"
+                height="12"
                 viewBox="0 0 24 24"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
@@ -148,15 +154,7 @@ export default function SmallArticleCard({
                   strokeLinejoin="round"
                 />
               </svg>
-              <span 
-                className="font-bold"
-                style={{
-                  fontSize: '18px',
-                  lineHeight: '35px',
-                }}
-              >
-                By {author}
-              </span>
+              <span className="font-bold text-[12px] lg:text-[18px]">By {author}</span>
             </div>
           </div>
         </div>

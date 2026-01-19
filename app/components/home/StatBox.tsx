@@ -18,32 +18,28 @@ export default function StatBox({
 }: StatBoxProps) {
   return (
     <div
-      className={`relative border border-[#A1DF0A] bg-transparent p-4 flex flex-col items-start ${className}`}
+      className={`relative border border-[#A1DF0A] bg-transparent p-3 md:p-4 flex flex-col items-start ${className}`}
       style={{
-        width: '150px',
-        height: '130px',
         borderRadius: '20px',
-        marginLeft: '20px',
-        marginTop: '40px',
       }}
     >
       {/* Leaf Icon at Top */}
       <div
-        className="mb-3 flex items-center justify-center"
+        className="mb-2 md:mb-3 flex items-center justify-center"
         style={{
-          width: '40px',
+          width: '32px',
           aspectRatio: '1 / 1',
           borderRadius: '9999px',
           backgroundColor: '#D9D9D930',
         }}
       >
         <svg
-          width="24"
-          height="24"
+          width="20"
+          height="20"
           viewBox="0 0 24 24"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="block"
+          className="block md:w-6 md:h-6"
         >
           <defs>
             <linearGradient
@@ -70,10 +66,9 @@ export default function StatBox({
 
       {/* Value */}
       <div
-        className="text-white mb-1 text-left w-full"
+        className="text-white mb-0 md:mb-1 text-left w-full text-[14px] md:text-[18px]"
         style={{
-          fontSize: '18px',
-          lineHeight: '20px',
+          lineHeight: '1.2',
           fontWeight: 400,
         }}
       >
@@ -82,10 +77,9 @@ export default function StatBox({
 
       {/* Label */}
       <div
-        className="text-white/80 text-left w-full"
+        className="text-white/80 text-left w-full text-[12px] md:text-[16px]"
         style={{
-          fontSize: '16px',
-          lineHeight: '25px',
+          lineHeight: '1.4',
           fontWeight: 400,
         }}
       >

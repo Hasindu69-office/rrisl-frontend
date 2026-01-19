@@ -124,12 +124,12 @@ export default async function Home({ searchParams }: HomeProps) {
       <DataInsightsSection />
 
       {/* News & Blog Section */}
-      <div className="mt-[150px]">
+      <div className="mt-8 md:mt-16 lg:mt-[150px]">
         <NewsBlogSection />
       </div>
 
       {/* Research Network Section */}
-      <div className="mt-[150px]">
+      <div className="mt-8 md:mt-16 lg:mt-[150px]">
         <ResearchNetworkSection />
       </div>
 
