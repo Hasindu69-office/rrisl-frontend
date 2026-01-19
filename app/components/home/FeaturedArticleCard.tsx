@@ -30,41 +30,28 @@ export default function FeaturedArticleCard({
   link,
 }: FeaturedArticleCardProps) {
   return (
-    <div 
-      className="bg-white overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 group"
-      style={{ borderRadius: '30px' }}
+    <div
+      className="bg-white overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 group rounded-[20px] lg:rounded-[30px]"
     >
-      {/* Image Container - Positioned with 34px from top, 25px from left and right */}
-      <div 
-        className="relative mx-auto"
-        style={{
-          marginTop: '34px',
-          marginLeft: '25px',
-          marginRight: '25px',
-          width: 'calc(100% - 50px)',
-          height: '320px',
-        }}
+      {/* Image Container - Responsive margins and height */}
+      <div
+        className="relative mx-4 md:mx-6 lg:mx-[25px] mt-4 md:mt-8 lg:mt-[34px] h-[200px] md:h-[280px] lg:h-[320px]"
       >
-        {/* Image with 30px radius on all corners */}
-        <div className="relative w-full h-full overflow-hidden" style={{ borderRadius: '30px' }}>
+        {/* Image with responsive radius */}
+        <div className="relative w-full h-full overflow-hidden rounded-[20px] lg:rounded-[30px]">
           <Image
             src={imageSrc}
             alt={imageAlt}
             fill
-            className="object-cover group-hover:scale-105 transition-transform duration-300"
-            style={{ borderRadius: '30px' }}
+            className="object-cover group-hover:scale-105 transition-transform duration-300 rounded-[20px] lg:rounded-[30px]"
           />
         </div>
 
         {/* Metadata Bar - Overlay inside image at bottom left */}
-        <div 
-          className="absolute bottom-0 left-0 bg-[#2E7D32] px-6 py-4"
-          style={{
-            borderBottomLeftRadius: '30px',
-            borderTopRightRadius: '30px',
-          }}
+        <div
+          className="absolute bottom-0 left-0 bg-[#2E7D32] px-4 lg:px-6 py-2 lg:py-4 rounded-bl-[20px] lg:rounded-bl-[30px] rounded-tr-[20px] lg:rounded-tr-[30px]"
         >
-          <div className="flex items-center gap-6 text-sm text-white">
+          <div className="flex items-center gap-3 lg:gap-6 text-xs lg:text-sm text-white">
             <div className="flex items-center gap-2">
               <svg
                 width="16"
@@ -126,24 +113,22 @@ export default function FeaturedArticleCard({
       {/* Content Section with Title, Description, and Button */}
       <div className="px-6 py-6 relative">
         {/* Title */}
-        <h3 
-          className="font-bold mb-4 group-hover:text-[#2E7D32] transition-colors"
+        <h3
+          className="font-bold mb-3 md:mb-4 group-hover:text-[#2E7D32] transition-colors text-[18px] md:text-[20px]"
           style={{
             color: '#0F3F1D',
-            fontSize: '20px',
-            lineHeight: '35px',
+            lineHeight: '1.4',
           }}
         >
           {title}
         </h3>
 
         {/* Description */}
-        <p 
-          className="font-normal mb-6"
+        <p
+          className="font-normal mb-5 md:mb-6 text-[14px] md:text-[16px] lg:text-[18px]"
           style={{
             color: '#000000',
-            fontSize: '18px',
-            lineHeight: '35px',
+            lineHeight: '1.5',
           }}
         >
           {description}
@@ -152,7 +137,7 @@ export default function FeaturedArticleCard({
         {/* Button with Dotted Line Connection */}
         <div className="relative flex items-center">
           {/* Dotted Line on the left */}
-          <div 
+          <div
             className="absolute left-0"
             style={{
               width: 'calc(100% - 178px)', // Width minus button width
@@ -162,11 +147,11 @@ export default function FeaturedArticleCard({
               transform: 'translateY(-50%)',
             }}
           ></div>
-          
+
           {/* Button on the right */}
           <div className="ml-auto">
             <Link href={link}>
-              <Button variant="outline" size="md">
+              <Button variant="outline" size="sm" className="md:!text-base">
                 Read more
               </Button>
             </Link>

@@ -63,19 +63,17 @@ export default function ResearchStationCard({
 }: ResearchStationCardProps) {
   return (
     <div
-      className={`relative rounded-2xl p-6 md:p-8 ${className}`}
+      className={`relative rounded-2xl p-4 md:p-8 w-full h-auto lg:w-[925px] lg:h-[990px] ${className}`}
       style={{
-        width: '925px',
-        height: '990px',
         transition: 'opacity 0.4s ease-in-out',
-        background: 'transparent', // IMPORTANT: keep fill transparent
+        background: 'transparent',
       }}
     >
-      {/* Gradient Border (only border visible) */}
+      {/* Gradient Border */}
       <div
         className="pointer-events-none absolute inset-0 rounded-2xl"
         style={{
-          padding: '2px', // border thickness
+          padding: '2px',
           background: 'linear-gradient(135deg, #20C997, #A1DF0A)',
           WebkitMask:
             'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
@@ -85,186 +83,146 @@ export default function ResearchStationCard({
         }}
       />
 
-      {/* Image Grid - Top Section */}
-      <div className="relative mb-[60px]" style={{ minHeight: '350px' }}>
-        {/* Left Vertical Image - Positioned absolutely */}
-        <div
-          key={`left-${stationData.images.leftVertical}`}
-          className="absolute overflow-hidden"
-          style={{
-            left: '85px',
-            top: '40px',
-            width: '206px',
-            height: '310px',
-            borderRadius: '30px',
-            animation: 'fadeIn 0.5s ease-in-out',
-          }}
-        >
-          <Image
-            src={stationData.images.leftVertical}
-            alt={`${stationData.title} left vertical image`}
-            width={206}
-            height={310}
-            className="object-cover"
-            style={{
-              borderRadius: '30px',
-              width: '100%',
-              height: '100%',
-            }}
-          />
-        </div>
-
-        {/* Middle Column - Two stacked images */}
-        <div
-          className="absolute flex flex-col"
-          style={{ left: '301px', top: '47px', gap: '25px' }}
-        >
-          {/* Top Right Image */}
+      {/* Image Grid - Responsive Section */}
+      <div className="relative mb-8 md:mb-12 lg:mb-[60px] min-h-[250px] md:min-h-[350px]">
+        {/* Desktop Absolute Layout (lg) */}
+        <div className="hidden lg:block h-[350px]">
+          {/* Left Vertical Image */}
           <div
-            key={`top-${stationData.images.topRight}`}
-            className="relative overflow-hidden"
+            key={`left-${stationData.images.leftVertical}`}
+            className="absolute overflow-hidden"
             style={{
+              left: '85px',
+              top: '40px',
+              width: '206px',
+              height: '310px',
               borderRadius: '30px',
-              width: '281px',
-              height: '139px',
-              animation: 'fadeIn 0.5s ease-in-out',
             }}
           >
             <Image
-              src={stationData.images.topRight}
-              alt={`${stationData.title} top right image`}
-              width={281}
-              height={139}
-              className="object-cover"
-              style={{
-                borderRadius: '30px',
-                width: '100%',
-                height: '100%',
-              }}
+              src={stationData.images.leftVertical}
+              alt={stationData.title}
+              width={206}
+              height={310}
+              className="object-cover w-full h-full"
             />
           </div>
 
-          {/* Bottom Right Image */}
+          {/* Middle Column */}
+          <div className="absolute flex flex-col gap-[25px]" style={{ left: '301px', top: '47px' }}>
+            <div
+              key={`top-${stationData.images.topRight}`}
+              className="relative overflow-hidden w-[281px] h-[139px] rounded-[30px]"
+            >
+              <Image
+                src={stationData.images.topRight}
+                alt={stationData.title}
+                width={281}
+                height={139}
+                className="object-cover w-full h-full"
+              />
+            </div>
+            <div
+              key={`bottom-${stationData.images.bottomRight}`}
+              className="relative overflow-hidden w-[281px] h-[139px] rounded-[30px]"
+            >
+              <Image
+                src={stationData.images.bottomRight}
+                alt={stationData.title}
+                width={281}
+                height={139}
+                className="object-cover w-full h-full"
+              />
+            </div>
+          </div>
+
+          {/* Right Vertical Image */}
           <div
-            key={`bottom-${stationData.images.bottomRight}`}
-            className="relative overflow-hidden"
+            key={`right-${stationData.images.rightVertical}`}
+            className="absolute overflow-hidden"
             style={{
+              left: '592px',
+              top: '40px',
+              width: '206px',
+              height: '310px',
               borderRadius: '30px',
-              width: '281px',
-              height: '139px',
-              animation: 'fadeIn 0.5s ease-in-out',
             }}
           >
             <Image
-              src={stationData.images.bottomRight}
-              alt={`${stationData.title} bottom right image`}
-              width={281}
-              height={139}
-              className="object-cover"
-              style={{
-                borderRadius: '30px',
-                width: '100%',
-                height: '100%',
-              }}
+              src={stationData.images.rightVertical}
+              alt={stationData.title}
+              width={206}
+              height={310}
+              className="object-cover w-full h-full"
             />
           </div>
         </div>
 
-        {/* Right Vertical Image */}
-        <div
-          key={`right-${stationData.images.rightVertical}`}
-          className="absolute overflow-hidden"
-          style={{
-            left: '592px',
-            top: '40px',
-            width: '206px',
-            height: '310px',
-            borderRadius: '30px',
-            animation: 'fadeIn 0.5s ease-in-out',
-          }}
-        >
-          <Image
-            src={stationData.images.rightVertical}
-            alt={`${stationData.title} right vertical image`}
-            width={206}
-            height={310}
-            className="object-cover"
-            style={{
-              borderRadius: '30px',
-              width: '100%',
-              height: '100%',
-            }}
-          />
+        {/* Mobile/Tablet Grid Layout (non-lg) */}
+        <div className="lg:hidden grid grid-cols-2 gap-3 md:gap-4 p-2">
+          <div className="relative aspect-[3/4] rounded-[20px] overflow-hidden">
+            <Image src={stationData.images.leftVertical} alt="" fill className="object-cover" />
+          </div>
+          <div className="grid grid-rows-2 gap-3 md:gap-4">
+            <div className="relative rounded-[20px] overflow-hidden">
+              <Image src={stationData.images.topRight} alt="" fill className="object-cover" />
+            </div>
+            <div className="relative rounded-[20px] overflow-hidden">
+              <Image src={stationData.images.bottomRight} alt="" fill className="object-cover" />
+            </div>
+          </div>
+          <div className="relative aspect-[3/4] rounded-[20px] overflow-hidden col-span-2 md:col-span-1">
+            <Image src={stationData.images.rightVertical} alt="" fill className="object-cover" />
+          </div>
         </div>
       </div>
 
-      <div style={{ paddingLeft: '50px' }}>
+      <div className="px-2 md:px-0 lg:pl-[50px]">
         {/* Title with Icon */}
         <div className="flex items-center gap-3 mb-4">
-          <MapPinCheckGradientIcon />
-          <h3
-            className="text-white font-semibold"
-            style={{
-              fontSize: '30px',
-              lineHeight: '128%',
-            }}
-          >
+          <div className="shrink-0 scale-75 md:scale-100 origin-left">
+            <MapPinCheckGradientIcon />
+          </div>
+          <h3 className="text-white font-semibold text-[20px] md:text-[24px] lg:text-[30px] leading-tight md:leading-[128%]">
             {stationData.title}
           </h3>
         </div>
 
         {/* Description */}
-        <p
-          className="text-white/80 mb-6"
-          style={{
-            fontSize: '18px',
-            lineHeight: '35px',
-            fontWeight: 400,
-          }}
-        >
+        <p className="text-white/80 mb-6 text-[14px] md:text-[16px] lg:text-[18px] leading-relaxed md:leading-[35px] font-normal">
           {stationData.description}
         </p>
-      </div>
 
-      {/* Stats Grid - 5 boxes (16px gap) */}
-      <div className="grid grid-cols-5 gap-2 mb-6">
-        {stationData.stats.map((stat, index) => (
-          <StatBox key={index} value={stat.value} label={stat.label} />
-        ))}
-      </div>
+        {/* Stats Grid - Responsive columns */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4 lg:gap-2 mb-8 pr-2">
+          {stationData.stats.map((stat, index) => (
+            <StatBox key={index} value={stat.value} label={stat.label} />
+          ))}
+        </div>
 
-      {/* Action Buttons/Labels - auto width based on text */}
-      <div className="flex flex-wrap gap-[10px]" style={{ marginLeft: '20px', marginTop: '40px' }}>
-        {stationData.actions.map((action, index) => (
-          <div
-            key={index}
-            className="relative rounded-[30px] px-4 py-3 text-center transition-all duration-300 hover:bg-[#20C997]/10"
-          >
-            {/* Gradient Border */}
+        {/* Action Buttons - Responsive flow */}
+        <div className="flex flex-wrap gap-2 lg:gap-[10px] mt-6 md:mt-10 lg:ml-[20px]">
+          {stationData.actions.map((action, index) => (
             <div
-              className="pointer-events-none absolute inset-0 rounded-[30px]"
-              style={{
-                padding: '1.5px', // border thickness
-                background: 'linear-gradient(135deg, #20C997, #A1DF0A)',
-                WebkitMask:
-                  'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                WebkitMaskComposite: 'xor',
-                maskComposite: 'exclude',
-              }}
-            />
-
-            {/* Button Text */}
-            <span
-              className="relative text-white text-sm font-medium"
-              style={{
-                fontSize: '14px',
-                lineHeight: '130%',
-              }}
+              key={index}
+              className="relative rounded-[30px] px-3 md:px-4 py-2 md:py-3 text-center transition-all duration-300 hover:bg-[#20C997]/10"
             >
-              {action}
-            </span>
-          </div>
-        ))}
+              <div
+                className="pointer-events-none absolute inset-0 rounded-[30px]"
+                style={{
+                  padding: '1.5px',
+                  background: 'linear-gradient(135deg, #20C997, #A1DF0A)',
+                  WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                  WebkitMaskComposite: 'xor',
+                  maskComposite: 'exclude',
+                }}
+              />
+              <span className="relative text-white text-[12px] md:text-[14px] font-medium leading-none">
+                {action}
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

@@ -65,31 +65,30 @@ export default function LocationMarker({
       >
         {/* Main Pin Circle + Ripple (mirrors hero banner ripple style) */}
         <div
-          className={`relative flex items-center justify-center ${
-            isHovered || isActive ? 'animate' : ''
-          }`}
+          className={`relative flex items-center justify-center ${isHovered || isActive ? 'animate' : ''
+            }`}
         >
           {/* Ripple ring */}
-          <div className="circle-ripple absolute w-10 h-10 rounded-full bg-[#A1DF0A]/15" />
+          <div className="circle-ripple absolute w-6 h-6 md:w-10 md:h-10 rounded-full bg-[#A1DF0A]/15" />
 
           {/* Outer translucent ring */}
-          <div className="circle-outer absolute w-8 h-8 rounded-full bg-[#A1DF0A]/30" />
+          <div className="circle-outer absolute w-5 h-5 md:w-8 md:h-8 rounded-full bg-[#A1DF0A]/30" />
 
           {/* Main Pin Circle */}
           <div
             className="circle-inner relative rounded-full bg-[#A1DF0A] flex items-center justify-center"
             style={{
-              width: '24px',
-              height: '24px',
-              boxShadow: isHovered || isActive ? '0 0 20px rgba(161, 223, 10, 0.8)' : 'none',
+              width: '18px',
+              height: '18px',
+              boxShadow: isHovered || isActive ? '0 0 15px rgba(161, 223, 10, 0.8)' : 'none',
             }}
           >
             {/* Inner Dot */}
             <div
               className="rounded-full bg-white"
               style={{
-                width: '10px',
-                height: '10px',
+                width: '8px',
+                height: '8px',
               }}
             />
           </div>
@@ -99,17 +98,14 @@ export default function LocationMarker({
       {/* Label - Appears on hover/active */}
       {shouldShowLabel && (
         <div
-          className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 px-3 py-1 bg-white/90 backdrop-blur-sm rounded-lg whitespace-nowrap transition-opacity duration-300"
+          className="absolute top-full left-1/2 transform -translate-x-1/2 mt-1 md:mt-2 px-2 md:px-3 py-1 bg-white/90 backdrop-blur-sm rounded-lg whitespace-nowrap transition-opacity duration-300"
           style={{
             opacity: shouldShowLabel ? 1 : 0,
             pointerEvents: 'none',
           }}
         >
           <span
-            className="text-[#0F3F1D] font-semibold"
-            style={{
-              fontSize: '14px',
-            }}
+            className="text-[#0F3F1D] font-semibold text-[12px] md:text-[14px]"
           >
             {label}
           </span>
@@ -119,15 +115,34 @@ export default function LocationMarker({
             style={{
               width: 0,
               height: 0,
-              borderLeft: '6px solid transparent',
-              borderRight: '6px solid transparent',
-              borderBottom: '6px solid rgba(255, 255, 255, 0.9)',
+              borderLeft: '4px solid transparent',
+              borderRight: '4px solid transparent',
+              borderBottom: '4px solid rgba(255, 255, 255, 0.9)',
             }}
           />
         </div>
       )}
 
+      {/* Responsive adjustments via media query for larger pins on desktop */}
       <style jsx>{`
+        @media (min-width: 768px) {
+          .circle-inner {
+            width: 24px !important;
+            height: 24px !important;
+          }
+          .circle-inner > div {
+            width: 10px !important;
+            height: 10px !important;
+          }
+          .circle-outer {
+            width: 32px !important;
+            height: 32px !important;
+          }
+          .circle-ripple {
+             width: 40px !important;
+             height: 40px !important;
+          }
+        }
         @keyframes circleFadeIn {
           0% {
             opacity: 0;

@@ -41,9 +41,9 @@ export default function ResearchNetworkMap({
   className = '',
 }: ResearchNetworkMapProps) {
   return (
-    <div className={`flex flex-col gap-6 items-end w-full max-w-[800px] ${className}`}>
+    <div className={`flex flex-col gap-4 md:gap-6 items-center lg:items-end w-full max-w-[800px] ${className}`}>
       {/* Our Research Button */}
-      <div className="text-right">
+      <div className="lg:text-right">
         <GradientTag
           text={buttonText}
           className="inline-block"
@@ -55,26 +55,25 @@ export default function ResearchNetworkMap({
       </div>
 
       {/* Title */}
-      <div className="mb-6">
+      <div className="mb-4 lg:mb-6">
         <GradientTitle
           part1={titlePart1}
           part2={titlePart2}
           part1Color="white"
           size="custom"
-          customSize="50px"
-          align="right"
-          className="font-bold"
+          align="center"
+          className="font-bold text-[28px] md:text-[40px] lg:text-[50px] lg:text-right"
           style={{ lineHeight: '130%' }}
         />
       </div>
 
-      {/* Map Container */}
-      <div className="relative" style={{ width: '635px', height: '725px' }}>
+      {/* Map Container - Responsive sizing */}
+      <div className="relative w-full max-w-[400px] md:max-w-[500px] lg:w-[635px] aspect-[635/725] md:h-auto lg:h-[725px] lg:translate-x-0 -translate-x-[19%]">
         {/* Map Image */}
-        <div className="relative w-full h-full rounded-lg" style={{ overflow: 'visible' }}>
-          <div 
+        <div className="relative w-full h-full lg:w-[80%] rounded-lg" style={{ overflow: 'visible' }}>
+          <div
             className="absolute"
-            style={{ 
+            style={{
               top: '-10%',
               left: '-1%',
               width: '140%',
@@ -93,17 +92,19 @@ export default function ResearchNetworkMap({
         </div>
 
         {/* Location Markers */}
-        {locations.map((location) => (
-          <LocationMarker
-            key={location.id}
-            id={location.id}
-            label={location.label}
-            position={location.position}
-            isActive={activeLocationId === location.id}
-            onMouseEnter={onLocationHover}
-            onMouseLeave={onLocationLeave}
-          />
-        ))}
+        <div className="absolute inset-0">
+          {locations.map((location) => (
+            <LocationMarker
+              key={location.id}
+              id={location.id}
+              label={location.label}
+              position={location.position}
+              isActive={activeLocationId === location.id}
+              onMouseEnter={onLocationHover}
+              onMouseLeave={onLocationLeave}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );

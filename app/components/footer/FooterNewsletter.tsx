@@ -17,12 +17,12 @@ export default function FooterNewsletter() {
       className="relative z-20 px-4 md:px-6 lg:px-8"
     >
       <div className="mx-auto w-full max-w-[1480px]">
-        <div className="relative flex items-center overflow-hidden rounded-[16px] md:rounded-[24px] lg:rounded-[32px] bg-gradient-to-r from-[#20C997] to-[#A1DF0A] px-4 py-6 sm:px-6 sm:py-8 md:px-12 md:py-10 lg:px-[97px] lg:py-0 lg:h-[366px] shadow-[0_16px_40px_rgba(0,0,0,0.25)] md:shadow-[0_24px_60px_rgba(0,0,0,0.3)] lg:shadow-[0_32px_80px_rgba(0,0,0,0.35)]">
+        <div className="relative flex items-center overflow-hidden rounded-[24px] md:rounded-[32px] bg-gradient-to-r from-[#20C997] to-[#A1DF0A] px-6 py-10 md:px-12 md:py-16 lg:px-[97px] lg:py-0 lg:h-[366px] shadow-[0_16px_40px_rgba(0,0,0,0.25)] md:shadow-[0_24px_60px_rgba(0,0,0,0.3)] lg:shadow-[0_32px_80px_rgba(0,0,0,0.35)]">
           {/* Content layout */}
-          <div className="w-full grid items-center gap-6 sm:gap-8 md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
+          <div className="w-full grid items-center gap-8 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
             {/* Text */}
-            <div className="space-y-2 sm:space-y-3 md:space-y-4">
-              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-[50px] font-bold leading-[130%] text-white">
+            <div className="space-y-4 text-center lg:text-left">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[50px] font-bold leading-[1.2] lg:leading-[130%] text-white">
                 Stay Updated With the Latest Research &amp; Insights
               </h2>
             </div>
@@ -36,16 +36,16 @@ export default function FooterNewsletter() {
               <label className="sr-only" htmlFor="footer-newsletter-email">
                 Email address
               </label>
-              
+
               {/* Mobile/Tablet: Stacked layout */}
-              <div className="flex flex-col gap-3 lg:hidden">
+              <div className="flex flex-col gap-4 lg:hidden">
                 <input
                   id="footer-newsletter-email"
                   type="email"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                   placeholder="Enter Your Email"
-                  className="w-full h-12 sm:h-14 bg-white rounded-[24px] sm:rounded-[32px] px-4 sm:px-6 text-sm md:text-base text-gray-800 placeholder:text-gray-500 outline-none"
+                  className="w-full h-14 bg-white rounded-[50px] px-8 text-base text-gray-800 placeholder:text-gray-500 outline-none shadow-sm"
                   aria-invalid={errorMessage ? 'true' : 'false'}
                   aria-describedby={errorMessage ? 'footer-newsletter-error' : undefined}
                   required
@@ -54,7 +54,7 @@ export default function FooterNewsletter() {
                   type="submit"
                   variant="outline"
                   disabled={isSubmitting || isSuccess}
-                  className="!w-full sm:!w-auto sm:!mx-auto !h-12 sm:!h-14 !rounded-[24px] sm:!rounded-[32px] border-[#2E7D32] text-[#2E7D32] hover:bg-[#2E7D32] hover:text-white disabled:cursor-default disabled:opacity-80 text-sm sm:text-base px-8"
+                  className="!w-full !max-w-[200px] !mx-auto !h-14 !rounded-[50px] border-[#2E7D32] text-[#2E7D32] bg-white hover:bg-[#2E7D32] hover:text-white disabled:cursor-default disabled:opacity-80 text-base font-bold shadow-md"
                 >
                   {isSubmitting ? 'Submitting...' : isSuccess ? 'Subscribed' : 'Submit'}
                 </Button>
@@ -86,12 +86,12 @@ export default function FooterNewsletter() {
               </div>
 
               {/* Messages */}
-              <div className="min-h-[1.5rem] mt-2">
+              <div className="min-h-[1.5rem] mt-3 text-center lg:text-left">
                 {errorMessage && (
                   <p
                     id="footer-newsletter-error"
                     role="alert"
-                    className="text-sm text-red-100"
+                    className="text-sm font-medium text-red-100"
                   >
                     {errorMessage}
                   </p>
@@ -99,7 +99,7 @@ export default function FooterNewsletter() {
                 {isSuccess && !errorMessage && (
                   <p
                     role="status"
-                    className="text-sm text-emerald-50"
+                    className="text-sm font-medium text-emerald-50"
                   >
                     Thank you for subscribing. You&apos;ll start receiving updates soon.
                   </p>
