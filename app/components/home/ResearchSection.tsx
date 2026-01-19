@@ -70,7 +70,7 @@ export default function ResearchSection() {
 
   // Setup GSAP ScrollTrigger
   useEffect(() => {
-      if (!sectionRef.current) return;
+    if (!sectionRef.current) return;
 
     // Calculate scroll distance based on number of cards
     // Each card transition should take about 1200px of scroll
@@ -88,7 +88,7 @@ export default function ResearchSection() {
       onUpdate: (self) => {
         // Calculate which card should be active based on scroll progress
         const progress = self.progress;
-        
+
         // Calculate card index - each card gets equal scroll distance
         // The higher scrub value (2) already adds smoothing/lag
         // This calculation ensures smooth transitions between cards
@@ -97,7 +97,7 @@ export default function ResearchSection() {
           Math.max(0, Math.floor(cardProgress)),
           cards.length - 1
         );
-        
+
         // Only update if card actually changed to prevent unnecessary re-renders
         if (cardIndex !== lastCardIndexRef.current) {
           setActiveCardIndex(cardIndex);
@@ -157,29 +157,26 @@ export default function ResearchSection() {
   }, []);
 
   return (
-    <section 
+    <section
       ref={sectionRef}
-      className="relative w-full overflow-hidden"
-      style={{ height: '100vh' }}
+      className="relative w-full overflow-hidden h-auto lg:h-[100vh]"
     >
-      <div className="sticky top-0 w-full h-screen px-4 md:px-6 lg:px-8 flex items-center">
+      <div className="relative lg:sticky top-0 w-full min-h-screen lg:h-screen px-4 md:px-6 lg:px-8 flex items-center py-10 lg:py-0">
         {/* Light Green Rounded Container */}
-        <div 
-          className="relative rounded-[100px] overflow-hidden mx-auto w-full"
+        <div
+          className="relative rounded-[30px] lg:rounded-[100px] overflow-hidden mx-auto w-full h-auto lg:h-[720px] bg-[#2E7D3221] p-6 md:p-12 lg:pt-[115px] lg:pr-[50px] lg:pb-[60px] lg:pl-[240px]"
           style={{
             width: '95%',
             maxWidth: '1824px',
-            height: '720px',
-            backgroundColor: '#2E7D3221', // Light green background
-            padding: '115px 50px 60px 240px',
+            // height, padding, backgroundColor handled by classes for responsiveness
           }}
         >
-          <div className="flex flex-col lg:flex-row items-start gap-12 lg:gap-16 relative h-full">
+          <div className="flex flex-col lg:flex-row items-start gap-8 md:gap-12 lg:gap-16 relative h-full">
             {/* Left Side - Content (Sticky, fades in on scroll) */}
-            <div ref={leftContentRef} className="flex-1 flex flex-col z-20">
+            <div ref={leftContentRef} className="flex-1 flex flex-col z-20 w-full">
               {/* Our Research Tag */}
-              <div className="mb-6">
-                <GradientTag 
+              <div className="mb-4 lg:mb-6">
+                <GradientTag
                   text="Our Research"
                   className="inline-block"
                   gradientFrom="#20C997"
@@ -190,25 +187,22 @@ export default function ResearchSection() {
               </div>
 
               {/* Main Heading */}
-              <div className="mb-6">
+              <div className="mb-4 lg:mb-6">
                 <GradientTitle
                   part1="Your Gateway to"
                   part2="Research & Innovation"
                   part1Color="dark-green"
                   size="custom"
-                  customSize="50px"
-                  className="font-bold"
+                  className="font-bold text-[28px] md:text-[40px] lg:text-[50px]"
                   style={{ lineHeight: '130%' }}
                 />
               </div>
 
               {/* Description */}
-              <p 
-                className="max-w-2xl"
+              <p
+                className="max-w-2xl text-[14px] md:text-[16px] lg:text-[18px] leading-[1.5] lg:leading-[35px]"
                 style={{
-                  fontSize: '18px',
                   fontWeight: 400,
-                  lineHeight: '35px',
                   color: '#000000',
                 }}
               >
@@ -217,30 +211,25 @@ export default function ResearchSection() {
             </div>
 
             {/* Right Side - Cards Container */}
-            <div className="flex-1 flex flex-col z-20 relative" style={{ minHeight: '400px' }}>
+            <div className="flex-1 flex flex-col z-20 relative w-full" style={{ minHeight: '350px' }}>
               {cards.map((card, index) => (
                 <div
                   key={index}
                   className="absolute inset-0 flex flex-col"
                   style={{
                     opacity: index === activeCardIndex ? 1 : 0,
-                    transform: index === activeCardIndex 
-                      ? 'translateY(0)' 
-                      : index < activeCardIndex 
-                        ? 'translateY(-20px)' 
+                    transform: index === activeCardIndex
+                      ? 'translateY(0)'
+                      : index < activeCardIndex
+                        ? 'translateY(-20px)'
                         : 'translateY(20px)',
                     transition: 'opacity 0.6s ease-in-out, transform 0.6s ease-in-out',
                     pointerEvents: index === activeCardIndex ? 'auto' : 'none',
                   }}
                 >
                   {/* Earth Image */}
-                  <div 
-                    className="relative overflow-hidden mb-6"
-                    style={{
-                      width: '500px',
-                      height: '270px',
-                      borderRadius: '30px',
-                    }}
+                  <div
+                    className="relative overflow-hidden mb-6 w-full max-w-[500px] aspect-video lg:w-[500px] lg:h-[270px] rounded-[20px] lg:rounded-[30px]"
                   >
                     <Image
                       src={card.imageSrc}
@@ -255,12 +244,10 @@ export default function ResearchSection() {
                   {/* Publications and Read more - Positioned at bottom left */}
                   <div className="flex flex-col gap-4 items-start">
                     {/* Publications Heading */}
-                    <h3 
-                      className="text-[#0f422c]"
+                    <h3
+                      className="text-[#0f422c] text-[18px] lg:text-[20px] font-semibold"
                       style={{
-                        fontSize: '20px',
                         lineHeight: '137%',
-                        fontWeight: 600,
                       }}
                     >
                       {card.title}
@@ -269,7 +256,7 @@ export default function ResearchSection() {
                     {/* Read more Button */}
                     <div>
                       <Link href={card.buttonLink}>
-                        <Button variant="outline" size="md">
+                        <Button variant="outline" size="sm" className="md:!text-base">
                           {card.buttonText}
                         </Button>
                       </Link>
@@ -280,8 +267,8 @@ export default function ResearchSection() {
             </div>
 
             {/* Bottom Right - Hand Holding Plant Illustration */}
-            <div 
-              className="absolute -bottom-32 -right-54 z-10 pointer-events-none overflow-hidden"
+            <div
+              className="absolute -bottom-32 -right-54 z-10 pointer-events-none overflow-hidden hidden lg:block"
               style={{
                 width: '500px',
                 height: '330px',
