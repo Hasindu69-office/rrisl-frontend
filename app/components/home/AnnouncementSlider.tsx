@@ -185,7 +185,7 @@ export default function AnnouncementSlider({ announcements }: AnnouncementSlider
 
   return (
     <div
-      className="w-full flex flex-row items-center gap-6 md:gap-6 lg:gap-18 max-[490px]:mt-[-125px] max-[550px]:mt-[-200px] max-[770px]:mt-[-650px] max-[825px]:mt-[-600px] max-[855px]:mt-[-125px]"
+      className="w-full flex flex-row items-center gap-6 md:gap-6 lg:gap-18 max-[490px]:mt-[-125px] max-[550px]:mt-[-200px] max-[770px]:mt-[-650px] max-[825px]:mt-[-600px] max-[855px]:mt-[-125px] max-[920px]:mt-[-650px]"
       style={{
         overflow: 'visible',
         position: 'relative',
