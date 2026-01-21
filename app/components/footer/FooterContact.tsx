@@ -14,11 +14,11 @@ export default function FooterContact({
 }: FooterContactProps) {
   return (
     <div>
-      <h3 className="text-[20px] md:text-[24px] lg:text-[30px] font-semibold leading-[128%] text-white">
+      <h3 className="text-[18px] md:text-[20px] lg:text-[24px] font-semibold leading-[128%] text-white">
         Contact us
       </h3>
 
-      <div className="mt-6 md:mt-10 lg:mt-[54px] space-y-4 md:space-y-[20px] text-[14px] md:text-[16px] lg:text-[18px] leading-relaxed md:leading-[35px] font-normal text-white">
+      <div className="mt-4 md:mt-6 lg:mt-[30px] space-y-3 md:space-y-4 text-[12px] md:text-[14px] lg:text-[15px] leading-relaxed md:leading-[28px] font-normal text-white">
         <div className="flex items-start gap-3">
           <div className="flex-shrink-0 mt-1">
             <svg width="20" height="20" className="md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -70,7 +70,7 @@ export default function FooterContact({
           </div>
         </div>
 
-        <div className="ml-8 md:ml-[36px]">
+        <div className="ml-8 md:ml-[36px] mt-1">
           <a
             href={`mailto:${email}`}
             className="text-white hover:text-[#A1DF0A]"

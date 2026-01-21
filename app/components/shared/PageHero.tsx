@@ -36,7 +36,7 @@ export default async function PageHero({
           priority
         />
         {/* Radial Gradient Overlay */}
-        <div 
+        <div
           className="absolute inset-0"
           style={{
             background: 'radial-gradient(circle at center, #042012 0%, #223A2D 100%)',
@@ -53,7 +53,7 @@ export default async function PageHero({
       </div>
 
       {/* Hero Content Section */}
-      <div className="flex-1 flex items-center justify-center relative z-10 mt-20 md:mt-24">
+      <div className="flex-1 flex items-center justify-center relative z-10 mt-8 md:mt-12 lg:mt-24">
         <div className="container mx-auto px-4 md:px-6 lg:px-8 max-w-[1440px] w-full">
           <div className="flex flex-col items-center text-center space-y-4 md:space-y-6">
             {/* Page Title */}

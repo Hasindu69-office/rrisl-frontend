@@ -181,7 +181,7 @@ export default function HomeHeroWithHeader({
   };
 
   return (
-    <section className="relative md:min-h-screen flex flex-col">
+    <section className="relative md:min-h-screen flex flex-col overflow-x-clip">
       {/* Background Image Slider - Cover navigation bar and hero content area */}
       {totalSlides > 0 && (
         <div className="absolute top-0 left-0 w-full h-[75%] lg:w-full lg:h-full z-0">
@@ -622,15 +622,16 @@ export default function HomeHeroWithHeader({
       <div className="absolute z-20 pointer-events-none
         bottom-[30%] right-0 
         md:bottom-[32%] md:right-0
-        lg:bottom-0 lg:right-0 lg:translate-y-0 lg:-right-10
+        lg:bottom-0 lg:translate-y-0 lg:-right-4
         w-[300px] 
         md:w-[500px] 
-        lg:w-[1077px]
-        lg:h-[151px]">
+        lg:w-[800px]
+        xl:w-[1064px]
+        lg:h-[108px]
+        xl:h-[150px]">
         <svg
           width="100%"
-          height="80"
-          className="md:h-[120px] lg:h-[151px]"
+          className="h-[80px] md:h-[120px] lg:h-[110px] xl:h-[151px]"
           viewBox="0 0 1077 151"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -652,7 +653,7 @@ export default function HomeHeroWithHeader({
 
       {/* Announcement Slider Section - Bottom Right Above White Curved Cutout */}
       {announcements && announcements.length > 0 && (
-        <div className="absolute bottom-36 md:bottom-0 lg:-bottom-54 right-0 md:-right-20 z-30 pointer-events-auto pr-0 md:pr-8 lg:pr-8 left-[20px] lg:left-auto" style={{ overflow: 'visible' }}>
+        <div className="absolute bottom-36 md:bottom-0 lg:-bottom-54 right-0 md:right-0 z-30 pointer-events-auto pr-0 md:pr-8 lg:pr-8 left-[20px] lg:left-auto" style={{ overflow: 'visible' }}>
           <div className="flex justify-start md:justify-end lg:justify-end" style={{ overflow: 'visible', maxWidth: '100%' }}>
             <AnnouncementSlider
               announcements={announcements}

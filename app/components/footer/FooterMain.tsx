@@ -24,7 +24,7 @@ export default function FooterMain() {
       </div>
 
       {/* Hand image on the right */}
-      <div className="pointer-events-none absolute -bottom-12 -right-72 z-10 hidden h-[638px] w-[958px] lg:block">
+      <div className="pointer-events-none absolute -bottom-12 -right-72 z-10 hidden h-[50%] w-[65%] lg:block">
         <div className="relative h-full w-full">
           <Image
             src="/images/footer_hand.png"
@@ -37,11 +37,11 @@ export default function FooterMain() {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 px-4 pb-10 pt-16 md:pt-24 lg:pt-[237px] md:px-6 lg:px-8">
+      <div className="relative z-10 px-4 pb-10 pt-16 md:pt-24 lg:pt-[237px] md:px-6 lg:px-4">
         <div className="mx-auto flex max-w-[1440px] flex-col gap-12">
           {/* Logo + institute text */}
-          <div className="flex flex-col items-center lg:items-start gap-6 text-center lg:text-left">
-            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 md:gap-8">
+          <div className="flex flex-col items-center gap-6 text-center mt-36 md:mt-28 lg:mt-0">
+            <div className="flex flex-wrap items-center justify-center gap-4 md:gap-8">
               <Image
                 src="/images/rrisl_logo.png"
                 alt="Rubber Research Institute of Sri Lanka logo"
@@ -53,7 +53,7 @@ export default function FooterMain() {
           </div>
 
           {/* Columns */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,0.9fr)_minmax(0,1.4fr)] gap-y-12 gap-x-4 md:gap-x-12 lg:gap-2 mt-12 md:mt-16 lg:mt-[91px]">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-y-10 gap-x-4 md:gap-x-12 lg:gap-x-0 xl:gap-x-0 mt-8 md:mt-10 lg:mt-[60px] lg:max-w-[1080px] w-full ml-2 md:ml-4 lg:ml-24">
             <FooterLinksColumn title="Quick Links" links={quickLinks} />
             <FooterLinksColumn title="Important links" links={importantLinks} />
 

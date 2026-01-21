@@ -14,7 +14,7 @@ export default function FooterNewsletter() {
   return (
     <section
       aria-label="Newsletter subscription"
-      className="relative z-20 px-4 md:px-6 lg:px-8"
+      className="relative z-20 px-4 md:px-6 lg:px-36"
     >
       <div className="mx-auto w-full max-w-[1480px]">
         <div className="relative flex items-center overflow-hidden rounded-[24px] md:rounded-[32px] bg-gradient-to-r from-[#20C997] to-[#A1DF0A] px-6 py-10 md:px-12 md:py-16 lg:px-[97px] lg:py-0 lg:h-[366px] shadow-[0_16px_40px_rgba(0,0,0,0.25)] md:shadow-[0_24px_60px_rgba(0,0,0,0.3)] lg:shadow-[0_32px_80px_rgba(0,0,0,0.35)]">
@@ -22,7 +22,7 @@ export default function FooterNewsletter() {
           <div className="w-full grid items-center gap-8 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
             {/* Text */}
             <div className="space-y-4 text-center lg:text-left">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[50px] font-bold leading-[1.2] lg:leading-[130%] text-white">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[35px] font-bold leading-[1.2] lg:leading-[130%] text-white">
                 Stay Updated With the Latest Research &amp; Insights
               </h2>
             </div>
@@ -30,7 +30,7 @@ export default function FooterNewsletter() {
             {/* Form */}
             <form
               onSubmit={handleSubmit}
-              className="w-full lg:w-[561px] h-auto lg:h-[74px]"
+              className="w-full lg:w-auto h-auto lg:h-[74px]"
               noValidate
             >
               <label className="sr-only" htmlFor="footer-newsletter-email">
