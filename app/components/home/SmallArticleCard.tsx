@@ -27,16 +27,16 @@ export default function SmallArticleCard({
   link,
 }: SmallArticleCardProps) {
   return (
-    <Link href={link} className="block group w-full lg:w-[675px]">
+    <Link href={link} className="block group w-full xl:w-[675px]">
       <div
-        className="bg-white overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 flex flex-col lg:flex-row mb-4"
+        className="bg-white overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 flex flex-col xl:flex-row mb-4"
         style={{
           border: '1px solid #A1DF0A',
           borderRadius: '30px',
         }}
       >
         {/* Image - Top on mobile, Left on desktop */}
-        <div className="relative w-full lg:w-[276px] h-32 lg:h-[200px] flex-shrink-0">
+        <div className="relative w-full xl:w-[276px] h-32 xl:h-[200px] flex-shrink-0">
           <Image
             src={imageSrc}
             alt={imageAlt}
@@ -50,7 +50,7 @@ export default function SmallArticleCard({
           />
           {/* Reset border radius for desktop view via utility classes or conditional logic if necessary, 
               but since we use style object for border, let's stick to a clean approach */}
-          <div className="hidden lg:block absolute inset-0">
+          <div className="hidden xl:block absolute inset-0">
             <div className="relative w-full h-full">
               <Image
                 src={imageSrc}
@@ -68,9 +68,9 @@ export default function SmallArticleCard({
         </div>
 
         {/* Content - Bottom on mobile, Right on desktop */}
-        <div className="flex-1 flex flex-col p-3 lg:p-6 justify-center">
+        <div className="flex-1 flex flex-col p-3 xl:p-6 justify-center">
           {/* Date */}
-          <div className="mb-1 lg:mb-2">
+          <div className="mb-1 xl:mb-2">
             <div className="flex items-center gap-2 text-[#2E7D32]">
               <svg
                 width="14"
@@ -88,7 +88,7 @@ export default function SmallArticleCard({
                 />
               </svg>
               <span
-                className="font-bold text-[12px] lg:text-[18px]"
+                className="font-bold text-[12px] xl:text-[18px]"
                 style={{
                   lineHeight: '1.5',
                 }}
@@ -100,7 +100,7 @@ export default function SmallArticleCard({
 
           {/* Title */}
           <h3
-            className="text-[#0F3F1D] font-bold line-clamp-2 group-hover:text-[#2E7D32] transition-colors mb-1 lg:mb-2 text-[14px] lg:text-[18px]"
+            className="text-[#0F3F1D] font-bold line-clamp-2 group-hover:text-[#2E7D32] transition-colors mb-1 xl:mb-2 text-[14px] xl:text-[18px]"
             style={{
               lineHeight: '1.4',
             }}
@@ -110,7 +110,7 @@ export default function SmallArticleCard({
 
           {/* Dotted Line */}
           <div
-            className="mb-2 lg:mb-3"
+            className="mb-2 xl:mb-3"
             style={{
               width: '100%',
               height: '1px',
@@ -119,7 +119,7 @@ export default function SmallArticleCard({
           ></div>
 
           {/* Metadata Bar */}
-          <div className="flex items-center gap-3 lg:gap-4 text-[#2E7D32]">
+          <div className="flex items-center gap-3 xl:gap-4 text-[#2E7D32]">
             <div className="flex items-center gap-2">
               <svg
                 width="12"
@@ -136,7 +136,7 @@ export default function SmallArticleCard({
                   strokeLinejoin="round"
                 />
               </svg>
-              <span className="font-bold text-[12px] lg:text-[18px]">Blog</span>
+              <span className="font-bold text-[12px] xl:text-[18px]">Blog</span>
             </div>
             <div className="flex items-center gap-2">
               <svg
@@ -154,7 +154,7 @@ export default function SmallArticleCard({
                   strokeLinejoin="round"
                 />
               </svg>
-              <span className="font-bold text-[12px] lg:text-[18px]">By {author}</span>
+              <span className="font-bold text-[12px] xl:text-[18px]">By {author}</span>
             </div>
           </div>
         </div>

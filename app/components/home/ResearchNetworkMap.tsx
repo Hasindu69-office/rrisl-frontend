@@ -41,9 +41,9 @@ export default function ResearchNetworkMap({
   className = '',
 }: ResearchNetworkMapProps) {
   return (
-    <div className={`flex flex-col gap-4 md:gap-6 items-center lg:items-end w-full max-w-[800px] ${className}`}>
+    <div className={`flex flex-col gap-4 md:gap-6 items-center xl:items-end w-full max-w-[800px] ${className}`}>
       {/* Our Research Button */}
-      <div className="lg:text-right">
+      <div className="xl:text-right">
         <GradientTag
           text={buttonText}
           className="inline-block"
@@ -62,15 +62,15 @@ export default function ResearchNetworkMap({
           part1Color="white"
           size="custom"
           align="center"
-          className="font-bold text-[28px] md:text-[40px] lg:text-[50px] lg:text-right"
+          className="font-bold text-[28px] md:text-[40px] xl:text-[50px] xl:text-right"
           style={{ lineHeight: '130%' }}
         />
       </div>
 
       {/* Map Container - Responsive sizing */}
-      <div className="relative w-full max-w-[400px] md:max-w-[500px] lg:w-[635px] aspect-[635/725] md:h-auto lg:h-[725px] lg:translate-x-0 -translate-x-[19%]">
+      <div className="relative w-full max-w-[400px] md:max-w-[500px] xl:w-[635px] aspect-[635/725] md:h-auto xl:h-[725px] xl:translate-x-0 -translate-x-[19%]">
         {/* Map Image */}
-        <div className="relative w-full h-full lg:w-[80%] rounded-lg" style={{ overflow: 'visible' }}>
+        <div className="relative w-full h-full xl:w-[80%] rounded-lg" style={{ overflow: 'visible' }}>
           <div
             className="absolute"
             style={{

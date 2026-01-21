@@ -17,12 +17,12 @@ export default function FooterNewsletter() {
       className="relative z-20 px-4 md:px-6 lg:px-36"
     >
       <div className="mx-auto w-full max-w-[1480px]">
-        <div className="relative flex items-center overflow-hidden rounded-[24px] md:rounded-[32px] bg-gradient-to-r from-[#20C997] to-[#A1DF0A] px-6 py-10 md:px-12 md:py-16 lg:px-[97px] lg:py-0 lg:h-[366px] shadow-[0_16px_40px_rgba(0,0,0,0.25)] md:shadow-[0_24px_60px_rgba(0,0,0,0.3)] lg:shadow-[0_32px_80px_rgba(0,0,0,0.35)]">
+        <div className="relative flex items-center overflow-hidden rounded-[24px] md:rounded-[32px] bg-gradient-to-r from-[#20C997] to-[#A1DF0A] px-6 py-10 md:px-12 md:py-16 xl:px-[97px] xl:py-0 xl:h-[366px] shadow-[0_16px_40px_rgba(0,0,0,0.25)] md:shadow-[0_24px_60px_rgba(0,0,0,0.3)] lg:shadow-[0_32px_80px_rgba(0,0,0,0.35)]">
           {/* Content layout */}
-          <div className="w-full grid items-center gap-8 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
+          <div className="w-full grid items-center gap-8 xl:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
             {/* Text */}
-            <div className="space-y-4 text-center lg:text-left">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[35px] font-bold leading-[1.2] lg:leading-[130%] text-white">
+            <div className="space-y-4 text-center xl:text-left">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[30px] xl:text-[35px] font-bold leading-[1.2] xl:leading-[130%] text-white">
                 Stay Updated With the Latest Research &amp; Insights
               </h2>
             </div>
@@ -30,7 +30,7 @@ export default function FooterNewsletter() {
             {/* Form */}
             <form
               onSubmit={handleSubmit}
-              className="w-full lg:w-auto h-auto lg:h-[74px]"
+              className="w-full xl:w-auto h-auto xl:h-[74px]"
               noValidate
             >
               <label className="sr-only" htmlFor="footer-newsletter-email">
@@ -38,7 +38,7 @@ export default function FooterNewsletter() {
               </label>
 
               {/* Mobile/Tablet: Stacked layout */}
-              <div className="flex flex-col gap-4 lg:hidden">
+              <div className="flex flex-col gap-4 xl:hidden">
                 <input
                   id="footer-newsletter-email"
                   type="email"
@@ -61,14 +61,14 @@ export default function FooterNewsletter() {
               </div>
 
               {/* Desktop: Inline layout (preserved original design) */}
-              <div className="hidden lg:block relative w-full h-full bg-white rounded-[50px] flex items-center">
+              <div className="hidden xl:block relative w-full h-full bg-white rounded-[50px] flex items-center">
                 <input
                   id="footer-newsletter-email"
                   type="email"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                   placeholder="Enter Your Email"
-                  className="flex-1 h-full bg-transparent pl-[39px] pr-[190px] text-base text-gray-800 placeholder:text-gray-500 outline-none rounded-l-[50px]"
+                  className="flex-1 h-full bg-transparent xl:pl-[39px] xl:pr-[190px] text-base text-gray-800 placeholder:text-gray-500 outline-none rounded-l-[50px]"
                   aria-invalid={errorMessage ? 'true' : 'false'}
                   aria-describedby={errorMessage ? 'footer-newsletter-error' : undefined}
                   required
@@ -86,7 +86,7 @@ export default function FooterNewsletter() {
               </div>
 
               {/* Messages */}
-              <div className="min-h-[1.5rem] mt-3 text-center lg:text-left">
+              <div className="min-h-[1.5rem] mt-3 text-center xl:text-left">
                 {errorMessage && (
                   <p
                     id="footer-newsletter-error"

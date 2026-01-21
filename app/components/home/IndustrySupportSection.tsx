@@ -119,7 +119,7 @@ export default function IndustrySupportSection() {
           {/* Service Cards - Positioned around the plant */}
           {/* Top Left - Research & Innovation (White) */}
           <div
-            className="absolute right-[75%] left-[0%] top-[12%] md:left-[15%] md:top-[20%] lg:left-[25%] lg:top-[25%] z-30 transform scale-[0.6] md:scale-[0.8] lg:scale-100 origin-center"
+            className="absolute right-[75%] left-[0%] top-[12%] md:left-[15%] md:top-[20%] lg:top-[25%] xl:left-[25%] xl:top-[25%] z-30 transform scale-[0.6] md:scale-[0.8] lg:scale-100 origin-center"
             style={getCardAnimationStyle('left', 0)}
           >
             <ServiceCard
@@ -131,7 +131,7 @@ export default function IndustrySupportSection() {
 
           {/* Middle Left - Training & Development (Green) */}
           <div
-            className="absolute right-[75%] left-[0%] top-[36%] md:left-[15%] md:top-[47%] lg:left-[20%] lg:top-[50%] z-30 transform scale-[0.6] md:scale-[0.8] lg:scale-100 origin-center"
+            className="absolute right-[75%] left-[0%] top-[36%] md:left-[15%] md:top-[47%] xl:left-[20%] xl:top-[50%] z-30 transform scale-[0.6] md:scale-[0.8] lg:scale-100 origin-center"
             style={getCardAnimationStyle('left', 1)}
           >
             <ServiceCard
@@ -143,7 +143,7 @@ export default function IndustrySupportSection() {
 
           {/* Bottom Left - Statistics & Market Insights (Green) */}
           <div
-            className="absolute right-[75%] left-[0%] top-[60%] md:left-[10%] md:top-[72%] lg:left-[20%] lg:top-[77%] z-30 transform scale-[0.6] md:scale-[0.8] lg:scale-100 origin-center"
+            className="absolute right-[75%] left-[0%] top-[60%] md:left-[10%] md:top-[72%] xl:left-[20%] xl:top-[77%] z-30 transform scale-[0.6] md:scale-[0.8] lg:scale-100 origin-center"
             style={getCardAnimationStyle('left', 2)}
           >
             <ServiceCard
@@ -155,7 +155,7 @@ export default function IndustrySupportSection() {
 
           {/* Top Right - Field Advisory Services (Green) */}
           <div
-            className="absolute -right-[15%] top-[24%] md:right-[15%] md:top-[33%] lg:right-[22%] lg:top-[30%] z-30 transform scale-[0.6] md:scale-[0.8] lg:scale-100 origin-center"
+            className="absolute -right-[15%] top-[24%] md:right-[15%] md:top-[33%] xl:right-[22%] xl:top-[30%] z-30 transform scale-[0.6] md:scale-[0.8] lg:scale-100 origin-center"
             style={getCardAnimationStyle('right', 0)}
           >
             <ServiceCard
@@ -167,7 +167,7 @@ export default function IndustrySupportSection() {
 
           {/* Middle Right - Laboratory Services (Green) */}
           <div
-            className="absolute -right-[15%] top-[48%] md:right-[10%] md:top-[60%] lg:right-[18%] lg:top-[58%] z-30 transform scale-[0.6] md:scale-[0.8] lg:scale-100 origin-center"
+            className="absolute -right-[15%] top-[48%] md:right-[10%] md:top-[60%] xl:right-[18%] xl:top-[58%] z-30 transform scale-[0.6] md:scale-[0.8] lg:scale-100 origin-center"
             style={getCardAnimationStyle('right', 1)}
           >
             <ServiceCard
@@ -179,7 +179,7 @@ export default function IndustrySupportSection() {
 
           {/* Bottom Right - Rubber Clone Development (Green) */}
           <div
-            className="absolute -right-[15%] top-[72%] md:right-[10%] md:top-[84%] lg:right-[30%] lg:top-[75%] z-30 transform scale-[0.6] md:scale-[0.8] lg:scale-100 origin-center"
+            className="absolute -right-[15%] top-[72%] md:right-[10%] md:top-[84%] lg:right-[15%] lg:top-[80%] xl:right-[30%] xl:top-[75%] z-30 transform scale-[0.6] md:scale-[0.8] lg:scale-100 origin-center"
             style={getCardAnimationStyle('right', 2)}
           >
             <ServiceCard

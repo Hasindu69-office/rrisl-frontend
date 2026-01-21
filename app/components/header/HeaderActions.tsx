@@ -40,7 +40,7 @@ export default function HeaderActions({ menuItems = [], leftMenuItems = [] }: He
             key={item.id || item.url}
             href={getLocalizedUrl(item.url)}
             target={item.target || '_self'}
-            className="hidden md:inline-block"
+            className="hidden xl:inline-block"
           >
             {/* First button uses primary, second uses outline */}
             <Button variant={index === 0 ? 'primary' : 'outline'} size="sm">
@@ -50,17 +50,17 @@ export default function HeaderActions({ menuItems = [], leftMenuItems = [] }: He
         ))
       ) : (
         <>
-          <Link href={getLocalizedUrl('/researchers')} className="hidden md:inline-block">
-            <Button 
-              variant="primary" 
+          <Link href={getLocalizedUrl('/researchers')} className="hidden xl:inline-block">
+            <Button
+              variant="primary"
               size="sm"
               className="!w-[106px] !h-[35px] !rounded-[30px] !bg-[#2E7D32] hover:!bg-[#2E7D32]/90"
             >
               Researchers
             </Button>
           </Link>
-          
-          <Link href={getLocalizedUrl('/knowledge-hub')} className="hidden md:inline-block">
+
+          <Link href={getLocalizedUrl('/knowledge-hub')} className="hidden xl:inline-block">
             <Button variant="outline" size="sm">
               Knowledge Hub
             </Button>
@@ -72,9 +72,9 @@ export default function HeaderActions({ menuItems = [], leftMenuItems = [] }: He
       <LanguageSwitcher />
 
       {/* Mobile Menu Hamburger - Only on mobile (hide on tablet and up) */}
-      <div className="md:hidden">
-        <MobileMenu 
-          menuItems={leftMenuItems} 
+      <div className="xl:hidden">
+        <MobileMenu
+          menuItems={leftMenuItems}
           headerRightMenuItems={menuItems}
         />
       </div>

@@ -44,7 +44,7 @@ export default async function Header({ locale = 'en' }: HeaderProps) {
         </div>
 
         {/* Bottom Section - Navigation (Tablet and Desktop) */}
-        <div className="hidden md:block container mx-auto px-3 sm:px-4 md:px-5 lg:px-8 pb-2 sm:pb-3 md:pb-3 max-w-[1440px] w-full">
+        <div className="hidden xl:block container mx-auto px-3 sm:px-4 md:px-5 lg:px-8 pb-2 sm:pb-3 md:pb-3 max-w-[1440px] w-full">
           <div className="flex items-center justify-between">
             {/* Desktop Navigation with transparent white background */}
             <Navigation menuItems={leftMenuItems} />
