@@ -9,15 +9,15 @@ interface FooterLinksColumnProps {
 export default function FooterLinksColumn({ title, links }: FooterLinksColumnProps) {
   return (
     <div>
-      <h3 className="text-[20px] md:text-[24px] lg:text-[30px] font-semibold leading-[128%] text-white">
+      <h3 className="text-[18px] md:text-[20px] lg:text-[24px] font-semibold leading-[128%] text-white">
         {title}
       </h3>
-      <ul className="mt-6 md:mt-10 lg:mt-[54px] space-y-3 md:space-y-[20px] text-white">
+      <ul className="mt-4 md:mt-6 lg:mt-[30px] space-y-2 md:space-y-3 text-white">
         {links.map((link) => (
           <li key={link.label}>
             <a
               href={link.href}
-              className="text-[14px] md:text-[16px] lg:text-[18px] leading-relaxed md:leading-[35px] font-normal text-white transition-colors hover:text-[#A1DF0A]"
+              className="text-[12px] md:text-[14px] lg:text-[15px] leading-relaxed md:leading-[28px] font-normal text-white transition-colors hover:text-[#A1DF0A]"
             >
               {link.label}
             </a>

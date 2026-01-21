@@ -56,7 +56,7 @@ export default function IndustrySupportSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full overflow-hidden h-[1100px] md:h-[1200px] lg:h-[1200px]"
+      className="relative w-full overflow-x-clip h-[1100px] md:h-[1200px] lg:h-[1200px]"
     >
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
@@ -191,9 +191,8 @@ export default function IndustrySupportSection() {
 
           {/* Vertical "What We Do" Text - Right side, rotated -90 degrees (reads bottom to top) */}
           <div
-            className="absolute top-1/2 z-20"
+            className="hidden md:block absolute top-1/2 z-20 right-[-350px] md:right-[-200px] lg:right-[-195px] xl:right-[-200px]"
             style={{
-              right: '-300px',
               transform: 'translateY(-50%) rotate(-90deg)',
               transformOrigin: 'center',
             }}
