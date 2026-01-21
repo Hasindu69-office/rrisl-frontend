@@ -53,7 +53,7 @@ export default function FooterMain() {
           </div>
 
           {/* Columns */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-y-10 gap-x-4 md:gap-x-12 lg:gap-x-0 xl:gap-x-0 mt-8 md:mt-10 lg:mt-[60px] lg:max-w-[1080px] w-full ml-2 md:ml-4 lg:ml-24">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-y-10 lg:gap-y-6 gap-x-4 md:gap-x-12 lg:gap-x-0 xl:gap-x-0 mt-8 md:mt-10 lg:mt-10 lg:max-w-[1080px] w-full ml-2 md:ml-4 lg:ml-8">
             <FooterLinksColumn title="Quick Links" links={quickLinks} />
             <FooterLinksColumn title="Important links" links={importantLinks} />
 

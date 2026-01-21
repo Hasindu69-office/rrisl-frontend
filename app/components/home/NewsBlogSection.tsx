@@ -109,7 +109,7 @@ export default function NewsBlogSection({
     >
       {/* Background Image - Centered with responsive margins and radius */}
       <div
-        className="absolute inset-y-0 left-4 right-4 lg:left-12 lg:right-12 rounded-[30px] lg:rounded-[100px]"
+        className="absolute inset-y-0 left-4 right-4 xl:left-12 xl:right-12 rounded-[30px] xl:rounded-[100px]"
         style={{
           backgroundImage: 'url(/images/section6_bg.jpg)',
           backgroundSize: 'cover',
@@ -118,10 +118,10 @@ export default function NewsBlogSection({
         }}
       >
         {/* Background overlay for better readability */}
-        <div className="absolute inset-0 bg-[#E8F5E9]/30 rounded-[30px] lg:rounded-[100px]"></div>
+        <div className="absolute inset-0 bg-[#E8F5E9]/30 rounded-[30px] xl:rounded-[100px]"></div>
       </div>
 
-      <div className="container mx-auto px-4 relative z-10 pt-10 lg:pt-[52px]">
+      <div className="container mx-auto px-4 relative z-10 pt-10 xl:pt-[52px]">
         {/* Header Section */}
         <div className="text-center mb-10 md:mb-12">
           {/* News & Blog Tag */}
@@ -149,10 +149,10 @@ export default function NewsBlogSection({
         </div>
 
         {/* Articles Grid */}
-        <div className="pl-0 lg:pl-10 grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+        <div className="pl-0 xl:pl-10 grid grid-cols-1 xl:grid-cols-2 gap-6 xl:gap-8">
           {/* Featured Article - Left Column */}
           <div
-            className="m-[30px] lg:m-0"
+            className="m-[30px] xl:m-0"
             style={{
               opacity: hasEnteredView ? 1 : 0,
               transform: hasEnteredView ? 'translateY(0)' : 'translateY(20px)',
@@ -172,11 +172,11 @@ export default function NewsBlogSection({
           </div>
 
           {/* Small Articles - Right Column */}
-          <div className="lg:space-y-8 lg:mt-1">
+          <div className="xl:space-y-8 xl:mt-1">
             {articles.map((article, index) => (
               <div
                 key={index}
-                className="m-[30px] lg:m-0"
+                className="m-[30px] xl:m-0"
                 style={{
                   opacity: hasEnteredView ? 1 : 0,
                   transform: hasEnteredView ? 'translateY(0)' : 'translateY(-25px)',

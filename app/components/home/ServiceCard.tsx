@@ -28,7 +28,7 @@ export default function ServiceCard({
 
   return (
     <div
-      className={`group relative w-80 h-44 rounded-[12px] shadow-xl overflow-hidden ${className}`}
+      className={`group relative w-80 h-44 rounded-[12px] shadow-xl overflow-hidden  ${className}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >

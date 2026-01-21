@@ -31,27 +31,27 @@ export default function FeaturedArticleCard({
 }: FeaturedArticleCardProps) {
   return (
     <div
-      className="bg-white overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 group rounded-[20px] lg:rounded-[30px]"
+      className="bg-white overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 group rounded-[20px] xl:rounded-[30px]"
     >
       {/* Image Container - Responsive margins and height */}
       <div
-        className="relative mx-4 md:mx-6 lg:mx-[25px] mt-4 md:mt-8 lg:mt-[34px] h-[200px] md:h-[280px] lg:h-[320px]"
+        className="relative mx-4 md:mx-6 xl:mx-[25px] mt-4 md:mt-8 xl:mt-[34px] h-[200px] md:h-[280px] xl:h-[320px]"
       >
         {/* Image with responsive radius */}
-        <div className="relative w-full h-full overflow-hidden rounded-[20px] lg:rounded-[30px]">
+        <div className="relative w-full h-full overflow-hidden rounded-[20px] xl:rounded-[30px]">
           <Image
             src={imageSrc}
             alt={imageAlt}
             fill
-            className="object-cover group-hover:scale-105 transition-transform duration-300 rounded-[20px] lg:rounded-[30px]"
+            className="object-cover group-hover:scale-105 transition-transform duration-300 rounded-[20px] xl:rounded-[30px]"
           />
         </div>
 
         {/* Metadata Bar - Overlay inside image at bottom left */}
         <div
-          className="absolute bottom-0 left-0 bg-[#2E7D32] px-4 lg:px-6 py-2 lg:py-4 rounded-bl-[20px] lg:rounded-bl-[30px] rounded-tr-[20px] lg:rounded-tr-[30px]"
+          className="absolute bottom-0 left-0 bg-[#2E7D32] px-4 xl:px-6 py-2 xl:py-4 rounded-bl-[20px] xl:rounded-bl-[30px] rounded-tr-[20px] xl:rounded-tr-[30px]"
         >
-          <div className="flex items-center gap-3 lg:gap-6 text-xs lg:text-sm text-white">
+          <div className="flex items-center gap-3 xl:gap-6 text-xs xl:text-sm text-white">
             <div className="flex items-center gap-2">
               <svg
                 width="16"
@@ -125,7 +125,7 @@ export default function FeaturedArticleCard({
 
         {/* Description */}
         <p
-          className="font-normal mb-5 md:mb-6 text-[14px] md:text-[16px] lg:text-[18px]"
+          className="font-normal mb-5 md:mb-6 text-[14px] md:text-[16px] xl:text-[18px]"
           style={{
             color: '#000000',
             lineHeight: '1.5',

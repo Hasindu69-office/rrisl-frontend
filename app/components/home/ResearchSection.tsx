@@ -164,7 +164,7 @@ export default function ResearchSection() {
       <div className="relative lg:sticky top-0 w-full min-h-screen lg:h-screen px-4 md:px-6 lg:px-8 flex items-center py-10 lg:py-0">
         {/* Light Green Rounded Container */}
         <div
-          className="relative rounded-[30px] lg:rounded-[100px] overflow-hidden mx-auto w-full h-auto lg:h-[720px] bg-[#2E7D3221] p-6 md:p-12 lg:pt-[115px] lg:pr-[50px] lg:pb-[60px] lg:pl-[240px]"
+          className="relative rounded-[30px] lg:rounded-[100px] overflow-hidden mx-auto w-full h-auto lg:h-[720px] bg-[#2E7D3221] p-6 md:p-12 lg:p-16 xl:pt-[115px] xl:pr-[50px] xl:pb-[60px] xl:pl-[240px]"
           style={{
             width: '95%',
             maxWidth: '1824px',
@@ -229,7 +229,7 @@ export default function ResearchSection() {
                 >
                   {/* Earth Image */}
                   <div
-                    className="relative overflow-hidden mb-6 w-full max-w-[500px] aspect-video lg:w-[500px] lg:h-[270px] rounded-[20px] lg:rounded-[30px]"
+                    className="relative overflow-hidden mb-6 w-full max-w-[500px] aspect-video xl:w-[500px] xl:h-[270px] rounded-[20px] xl:rounded-[30px]"
                   >
                     <Image
                       src={card.imageSrc}
