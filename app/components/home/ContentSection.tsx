@@ -50,7 +50,7 @@ export default function ContentSection({
           <div className="w-full pt-[100%] lg:pt-0 lg:hidden"></div>
 
           <div
-            className="absolute lg:relative top-0 left-0 w-full lg:w-auto h-full lg:h-auto lg:ml-18 mt-[-115px] lg:mt-0 z-10"
+            className="absolute lg:relative top-0 left-0 w-full lg:w-auto h-full lg:h-auto lg:ml-18 mt-[-115px] md:mt-[-250px] lg:mt-2 xl:mt-[0px] z-10"
             style={{
               // Mobile/Tablet: Absolute positioning logic handled by classes above
               // Desktop: Keep original sizing
