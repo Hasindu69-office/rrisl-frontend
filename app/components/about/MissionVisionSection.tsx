@@ -18,7 +18,7 @@ const MissionVisionSection = () => {
             {/* Grid Container for two columns */}
             <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 w-full h-full">
                 {/* Left Column: Greenery Image */}
-                <div className="relative h-[300px] lg:h-[600px] w-full lg:w-[110%] z-20 overflow-hidden">
+                <div className="relative h-[300px] lg:h-full w-full lg:w-[150%] z-20 overflow-hidden">
                     <Image
                         src="/images/Aboutussection2leftImg.png"
                         alt="Green leaves"
@@ -91,7 +91,7 @@ const MissionVisionSection = () => {
 
                     {/* Right Branch Image (Decorative background for right column) */}
                     <div
-                        className="absolute right-[-50px] top-[10%] w-[300px] h-[300px] md:w-[500px] md:h-[500px] opacity-20 z-0 pointer-events-none transform rotate-12"
+                        className="absolute right-[-200px] top-[10%] w-[300px] h-[300px] md:w-[500px] md:h-[500px] opacity-20 z-0 pointer-events-none transform rotate-[-90deg] scale-x-[-1]"
                     >
                         <Image
                             src="/images/Aboutussection2rightbranch.png"
