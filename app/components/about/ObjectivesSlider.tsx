@@ -33,14 +33,10 @@ const slides = [
 ];
 
 export default function ObjectivesSlider() {
-  // Use a 3x-duplicated track and start in the middle copy for seamless looping
-  const [currentIndex, setCurrentIndex] = useState<number>(slides.length);
-  const currentIndexRef = useRef<number>(slides.length);
-  const [noTransition, setNoTransition] = useState(false);
+  const [current, setCurrent] = useState(0);
   const [slidesPerView, setSlidesPerView] = useState(3);
   const [isHovered, setIsHovered] = useState(false);
   const intervalRef = useRef<number | null>(null);
-  const trackRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const onResize = () => {
@@ -58,9 +54,8 @@ export default function ObjectivesSlider() {
 
   useEffect(() => {
     if (isHovered) return;
-
     intervalRef.current = window.setInterval(() => {
-      setCurrentIndex((prev) => prev + 1);
+      setCurrent((prev) => (prev + 1) % slides.length);
     }, 4000);
 
     return () => {
@@ -68,11 +63,11 @@ export default function ObjectivesSlider() {
     };
   }, [isHovered]);
 
-  const handlePrev = () => setCurrentIndex((prev) => prev - 1);
-  const handleNext = () => setCurrentIndex((prev) => prev + 1);
+  const handlePrev = () => setCurrent((prev) => (prev - 1 + slides.length) % slides.length);
+  const handleNext = () => setCurrent((prev) => (prev + 1) % slides.length);
 
   // Fixed slide dimensions (px) with responsive fallback
-  const BASE_WIDTH = 560; // requested width
+  const BASE_WIDTH = 400; // requested width
   const BASE_HEIGHT = 390; // requested height
   const GAP_PX = 24;
   const [slideWidthPx, setSlideWidthPx] = useState<number>(BASE_WIDTH);
@@ -95,17 +90,9 @@ export default function ObjectivesSlider() {
     return () => window.removeEventListener('resize', adjust);
   }, []);
 
-  // Keep a ref of currentIndex for transition handler
-  useEffect(() => {
-    currentIndexRef.current = currentIndex;
-  }, [currentIndex]);
-
-  // Duplicate slides for seamless looping
-  const extendedSlides = [...slides, ...slides, ...slides];
-
   // We'll show a transformed track so the selected slide is at left-most position (px)
-  const transformPx = currentIndex * (slideWidthPx + GAP_PX);
-  const trackWidthPx = extendedSlides.length * (slideWidthPx + GAP_PX) - GAP_PX;
+  const transformPx = current * (slideWidthPx + GAP_PX);
+  const trackWidthPx = slides.length * (slideWidthPx + GAP_PX) - GAP_PX;
   const visibleWidthPx = slidesPerView * (slideWidthPx + GAP_PX) - GAP_PX;
 
   return (
@@ -138,37 +125,19 @@ export default function ObjectivesSlider() {
         </div>
 
         {/* Slider */}
-        <div className="w-full" onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
+        <div className="w-full">
           <div className="overflow-hidden">
             <div
-              ref={trackRef}
-              onTransitionEnd={() => {
-                // handle seamless wrap: if we've moved into buffer copies, jump to middle copy without animation
-                const cur = currentIndexRef.current;
-                if (cur >= slides.length * 2) {
-                  const target = cur - slides.length;
-                  setNoTransition(true);
-                  setCurrentIndex(target);
-                  // next frame re-enable transitions
-                  requestAnimationFrame(() => requestAnimationFrame(() => setNoTransition(false)));
-                } else if (cur < slides.length) {
-                  const target = cur + slides.length;
-                  setNoTransition(true);
-                  setCurrentIndex(target);
-                  requestAnimationFrame(() => requestAnimationFrame(() => setNoTransition(false)));
-                }
-              }}
-              className="flex items-stretch"
+              className="flex transition-transform duration-700 ease-in-out items-stretch"
               style={{
                 width: `${trackWidthPx}px`,
                 transform: `translateX(-${transformPx}px)`,
                 gap: `${GAP_PX}px`,
-                transition: noTransition ? 'none' : 'transform 700ms ease-in-out',
               }}
             >
-              {extendedSlides.map((s, idx) => (
+              {slides.map((s) => (
                 <div
-                  key={`slide-${idx}-${s.id}`}
+                  key={s.id}
                   className="flex-shrink-0"
                   style={{ width: `${slideWidthPx}px` }}
                 >
@@ -207,17 +176,14 @@ export default function ObjectivesSlider() {
             </button>
 
             <div className="flex gap-3">
-              {slides.map((_, i) => {
-                const logicalCurrent = ((currentIndex % slides.length) + slides.length) % slides.length;
-                return (
-                  <button
-                    key={`dot-${i}`}
-                    aria-label={`Go to slide ${i + 1}`}
-                    onClick={() => setCurrentIndex(slides.length + i)}
-                    className={`w-2 h-2 rounded-full ${i === logicalCurrent ? 'bg-[#20C997]' : 'bg-[#D1D5DB]'}`}
-                  />
-                );
-              })}
+              {slides.map((_, i) => (
+                <button
+                  key={`dot-${i}`}
+                  aria-label={`Go to slide ${i + 1}`}
+                  onClick={() => setCurrent(i)}
+                  className={`w-2 h-2 rounded-full ${i === current ? 'bg-[#20C997]' : 'bg-[#D1D5DB]'}`}
+                />
+              ))}
             </div>
 
             <button
