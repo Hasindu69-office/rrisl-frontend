@@ -36,7 +36,83 @@ export default function ObjectivesSlider() {
   const [current, setCurrent] = useState(0);
   const [slidesPerView, setSlidesPerView] = useState(3);
   const [isHovered, setIsHovered] = useState(false);
-  const intervalRef = useRef<number | null>(null);
+  const trackRef = useRef<HTMLDivElement | null>(null);
+  const [isAnimating, setIsAnimating] = useState(true);
+  // Prevent starting another animation while one is running (avoids jank)
+  const isTransitioningRef = useRef(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  // Continuous animation refs used for manual animations (no autoplay)
+  const offsetRef = useRef(0); // current scroll offset in px
+  const animFrameRef = useRef<number | null>(null);
+
+  // Fixed slide dimensions (px) with responsive fallback
+  const BASE_WIDTH = 400; // requested width
+  const BASE_HEIGHT = 390; // requested height
+  const GAP_PX = 24;
+  const [slideWidthPx, setSlideWidthPx] = useState<number>(BASE_WIDTH);
+  const [slideHeightPx, setSlideHeightPx] = useState<number>(BASE_HEIGHT);
+
+  // helpers for controlled animation (prev/next/dots)
+  const setTrackTransform = (value: number, step: number) => {
+    const originalWidth = slides.length * step - GAP_PX;
+    const display = ((value % originalWidth) + originalWidth) % originalWidth;
+    if (trackRef.current) trackRef.current.style.transform = `translateX(-${display}px)`;
+  };
+
+  const easeInOutQuad = (t: number) => (t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t);
+
+  const animateTo = (targetAbsolute: number, duration = 400) => {
+    if (isTransitioningRef.current) return;
+    isTransitioningRef.current = true;
+    setIsTransitioning(true);
+
+    const step = slideWidthPx + GAP_PX;
+    const originalWidth = slides.length * step - GAP_PX;
+    const start = offsetRef.current;
+    const delta = targetAbsolute - start;
+    let startTime: number | null = null;
+
+    const frame = (ts: number) => {
+      if (startTime === null) startTime = ts;
+      const p = Math.min(1, (ts - startTime) / duration);
+      const eased = easeInOutQuad(p);
+      const current = start + delta * eased;
+      setTrackTransform(current, step);
+      if (p < 1) {
+        animFrameRef.current = window.requestAnimationFrame(frame);
+      } else {
+        offsetRef.current = ((targetAbsolute % originalWidth) + originalWidth) % originalWidth;
+        setTrackTransform(offsetRef.current, step);
+        // update current slide index to match new offset
+        const newIndex = Math.floor((offsetRef.current % originalWidth) / step) % slides.length;
+        setCurrent(newIndex);
+        isTransitioningRef.current = false;
+        setIsTransitioning(false);
+        // cleanup any running frame reference
+        if (animFrameRef.current) {
+          window.cancelAnimationFrame(animFrameRef.current);
+          animFrameRef.current = null;
+        }
+      }
+    };
+
+    animFrameRef.current = window.requestAnimationFrame(frame);
+  };
+
+  const handleNext = () => animateTo(offsetRef.current + (slideWidthPx + GAP_PX), 400);
+  const handlePrev = () => animateTo(offsetRef.current - (slideWidthPx + GAP_PX), 400);
+
+  const goToIndex = (i: number) => {
+    if (isTransitioningRef.current) return;
+    const step = slideWidthPx + GAP_PX;
+    const originalWidth = slides.length * step - GAP_PX;
+    const currentMod = ((offsetRef.current % originalWidth) + originalWidth) % originalWidth;
+    const targetSingle = i * step;
+    let diff = ((targetSingle - currentMod + originalWidth) % originalWidth);
+    if (diff > originalWidth / 2) diff -= originalWidth; // choose shortest path
+    animateTo(offsetRef.current + diff, 500);
+  };
 
   useEffect(() => {
     const onResize = () => {
@@ -52,27 +128,28 @@ export default function ObjectivesSlider() {
     return () => window.removeEventListener('resize', onResize);
   }, []);
 
+
+
+  // ensure track transform consistent when slide width changes
   useEffect(() => {
-    if (isHovered) return;
-    intervalRef.current = window.setInterval(() => {
-      setCurrent((prev) => (prev + 1) % slides.length);
-    }, 4000);
+    const step = slideWidthPx + GAP_PX;
+    const originalWidth = slides.length * step - GAP_PX;
+    if (trackRef.current) {
+      const display = ((offsetRef.current % originalWidth) + originalWidth) % originalWidth;
+      trackRef.current.style.transform = `translateX(-${display}px)`;
+    }
 
+    // cleanup on unmount - cancel any active animation frame
     return () => {
-      if (intervalRef.current) window.clearInterval(intervalRef.current);
+      if (animFrameRef.current) {
+        window.cancelAnimationFrame(animFrameRef.current);
+        animFrameRef.current = null;
+      }
     };
-  }, [isHovered]);
+  }, [slideWidthPx]);
 
-  const handlePrev = () => setCurrent((prev) => (prev - 1 + slides.length) % slides.length);
-  const handleNext = () => setCurrent((prev) => (prev + 1) % slides.length);
 
-  // Fixed slide dimensions (px) with responsive fallback
-  const BASE_WIDTH = 400; // requested width
-  const BASE_HEIGHT = 390; // requested height
-  const GAP_PX = 24;
-  const [slideWidthPx, setSlideWidthPx] = useState<number>(BASE_WIDTH);
-  const [slideHeightPx, setSlideHeightPx] = useState<number>(BASE_HEIGHT);
-
+  // slide dimension state declared above (moved earlier)
   // adjust slide size on resize (so it fits smaller screens)
   useEffect(() => {
     const adjust = () => {
@@ -90,10 +167,12 @@ export default function ObjectivesSlider() {
     return () => window.removeEventListener('resize', adjust);
   }, []);
 
-  // We'll show a transformed track so the selected slide is at left-most position (px)
-  const transformPx = current * (slideWidthPx + GAP_PX);
-  const trackWidthPx = slides.length * (slideWidthPx + GAP_PX) - GAP_PX;
-  const visibleWidthPx = slidesPerView * (slideWidthPx + GAP_PX) - GAP_PX;
+  // Use duplicated slides for continuous scrolling
+  const duplicatedSlides = [...slides, ...slides];
+  const step = slideWidthPx + GAP_PX;
+  const originalWidth = slides.length * step - GAP_PX;
+  const trackWidthPx = duplicatedSlides.length * step - GAP_PX;
+  const visibleWidthPx = slidesPerView * step - GAP_PX;
 
   return (
     <section className="relative w-full py-20">
@@ -126,18 +205,19 @@ export default function ObjectivesSlider() {
 
         {/* Slider */}
         <div className="w-full">
-          <div className="overflow-hidden">
+          <div className="overflow-hidden" onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
             <div
-              className="flex transition-transform duration-700 ease-in-out items-stretch"
+              ref={trackRef}
+              className={`flex items-stretch will-change-transform`}
               style={{
                 width: `${trackWidthPx}px`,
-                transform: `translateX(-${transformPx}px)`,
+                transform: `translateX(-0px)`,
                 gap: `${GAP_PX}px`,
               }}
             >
-              {slides.map((s) => (
+              {duplicatedSlides.map((s, idx) => (
                 <div
-                  key={s.id}
+                  key={`slide-${idx}-${s.id}`}
                   className="flex-shrink-0"
                   style={{ width: `${slideWidthPx}px` }}
                 >
@@ -168,7 +248,8 @@ export default function ObjectivesSlider() {
             <button
               aria-label="Previous"
               onClick={handlePrev}
-              className="w-10 h-10 rounded-full bg-white/90 flex items-center justify-center shadow hover:opacity-95"
+              disabled={isTransitioning}
+              className={`w-10 h-10 rounded-full bg-white/90 flex items-center justify-center shadow hover:opacity-95 ${isTransitioning ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M15 18L9 12L15 6" stroke="#0F3F1D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -180,8 +261,9 @@ export default function ObjectivesSlider() {
                 <button
                   key={`dot-${i}`}
                   aria-label={`Go to slide ${i + 1}`}
-                  onClick={() => setCurrent(i)}
-                  className={`w-2 h-2 rounded-full ${i === current ? 'bg-[#20C997]' : 'bg-[#D1D5DB]'}`}
+                  onClick={() => goToIndex(i)}
+                  disabled={isTransitioning}
+                  className={`w-2 h-2 rounded-full ${i === (((current % slides.length) + slides.length) % slides.length) ? 'bg-[#20C997]' : 'bg-[#D1D5DB]'} ${isTransitioning ? 'opacity-50 cursor-not-allowed' : ''}`}
                 />
               ))}
             </div>
@@ -189,7 +271,8 @@ export default function ObjectivesSlider() {
             <button
               aria-label="Next"
               onClick={handleNext}
-              className="w-10 h-10 rounded-full bg-white/90 flex items-center justify-center shadow hover:opacity-95"
+              disabled={isTransitioning}
+              className={`w-10 h-10 rounded-full bg-white/90 flex items-center justify-center shadow hover:opacity-95 ${isTransitioning ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M9 18L15 12L9 6" stroke="#0F3F1D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
