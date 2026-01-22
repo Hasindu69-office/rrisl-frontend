@@ -3,6 +3,7 @@ import PageHero from '../components/shared/PageHero';
 import GradientTitle from '../components/ui/GradientTitle';
 import GradientTag from '../components/ui/GradientTag';
 import MissionVisionSection from '../components/about/MissionVisionSection';
+import ObjectivesSlider from '../components/about/ObjectivesSlider';
 
 interface AboutProps {
   searchParams: Promise<{ locale?: string }>;
@@ -76,6 +77,9 @@ export default async function About({ searchParams }: AboutProps) {
 
       {/* Mission & Vision Section */}
       <MissionVisionSection />
+
+      {/* Our Objectives Slider */}
+      <ObjectivesSlider />
 
       <div className="h-[350px]"></div>
     </div>
