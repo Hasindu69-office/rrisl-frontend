@@ -425,7 +425,7 @@ export default function HomeHeroWithHeader({
             {/* Right Visual Area */}
             <div className="relative flex items-start justify-center lg:justify-end h-auto lg:min-h-[600px]">
               {/* Container for overlays */}
-              <div className="relative w-full max-w-lg aspect-square mt-[-100px] max-[1028px]:mt-[-80px] max-[825px]:mt-[-50px] max-[780px]:mt-[-50px] max-[480px]:mt-[-100px] max-[400px]:mt-[-60px] max-[345px]:mt-[-40px]">
+              <div className="relative w-full max-w-lg aspect-square mt-[-100px] max-[1028px]:mt-[-80px] max-[825px]:mt-[-50px] max-[780px]:mt-[-50px] max-[550px]:mt-[-210px] max-[480px]:mt-[-100px] max-[400px]:mt-[-60px] max-[345px]:mt-[-40px]">
                 {/* Badge Overlay - Desktop: Keep original position */}
                 {hero.badges && (
                   <div className="hidden lg:flex absolute -top-4 -left-12 bg-white/10 backdrop-blur-md rounded-[30px] p-4 border border-white/20 z-20 shadow-lg items-center gap-6 w-[318px] h-[105px] floating-badge">
@@ -624,10 +624,10 @@ export default function HomeHeroWithHeader({
         md:bottom-[32%] md:right-0
         lg:bottom-0 lg:translate-y-0 lg:-right-4
         w-[300px] 
-        md:w-[500px] 
-        lg:w-[800px]
+        md:w-[650px] 
+        lg:w-[575px]
         xl:w-[1064px]
-        lg:h-[108px]
+        lg:h-[80px]
         xl:h-[150px]">
         <svg
           width="100%"

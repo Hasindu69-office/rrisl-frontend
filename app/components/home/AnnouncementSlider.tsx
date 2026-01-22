@@ -185,7 +185,7 @@ export default function AnnouncementSlider({ announcements }: AnnouncementSlider
 
   return (
     <div
-      className="w-full flex flex-row items-center gap-6 md:gap-6 lg:gap-18 max-[490px]:mt-[-125px] max-[550px]:mt-[-200px] max-[770px]:mt-[-650px] max-[825px]:mt-[-600px] max-[855px]:mt-[-125px]"
+      className="w-full flex flex-row items-center gap-6 md:gap-6 lg:gap-18 max-[490px]:mt-[-125px] max-[550px]:mt-[-145px] max-[770px]:mt-[-650px] max-[825px]:mt-[-600px] max-[920px]:mt-[-650px]"
       style={{
         overflow: 'visible',
         position: 'relative',
@@ -197,7 +197,7 @@ export default function AnnouncementSlider({ announcements }: AnnouncementSlider
     >
       {/* Left: Title Section */}
       <div
-        className="flex flex-col gap-2 md:gap-3 lg:gap-4 flex-shrink-0 items-start ml-[100px] pl-0 max-[1024px]:ml-0 max-[1024px]:pl-6 max-[432px]:ml-8 max-[415px]:ml-6 max-[392px]:ml-4 max-[376px]:ml-2 max-[640px]:pl-0"
+        className="flex flex-col gap-2 md:gap-3 lg:gap-4 flex-shrink-0 items-start ml-[100px] pl-0 max-[1024px]:ml-0 max-[1024px]:pl-6 max-[432px]:ml-8 max-[415px]:ml-6 max-[392px]:ml-4 max-[376px]:ml-2 max-[640px]:pl-0 max-[550px]:ml-16"
         style={{
           position: 'relative',
           zIndex: 10,
