@@ -622,7 +622,7 @@ export default function HomeHeroWithHeader({
       <div className="absolute z-20 pointer-events-none
         bottom-[30%] right-0 
         md:bottom-[32%] md:right-0
-        lg:bottom-0 lg:translate-y-0 lg:-right-4
+        lg:-bottom-2 lg:translate-y-0 lg:-right-4
         w-[300px] 
         md:w-[650px] 
         lg:w-[575px]
