@@ -302,7 +302,7 @@ export default function HomeHeroWithHeader({
           </div>
 
           {/* Bottom Section - Navigation (Tablet and Desktop) */}
-          <div className="hidden md:block container mx-auto px-3 sm:px-4 md:px-5 lg:px-8 pb-2 sm:pb-3 md:pb-3 max-w-[1440px] w-full mt-[10px]">
+          <div className="hidden md:block container mx-auto px-3 sm:px-4 md:px-5 lg:px-8 pb-2 sm:pb-3 md:pb-3 max-w-[1440px] w-full">
             <div className="flex items-center justify-between">
               {/* Desktop Navigation */}
               <Navigation menuItems={leftMenuItems} />
