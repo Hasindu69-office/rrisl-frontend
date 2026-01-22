@@ -43,15 +43,15 @@ function formatTitle(title: string): string {
   if (!title) return '';
   const words = title.split(/\s+/).filter(word => word.length > 0);
 
-  // If more than 8 words, show only first word with ellipsis
+  // If more than 8 words, show first 8 words with ellipsis
   if (words.length > 8) {
-    return words[0] + '...';
+    return words.slice(0, 8).join(' ') + '...';
   }
 
   // Group words into pairs (2 words per line)
   const lines: string[] = [];
-  for (let i = 0; i < words.length; i += 3) {
-    const line = words.slice(i, i + 3).join(' ');
+  for (let i = 0; i < words.length; i += 2) {
+    const line = words.slice(i, i + 2).join(' ');
     lines.push(line);
   }
 
@@ -65,6 +65,15 @@ export default function AnnouncementSlider({ announcements }: AnnouncementSlider
   const [isHovered, setIsHovered] = useState(false);
   const [windowWidth, setWindowWidth] = useState(0);
   const [isMounted, setIsMounted] = useState(false);
+  const [transitionEnabled, setTransitionEnabled] = useState(true);
+
+  // Initialize currentIndex to totalAnnouncements (start of the middle set)
+  // once announcements are available and component is mounted
+  useEffect(() => {
+    if (announcements && announcements.length > 0) {
+      setCurrentIndex(announcements.length);
+    }
+  }, [announcements]);
 
   // Detect screen size for responsive calculations - only after mount to prevent hydration errors
   useEffect(() => {
@@ -90,56 +99,63 @@ export default function AnnouncementSlider({ announcements }: AnnouncementSlider
     return null;
   }
 
-  // Create a circular array for infinite loop - duplicate announcements multiple times
+  // Create a circular array for infinite loop - 3 sets are enough for jump logic
   const totalAnnouncements = announcements.length;
-  if (totalAnnouncements === 0) {
-    return null;
-  }
+  const displayAnnouncements = [...announcements, ...announcements, ...announcements];
 
-  // Create enough duplicates to ensure smooth infinite scrolling
-  // We need at least 6 copies to allow smooth looping (3 visible + buffer)
-  const displayAnnouncements = [];
-  for (let i = 0; i < 6; i++) {
-    displayAnnouncements.push(...announcements);
-  }
-
-  // Auto-slide functionality - infinite loop without reset
-  // Pause when hovering
+  // Handle seamless jump when reaching boundaries
+  // This effect resets the index to the middle set without animation
   useEffect(() => {
-    if (totalAnnouncements === 0 || isHovered) return;
+    if (totalAnnouncements === 0) return;
 
-    // Always slide continuously - never reset to 0
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => {
-        // Keep incrementing forever - no reset
-        // We'll use modulo when getting the actual announcement data
-        return prev + 1;
-      });
-    }, 5000); // Change every 5 seconds
+    // Boundary check for end (completed transition into the third set)
+    if (currentIndex >= totalAnnouncements * 2) {
+      const timer = setTimeout(() => {
+        setTransitionEnabled(false);
+        setCurrentIndex(totalAnnouncements);
+      }, 500); // Match transition duration
+      return () => clearTimeout(timer);
+    }
 
-    return () => clearInterval(interval);
-  }, [totalAnnouncements, isHovered]);
+    // Boundary check for start (completed transition into the first set)
+    if (currentIndex < totalAnnouncements) {
+      const timer = setTimeout(() => {
+        setTransitionEnabled(false);
+        setCurrentIndex(totalAnnouncements * 2 - 1);
+      }, 500); // Match transition duration
+      return () => clearTimeout(timer);
+    }
 
+    // Re-enable transition after jump
+    if (!transitionEnabled) {
+      const timer = setTimeout(() => {
+        setTransitionEnabled(true);
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [currentIndex, totalAnnouncements, transitionEnabled]);
+
+  // Handle jumping back from index 0
   const handleNext = () => {
-    setCurrentIndex((prev) => prev + 1); // Keep incrementing
+    if (!transitionEnabled) return;
+    setCurrentIndex((prev) => prev + 1);
   };
 
   const handlePrevious = () => {
-    setCurrentIndex((prev) => {
-      // Wrap around to last announcement if going below 0
-      if (prev <= 0) {
-        return totalAnnouncements - 1;
-      }
-      return prev - 1;
-    });
+    if (!transitionEnabled) return;
+    setCurrentIndex((prev) => prev - 1);
   };
 
-  // Normalize currentIndex to prevent overflow - keeps it within valid range for display
-  // This ensures the slider never goes blank and selection/dots work correctly
-  const normalizedIndex = currentIndex % totalAnnouncements;
-  // Use modulo on displayAnnouncements length for transform to keep it within rendered items range
-  // This prevents the slider from going off-screen while maintaining smooth transitions
-  const transformIndex = currentIndex % displayAnnouncements.length;
+  // Auto-slide functionality
+  useEffect(() => {
+    if (totalAnnouncements === 0 || isHovered || !transitionEnabled) return;
+
+    const interval = setInterval(() => {
+      handleNext();
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [totalAnnouncements, isHovered, transitionEnabled, handleNext]);
 
   // Calculate responsive values based on screen size
   // Use default desktop values during SSR to prevent hydration mismatch
@@ -179,9 +195,8 @@ export default function AnnouncementSlider({ announcements }: AnnouncementSlider
     ? Math.min(calculatedWidth, maxAvailableWidth)
     : calculatedWidth;
 
-  // Calculate transform (based on scaled dimensions)
-  // For mobile, position the selected card at the start (0 position)
-  const transformValue = transformIndex * (cardWidth + cardGap);
+  // The transform value calculation is now simpler
+  const transformValue = currentIndex * (cardWidth + cardGap);
 
   return (
     <div
@@ -231,7 +246,7 @@ export default function AnnouncementSlider({ announcements }: AnnouncementSlider
         }}
       >
         <div
-          className="flex transition-transform duration-500 ease-in-out"
+          className={`flex ${transitionEnabled ? 'transition-transform duration-500 ease-in-out' : ''}`}
           style={{
             gap: `${cardGap}px`,
             transform: `translateX(-${transformValue}px)`,
@@ -239,25 +254,12 @@ export default function AnnouncementSlider({ announcements }: AnnouncementSlider
           }}
         >
           {displayAnnouncements.map((announcement, index) => {
-            // Calculate relative position to transformIndex for proper card positioning
-            const relativeIndex = index - transformIndex;
-
             // Calculate which original announcement should be shown at this position
-            // Use modulo to get the actual announcement, creating seamless loop
-            const displayIndex = transformIndex + relativeIndex;
-            const originalIndex = displayIndex % totalAnnouncements;
+            const originalIndex = index % totalAnnouncements;
             const actualAnnouncement = announcements[originalIndex];
 
-            // Leftmost card (relativeIndex === 0) is always selected (green filled)
-            const isSelected = relativeIndex === 0;
-
-            // On tablet, hide cards beyond the second one
-            // On mobile, render all cards but container width shows only one (handled by overflow)
-            const shouldHide = isTablet && relativeIndex >= 2;
-
-            if (shouldHide) {
-              return null;
-            }
+            // Leftmost card in current view is "selected"
+            const isSelected = index === currentIndex;
 
             const imageUrl = actualAnnouncement?.image
               ? getOptimizedImageUrl(actualAnnouncement.image, 'medium') ||
@@ -326,7 +328,7 @@ export default function AnnouncementSlider({ announcements }: AnnouncementSlider
                   {/* Circle Button - Top Right */}
                   <Link
                     href={getAnnouncementsPageUrl()}
-                    className="absolute top-0 right-0 z-20 transition-all duration-300 hover:opacity-90 flex items-center justify-center"
+                    className={`absolute top-0 right-0 z-20 flex items-center justify-center ${transitionEnabled ? 'transition-all duration-300' : ''} hover:opacity-90`}
                     style={{
                       transform: 'translate(1%, -1%)',
                       width: '70px',
@@ -364,7 +366,7 @@ export default function AnnouncementSlider({ announcements }: AnnouncementSlider
                     }}
                   >
                     <div
-                      className={`w-full h-full pl-6 pr-6 pb-6 flex flex-col transition-all duration-300 ${isSelected
+                      className={`w-full h-full pl-6 pr-6 pb-6 flex flex-col ${transitionEnabled ? 'transition-all duration-300' : ''} ${isSelected
                         ? 'bg-[#0F3F1D] text-white'
                         : 'bg-white text-[#0F3F1D]'
                         }`}
