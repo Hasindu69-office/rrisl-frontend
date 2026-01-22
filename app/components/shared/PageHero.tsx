@@ -2,6 +2,7 @@ import React from 'react';
 import Image from 'next/image';
 import Header from '../header/Header';
 import Breadcrumb from './Breadcrumb';
+import HeroCutout from './HeroCutout';
 
 interface BreadcrumbItem {
   label: string;
@@ -11,7 +12,7 @@ interface BreadcrumbItem {
 interface PageHeroProps {
   title: string;
   breadcrumbItems: BreadcrumbItem[];
-  backgroundImage: string;
+  backgroundImage?: string;
   backgroundImageAlt?: string;
   locale?: string;
 }
@@ -19,13 +20,13 @@ interface PageHeroProps {
 export default async function PageHero({
   title,
   breadcrumbItems,
-  backgroundImage,
+  backgroundImage = '/images/aboutus_heroimg.jpg', // Default background as per user requirement
   backgroundImageAlt = 'Page background',
   locale = 'en',
 }: PageHeroProps) {
 
   return (
-    <section className="relative min-h-[500px] md:min-h-[600px] flex flex-col">
+    <section className="relative min-h-[500px] md:min-h-[600px] flex flex-col overflow-hidden">
       {/* Background Image with Radial Gradient Overlay */}
       <div className="absolute top-0 left-0 w-full h-full z-0">
         <Image
@@ -54,7 +55,7 @@ export default async function PageHero({
 
       {/* Hero Content Section */}
       <div className="flex-1 flex items-center justify-center relative z-10 mt-8 md:mt-12 lg:mt-24">
-        <div className="container mx-auto px-4 md:px-6 lg:px-8 max-w-[1440px] w-full">
+        <div className="container mx-auto px-4 md:px-6 lg:px-8 max-w-[1440px] w-full pb-16">
           <div className="flex flex-col items-center text-center space-y-4 md:space-y-6">
             {/* Page Title */}
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-white">
@@ -62,12 +63,15 @@ export default async function PageHero({
             </h1>
 
             {/* Breadcrumb */}
-            <div className="mt-2">
+            <div className="mt-2 text-white">
               <Breadcrumb items={breadcrumbItems} />
             </div>
           </div>
         </div>
       </div>
+
+      {/* White Cutout at the bottom right */}
+      <HeroCutout />
     </section>
   );
 }
