@@ -280,11 +280,6 @@ export default function ObjectivesSlider() {
             </button>
           </div>
         </div>
-
-        {/* Mobile short description under slider */}
-        <div className="md:hidden mt-6 text-center">
-          <p className="text-gray-700">The Rubber Research Institute pursues objectives that strengthen production, ensure sustainability and increase value across the rubber value chain.</p>
-        </div>
       </div>
     </section>
   );
