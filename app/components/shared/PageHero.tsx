@@ -26,7 +26,7 @@ export default async function PageHero({
 }: PageHeroProps) {
 
   return (
-    <section className="relative min-h-[500px] md:min-h-[600px] flex flex-col overflow-hidden">
+    <section className="relative min-h-[200px] sm:min-h-[250px] md:min-h-[350px] lg:min-h-[500px] xl:min-h-[600px] flex flex-col overflow-hidden">
       {/* Background Image with Radial Gradient Overlay */}
       <div className="absolute top-0 left-0 w-full h-full z-0">
         <Image
@@ -55,15 +55,15 @@ export default async function PageHero({
 
       {/* Hero Content Section */}
       <div className="flex-1 flex items-center justify-center relative z-10">
-        <div className="container mx-auto px-4 md:px-6 lg:px-8 max-w-[1440px] w-full pb-16">
+        <div className="container mx-auto px-4 md:px-6 lg:px-8 max-w-[1440px] w-full pb-12 md:pb-16">
           <div className="flex flex-col items-center text-center space-y-4 md:space-y-6">
             {/* Page Title */}
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-white">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold text-white">
               {title}
             </h1>
 
             {/* Breadcrumb */}
-            <div className="mt-2 text-white">
+            <div className="mt-1 md:mt-2 text-white">
               <Breadcrumb items={breadcrumbItems} />
             </div>
           </div>

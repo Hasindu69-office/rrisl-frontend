@@ -9,7 +9,7 @@ const HeroCutout = () => {
                 viewBox="0 0 874 77"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
-                className="w-full h-auto max-w-[60vw] md:max-w-none ml-auto"
+                className="w-full h-auto max-w-[80vw] sm:max-w-[60vw] md:max-w-[60vw] lg:max-w-[60vw] xl:max-w-none ml-auto"
                 preserveAspectRatio="xMaxYMax meet"
             >
                 <path
