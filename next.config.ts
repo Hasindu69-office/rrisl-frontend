@@ -15,12 +15,12 @@ const nextConfig: NextConfig = {
         port: '1337',
         pathname: '/uploads/**',
       },
-      // For production/staging environments, you can add more patterns
-      // {
-      //   protocol: 'https',
-      //   hostname: 'your-strapi-domain.com',
-      //   pathname: '/uploads/**',
-      // },
+      //For production/staging environments, you can add more patterns
+      {
+        protocol: 'https',
+        hostname: 'u4cco0sgocc0swookssgg4k8.148.116.105.184.sslip.io',
+        pathname: '/uploads/**',
+      },
     ],
   },
 };
