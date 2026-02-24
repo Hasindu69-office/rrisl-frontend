@@ -20,6 +20,7 @@ const sizeClasses = {
   md: 'text-3xl md:text-4xl lg:text-5xl',
   lg: 'text-4xl md:text-5xl lg:text-6xl',
   xl: 'text-5xl md:text-6xl lg:text-7xl',
+  custom: '',
 };
 
 const colorClasses = {
@@ -44,9 +45,9 @@ export default function GradientTitle({
 }: GradientTitleProps) {
   const sizeClass = size === 'custom' && customSize ? '' : sizeClasses[size];
   const fontSizeStyle = size === 'custom' && customSize ? { fontSize: customSize } : {};
-  
-  const part1ColorClass = part1Color === 'custom' && customPart1Color 
-    ? '' 
+
+  const part1ColorClass = part1Color === 'custom' && customPart1Color
+    ? ''
     : colorClasses[part1Color];
   const part1ColorStyle = part1Color === 'custom' && customPart1Color
     ? { color: customPart1Color }
@@ -59,13 +60,13 @@ export default function GradientTitle({
   }[align];
 
   return (
-    <h2 
+    <h2
       className={`font-semibold ${sizeClass} ${alignClass} ${className}`}
       style={{ ...fontSizeStyle, ...style }}
     >
       {part1 && (
         <>
-          <span 
+          <span
             className={part1ColorClass}
             style={part1ColorStyle}
           >
@@ -74,7 +75,7 @@ export default function GradientTitle({
           {lineBreak && <br />}
         </>
       )}
-      <span 
+      <span
         className="bg-gradient-to-r bg-clip-text text-transparent"
         style={{
           backgroundImage: `linear-gradient(to right, ${gradientFrom}, ${gradientTo})`,
