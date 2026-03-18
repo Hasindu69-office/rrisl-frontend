@@ -7,6 +7,7 @@ import ResearchSection from './components/home/ResearchSection';
 import DataInsightsSection from './components/home/DataInsightsSection';
 import NewsBlogSection from './components/home/NewsBlogSection';
 import ResearchNetworkSection from './components/home/ResearchNetworkSection';
+import RubberAnnouncement from './components/home/RubberAnnouncement';
 
 interface HomeProps {
   searchParams: Promise<{ locale?: string }>;
@@ -102,16 +103,31 @@ export default async function Home({ searchParams }: HomeProps) {
 
       {/* Announcement Content Section */}
       <div className="mt-2 md:mt-6 lg:mt-56">
-        <ContentSection
-          imageSrc="/images/sec1-img 1.png"
-          imageAlt="Rubber Research Institute of Sri Lanka"
-          tagText="Announcement"
-          titlePart1="Advancing Rubber"
-          titlePart2="Research for Sri Lanka's Future"
-          description="Rubber Research Institute of Sri Lanka is the oldest research institute on rubber in the world and is the nodal agency in Sri Lanka with the statutory responsibility for research and development on all aspects of rubber cultivation and processing for the benefit of the rubber industry."
-          buttonText="Read More"
-          buttonLink="#"
-        />
+        {/* Mobile and Tablet: Show ContentSection, Hide RubberAnnouncement */}
+        <div className="lg:hidden">
+          <ContentSection
+            imageSrc="/images/sec1-img 1.png"
+            imageAlt="Rubber Research Institute of Sri Lanka"
+            tagText="Announcement"
+            titlePart1="Advancing Rubber"
+            titlePart2="Research for Sri Lanka's Future"
+            description="Rubber Research Institute of Sri Lanka is the oldest research institute on rubber in the world and is the nodal agency in Sri Lanka with the statutory responsibility for research and development on all aspects of rubber cultivation and processing for the benefit of the rubber industry."
+            buttonText="Read More"
+            buttonLink="#"
+          />
+        </div>
+        
+        {/* Desktop: Hide ContentSection, Show RubberAnnouncement */}
+        <div className="hidden lg:block">
+          <RubberAnnouncement
+            tagText="Announcement"
+            titlePart1="Advancing Rubber"
+            titlePart2="Research for Sri Lanka's Future"
+            description="Rubber Research Institute of Sri Lanka is the oldest research institute on rubber in the world and is the nodal agency in Sri Lanka with the statutory responsibility for research and development on all aspects of rubber cultivation and processing for the benefit of the rubber industry."
+            buttonText="Read More"
+            buttonLink="#"
+          />
+        </div>
       </div>
 
       {/* Industry Support Section */}
