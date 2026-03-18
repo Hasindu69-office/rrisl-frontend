@@ -22,7 +22,7 @@ export default function DataInsightsSection() {
       className="relative w-full overflow-hidden flex items-center justify-center py-12 md:py-24 -mt-[1px]"
       style={{
         minHeight: '600px',
-        backgroundImage: 'linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.7) 100%, rgba(255, 255, 255, 0) 100%), url("/images/datainsightsbackground.png")',
+        backgroundImage: 'linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.7) 100%, rgba(255, 255, 255, 0) 100%), url("/images/datainsightsbackground.jpg")',
         backgroundSize: 'cover',
         backgroundPosition: 'center top',
         backgroundColor: 'white',
