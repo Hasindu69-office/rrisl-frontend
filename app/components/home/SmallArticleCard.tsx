@@ -27,7 +27,7 @@ export default function SmallArticleCard({
   link,
 }: SmallArticleCardProps) {
   return (
-    <Link href={link} className="block group w-full xl:w-[675px]">
+    <Link href={link} className="block group w-full">
       <div
         className="bg-white overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 flex flex-col xl:flex-row mb-4"
         style={{
