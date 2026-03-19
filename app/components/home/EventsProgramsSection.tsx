@@ -167,6 +167,8 @@ export default function EventsProgramsSection() {
   const [cardsPerSlide, setCardsPerSlide] = useState(1);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [selectedEventDate, setSelectedEventDate] = useState<string | null>(null);
+  const [isDesktopCalendar, setIsDesktopCalendar] = useState(false);
 
   useEffect(() => {
     const updateCardsPerSlide = () => {
@@ -186,6 +188,24 @@ export default function EventsProgramsSection() {
     };
   }, []);
 
+  useEffect(() => {
+    const updateCalendarMode = () => {
+      const desktop = window.innerWidth >= 1280;
+      setIsDesktopCalendar(desktop);
+
+      if (desktop) {
+        setSelectedEventDate(null);
+      }
+    };
+
+    updateCalendarMode();
+    window.addEventListener('resize', updateCalendarMode);
+
+    return () => {
+      window.removeEventListener('resize', updateCalendarMode);
+    };
+  }, []);
+
   const visibleEvents = CALENDAR_EVENTS.filter((event) => {
     const eventDate = new Date(`${event.date}T00:00:00`);
 
@@ -197,7 +217,9 @@ export default function EventsProgramsSection() {
 
   const pastEvents = visibleEvents.filter((event) => getEventStatus(event.date) === 'past').slice(0, 2);
   const upcomingEvents = visibleEvents.filter((event) => getEventStatus(event.date) === 'upcoming');
-
+  const effectiveSelectedEventDate = visibleEvents.some((event) => event.date === selectedEventDate)
+    ? selectedEventDate
+    : null;
   const totalPages = Math.max(1, Math.ceil(upcomingEvents.length / LIST_PAGE_SIZE));
   const paginatedEvents = upcomingEvents.slice(
     (currentPage - 1) * LIST_PAGE_SIZE,
@@ -267,7 +289,7 @@ export default function EventsProgramsSection() {
 
   return (
     <section className="overflow-x-clip bg-white py-12 md:py-16 lg:py-24">
-      <div className="mx-auto w-full max-w-[1600px] px-4 md:px-6 xl:w-[80%] xl:px-0">
+      <div className="mx-auto w-full max-w-[1600px] overflow-x-hidden px-4 md:px-6 xl:w-[80%] xl:px-0">
         <div className="rounded-[28px] px-0 py-0 md:px-0 md:py-0">
           <div className="mb-8 text-center md:mb-10 xl:hidden">
             <GradientTag
@@ -292,7 +314,7 @@ export default function EventsProgramsSection() {
 
           <div className="grid gap-8 xl:grid-cols-[340px_minmax(0,1fr)] xl:gap-12">
             <aside className="overflow-x-clip bg-[#FAFBF8] px-5 py-6 shadow-[0_24px_80px_rgba(15,63,29,0.06)] md:px-8 md:py-10 xl:border-r xl:border-[#A1DF0A] xl:pr-8">
-              <div className="rounded-[24px] bg-white p-4 shadow-[0_18px_40px_rgba(15,63,29,0.08)] md:p-5">
+              <div className="relative rounded-[24px] bg-white p-4 shadow-[0_18px_40px_rgba(15,63,29,0.08)] md:p-5">
                 <div className="mb-5 flex items-center justify-between">
                   <button
                     type="button"
@@ -322,23 +344,46 @@ export default function EventsProgramsSection() {
                   ))}
                 </div>
 
-                <div className="grid grid-cols-7 gap-y-2 overflow-x-clip">
-                  {calendarDays.map(({ date, isCurrentMonth }) => {
+                <div className="grid grid-cols-7 gap-y-2 overflow-visible">
+                  {calendarDays.map(({ date, isCurrentMonth }, index) => {
                     const isoDate = toLocalDateKey(date);
                     const event = visibleEvents.find((item) => item.date === isoDate);
                     const hasEvent = Boolean(event);
                     const eventStatus = event ? getEventStatus(event.date) : null;
                     const isToday = isoDate === toLocalDateKey(TODAY);
+                    const calendarColumn = index % 7;
+                    const popoverPositionClass = calendarColumn <= 1
+                      ? 'left-0 translate-x-0'
+                      : calendarColumn >= 5
+                        ? 'right-0 left-auto translate-x-0'
+                        : 'left-1/2 -translate-x-1/2';
 
                     return (
                       <div key={isoDate} className="group relative flex justify-center">
                         <button
                           type="button"
+                          onClick={() => {
+                            if (isDesktopCalendar) {
+                              return;
+                            }
+
+                            if (!event) {
+                              setSelectedEventDate(null);
+                              return;
+                            }
+
+                            setSelectedEventDate((current) => (
+                              current === isoDate ? null : isoDate
+                            ));
+                          }}
+                          aria-expanded={!isDesktopCalendar && hasEvent ? effectiveSelectedEventDate === isoDate : undefined}
+                          aria-label={event ? `Show details for ${event.title}` : undefined}
                           className={[
                             'relative aspect-square h-10 w-10 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-300 ease-out',
                             isCurrentMonth ? 'text-[#344054]' : 'text-[#C2C8D0]',
                             isToday ? 'bg-[#2E7D32] font-bold text-white shadow-[0_10px_24px_rgba(46,125,50,0.28)]' : '',
                             !isToday ? 'hover:bg-[#F3F6F0]' : '',
+                            hasEvent ? 'cursor-pointer' : '',
                           ].join(' ')}
                         >
                           {date.getDate()}
@@ -351,15 +396,22 @@ export default function EventsProgramsSection() {
                         </button>
 
                         {event ? (
-                          <div className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-3 hidden w-56 -translate-x-1/2 translate-y-2 rounded-2xl bg-[#123F1D] p-3 text-left text-white opacity-0 shadow-[0_18px_40px_rgba(15,63,29,0.24)] transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:translate-y-0 group-focus-within:opacity-100 xl:block">
-                            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#A1DF0A]">
+                          <div className={[
+                            'absolute z-20 w-[min(13rem,calc(100vw-3rem))] rounded-2xl bg-[#123F1D] p-2.5 text-left text-white shadow-[0_18px_40px_rgba(15,63,29,0.24)] transition-all duration-300 ease-out',
+                            'top-full mt-2 opacity-0 pointer-events-none translate-y-2',
+                            'xl:top-auto xl:bottom-full xl:mt-0 xl:mb-3',
+                            'xl:group-hover:translate-y-0 xl:group-hover:opacity-100',
+                            effectiveSelectedEventDate === isoDate ? 'translate-y-0 opacity-100 pointer-events-auto xl:pointer-events-none' : '',
+                            popoverPositionClass,
+                          ].join(' ')}>
+                            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#A1DF0A]">
                               {event.kind} / {eventStatus}
                             </p>
-                            <p className="mt-1 text-sm font-semibold leading-5">
+                            <p className="mt-1 text-xs font-semibold leading-5">
                               {event.title}
                             </p>
-                            <p className="mt-2 text-xs text-white/80">{event.location}</p>
-                            <p className="mt-1 text-xs text-white/80">{event.time}</p>
+                            <p className="mt-1.5 text-[11px] leading-4 text-white/80">{event.location}</p>
+                            <p className="mt-1 text-[11px] text-white/80">{event.time}</p>
                           </div>
                         ) : null}
                       </div>
@@ -395,7 +447,7 @@ export default function EventsProgramsSection() {
               </div>
             </aside>
 
-            <div className="flex h-full flex-col">
+            <div className="flex h-full min-w-0 flex-col overflow-x-hidden">
               <div className="hidden flex-col gap-6 border-b border-[#B7DB6A] pb-6 md:flex-row md:items-end md:justify-between xl:flex">
                 <div>
                   <GradientTag
@@ -471,7 +523,7 @@ export default function EventsProgramsSection() {
                 {upcomingEvents.length > 0 ? (
                   <>
                     <div
-                      className="grid gap-4 md:grid-cols-2 md:gap-5"
+                      className="grid min-w-0 gap-4 overflow-x-hidden md:grid-cols-2 md:gap-5"
                       onMouseEnter={() => setIsPaused(true)}
                       onMouseLeave={() => setIsPaused(false)}
                       onTouchStart={() => setIsPaused(true)}
@@ -483,7 +535,7 @@ export default function EventsProgramsSection() {
                         return (
                           <article
                             key={event.id}
-                            className="rounded-[24px] border border-[#EEF2E8] bg-white px-5 py-5 flex flex-col justify-between h-[320px] md:h-[300px]"
+                            className="flex h-[320px] min-w-0 flex-col justify-between overflow-hidden rounded-[24px] border border-[#EEF2E8] bg-white px-5 py-5 md:h-[300px]"
                           >
                             <div className="min-w-[118px]">
                               <p className="text-[25px] font-bold leading-none text-[#0F3F1D]">
@@ -502,11 +554,11 @@ export default function EventsProgramsSection() {
                                   {event.kind}
                                 </span>
                               </div>
-                              <p className="flex items-center gap-2 text-base text-[#7A8B99]">
-                                <MapPin className="h-4 w-4 text-[#2E7D32]" />
-                                {event.location}
+                              <p className="flex min-w-0 items-start gap-2 text-base text-[#7A8B99]">
+                                <MapPin className="mt-1 h-4 w-4 shrink-0 text-[#2E7D32]" />
+                                <span className="min-w-0 break-words">{event.location}</span>
                               </p>
-                              <h3 className="mt-2 text-[18px] font-semibold leading-7 text-[#486476]">
+                              <h3 className="mt-2 break-words text-[18px] font-semibold leading-7 text-[#486476]">
                                 {event.title}
                               </h3>
                             </div>
@@ -572,11 +624,11 @@ export default function EventsProgramsSection() {
                           </span>
                         </div>
 
-                        <p className="flex items-center gap-2 text-base text-[#7A8B99]">
-                          <MapPin className="h-4 w-4 text-[#2E7D32]" />
-                          {event.location}
+                        <p className="flex min-w-0 items-start gap-2 text-base text-[#7A8B99]">
+                          <MapPin className="mt-1 h-4 w-4 shrink-0 text-[#2E7D32]" />
+                          <span className="min-w-0 break-words">{event.location}</span>
                         </p>
-                        <h3 className="mt-2 text-[18px] font-semibold leading-7 text-[#486476]">
+                        <h3 className="mt-2 break-words text-[18px] font-semibold leading-7 text-[#486476]">
                           {event.title}
                         </h3>
                       </div>
