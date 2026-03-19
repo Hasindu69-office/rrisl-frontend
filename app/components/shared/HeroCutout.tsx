@@ -25,7 +25,7 @@ const HeroCutout = ({ breadcrumbItems = [] }: HeroCutoutProps) => {
                 </svg>
 
                 {breadcrumbItems.length > 0 && (
-                    <div className="absolute inset-x-0 bottom-3 flex justify-center px-4 sm:bottom-4 md:bottom-5">
+                    <div className="absolute inset-x-0 bottom-2 flex justify-center px-4 sm:bottom-2 md:bottom-3 pl-32 md:pl-0">
                         <Breadcrumb
                             items={breadcrumbItems}
                             variant="dark"
