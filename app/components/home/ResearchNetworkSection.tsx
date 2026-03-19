@@ -151,7 +151,7 @@ export default function ResearchNetworkSection() {
   };
 
   return (
-    <section className="relative w-full overflow-hidden py-12 md:py-24 xl:pb-[350px] bg-white">
+    <section className="relative w-full overflow-hidden py-12 md:py-24 bg-white">
       {/* Background Image - Behind content with overlay */}
       <div className="absolute inset-0 z-0">
         <Image
@@ -167,7 +167,7 @@ export default function ResearchNetworkSection() {
       </div>
 
       {/* Content Container */}
-      <div className="relative z-10 container mx-auto px-4 md:px-6 xl:px-8 mt-10 md:mt-20 lg:mt-[0px] xl:mt-[206px] mb-[200px] md:mb-[150px] lg:mb-[175px] xl:mb-[0px]">
+      <div className="relative z-10 container mx-auto px-4 md:px-6 xl:px-8 mt-10 md:mt-20 mb-[200px] md:mb-[150px] lg:mb-[175px] xl:mb-[0px]">
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 md:gap-12 items-start">
           {/* Left Side - Research Station Card */}
           <div className="w-full order-2 xl:order-1">
