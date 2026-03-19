@@ -7,6 +7,7 @@ import ResearchSection from './components/home/ResearchSection';
 import DataInsightsSection from './components/home/DataInsightsSection';
 import NewsBlogSection from './components/home/NewsBlogSection';
 import ResearchNetworkSection from './components/home/ResearchNetworkSection';
+import EventsProgramsSection from './components/home/EventsProgramsSection';
 import RubberAnnouncement from './components/home/RubberAnnouncement';
 
 interface HomeProps {
@@ -147,6 +148,11 @@ export default async function Home({ searchParams }: HomeProps) {
       {/* Research Network Section */}
       <div className="mt-8 md:mt-16 lg:mt-[150px]">
         <ResearchNetworkSection />
+      </div>
+
+      {/* Events & Programs Section */}
+      <div className="mt-8 md:mt-16 mb-48 lg:mb-[250px]">
+        <EventsProgramsSection />
       </div>
 
     </div>
