@@ -68,27 +68,17 @@ export default function ResearchNetworkMap({
       </div>
 
       {/* Map Container - Responsive sizing */}
-      <div className="relative w-full max-w-[400px] md:max-w-[500px] xl:w-[635px] aspect-[635/725] md:h-auto xl:h-[725px] xl:translate-x-0 -translate-x-[19%]">
+      <div className="relative w-full max-w-[400px] md:max-w-[500px] xl:w-[635px] aspect-[635/725] md:h-auto xl:h-[725px]">
         {/* Map Image */}
-        <div className="relative w-full h-full xl:w-[80%] rounded-lg" style={{ overflow: 'visible' }}>
-          <div
-            className="absolute"
-            style={{
-              top: '-10%',
-              left: '-1%',
-              width: '140%',
-              height: '120%',
-            }}
-          >
-            <Image
-              src={mapImage}
-              alt="Sri Lanka Research Network Map"
-              fill
-              className="object-contain"
-              priority
-              quality={90}
-            />
-          </div>
+        <div className="relative w-full h-full rounded-lg overflow-hidden">
+          <Image
+            src={mapImage}
+            alt="Sri Lanka Research Network Map"
+            fill
+            className="object-contain object-center"
+            priority
+            quality={90}
+          />
         </div>
 
         {/* Location Markers */}
