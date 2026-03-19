@@ -5,18 +5,25 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { addLocaleToUrl } from '@/app/lib/locale';
 
-interface BreadcrumbItem {
+export interface BreadcrumbItem {
   label: string;
   href?: string;
 }
 
 interface BreadcrumbProps {
   items: BreadcrumbItem[];
+  variant?: 'light' | 'dark';
+  className?: string;
 }
 
-export default function Breadcrumb({ items }: BreadcrumbProps) {
+export default function Breadcrumb({
+  items,
+  variant = 'light',
+  className = '',
+}: BreadcrumbProps) {
   const searchParams = useSearchParams();
   const currentLocale = searchParams.get('locale') || 'en';
+  const isDark = variant === 'dark';
 
   const getLocalizedUrl = (url: string) => {
     if (url.startsWith('http') || url.startsWith('//')) {
@@ -26,26 +33,29 @@ export default function Breadcrumb({ items }: BreadcrumbProps) {
   };
 
   return (
-    <nav className="flex items-center space-x-2 text-white text-sm md:text-base" aria-label="Breadcrumb">
+    <nav
+      className={`flex items-center space-x-2 text-sm md:text-base ${isDark ? 'text-[#042012]' : 'text-white'} ${className}`.trim()}
+      aria-label="Breadcrumb"
+    >
       {items.map((item, index) => {
         const isLast = index === items.length - 1;
-        
+
         return (
           <React.Fragment key={index}>
             {item.href && !isLast ? (
               <Link
                 href={getLocalizedUrl(item.href)}
-                className="hover:text-white/80 transition-colors"
+                className={`transition-colors ${isDark ? 'hover:text-[#042012]/80' : 'hover:text-white/80'}`}
               >
                 {item.label}
               </Link>
             ) : (
-              <span className={isLast ? 'text-[#A1DF0A]' : 'text-white/80'}>
+              <span className={isLast ? 'text-[#A1DF0A]' : isDark ? 'text-[#042012]/80' : 'text-white/80'}>
                 {item.label}
               </span>
             )}
             {!isLast && (
-              <span className="text-white/60 mx-1">»</span>
+              <span className={`mx-1 ${isDark ? 'text-[#042012]/50' : 'text-white/60'}`}>{'\u00BB'}</span>
             )}
           </React.Fragment>
         );
@@ -53,4 +63,3 @@ export default function Breadcrumb({ items }: BreadcrumbProps) {
     </nav>
   );
 }
-

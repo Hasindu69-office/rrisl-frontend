@@ -162,8 +162,13 @@ export default function ResearchNetworkSection() {
           priority
           quality={90}
         />
-        {/* Dark green semi-transparent overlay */}
-        <div className="absolute inset-0 bg-[#0F3F1D]/70" />
+        {/* Dark green -> black vertical gradient overlay (using RGBA) */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background: 'linear-gradient(to bottom, rgba(15, 63, 29, 0.6), rgba(0, 0, 0, 0.6))',
+          }}
+        />
       </div>
 
       {/* Content Container */}
