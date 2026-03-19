@@ -159,12 +159,12 @@ export default function ResearchSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full overflow-hidden h-auto lg:h-[100vh]"
+      className="relative w-full overflow-hidden h-auto lg:min-h-screen"
     >
-      <div className="relative lg:sticky top-0 w-full min-h-screen lg:h-screen px-4 md:px-6 lg:px-8 flex items-center py-10 lg:py-0">
+      <div className="relative lg:sticky top-0 w-full min-h-screen px-4 md:px-6 lg:px-8 flex items-center py-10 lg:py-8 xl:py-10">
         {/* Light Green Rounded Container */}
         <div
-          className="relative rounded-[30px] lg:rounded-[100px] overflow-hidden mx-auto w-full h-auto lg:h-[720px] bg-[#2E7D3221] p-6 md:p-12 lg:p-16 xl:pt-[115px] xl:pr-[50px] xl:pb-[60px] xl:pl-[240px]"
+          className="relative rounded-[30px] lg:rounded-[100px] overflow-hidden mx-auto w-full h-auto lg:min-h-[calc(100vh-64px)] xl:min-h-[calc(100vh-80px)] bg-[#2E7D3221] p-6 md:p-12 lg:p-16 xl:pt-[115px] xl:pr-[50px] xl:pb-[60px] xl:pl-[240px]"
           style={{
             width: '95%',
             maxWidth: '1824px',
