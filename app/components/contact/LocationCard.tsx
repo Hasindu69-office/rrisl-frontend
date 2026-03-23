@@ -97,7 +97,16 @@ export default function LocationCard({
                 </span>
               </div>
 
-              <div className="flex items-center bg-white px-6 py-12 md:px-8 md:py-14 lg:px-10 lg:py-16">
+              <div className="relative flex items-center bg-white px-6 py-12 md:px-8 md:py-14 lg:px-10 lg:py-16">
+                <div
+                  className="pointer-events-none absolute inset-0 opacity-[0.08]"
+                  style={{
+                    backgroundImage: "url('/images/Aboutussection2rightbranch.png')",
+                    backgroundRepeat: 'no-repeat',
+                    backgroundPosition: 'left bottom',
+                    backgroundSize: '75% auto',
+                  }}
+                />
                 <div className="w-full pl-4">
                   <div className="location-details-scroll max-h-[320px] space-y-6 overflow-y-auto pr-4">
                     {details.map((item) => (
@@ -109,7 +118,16 @@ export default function LocationCard({
             </>
           ) : (
             <>
-              <div className="flex items-center bg-white px-6 py-12 md:px-8 md:py-14 lg:px-10 lg:py-16">
+              <div className="relative flex items-center bg-white px-6 py-12 md:px-8 md:py-14 lg:px-10 lg:py-16">
+                <div
+                  className="pointer-events-none absolute inset-0 opacity-[0.08]"
+                  style={{
+                    backgroundImage: "url('/images/Aboutussection2rightbranch.png')",
+                    backgroundRepeat: 'no-repeat',
+                    backgroundPosition: 'left bottom',
+                    backgroundSize: '75% auto',
+                  }}
+                />
                 <div className="w-full pr-4">
                   <div className="location-details-scroll max-h-[320px] space-y-6 overflow-y-auto pr-4">
                     {details.map((item) => (
