@@ -25,7 +25,7 @@ export default async function ContactPage({ searchParams }: ContactPageProps) {
       <section className="bg-white px-4 py-16 md:px-6 md:py-20 lg:px-36 lg:py-24 mb-56">
         <div className="mx-auto w-full max-w-[1480px]">
           <div className="grid gap-0 lg:grid-cols-3">
-            <div className="lg:col-span-1">
+            <div className="lg:col-span-1 lg:-ml-6 xl:-ml-8">
               <ContactInfoPanel />
             </div>
 

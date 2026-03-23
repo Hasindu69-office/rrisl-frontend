@@ -200,7 +200,7 @@ export default function ContactInfoPanel() {
                 target="_blank"
                 rel="noreferrer"
                 aria-label={social.label}
-                className="flex h-12 w-12 items-center justify-center rounded-full bg-white transition-transform duration-200 hover:-translate-y-1"
+                className="flex h-[45px] w-[45px] items-center justify-center rounded-full bg-white transition-transform duration-200 hover:-translate-y-1"
               >
                 {social.icon}
               </a>
