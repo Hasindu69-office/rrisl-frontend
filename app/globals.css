@@ -78,3 +78,25 @@ html {
 .floating-badge {
   animation: badgeFloat 4s ease-in-out infinite;
 }
+
+.location-details-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(46, 125, 50, 0.27) transparent;
+}
+
+.location-details-scroll::-webkit-scrollbar {
+  width: 5px;
+}
+
+.location-details-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.location-details-scroll::-webkit-scrollbar-thumb {
+  background: rgba(46, 125, 50, 0.27);
+  border-radius: 9999px;
+}
+
+.location-details-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(46, 125, 50, 0.45);
+}
