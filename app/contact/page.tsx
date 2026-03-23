@@ -39,7 +39,7 @@ export default async function ContactPage({ searchParams }: ContactPageProps) {
           </div>
 
           <div
-            className="mt-16 -mx-4 px-4 py-12 md:-mx-6 md:px-6 md:py-16 lg:-mx-36 lg:px-36 lg:py-20"
+            className="-mx-4 px-4 py-8 md:-mx-6 md:px-6 md:py-16 lg:-mx-36 lg:px-36 lg:py-6"
             style={{ backgroundColor: 'rgba(245, 245, 245, 1)' }}
           >
             <div className="mx-auto w-full max-w-[1480px]">
@@ -47,7 +47,7 @@ export default async function ContactPage({ searchParams }: ContactPageProps) {
             </div>
           </div>
 
-          <div className="-mx-4 bg-white px-4 py-12 md:-mx-6 md:px-6 md:py-16 lg:-mx-36 lg:px-36 lg:py-20">
+          <div className="-mx-4 bg-white px-4 py-2 md:-mx-6 md:px-6 md:py-16 lg:-mx-36 lg:px-36 lg:py-6">
             <div className="mx-auto w-full max-w-[1480px]">
               <SubStationSection
                 titlePart1="Rubber Research Institute"
