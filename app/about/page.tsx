@@ -4,7 +4,7 @@ import GradientTitle from '../components/ui/GradientTitle';
 import GradientTag from '../components/ui/GradientTag';
 import WhoWeAreSection from '../components/about/WhoWeAreSection';
 import MissionVisionSection from '../components/about/MissionVisionSection';
-import ObjectivesSlider from '../components/about/ObjectivesSlider';
+import ObjectivesSection from '../components/about/ObjectivesSection';
 
 interface AboutProps {
   searchParams: Promise<{ locale?: string }>;
@@ -34,11 +34,11 @@ export default async function About({ searchParams }: AboutProps) {
       {/* Mission & Vision Section */}
       <MissionVisionSection />
 
-      {/* Our Objectives Slider */}
-      <ObjectivesSlider />
+      {/* Our Objectives Section */}
+      <ObjectivesSection />
 
-      <div className="h-[350px]"></div>
     </div>
   );
 }
+
 
