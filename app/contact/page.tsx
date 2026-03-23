@@ -1,6 +1,8 @@
 import PageHero from '../components/shared/PageHero';
 import ContactInfoPanel from '../components/contact/ContactInfoPanel';
 import ContactFormPanel from '../components/contact/ContactFormPanel';
+import LocationSection from '../components/contact/LocationSection';
+import { headOfficeCard, laboratoryCard } from '../components/contact/locationData';
 
 interface ContactPageProps {
   searchParams: Promise<{ locale?: string }>;
@@ -33,6 +35,8 @@ export default async function ContactPage({ searchParams }: ContactPageProps) {
               <ContactFormPanel />
             </div>
           </div>
+
+          <LocationSection cards={[headOfficeCard, laboratoryCard]} />
         </div>
       </section>
     </div>
