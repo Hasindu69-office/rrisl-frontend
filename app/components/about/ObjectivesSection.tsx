@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import GradientTag from '@/app/components/ui/GradientTag';
 import GradientTitle from '@/app/components/ui/GradientTitle';
@@ -28,9 +28,80 @@ const objectives = [
   },
 ];
 
-export default function ObjectivesSection() {
+type Objective = {
+  id: string;
+  text: string;
+};
+
+type ObjectiveCardProps = {
+  obj: Objective;
+  isActive: boolean;
+  onActivate: (id: string | null) => void;
+  className?: string;
+  circleClassName?: string;
+  textClassName?: string;
+};
+
+function ObjectiveCard({
+  obj,
+  isActive,
+  onActivate,
+  className = '',
+  circleClassName = '',
+  textClassName = '',
+}: ObjectiveCardProps) {
   return (
-    <section className="relative w-full min-h-[600px] md:min-h-[980px] py-20 overflow-hidden">
+    <button
+      type="button"
+      onClick={() => onActivate(isActive ? null : obj.id)}
+      onMouseEnter={() => onActivate(obj.id)}
+      onMouseLeave={() => onActivate(null)}
+      onFocus={() => onActivate(obj.id)}
+      onBlur={() => onActivate(null)}
+      className={`group flex flex-col items-center text-center focus:outline-none ${className}`}
+    >
+      <div
+        className={`relative rounded-full bg-white flex items-center justify-center shadow-lg transition-all duration-300 overflow-hidden ${circleClassName}`}
+      >
+        <div
+          className={`absolute inset-0 transition-opacity duration-300 ${
+            isActive ? 'opacity-100' : 'opacity-0'
+          }`}
+          style={{
+            padding: '3px',
+            background: 'linear-gradient(to right, #20C997, #9BDE10)',
+            borderRadius: '50%',
+            WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+            WebkitMaskComposite: 'xor',
+            maskComposite: 'exclude',
+          }}
+        />
+
+        <span
+          className={`font-bold text-[#0F3F1D] transition-transform duration-300 ${
+            isActive ? 'scale-110' : 'scale-100'
+          }`}
+        >
+          {obj.id}
+        </span>
+      </div>
+
+      <p
+        className={`font-medium leading-relaxed transition-colors duration-300 ${
+          isActive ? 'text-black' : 'text-white/90'
+        } ${textClassName}`}
+      >
+        {obj.text}
+      </p>
+    </button>
+  );
+}
+
+export default function ObjectivesSection() {
+  const [activeObjective, setActiveObjective] = useState<string | null>(null);
+
+  return (
+    <section className="relative w-full min-h-[600px] md:min-h-[900px] lg:min-h-[980px] py-20 overflow-hidden">
       {/* Background Image & Overlay */}
       <div className="absolute inset-0 z-0">
         <Image
@@ -49,9 +120,9 @@ export default function ObjectivesSection() {
         />
       </div>
 
-      <div className="container mx-auto px-4 relative z-10">
+      <div className="container mx-auto px-4 relative z-10 mb-48 lg:mb-0">
         {/* Header Section */}
-        <div className="text-center mb-16 md:mb-24">
+        <div className="text-center mb-16 md:mb-20 lg:mb-24">
           <div className="mb-4">
             <GradientTag
               text="Who We Are"
@@ -74,8 +145,59 @@ export default function ObjectivesSection() {
           />
         </div>
 
+        {/* Objectives Grid Layout - Tablet */}
+        <div className="hidden md:grid lg:hidden grid-cols-2 gap-x-10 gap-y-12 mt-10 max-w-3xl mx-auto">
+          {objectives.map((obj, index) => (
+            <ObjectiveCard
+              key={obj.id}
+              obj={obj}
+              isActive={activeObjective === obj.id}
+              onActivate={setActiveObjective}
+              className={index === objectives.length - 1 ? 'col-span-2 max-w-[280px] mx-auto' : ''}
+              circleClassName="w-24 h-24 mb-5"
+              textClassName="text-base px-3"
+            />
+          ))}
+        </div>
+
+        {/* Objectives Arc Layout - Large Tablet / Small Desktop */}
+        <div className="hidden lg:block xl:hidden relative h-[360px] mt-10">
+          {objectives.map((obj, index) => {
+            const total = objectives.length;
+            const rx = 42;
+            const ry = 34;
+            const verticalBase = 57;
+
+            const xNormal = (index / (total - 1)) * 2 - 1;
+            const left = 50 + xNormal * rx;
+            const curveHeight = Math.sqrt(1 - Math.pow(xNormal * 0.95, 2));
+            const top = verticalBase - curveHeight * ry;
+
+            return (
+              <div
+                key={obj.id}
+                className="absolute transition-all duration-500 ease-out"
+                style={{
+                  left: `${left}%`,
+                  top: `${top}%`,
+                  transform: 'translate(-50%, -50%)',
+                  width: '170px',
+                }}
+              >
+                <ObjectiveCard
+                  obj={obj}
+                  isActive={activeObjective === obj.id}
+                  onActivate={setActiveObjective}
+                  circleClassName="w-20 h-20"
+                  textClassName="mt-5 text-sm px-1"
+                />
+              </div>
+            );
+          })}
+        </div>
+
         {/* Objectives Arc Layout - Desktop */}
-        <div className="hidden md:block relative h-[400px] mt-10">
+        <div className="hidden xl:block relative h-[400px] mt-10">
           {objectives.map((obj, index) => {
             const total = objectives.length;
 
@@ -102,7 +224,7 @@ export default function ObjectivesSection() {
             return (
               <div
                 key={obj.id}
-                className="absolute group transition-all duration-500 ease-out"
+                className="absolute transition-all duration-500 ease-out"
                 style={{
                   left: `${left}%`,
                   top: `${top}%`,
@@ -110,32 +232,13 @@ export default function ObjectivesSection() {
                   width: '220px',
                 }}
               >
-                <div className="flex flex-col items-center">
-                  {/* Circle with Gradient Border on Hover */}
-                  <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-full bg-white flex items-center justify-center shadow-lg transition-all duration-300 overflow-hidden">
-                    {/* Hover Gradient Border */}
-                    <div
-                      className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                      style={{
-                        padding: '3px',
-                        background: 'linear-gradient(to right, #20C997, #9BDE10)',
-                        borderRadius: '50%',
-                        WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                        WebkitMaskComposite: 'xor',
-                        maskComposite: 'exclude',
-                      }}
-                    />
-
-                    <span className="text-2xl md:text-3xl font-bold text-[#0F3F1D] group-hover:scale-110 transition-transform duration-300">
-                      {obj.id}
-                    </span>
-                  </div>
-
-                  {/* Description Text */}
-                  <p className="mt-6 text-center text-white/90 group-hover:text-black font-medium text-sm md:text-base leading-relaxed transition-colors duration-300 px-2">
-                    {obj.text}
-                  </p>
-                </div>
+                <ObjectiveCard
+                  obj={obj}
+                  isActive={activeObjective === obj.id}
+                  onActivate={setActiveObjective}
+                  circleClassName="w-24 h-24"
+                  textClassName="mt-6 text-base px-2"
+                />
               </div>
             );
           })}
@@ -144,27 +247,14 @@ export default function ObjectivesSection() {
         {/* Objectives List - Mobile */}
         <div className="md:hidden flex flex-col gap-10 mt-10">
           {objectives.map((obj) => (
-            <div key={obj.id} className="flex flex-col items-center group">
-              <div className="relative w-20 h-20 rounded-full bg-white flex items-center justify-center shadow-lg mb-4">
-                <div
-                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  style={{
-                    padding: '3px',
-                    background: 'linear-gradient(to right, #20C997, #9BDE10)',
-                    borderRadius: '50%',
-                    WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                    WebkitMaskComposite: 'xor',
-                    maskComposite: 'exclude',
-                  }}
-                />
-                <span className="text-2xl font-bold text-[#0F3F1D]">
-                  {obj.id}
-                </span>
-              </div>
-              <p className="text-center text-white/90 group-hover:text-black font-medium transition-colors duration-300">
-                {obj.text}
-              </p>
-            </div>
+            <ObjectiveCard
+              key={obj.id}
+              obj={obj}
+              isActive={activeObjective === obj.id}
+              onActivate={setActiveObjective}
+              circleClassName="w-20 h-20 mb-4"
+              textClassName="text-sm px-4"
+            />
           ))}
         </div>
       </div>

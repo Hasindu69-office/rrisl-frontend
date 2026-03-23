@@ -5,7 +5,7 @@ const MissionVisionSection = () => {
     return (
         <section className="relative isolate w-full min-h-[400px] md:min-h-[500px] lg:min-h-[600px] overflow-visible pt-[60px] md:pt-[110px] lg:pt-[150px] -mt-[60px] md:-mt-[110px] lg:-mt-[150px]">
             {/* Decorative Branch Separator */}
-            <div className="absolute -top-16 left-0 right-0 h-[120px] md:h-[220px] lg:h-[500px] z-[120] pointer-events-none">
+            <div className="absolute top-4 lg:-top-16 left-0 right-0 h-[120px] md:h-[220px] lg:h-[500px] z-[120] pointer-events-none">
                 <Image
                     src="/images/aboutUsBranch.png"
                     alt="Decorative Branch separator"
@@ -134,16 +134,6 @@ const MissionVisionSection = () => {
 
                 {/* Vertical Center Line */}
                 <div className="absolute left-1/2 top-0 bottom-0 w-[2px] bg-[#ffffff]/20 z-30 hidden lg:block" />
-
-                {/* Mobile Logo Visibility Optimization: We show it in the flow or as a smaller indicator if needed */}
-                <div className="absolute right-4 top-4 z-40 w-[60px] h-[60px] lg:hidden opacity-80">
-                    <Image
-                        src="/images/Aboutussection2middlelogo.png"
-                        alt="RRISL Logo Mobile"
-                        fill
-                        className="object-contain"
-                    />
-                </div>
             </div>
         </section>
     );
