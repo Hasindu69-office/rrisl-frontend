@@ -70,19 +70,33 @@ export default function SubStationCard({ name, subtitle, contacts }: SubStationC
       <div className="pointer-events-none absolute bottom-3 right-8 h-[62px] w-[62px] rounded-full bg-[rgba(161,223,10,0.32)]" />
 
       <div className="relative z-10">
-        <h3 className="max-w-[320px] text-[28px] font-semibold leading-[1.2] text-[#20C997]">
+        <h3
+          className="max-w-full bg-clip-text text-[25px] font-semibold leading-[1.2] text-transparent"
+          style={{
+            backgroundImage:
+              'linear-gradient(to right, rgba(32, 201, 151, 1), rgba(161, 223, 10, 1))',
+          }}
+        >
           {name}
         </h3>
         {subtitle ? (
-          <p className="mt-1 max-w-[360px] text-[27px] font-semibold leading-[1.25] text-[#A1DF0A]">
+          <p
+            className="mt-1 max-w-full bg-clip-text text-[25px] font-semibold leading-[1.25] text-transparent"
+            style={{
+              backgroundImage:
+                'linear-gradient(to right, rgba(32, 201, 151, 1), rgba(161, 223, 10, 1))',
+            }}
+          >
             {subtitle}
           </p>
         ) : null}
 
-        <div className="mt-8 space-y-4">
-          {contacts.map((item) => (
-            <ContactRow key={`${item.label}-${item.value}`} item={item} />
-          ))}
+        <div className="mt-8">
+          <div className="location-details-scroll max-h-[240px] space-y-4 overflow-y-auto pr-4">
+            {contacts.map((item) => (
+              <ContactRow key={`${item.label}-${item.value}`} item={item} />
+            ))}
+          </div>
         </div>
       </div>
     </article>
