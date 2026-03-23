@@ -19,6 +19,13 @@ const WhoWeAreSection = ({ locale = 'en' }: WhoWeAreSectionProps) => {
           className="object-cover object-top"
           priority
         />
+        {/* Mobile/Tablet Gradient Overlay */}
+        <div
+          className="absolute inset-0 z-[1] lg:hidden"
+          style={{
+            background: 'linear-gradient(to top, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.07) 100%)'
+          }}
+        />
       </div>
 
       <div className="container mx-auto px-6 md:px-12 lg:px-20 relative z-10 h-full">
