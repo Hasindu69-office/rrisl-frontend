@@ -2,7 +2,9 @@ import PageHero from '../components/shared/PageHero';
 import ContactInfoPanel from '../components/contact/ContactInfoPanel';
 import ContactFormPanel from '../components/contact/ContactFormPanel';
 import LocationSection from '../components/contact/LocationSection';
+import SubStationSection from '../components/contact/SubStationSection';
 import { headOfficeCard, laboratoryCard } from '../components/contact/locationData';
+import { subStationCards } from '../components/contact/subStationData';
 
 interface ContactPageProps {
   searchParams: Promise<{ locale?: string }>;
@@ -42,6 +44,16 @@ export default async function ContactPage({ searchParams }: ContactPageProps) {
           >
             <div className="mx-auto w-full max-w-[1480px]">
               <LocationSection cards={[headOfficeCard, laboratoryCard]} />
+            </div>
+          </div>
+
+          <div className="-mx-4 bg-white px-4 py-12 md:-mx-6 md:px-6 md:py-16 lg:-mx-36 lg:px-36 lg:py-20">
+            <div className="mx-auto w-full max-w-[1480px]">
+              <SubStationSection
+                titlePart1="Rubber Research Institute"
+                titlePart2="Sub-stations"
+                cards={subStationCards}
+              />
             </div>
           </div>
         </div>
