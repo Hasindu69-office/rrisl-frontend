@@ -60,7 +60,7 @@ export const subStationCards: SubStationCardData[] = [
       },
       {
         label: 'e-mail',
-        value: 'rrikuruwita[at]sltnet.lk',
+        value: 'rrikuruwita@sltnet.lk',
       },
     ],
   },
