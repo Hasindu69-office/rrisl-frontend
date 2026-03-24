@@ -14,13 +14,13 @@ interface ChartPoint extends StatisticsPoint {
   y: number;
 }
 
-const chartHeight = 246;
+const chartHeight = 270;
 const chartWidth = 450;
 const margin = {
   top: 16,
   right: 24,
-  bottom: 42,
-  left: 52,
+  bottom: 58,
+  left: 62,
 };
 
 function formatValue(value: number) {
@@ -218,7 +218,7 @@ export default function StatisticsLineChart({
                 />
                 <text
                   x={x}
-                  y={chartHeight - 12}
+                  y={chartHeight - margin.bottom + 24}
                   textAnchor="middle"
                   className="fill-[#7C8794] text-[11px]"
                 >
@@ -294,17 +294,17 @@ export default function StatisticsLineChart({
 
           <text
             x={chartWidth / 2}
-            y={chartHeight + 10}
+            y={chartHeight - 8}
             textAnchor="middle"
             className="fill-[#313131] text-[12px]"
           >
             {xAxisLabel}
           </text>
           <text
-            x="10"
+            x="14"
             y={chartHeight / 2}
             textAnchor="middle"
-            transform={`rotate(-90 10 ${chartHeight / 2})`}
+            transform={`rotate(-90 14 ${chartHeight / 2})`}
             className="fill-[#313131] text-[12px]"
           >
             Year

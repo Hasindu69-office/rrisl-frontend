@@ -17,7 +17,7 @@ export default function ProductionStatisticsSection() {
   const hasCards = activeContent.cards.length > 0;
 
   return (
-    <section className="bg-[#F4F4F2] px-4 py-16 md:px-6 md:py-20 lg:px-8 lg:py-24">
+    <section className="bg-white px-4 py-16 md:px-6 md:py-20 lg:px-8 lg:py-24">
       <div className="mx-auto w-full max-w-[80vw]">
         <GradientTitle
           part1=""
