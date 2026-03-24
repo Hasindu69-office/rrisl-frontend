@@ -14,13 +14,13 @@ interface ChartPoint extends StatisticsPoint {
   y: number;
 }
 
-const chartHeight = 230;
+const chartHeight = 246;
 const chartWidth = 450;
 const margin = {
   top: 16,
   right: 24,
-  bottom: 36,
-  left: 46,
+  bottom: 42,
+  left: 52,
 };
 
 function formatValue(value: number) {
@@ -133,10 +133,34 @@ export default function StatisticsLineChart({
   }, [activeRange.endYear, activeRange.startYear, filteredPoints, innerHeight, innerWidth, maxValue]);
 
   const activePoint = hoveredPointIndex !== null ? chartPoints[hoveredPointIndex] : null;
+  const tooltipWidth = 78;
+  const tooltipHeight = 30;
+  const tooltipOffset = 10;
+
+  const tooltipPosition = useMemo(() => {
+    if (!activePoint) {
+      return null;
+    }
+
+    const preferredX = activePoint.x + tooltipOffset;
+    const preferredY = activePoint.y - 38;
+    const fallbackY = activePoint.y + 12;
+
+    const x = Math.min(
+      Math.max(preferredX, margin.left),
+      chartWidth - margin.right - tooltipWidth,
+    );
+
+    const y = preferredY < margin.top
+      ? Math.min(fallbackY, chartHeight - margin.bottom - tooltipHeight)
+      : Math.max(preferredY, margin.top);
+
+    return { x, y };
+  }, [activePoint]);
 
   return (
-    <div className="w-full overflow-x-auto">
-      <div className="min-w-[470px]">
+    <div className="w-full overflow-hidden">
+      <div className="w-full min-w-0">
         <div className="mb-5 flex items-center gap-2 text-[12px] text-[#4A4A4A]">
           <span
             className="h-[9px] w-[9px] rounded-full"
@@ -251,10 +275,10 @@ export default function StatisticsLineChart({
           ))}
 
           {activePoint ? (
-            <g transform={`translate(${activePoint.x + 8}, ${activePoint.y - 38})`}>
+            <g transform={`translate(${tooltipPosition?.x ?? 0}, ${tooltipPosition?.y ?? 0})`}>
               <rect
-                width="78"
-                height="30"
+                width={tooltipWidth}
+                height={tooltipHeight}
                 rx="8"
                 fill="#16341D"
                 opacity="0.96"
@@ -270,17 +294,17 @@ export default function StatisticsLineChart({
 
           <text
             x={chartWidth / 2}
-            y={chartHeight}
+            y={chartHeight + 10}
             textAnchor="middle"
             className="fill-[#313131] text-[12px]"
           >
             {xAxisLabel}
           </text>
           <text
-            x="16"
+            x="10"
             y={chartHeight / 2}
             textAnchor="middle"
-            transform={`rotate(-90 16 ${chartHeight / 2})`}
+            transform={`rotate(-90 10 ${chartHeight / 2})`}
             className="fill-[#313131] text-[12px]"
           >
             Year

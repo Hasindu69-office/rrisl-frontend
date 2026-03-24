@@ -12,7 +12,7 @@ export default async function ProductionStatisticsPage({
   const locale = params.locale || 'en';
 
   return (
-    <div className="min-h-screen bg-[#F6F8F3]">
+    <div className="min-h-screen bg-[#F6F8F3] mb-64">
       <PageHero
         title="Production Statistics"
         breadcrumbItems={[
