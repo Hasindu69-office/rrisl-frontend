@@ -16,7 +16,7 @@ export default function FaqAccordion({ items }: FaqAccordionProps) {
   };
 
   return (
-    <div className="location-details-scroll max-h-[690px] space-y-7 overflow-y-auto pr-4 md:pr-5">
+    <div className="space-y-5 md:space-y-6 lg:location-details-scroll lg:max-h-[690px] lg:overflow-y-auto lg:pr-5">
       {items.map((item) => (
         <FaqAccordionItem
           key={item.id}
