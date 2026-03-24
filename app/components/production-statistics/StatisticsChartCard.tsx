@@ -22,6 +22,7 @@ export default function StatisticsChartCard({
 
   return (
     <article
+      data-stats-card
       className={`rounded-[20px] bg-white p-4 shadow-[0_16px_40px_rgba(15,63,29,0.06)] sm:p-5 lg:p-6 ${
         card.fullWidth ? 'xl:col-span-2' : ''
       }`}
