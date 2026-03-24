@@ -7,6 +7,8 @@ interface StatisticsLineChartProps {
   line: StatisticsLine;
   period: StatisticsPeriod | null;
   xAxisLabel: string;
+  chartWidth?: number;
+  chartHeight?: number;
 }
 
 interface ChartPoint extends StatisticsPoint {
@@ -14,8 +16,8 @@ interface ChartPoint extends StatisticsPoint {
   y: number;
 }
 
-const chartHeight = 270;
-const chartWidth = 450;
+const defaultChartHeight = 270;
+const defaultChartWidth = 450;
 const margin = {
   top: 16,
   right: 24,
@@ -74,6 +76,8 @@ export default function StatisticsLineChart({
   line,
   period,
   xAxisLabel,
+  chartWidth = defaultChartWidth,
+  chartHeight = defaultChartHeight,
 }: StatisticsLineChartProps) {
   const [hoveredPointIndex, setHoveredPointIndex] = useState<number | null>(null);
 
@@ -156,7 +160,7 @@ export default function StatisticsLineChart({
       : Math.max(preferredY, margin.top);
 
     return { x, y };
-  }, [activePoint]);
+  }, [activePoint, chartHeight, chartWidth]);
 
   return (
     <div className="w-full overflow-hidden">

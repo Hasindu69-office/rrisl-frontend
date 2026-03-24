@@ -53,10 +53,10 @@ export default function StatisticsTabButton({
       aria-controls={`statistics-panel-${id}`}
       id={`statistics-tab-${id}`}
       onClick={() => onClick(id)}
-      className={`group relative min-h-[108px] rounded-[16px] px-4 py-5 text-left transition-all duration-200 sm:px-5 sm:py-4 ${
+      className={`group relative min-h-[108px] rounded-[16px] px-4 py-5 text-left transform-gpu transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] sm:px-5 sm:py-4 ${
         active
-          ? 'text-white shadow-[0_20px_40px_rgba(15,63,29,0.18)]'
-          : 'bg-white text-[#2E7D32] shadow-[0_10px_30px_rgba(15,63,29,0.06)] hover:-translate-y-0.5'
+          ? 'scale-[1.01] text-white shadow-[0_20px_40px_rgba(15,63,29,0.18)]'
+          : 'bg-white text-[#2E7D32] shadow-[0_10px_30px_rgba(15,63,29,0.06)] hover:-translate-y-0.5 hover:shadow-[0_18px_38px_rgba(15,63,29,0.1)]'
       }`}
       style={
         active

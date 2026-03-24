@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
+import gsap from 'gsap';
 import GradientTitle from '../ui/GradientTitle';
 import StatisticsChartCard from './StatisticsChartCard';
 import StatisticsTabButton from './StatisticsTabButton';
@@ -12,9 +13,55 @@ import {
 
 export default function ProductionStatisticsSection() {
   const [activeTab, setActiveTab] = useState<StatisticsTabId>('production');
+  const panelRef = useRef<HTMLDivElement | null>(null);
 
   const activeContent = statisticsTabContent[activeTab];
   const hasCards = activeContent.cards.length > 0;
+
+  useLayoutEffect(() => {
+    if (!panelRef.current || typeof window === 'undefined') {
+      return;
+    }
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
+
+    const panel = panelRef.current;
+    const cards = panel.querySelectorAll<HTMLElement>('[data-stats-card]');
+
+    const context = gsap.context(() => {
+      gsap.fromTo(
+        panel,
+        { autoAlpha: 0, x: 72 },
+        {
+          autoAlpha: 1,
+          x: 0,
+          duration: 0.65,
+          ease: 'power3.out',
+          clearProps: 'opacity,visibility,transform',
+        },
+      );
+
+      if (cards.length > 0) {
+        gsap.fromTo(
+          cards,
+          { autoAlpha: 0, x: 96 },
+          {
+            autoAlpha: 1,
+            x: 0,
+            duration: 0.85,
+            stagger: 0.12,
+            ease: 'power3.out',
+            clearProps: 'opacity,visibility,transform',
+            delay: 0.08,
+          },
+        );
+      }
+    }, panel);
+
+    return () => context.revert();
+  }, [activeTab]);
 
   return (
     <section className="bg-white px-4 py-16 md:px-6 md:py-20 lg:px-8 lg:py-24">
@@ -48,6 +95,7 @@ export default function ProductionStatisticsSection() {
         </div>
 
         <div
+          ref={panelRef}
           id={`statistics-panel-${activeTab}`}
           role="tabpanel"
           aria-labelledby={`statistics-tab-${activeTab}`}
