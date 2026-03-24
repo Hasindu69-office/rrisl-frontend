@@ -29,6 +29,9 @@ export interface StatisticsChartCardData {
   xAxisLabel: string;
   periods: StatisticsPeriod[];
   line: StatisticsLine;
+  fullWidth?: boolean;
+  chartWidth?: number;
+  chartHeight?: number;
 }
 
 export interface StatisticsTabData {
@@ -166,6 +169,94 @@ const productionCards: StatisticsChartCardData[] = [
   },
 ];
 
+const exportCards: StatisticsChartCardData[] = [
+  {
+    title: 'Export',
+    subtitle: 'This is a subtitle',
+    xAxisLabel: 'Sheet',
+    periods: defaultPeriods,
+    fullWidth: true,
+    chartWidth: 980,
+    chartHeight: 210,
+    line: {
+      label: 'Export',
+      color: '#2AC669',
+      points: buildPoints([
+        1200, 7800, 15800, 17600, 24300, 22800,
+        31800, 30400, 37200, 36100, 40500,
+        49800, 53100, 52500, 64800, 70900,
+        82200, 87100, 89500, 90800, 88200,
+      ]),
+    },
+  },
+];
+
+const priceCards: StatisticsChartCardData[] = [
+  {
+    title: 'Price',
+    subtitle: 'This is a subtitle',
+    xAxisLabel: 'Sheet',
+    periods: defaultPeriods,
+    fullWidth: true,
+    chartWidth: 980,
+    chartHeight: 210,
+    line: {
+      label: 'Price',
+      color: '#2AC669',
+      points: buildPoints([
+        2200, 9400, 14100, 16800, 21300, 24600,
+        30200, 28900, 33400, 38600, 44200,
+        49800, 54100, 61200, 68900, 74200,
+        81600, 85400, 91300, 96800, 103400,
+      ]),
+    },
+  },
+];
+
+const consumptionCards: StatisticsChartCardData[] = [
+  {
+    title: 'Consumption',
+    subtitle: 'This is a subtitle',
+    xAxisLabel: 'Sheet',
+    periods: defaultPeriods,
+    fullWidth: true,
+    chartWidth: 980,
+    chartHeight: 210,
+    line: {
+      label: 'Consumption',
+      color: '#2AC669',
+      points: buildPoints([
+        1600, 6200, 10900, 13400, 17200, 19800,
+        24100, 25700, 28400, 31200, 35900,
+        40200, 43800, 47100, 51800, 56300,
+        61700, 65800, 70100, 74300, 78600,
+      ]),
+    },
+  },
+];
+
+const plantationCards: StatisticsChartCardData[] = [
+  {
+    title: 'Plantation',
+    subtitle: 'This is a subtitle',
+    xAxisLabel: 'Sheet',
+    periods: defaultPeriods,
+    fullWidth: true,
+    chartWidth: 980,
+    chartHeight: 210,
+    line: {
+      label: 'Plantation',
+      color: '#2AC669',
+      points: buildPoints([
+        3100, 8200, 12700, 15600, 19800, 24100,
+        27900, 30100, 34400, 37100, 41800,
+        46200, 50500, 55100, 60300, 64800,
+        69900, 74100, 79200, 84600, 90100,
+      ]),
+    },
+  },
+];
+
 export const statisticsTabContent: Record<StatisticsTabId, StatisticsTabData> = {
   production: {
     id: 'production',
@@ -177,24 +268,24 @@ export const statisticsTabContent: Record<StatisticsTabId, StatisticsTabData> = 
     id: 'export',
     label: 'Export',
     eyebrow: 'Statistics',
-    cards: [],
+    cards: exportCards,
   },
   price: {
     id: 'price',
     label: 'Price',
     eyebrow: 'Statistics',
-    cards: [],
+    cards: priceCards,
   },
   consumption: {
     id: 'consumption',
     label: 'Consumption',
     eyebrow: 'Statistics',
-    cards: [],
+    cards: consumptionCards,
   },
   plantation: {
     id: 'plantation',
     label: 'Plantation',
     eyebrow: 'Statistics',
-    cards: [],
+    cards: plantationCards,
   },
 };
