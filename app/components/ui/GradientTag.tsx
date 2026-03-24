@@ -7,7 +7,9 @@ interface GradientTagProps {
   gradientFrom?: string;
   gradientTo?: string;
   textColor?: string;
+  padding?: string;
 }
+
 
 /**
  * Reusable gradient tag component with pill shape
@@ -20,8 +22,10 @@ export default function GradientTag({
   backgroundColor = 'white',
   gradientFrom = '#20C997',
   gradientTo = '#A1DF0A',
-  textColor = '#2E7D32'
+  textColor = '#2E7D32',
+  padding = 'px-4 py-1.5'
 }: GradientTagProps) {
+
   // Check if background is transparent
   const isTransparent = backgroundColor === 'transparent' ||
     backgroundColor === 'rgba(255, 255, 255, 0)' ||
@@ -56,7 +60,8 @@ export default function GradientTag({
           }}
         >
           <div
-            className="px-4 py-1.5 rounded-full"
+            className={`${padding} rounded-full`}
+
             style={{
               backgroundColor: 'transparent',
               borderRadius: '9999px',
@@ -67,8 +72,9 @@ export default function GradientTag({
         </div>
         {/* Text content - positioned above the masked border */}
         <div
-          className="px-4 py-1.5 rounded-full"
+          className={`${padding} rounded-full`}
           style={{
+
             position: 'relative',
             zIndex: 1,
             backgroundColor: 'transparent',
@@ -99,8 +105,9 @@ export default function GradientTag({
       }}
     >
       <div
-        className="px-4 py-1.5 rounded-full"
+        className={`${padding} rounded-full`}
         style={{
+
           backgroundColor: backgroundColor,
           borderRadius: '9999px',
         }}

@@ -14,13 +14,14 @@ export default function FaqIntroSection() {
               text="FAQ"
               className="mb-5 md:mb-6"
               backgroundColor="#ffffff"
+              padding="px-12 py-2"
             />
 
             <GradientTitle
               part1="Quick Answers"
               part2="to Common Questions"
               size="custom"
-              className="w-full max-w-[520px] font-semibold text-[32px] md:text-[40px] lg:text-[50px]"
+              className="w-full max-w-full font-semibold text-[32px] md:text-[40px] lg:text-[50px]"
               style={{ lineHeight: '1.15' }}
             />
 
