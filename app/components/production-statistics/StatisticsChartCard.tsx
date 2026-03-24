@@ -12,11 +12,11 @@ interface StatisticsChartCardProps {
 export default function StatisticsChartCard({
   card,
 }: StatisticsChartCardProps) {
-  const [selectedPeriodId, setSelectedPeriodId] = useState(card.defaultPeriodId);
+  const [selectedPeriodId, setSelectedPeriodId] = useState<string | null>(null);
 
   const selectedPeriod = useMemo(
     () =>
-      card.periods.find((period) => period.id === selectedPeriodId) ?? card.periods[0],
+      card.periods.find((period) => period.id === selectedPeriodId) ?? null,
     [card.periods, selectedPeriodId],
   );
 
@@ -35,7 +35,7 @@ export default function StatisticsChartCard({
         <button
           type="button"
           aria-label={`Reset ${card.title} chart range`}
-          onClick={() => setSelectedPeriodId(card.defaultPeriodId)}
+          onClick={() => setSelectedPeriodId(null)}
           className="rounded-[10px] bg-[#F7F7F7] p-2 text-[#343434] transition-colors hover:bg-[#EEF2F4]"
         >
           <RefreshCcw className="h-4 w-4" strokeWidth={1.8} />
@@ -50,7 +50,9 @@ export default function StatisticsChartCard({
             <button
               key={`${card.title}-${period.id}-${index}`}
               type="button"
-              onClick={() => setSelectedPeriodId(period.id)}
+              onClick={() =>
+                setSelectedPeriodId((current) => (current === period.id ? null : period.id))
+              }
               className={`rounded-[4px] px-3 py-2 text-center text-[10px] font-medium tracking-[0.02em] transition-colors sm:text-[11px] ${
                 active
                   ? 'bg-[#D4DAE1] text-[#24313A]'

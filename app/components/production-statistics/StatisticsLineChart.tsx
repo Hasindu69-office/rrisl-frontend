@@ -5,7 +5,7 @@ import type { StatisticsLine, StatisticsPoint, StatisticsPeriod } from './produc
 
 interface StatisticsLineChartProps {
   line: StatisticsLine;
-  period: StatisticsPeriod;
+  period: StatisticsPeriod | null;
   xAxisLabel: string;
 }
 
@@ -30,7 +30,17 @@ function formatValue(value: number) {
 }
 
 function createYearTicks(startYear: number, endYear: number) {
-  const step = 2;
+  const span = endYear - startYear;
+  let step = 2;
+
+  if (span > 30) {
+    step = 10;
+  } else if (span > 18) {
+    step = 5;
+  } else if (span > 10) {
+    step = 4;
+  }
+
   const ticks: number[] = [];
 
   for (let year = startYear; year <= endYear; year += step) {
@@ -67,12 +77,28 @@ export default function StatisticsLineChart({
 }: StatisticsLineChartProps) {
   const [hoveredPointIndex, setHoveredPointIndex] = useState<number | null>(null);
 
+  const activeRange = useMemo(() => {
+    if (period) {
+      return period;
+    }
+
+    const firstPoint = line.points[0];
+    const lastPoint = line.points[line.points.length - 1];
+
+    return {
+      id: 'all',
+      label: `${firstPoint.year} - ${lastPoint.year}`,
+      startYear: firstPoint.year,
+      endYear: lastPoint.year,
+    };
+  }, [line.points, period]);
+
   const filteredPoints = useMemo(
     () =>
       line.points.filter(
-        (point) => point.year >= period.startYear && point.year <= period.endYear,
+        (point) => point.year >= activeRange.startYear && point.year <= activeRange.endYear,
       ),
-    [line.points, period.endYear, period.startYear],
+    [activeRange.endYear, activeRange.startYear, line.points],
   );
 
   const innerWidth = chartWidth - margin.left - margin.right;
@@ -89,12 +115,12 @@ export default function StatisticsLineChart({
   }, [maxValue]);
 
   const yTicks = useMemo(
-    () => createYearTicks(period.startYear, period.endYear),
-    [period.endYear, period.startYear],
+    () => createYearTicks(activeRange.startYear, activeRange.endYear),
+    [activeRange.endYear, activeRange.startYear],
   );
 
   const chartPoints = useMemo(() => {
-    const yearSpan = Math.max(period.endYear - period.startYear, 1);
+    const yearSpan = Math.max(activeRange.endYear - activeRange.startYear, 1);
 
     return filteredPoints.map((point) => ({
       ...point,
@@ -102,9 +128,9 @@ export default function StatisticsLineChart({
       y:
         margin.top +
         innerHeight -
-        (((point.year - period.startYear) / yearSpan) * innerHeight),
+        (((point.year - activeRange.startYear) / yearSpan) * innerHeight),
     }));
-  }, [filteredPoints, innerHeight, innerWidth, maxValue, period.endYear, period.startYear]);
+  }, [activeRange.endYear, activeRange.startYear, filteredPoints, innerHeight, innerWidth, maxValue]);
 
   const activePoint = hoveredPointIndex !== null ? chartPoints[hoveredPointIndex] : null;
 
@@ -123,13 +149,13 @@ export default function StatisticsLineChart({
           viewBox={`0 0 ${chartWidth} ${chartHeight}`}
           className="h-auto w-full"
           role="img"
-          aria-label={`${xAxisLabel} line chart for ${period.label}`}
+          aria-label={`${xAxisLabel} line chart for ${activeRange.label}`}
         >
           {yTicks.map((tick) => {
             const y =
               margin.top +
               innerHeight -
-              (((tick - period.startYear) / Math.max(period.endYear - period.startYear, 1)) * innerHeight);
+              (((tick - activeRange.startYear) / Math.max(activeRange.endYear - activeRange.startYear, 1)) * innerHeight);
 
             return (
               <g key={tick}>

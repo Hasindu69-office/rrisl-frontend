@@ -28,7 +28,6 @@ export interface StatisticsChartCardData {
   subtitle: string;
   xAxisLabel: string;
   periods: StatisticsPeriod[];
-  defaultPeriodId: string;
   line: StatisticsLine;
 }
 
@@ -74,7 +73,6 @@ const productionCards: StatisticsChartCardData[] = [
     subtitle: 'This is a subtitle',
     xAxisLabel: 'Sheet',
     periods: defaultPeriods,
-    defaultPeriodId: '2010-2020',
     line: {
       label: 'Production',
       color: '#2AC669',
@@ -91,7 +89,6 @@ const productionCards: StatisticsChartCardData[] = [
     subtitle: 'This is a subtitle',
     xAxisLabel: 'Sole Crepe',
     periods: defaultPeriods,
-    defaultPeriodId: '2010-2020',
     line: {
       label: 'Production',
       color: '#2AC669',
@@ -108,7 +105,6 @@ const productionCards: StatisticsChartCardData[] = [
     subtitle: 'This is a subtitle',
     xAxisLabel: 'Scrap Crepe',
     periods: defaultPeriods,
-    defaultPeriodId: '2010-2020',
     line: {
       label: 'Production',
       color: '#2AC669',
@@ -125,7 +121,6 @@ const productionCards: StatisticsChartCardData[] = [
     subtitle: 'This is a subtitle',
     xAxisLabel: 'Latex Crepe',
     periods: defaultPeriods,
-    defaultPeriodId: '2010-2020',
     line: {
       label: 'Production',
       color: '#2AC669',
@@ -142,7 +137,6 @@ const productionCards: StatisticsChartCardData[] = [
     subtitle: 'This is a subtitle',
     xAxisLabel: 'Sheet',
     periods: defaultPeriods,
-    defaultPeriodId: '2010-2020',
     line: {
       label: 'Production',
       color: '#2AC669',
@@ -159,7 +153,6 @@ const productionCards: StatisticsChartCardData[] = [
     subtitle: 'This is a subtitle',
     xAxisLabel: 'Sheet',
     periods: defaultPeriods,
-    defaultPeriodId: '2010-2020',
     line: {
       label: 'Production',
       color: '#2AC669',
