@@ -51,7 +51,7 @@ export default async function VacancyDetailPage({
       <section className="mb-72 bg-white px-4 py-12 md:px-6 md:py-16 lg:px-36 lg:py-20">
         <div className="mx-auto grid w-full max-w-[1480px] gap-10 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-12">
           <VacancyDetailContent job={job} />
-          <div className="hidden lg:block">
+          <div className="hidden self-start lg:sticky lg:top-2 lg:block">
             <VacancyOverviewPanel job={job} />
           </div>
         </div>
