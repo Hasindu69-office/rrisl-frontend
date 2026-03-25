@@ -32,7 +32,7 @@ export default function VacancyListingsSection({
         <div className="space-y-10">
           {paginatedJobs.length > 0 ? (
             paginatedJobs.map((job) => (
-              <VacancyCard key={job.id} job={job} />
+              <VacancyCard key={job.id} job={job} locale={locale} />
             ))
           ) : (
             <div className="rounded-[20px] border border-dashed border-[#C7D0D9] bg-[#F8FAF8] px-6 py-12 text-center">

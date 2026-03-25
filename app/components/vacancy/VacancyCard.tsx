@@ -1,12 +1,25 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import { BriefcaseBusiness, Clock3, WalletCards, MapPin } from 'lucide-react';
 import type { VacancyJob } from './vacancyData';
 
 interface VacancyCardProps {
   job: VacancyJob;
+  locale: string;
 }
 
-export default function VacancyCard({ job }: VacancyCardProps) {
+function buildVacancyDetailHref(jobId: string, locale: string) {
+  const params = new URLSearchParams();
+
+  if (locale !== 'en') {
+    params.set('locale', locale);
+  }
+
+  const query = params.toString();
+  return `/vacancy/${jobId}${query ? `?${query}` : ''}`;
+}
+
+export default function VacancyCard({ job, locale }: VacancyCardProps) {
   const metadata = [
     {
       key: 'category',
@@ -67,13 +80,13 @@ export default function VacancyCard({ job }: VacancyCardProps) {
         </div>
 
         <div className="flex shrink-0 justify-start lg:justify-end">
-          <button
-            type="button"
+          <Link
+            href={buildVacancyDetailHref(job.id, locale)}
             className="inline-flex min-h-[40px] items-center justify-center rounded-[7px] bg-[#2E7D32] px-5 text-sm font-semibold text-white transition hover:bg-[#256A2A] focus:outline-none focus:ring-2 focus:ring-[#2E7D32] focus:ring-offset-2"
             aria-label={`View details for ${job.title}`}
           >
             Job Details
-          </button>
+          </Link>
         </div>
       </div>
     </article>
