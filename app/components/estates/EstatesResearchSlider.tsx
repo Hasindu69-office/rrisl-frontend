@@ -1,7 +1,9 @@
 'use client';
 
 import { startTransition, useEffect, useMemo, useState } from 'react';
-import { ArrowRight, Building2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useRef } from 'react';
+import { ArrowRight, Building2 } from 'lucide-react';
+import gsap from 'gsap';
 import {
   estatesResearchSlides,
   type EstateResearchSlide,
@@ -9,11 +11,7 @@ import {
 
 const AUTOPLAY_DELAY_MS = 4500;
 const DESKTOP_CARD_GAP = 56;
-const EXPANDED_CARD_WIDTH = 440;
-const COLLAPSED_CARD_WIDTH = 415;
-const DESKTOP_SIDE_CARD_OFFSET = `${
-  EXPANDED_CARD_WIDTH / 2 + COLLAPSED_CARD_WIDTH / 2 + DESKTOP_CARD_GAP
-}px`;
+const SLIDE_TRAVEL_PX = 72;
 
 function getWrappedOffset(index: number, activeIndex: number, total: number) {
   let offset = index - activeIndex;
@@ -48,11 +46,11 @@ function getSlideStyle(offset: number, isMobile: boolean) {
   switch (offset) {
     case -1:
       return {
-        left: `calc(50% - ${DESKTOP_SIDE_CARD_OFFSET})`,
-        top: '142px',
-        opacity: 1,
-        zIndex: 2,
-        scale: 1,
+        left: '-12%',
+        top: '128px',
+        opacity: 0,
+        zIndex: 1,
+        scale: 0.92,
       };
     case 0:
       return {
@@ -64,11 +62,11 @@ function getSlideStyle(offset: number, isMobile: boolean) {
       };
     case 1:
       return {
-        left: `calc(50% + ${DESKTOP_SIDE_CARD_OFFSET})`,
-        top: '142px',
-        opacity: 1,
-        zIndex: 2,
-        scale: 1,
+        left: '112%',
+        top: '128px',
+        opacity: 0,
+        zIndex: 1,
+        scale: 0.92,
       };
     default:
       return {
@@ -90,7 +88,7 @@ function EstateCollapsedCard({
 }) {
   return (
     <div
-      className={`relative h-[210px] w-[415px] rounded-[24px] border border-[#D7D7D7] bg-white px-8 pb-8 pt-16 shadow-[0_10px_24px_rgba(15,63,29,0.08)] transition-all duration-500 ${
+      className={`relative h-[210px] w-[415px] shrink-0 rounded-[24px] border border-[#D7D7D7] bg-white px-8 pb-8 pt-16 shadow-[0_10px_24px_rgba(15,63,29,0.08)] transition-all duration-500 ${
         isLeft ? 'origin-right' : 'origin-left'
       }`}
       style={{ borderBottom: '5px solid #C7C006' }}
@@ -112,7 +110,7 @@ function EstateCollapsedCard({
 function EstateExpandedCard({ slide }: { slide: EstateResearchSlide }) {
   return (
     <div
-      className="relative min-h-[420px] w-[min(100%,440px)] rounded-[30px] px-5 pb-8 pt-14 shadow-[0_18px_36px_rgba(123,118,0,0.16)] transition-all duration-500 md:px-7"
+      className="relative min-h-[420px] w-[440px] shrink-0 rounded-[30px] px-5 pb-8 pt-14 shadow-[0_18px_36px_rgba(123,118,0,0.16)] transition-all duration-500 md:px-7"
       style={{
         background:
           'linear-gradient(180deg, rgba(255, 252, 164, 1) 0%, rgba(250, 235, 105, 1) 100%)',
@@ -168,6 +166,9 @@ function EstateExpandedCard({ slide }: { slide: EstateResearchSlide }) {
 export default function EstatesResearchSlider() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
+  const [direction, setDirection] = useState<1 | -1>(1);
+  const desktopTrackRef = useRef<HTMLDivElement | null>(null);
+  const mobileTrackRef = useRef<HTMLDivElement | null>(null);
 
   const slides = estatesResearchSlides;
 
@@ -183,6 +184,7 @@ export default function EstatesResearchSlider() {
 
   useEffect(() => {
     const interval = window.setInterval(() => {
+      setDirection(1);
       startTransition(() => {
         setActiveIndex((current) => (current + 1) % slides.length);
       });
@@ -190,6 +192,35 @@ export default function EstatesResearchSlider() {
 
     return () => window.clearInterval(interval);
   }, [slides.length]);
+
+  useEffect(() => {
+    const target = isMobile ? mobileTrackRef.current : desktopTrackRef.current;
+    if (!target) return;
+
+    const cards = Array.from(target.children);
+    if (!cards.length) return;
+
+    const context = gsap.context(() => {
+      gsap.killTweensOf(cards);
+      gsap.fromTo(
+        cards,
+        {
+          x: direction > 0 ? SLIDE_TRAVEL_PX : -SLIDE_TRAVEL_PX,
+          opacity: 0,
+        },
+        {
+          x: 0,
+          opacity: 1,
+          duration: 0.75,
+          ease: 'power3.out',
+          stagger: isMobile ? 0 : 0.08,
+          clearProps: 'transform,opacity',
+        }
+      );
+    }, target);
+
+    return () => context.revert();
+  }, [activeIndex, direction, isMobile]);
 
   const positionedSlides = useMemo(
     () =>
@@ -201,18 +232,21 @@ export default function EstatesResearchSlider() {
   );
 
   const goToSlide = (index: number) => {
+    setDirection(index > activeIndex ? 1 : -1);
     startTransition(() => {
       setActiveIndex(index);
     });
   };
 
   const goPrevious = () => {
+    setDirection(-1);
     startTransition(() => {
       setActiveIndex((current) => (current - 1 + slides.length) % slides.length);
     });
   };
 
   const goNext = () => {
+    setDirection(1);
     startTransition(() => {
       setActiveIndex((current) => (current + 1) % slides.length);
     });
@@ -221,44 +255,56 @@ export default function EstatesResearchSlider() {
   return (
     <div className="relative mt-10 pb-16 lg:mt-14 lg:pb-10">
       <div className="relative h-[430px] md:h-[470px] lg:h-[560px]">
-        {positionedSlides.map(({ slide, offset }) => {
-          const styleConfig = getSlideStyle(offset, isMobile);
-          const isActive = offset === 0;
+        {isMobile ? (
+          <div ref={mobileTrackRef} className="absolute inset-0">
+            {positionedSlides.map(({ slide, offset }) => {
+              const styleConfig = getSlideStyle(offset, true);
+              const isActive = offset === 0;
 
-          return (
-            <article
-              key={slide.id}
-              className="absolute transition-[left,top,opacity,transform] duration-700 ease-out"
-              style={{
-                left: styleConfig.left,
-                top: styleConfig.top,
-                opacity: styleConfig.opacity,
-                zIndex: styleConfig.zIndex,
-                transform: `translateX(-50%) scale(${styleConfig.scale})`,
-                pointerEvents: isActive ? 'auto' : 'none',
-              }}
-              aria-hidden={!isActive && Math.abs(offset) > 1}
-            >
-              {isActive ? (
-                <EstateExpandedCard slide={slide} />
-              ) : (
-                <EstateCollapsedCard title={slide.title} isLeft={offset < 0} />
-              )}
-            </article>
-          );
-        })}
+              return (
+                <article
+                  key={slide.id}
+                  className="absolute transition-[left,top,opacity,transform] duration-700 ease-out"
+                  style={{
+                    left: styleConfig.left,
+                    top: styleConfig.top,
+                    opacity: styleConfig.opacity,
+                    zIndex: styleConfig.zIndex,
+                    transform: `translateX(-50%) scale(${styleConfig.scale})`,
+                    pointerEvents: isActive ? 'auto' : 'none',
+                  }}
+                  aria-hidden={!isActive}
+                >
+                  {isActive ? <EstateExpandedCard slide={slide} /> : null}
+                </article>
+              );
+            })}
+          </div>
+        ) : (
+          <div
+            ref={desktopTrackRef}
+            className="absolute left-1/2 top-4 flex -translate-x-1/2 items-start gap-[56px] overflow-visible"
+          >
+            <div className="pt-[126px]">
+              <EstateCollapsedCard
+                title={slides[(activeIndex - 1 + slides.length) % slides.length].title}
+                isLeft
+              />
+            </div>
+
+            <EstateExpandedCard slide={slides[activeIndex]} />
+
+            <div className="pt-[126px]">
+              <EstateCollapsedCard
+                title={slides[(activeIndex + 1) % slides.length].title}
+                isLeft={false}
+              />
+            </div>
+          </div>
+        )}
       </div>
 
-      <div className="mt-4 flex items-center justify-center gap-3 lg:mt-1">
-        <button
-          type="button"
-          onClick={goPrevious}
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-[#D7D7D7] bg-white text-[#0F3F1D] transition hover:border-[#C7C006] hover:text-[#7AA80B]"
-          aria-label="Show previous estate slide"
-        >
-          <ChevronLeft className="h-5 w-5" strokeWidth={2.2} />
-        </button>
-
+      <div className="mt-4 flex items-center justify-center lg:mt-1">
         <div className="flex items-center justify-center gap-3">
           {slides.map((slide, index) => (
             <button
@@ -278,15 +324,6 @@ export default function EstatesResearchSlider() {
             />
           ))}
         </div>
-
-        <button
-          type="button"
-          onClick={goNext}
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-[#D7D7D7] bg-white text-[#0F3F1D] transition hover:border-[#C7C006] hover:text-[#7AA80B]"
-          aria-label="Show next estate slide"
-        >
-          <ChevronRight className="h-5 w-5" strokeWidth={2.2} />
-        </button>
       </div>
     </div>
   );
