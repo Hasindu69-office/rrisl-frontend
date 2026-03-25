@@ -24,7 +24,7 @@ export default async function VacancyPage({ searchParams }: VacancyPageProps) {
         locale={locale}
       />
 
-      <div className="relative mb-56">
+      <div className="relative mb-48">
         <VacancySearchBar locale={locale} selectedCategory={params.category} />
         <VacancyListingsSection
           locale={locale}

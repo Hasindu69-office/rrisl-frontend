@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface VacancyPaginationProps {
   currentPage: number;
@@ -42,7 +42,19 @@ export default function VacancyPagination({
       className="mt-10 flex flex-col items-center justify-center gap-4 pb-16 md:mt-12 md:flex-row md:justify-between"
       aria-label="Vacancy pagination"
     >
-      <div className="hidden md:block md:w-[96px]" />
+      <div className="flex justify-center md:w-[96px] md:justify-start">
+        {currentPage > 1 ? (
+          <Link
+            href={buildPaginationHref(currentPage - 1, locale, selectedCategory)}
+            className="inline-flex h-9 items-center justify-center gap-2 rounded-[7px] border border-[#A9B1B8] bg-white px-4 text-sm font-medium text-[#6B7280] transition hover:border-[#2E7D32] hover:text-[#2E7D32]"
+          >
+            <ChevronLeft className="h-4 w-4" strokeWidth={1.8} />
+            <span>Prev</span>
+          </Link>
+        ) : (
+          <div className="h-9 md:w-[96px]" aria-hidden="true" />
+        )}
+      </div>
 
       <div className="flex items-center gap-4">
         {Array.from({ length: totalPages }, (_, index) => {
