@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { BriefcaseBusiness, Check, Clock3, MapPin, WalletCards } from 'lucide-react';
 import VacancyApplicationForm from './VacancyApplicationForm';
+import VacancyAttachmentLink from './VacancyAttachmentLink';
 import VacancyOverviewPanel from './VacancyOverviewPanel';
 import type { VacancyJob } from './vacancyData';
 
@@ -115,6 +116,7 @@ export default function VacancyDetailContent({ job }: VacancyDetailContentProps)
 
       <VacancySectionList title="Key Responsibilities" items={job.responsibilities} />
       <VacancySectionList title="Professional Skills" items={job.skills} />
+      <VacancyAttachmentLink href="/documents/vacancy-application-notice.pdf" />
       <VacancyApplicationForm jobTitle={job.title} />
     </div>
   );
