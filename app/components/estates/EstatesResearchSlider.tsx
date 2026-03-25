@@ -12,7 +12,7 @@ const DESKTOP_CARD_GAP = 56;
 const COLLAPSED_CARD_WIDTH = 415;
 const COLLAPSED_CARD_HEIGHT = 210;
 const EXPANDED_CARD_WIDTH = 440;
-const EXPANDED_CARD_HEIGHT = 420;
+const EXPANDED_CARD_HEIGHT = 460;
 const SIDE_CARD_TOP = 126;
 const CENTER_CARD_TOP = 0;
 const SIDE_CARD_CENTER_OFFSET =
@@ -122,15 +122,17 @@ function EstateSlideCard({
             : 'left center',
       }}
     >
-      <div
-        className="absolute left-1/2 top-0 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-[8px] bg-[#D8C700] text-white shadow-[0_8px_16px_rgba(216,199,0,0.28)] transition-[width,height,transform] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
-        style={{
-          width: expanded ? '88px' : '88px',
-          height: expanded ? '88px' : '88px',
-        }}
-      >
-        <Building2 className="h-9 w-9" strokeWidth={1.8} />
-      </div>
+      {!expanded ? (
+        <div
+          className="absolute left-1/2 top-0 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-[8px] bg-[#D8C700] text-white shadow-[0_8px_16px_rgba(216,199,0,0.28)] transition-[width,height,transform] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
+          style={{
+            width: '88px',
+            height: '88px',
+          }}
+        >
+          <Building2 className="h-9 w-9" strokeWidth={1.8} />
+        </div>
+      ) : null}
 
       <div className="flex h-full flex-col">
         <div
@@ -161,7 +163,7 @@ function EstateSlideCard({
         <div
           className="overflow-hidden transition-[max-height,opacity,margin,transform] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
           style={{
-            maxHeight: expanded ? '260px' : '0px',
+            maxHeight: expanded ? '340px' : '0px',
             opacity: expanded ? 1 : 0,
             marginTop: expanded ? '24px' : '0px',
             transform: expanded ? 'translateY(0)' : 'translateY(16px)',
@@ -246,7 +248,7 @@ export default function EstatesResearchSlider() {
 
   return (
     <div className="relative mt-10 pb-16 lg:mt-14 lg:pb-10">
-      <div className="relative h-[460px] md:h-[500px] lg:h-[560px]">
+      <div className="relative h-[500px] md:h-[540px] lg:h-[600px]">
         {positionedSlides.map(({ slide, offset }) => {
           const styleConfig = isMobile
             ? getMobileStyle(offset)
