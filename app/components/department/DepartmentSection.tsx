@@ -12,6 +12,7 @@ interface DepartmentSectionProps {
     imageSrc: string;
     imageAlt: string;
     reverse?: boolean;
+    containerClassName?: string;
 }
 
 const LeafIcon = () => (
@@ -29,10 +30,11 @@ export default function DepartmentSection({
     imageSrc,
     imageAlt,
     reverse = false,
+    containerClassName = '',
 }: DepartmentSectionProps) {
     return (
         <section className="py-16 md:py-24">
-            <div className="container mx-auto px-4 md:px-6 lg:px-8 max-w-[1440px]">
+            <div className={`container mx-auto max-w-[1440px] px-4 md:px-6 lg:px-8 ${containerClassName}`}>
                 <div className={`flex flex-col lg:flex-row items-center gap-12 lg:gap-24 ${reverse ? 'lg:flex-row-reverse' : ''}`}>
                     {/* Content Side */}
                     <div className="w-full lg:w-1/2 space-y-8">

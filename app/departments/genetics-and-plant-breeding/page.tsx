@@ -1,5 +1,6 @@
 import PageHero from '../../components/shared/PageHero';
 import DepartmentSection from '../../components/department/DepartmentSection';
+import DepartmentServicesSection from '../../components/department/DepartmentServicesSection';
 
 interface DepartmentProps {
     searchParams: Promise<{ locale?: string }>;
@@ -8,9 +9,38 @@ interface DepartmentProps {
 export default async function GeneticsPlantBreeding({ searchParams }: DepartmentProps) {
     const params = await searchParams;
     const locale = params.locale || 'en';
+    const primaryServices = [
+        {
+            number: '01',
+            title: 'Training, Education & Demonstration Services',
+            description: 'Providing training facilities and demonstrations for undergraduate and postgraduate students, school teachers and students.',
+            iconSrc: '/images/departments/graduationhaticon.png',
+            iconAlt: 'Graduation cap icon',
+            imageSrc: '/images/departments/geneticsplantbreedingsection1.png',
+            imageAlt: 'Training and demonstration activities',
+        },
+        {
+            number: '02',
+            title: 'Research Facilities for Higher Studies',
+            description: 'Providing facilities for research undertaken by students for their undergraduate and postgraduate degrees.',
+            iconSrc: '/images/departments/microscopeicon.png',
+            iconAlt: 'Microscope icon',
+            imageSrc: '/images/section7_img1.jpg',
+            imageAlt: 'Research facilities',
+        },
+        {
+            number: '03',
+            title: 'Clone Identification Services',
+            description: 'Clone identification services based on stakeholders’ request.',
+            iconSrc: '/images/departments/dnaicon.png',
+            iconAlt: 'DNA icon',
+            imageSrc: '/images/section7_img4.jpg',
+            imageAlt: 'Clone identification services',
+        },
+    ];
 
     return (
-        <div className="min-h-screen">
+        <div className="min-h-screen mb-56">
             {/* Page Hero Section */}
             <PageHero
                 title="Genetics & Plant Breeding Department"
@@ -41,6 +71,15 @@ export default async function GeneticsPlantBreeding({ searchParams }: Department
                 ]}
                 imageSrc="/images/departments/geneticsplantbreedingsection1.png"
                 imageAlt="Genetics and Plant Breeding Section 1 Collage"
+                containerClassName="w-[80%]"
+            />
+
+            <DepartmentServicesSection
+                tagText="Main objective"
+                titlePart1="Our Primary "
+                titlePart2="Services"
+                items={primaryServices}
+                containerClassName="w-[80%]"
             />
         </div>
     );
