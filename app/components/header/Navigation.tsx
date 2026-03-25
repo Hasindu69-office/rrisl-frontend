@@ -53,7 +53,7 @@ export default function Navigation({ menuItems }: NavigationProps) {
 
   return (
     <nav
-      className="hidden xl:flex items-center justify-center bg-white/85 rounded-[20px] md:rounded-[25px] lg:rounded-[30px] w-full max-w-[1440px] h-[50px] md:h-[58px] lg:h-[78px] opacity-100 gap-[15px] md:gap-[20px] lg:gap-[55px] px-3 md:px-4 lg:px-8 mx-auto"
+      className="hidden xl:flex items-center justify-between bg-white/85 rounded-[16px] md:rounded-[20px] lg:rounded-[24px] w-full max-w-[1440px] h-[44px] md:h-[52px] lg:h-[60px] opacity-100 px-6 md:px-10 lg:px-16 mx-auto"
     >
       {topLevelItems.map((item) => (
         <Link
