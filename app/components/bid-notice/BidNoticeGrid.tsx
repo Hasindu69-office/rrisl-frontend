@@ -40,16 +40,18 @@ const BidNoticeGrid: React.FC<BidNoticeGridProps> = ({
 
   return (
     <div className="w-full" ref={gridRef}>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-[80px] mb-16">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-[40px] lg:gap-[80px] mb-16">
         {currentNotices.map((notice) => (
-          <div key={notice.id}>
-            <BidNoticeCard
-              title={notice.title}
-              refNo={notice.refNo}
-              closingDate={notice.closingDate}
-              readMoreHref={notice.readMoreHref}
-              locale={locale}
-            />
+          <div key={notice.id} className="flex justify-center">
+            <div className="w-full max-w-[800px] lg:max-w-none">
+              <BidNoticeCard
+                title={notice.title}
+                refNo={notice.refNo}
+                closingDate={notice.closingDate}
+                readMoreHref={notice.readMoreHref}
+                locale={locale}
+              />
+            </div>
           </div>
         ))}
       </div>
