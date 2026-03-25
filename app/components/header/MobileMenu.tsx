@@ -124,8 +124,8 @@ export default function MobileMenu({ menuItems, headerRightMenuItems = [] }: Mob
                   target={item.target || '_self'}
                   onClick={() => setIsOpen(false)}
                   className={`text-base font-medium py-2 px-4 rounded transition-colors ${isActive(item.url)
-                      ? 'text-green-400 bg-green-400/10'
-                      : 'text-white hover:text-green-400 hover:bg-gray-800'
+                    ? 'text-green-400 bg-green-400/10'
+                    : 'text-white hover:text-green-400 hover:bg-gray-800'
                     }`}
                 >
                   {item.title}
@@ -133,37 +133,6 @@ export default function MobileMenu({ menuItems, headerRightMenuItems = [] }: Mob
               ))}
             </nav>
 
-            {/* Action Buttons */}
-            <div className="flex flex-col gap-3">
-              {headerRightMenuItems.length > 0 ? (
-                headerRightMenuItems.map((item, index) => (
-                  <Link
-                    key={item.id || item.url}
-                    href={getLocalizedUrl(item.url)}
-                    target={item.target || '_self'}
-                    onClick={() => setIsOpen(false)}
-                  >
-                    <Button variant={index === 0 ? 'primary' : 'outline'} size="md" className="w-full">
-                      {item.title}
-                    </Button>
-                  </Link>
-                ))
-              ) : (
-                <>
-                  <Link href={getLocalizedUrl('/researchers')} onClick={() => setIsOpen(false)}>
-                    <Button variant="primary" size="md" className="w-full">
-                      Researchers
-                    </Button>
-                  </Link>
-
-                  <Link href={getLocalizedUrl('/knowledge-hub')} onClick={() => setIsOpen(false)}>
-                    <Button variant="outline" size="md" className="w-full">
-                      Knowledge Hub
-                    </Button>
-                  </Link>
-                </>
-              )}
-            </div>
           </div>
         </div>
       </>
