@@ -65,7 +65,7 @@ function DepartmentServiceCard({
     ? {}
     : {
         onClick: onToggle,
-        onKeyDown: (event: React.KeyboardEvent<article>) => {
+        onKeyDown: (event: React.KeyboardEvent<HTMLElement>) => {
           if (event.key === 'Enter' || event.key === ' ') {
             event.preventDefault();
             onToggle();
