@@ -1,6 +1,7 @@
 import PageHero from '../../components/shared/PageHero';
 import DepartmentSection from '../../components/department/DepartmentSection';
 import DepartmentServicesSection from '../../components/department/DepartmentServicesSection';
+import DepartmentStaffSection from '../../components/department/DepartmentStaffSection';
 
 interface DepartmentProps {
     searchParams: Promise<{ locale?: string }>;
@@ -38,6 +39,26 @@ export default async function GeneticsPlantBreeding({ searchParams }: Department
             imageAlt: 'Clone identification services',
         },
     ];
+    const researchStaff = [
+        {
+            name: 'K K Liyanage',
+            role: 'Acting Head / Principal Research Officer',
+            imageSrc: '/images/departments/GeneticPerson1.png',
+            imageAlt: 'K K Liyanage',
+        },
+        {
+            name: 'Nelomie N Galagedara',
+            role: 'Senior Research Officer',
+            imageSrc: '/images/departments/GeneticPerson2.png',
+            imageAlt: 'Nelomie N Galagedara',
+        },
+        {
+            name: 'Thanuja D Waduge',
+            role: 'Research Officer',
+            imageSrc: '/images/departments/GeneticPerson3.png',
+            imageAlt: 'Thanuja D Waduge',
+        },
+    ];
 
     return (
         <div className="min-h-screen mb-56">
@@ -46,7 +67,7 @@ export default async function GeneticsPlantBreeding({ searchParams }: Department
                 title="Genetics & Plant Breeding Department"
                 breadcrumbItems={[
                     { label: 'Home', href: '/' },
-                    { label: 'Departments', href: '/departments' },
+                    { label: 'Departments' },
                     { label: 'Genetics & Plant Breeding' },
                 ]}
                 // backgroundImage defaults to /images/aboutus_heroimg.jpg
@@ -79,6 +100,14 @@ export default async function GeneticsPlantBreeding({ searchParams }: Department
                 titlePart1="Our Primary "
                 titlePart2="Services"
                 items={primaryServices}
+                containerClassName="w-[80%]"
+            />
+
+            <DepartmentStaffSection
+                tagText="Recent Project"
+                titlePart1="Research"
+                titlePart2="Staff"
+                staff={researchStaff}
                 containerClassName="w-[80%]"
             />
         </div>
