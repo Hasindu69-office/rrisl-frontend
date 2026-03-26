@@ -32,7 +32,7 @@ export default async function GeneticsPlantBreeding({ searchParams }: Department
             number: '03',
             title: 'Clone Identification Services',
             description: 'Clone identification services based on stakeholders’ request.',
-            iconSrc: '/images/departments/dnaicon.png',
+            iconSrc: '/images/departments/dnaicon2.png',
             iconAlt: 'DNA icon',
             imageSrc: '/images/section7_img4.jpg',
             imageAlt: 'Clone identification services',
