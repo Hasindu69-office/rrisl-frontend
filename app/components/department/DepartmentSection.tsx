@@ -34,30 +34,35 @@ export default function DepartmentSection({
 }: DepartmentSectionProps) {
     return (
         <section className="py-16 md:py-24">
-            <div className={`container mx-auto max-w-[1440px] px-4 md:px-6 lg:px-8 ${containerClassName}`}>
-                <div className={`flex flex-col lg:flex-row items-center gap-12 lg:gap-24 ${reverse ? 'lg:flex-row-reverse' : ''}`}>
+            <div className={`container mx-auto max-w-[1920px] px-0 md:px-6 lg:px-8 ${containerClassName}`}>
+                <div className={`flex flex-col gap-10 md:gap-14 lg:flex-row lg:items-center lg:gap-24 ${reverse ? 'lg:flex-row-reverse' : ''}`}>
                     {/* Content Side */}
-                    <div className="w-full lg:w-1/2 space-y-8">
-                        <GradientTag text={tagText} backgroundColor="transparent" className="inline-block" />
+                    <div className="w-full space-y-6 md:space-y-8 lg:w-1/2">
+                        <div className="flex justify-start">
+                            <GradientTag text={tagText} backgroundColor="transparent" className="inline-block" />
+                        </div>
 
                         <GradientTitle
                             part1={titlePart1}
                             part2={titlePart2}
                             part1Color="dark-green"
                             size="custom"
-                            customSize="50px"
+                            customSize="clamp(28px, 4vw, 50px)"
+                            align="left"
                             className="font-bold leading-[1.2]"
                         />
 
-                        <p className="text-gray-700 text-lg leading-relaxed">
+                        <p className="text-justify text-[16px] leading-[1.7] text-gray-700 md:text-[18px] lg:max-w-[640px] lg:text-[18px] lg:leading-[1.95]">
                             {description}
                         </p>
 
-                        <ul className="space-y-4">
+                        <ul className="space-y-4 md:space-y-5">
                             {points.map((point, index) => (
-                                <li key={index} className="flex items-start gap-4">
+                                <li key={index} className="flex items-start gap-3 md:gap-4">
                                     <LeafIcon />
-                                    <span className="text-gray-800 text-md md:text-lg">{point}</span>
+                                    <span className="text-justify text-[16px] leading-[1.7] text-gray-800 md:text-[17px] md:leading-[1.8] lg:text-[18px] lg:leading-[1.9]">
+                                        {point}
+                                    </span>
                                 </li>
                             ))}
                         </ul>
@@ -65,7 +70,7 @@ export default function DepartmentSection({
 
                     {/* Image Side */}
                     <div className="w-full lg:w-1/2">
-                        <div className="relative aspect-[4/3] w-full">
+                        <div className="relative mx-auto aspect-[4/3] w-full max-w-[560px] md:max-w-[720px] lg:max-w-none">
                             <Image
                                 src={imageSrc}
                                 alt={imageAlt}
