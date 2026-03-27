@@ -2,6 +2,7 @@ import PageHero from '../../components/shared/PageHero';
 import DepartmentSection from '../../components/department/DepartmentSection';
 import DepartmentServicesSection from '../../components/department/DepartmentServicesSection';
 import DepartmentStaffSection from '../../components/department/DepartmentStaffSection';
+import DepartmentResearchHighlightsSection from '../../components/department/DepartmentResearchHighlightsSection';
 
 interface DepartmentProps {
     searchParams: Promise<{ locale?: string }>;
@@ -108,6 +109,15 @@ export default async function GeneticsPlantBreeding({ searchParams }: Department
                 titlePart1="Research"
                 titlePart2="Staff"
                 staff={researchStaff}
+                containerClassName="w-[80%]"
+            />
+
+            <DepartmentResearchHighlightsSection
+                tagText="Awards & Achievements"
+                titlePart1="Research "
+                titlePart2="Highlights"
+                backgroundImageSrc="/images/departments/ResearchHightlightBackground.jpg"
+                backgroundImageAlt="Research highlights background"
                 containerClassName="w-[80%]"
             />
         </div>
