@@ -4,6 +4,7 @@ import DepartmentServicesSection from '../../components/department/DepartmentSer
 import DepartmentStaffSection from '../../components/department/DepartmentStaffSection';
 import DepartmentResearchHighlightsSection from '../../components/department/DepartmentResearchHighlightsSection';
 import DepartmentCurrentProjectsSection from '../../components/department/DepartmentCurrentProjectsSection';
+import DepartmentAwardsTimelineSection from '../../components/department/DepartmentAwardsTimelineSection';
 
 interface DepartmentProps {
     searchParams: Promise<{ locale?: string }>;
@@ -136,6 +137,74 @@ export default async function GeneticsPlantBreeding({ searchParams }: Department
             imageAlt: 'Research project visual placeholder 5',
         },
     ];
+    const awardsTimelineItems = [
+        {
+            id: 'interim-clones-estate',
+            top: {
+                variant: 'text' as const,
+                lines: ['2018', 'Estate Sector Breeding Milestone'],
+            },
+            bottom: {
+                variant: 'card' as const,
+                content: 'Five interim clones were released for the estate sector to strengthen large-scale planting programmes.',
+            },
+        },
+        {
+            id: 'interim-clones-smallholder',
+            top: {
+                variant: 'card' as const,
+                content: 'Two interim clones were introduced for the smallholder sector to improve field-level adoption.',
+            },
+            bottom: {
+                variant: 'text' as const,
+                lines: ['2019', 'Smallholder Sector Release'],
+            },
+        },
+        {
+            id: 'non-wickham-female-parent',
+            top: {
+                variant: 'text' as const,
+                lines: ['2020', 'Breeding History Breakthrough'],
+            },
+            bottom: {
+                variant: 'card' as const,
+                content: 'A non-Wickham germplasm selection was successfully used as a female parent for the first time in local hybridization history.',
+            },
+        },
+        {
+            id: 'new-genotypes',
+            top: {
+                variant: 'card' as const,
+                content: 'Thirty-six new genotypes were developed through advanced crossing work to widen the breeding pool.',
+            },
+            bottom: {
+                variant: 'text' as const,
+                lines: ['2021', 'Genotype Development'],
+            },
+        },
+        {
+            id: 'selection-criteria',
+            top: {
+                variant: 'text' as const,
+                lines: ['2022', 'Selection System Strengthened'],
+            },
+            bottom: {
+                variant: 'card' as const,
+                content: 'Early selection criteria using crop physiology, latex physiology, and molecular screening were integrated to shorten the breeding cycle.',
+            },
+        },
+        {
+            id: 'clone-trials-expansion',
+            top: {
+                variant: 'card' as const,
+                content: 'Selected genotypes from small-scale clone trials were advanced to estate collaborative clone trials for further characterization.',
+            },
+            bottom: {
+                variant: 'text' as const,
+                lines: ['2023', 'Field Trial Expansion'],
+            },
+        },
+    ];
 
     return (
         <div className="min-h-screen mb-56">
@@ -204,6 +273,13 @@ export default async function GeneticsPlantBreeding({ searchParams }: Department
                 titlePart1="Current Research "
                 titlePart2="Projects"
                 projects={currentProjects}
+            />
+
+            <DepartmentAwardsTimelineSection
+                tagText="Awards & Achievements"
+                titlePart1="Awards "
+                titlePart2="Timeline"
+                items={awardsTimelineItems}
             />
         </div>
     );
