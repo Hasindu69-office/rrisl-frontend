@@ -291,7 +291,7 @@ export default function DepartmentResearchHighlightsSection({
               const visibility = slotPosition > -0.75 && slotPosition < 6.85 ? 1 : 0;
               const textX = point.x + 44 + clamp(slotPosition, 0, 6) * 8;
               const textWidth = 740;
-              const fontSize = 16 + emphasis * 4;
+              const fontSize = 16;
               const lineHeight = 1.33 - emphasis * 0.08;
               const dotSize = 12 + emphasis * 10;
               const ringSize = dotSize + 14;
@@ -320,7 +320,7 @@ export default function DepartmentResearchHighlightsSection({
                   </div>
 
                   <div
-                    className="absolute max-w-none py-3 text-white italic"
+                    className="absolute max-w-none py-3 text-white"
                     style={{
                       left: textX,
                       top: point.y,
