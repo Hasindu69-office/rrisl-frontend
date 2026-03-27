@@ -1,6 +1,8 @@
 import PageHero from '../../components/shared/PageHero';
 import DepartmentSection from '../../components/department/DepartmentSection';
 import DepartmentServicesSection from '../../components/department/DepartmentServicesSection';
+import DepartmentStaffSection from '../../components/department/DepartmentStaffSection';
+import DepartmentResearchHighlightsSection from '../../components/department/DepartmentResearchHighlightsSection';
 
 interface DepartmentProps {
     searchParams: Promise<{ locale?: string }>;
@@ -38,6 +40,64 @@ export default async function GeneticsPlantBreeding({ searchParams }: Department
             imageAlt: 'Clone identification services',
         },
     ];
+    const researchStaff = [
+        {
+            name: 'K K Liyanage',
+            role: 'Acting Head / Principal Research Officer',
+            imageSrc: '/images/departments/GeneticPerson1.png',
+            imageAlt: 'K K Liyanage',
+        },
+        {
+            name: 'Nelomie N Galagedara',
+            role: 'Senior Research Officer',
+            imageSrc: '/images/departments/GeneticPerson2.png',
+            imageAlt: 'Nelomie N Galagedara',
+        },
+        {
+            name: 'Thanuja D Waduge',
+            role: 'Research Officer',
+            imageSrc: '/images/departments/GeneticPerson3.png',
+            imageAlt: 'Thanuja D Waduge',
+        },
+    ];
+    const researchHighlights = [
+        {
+            id: 'released-clones',
+            text: 'Released five interim clones for the estate sector and two interim clones for the smallholder sector.',
+            imageSrc: '/images/aboutusRubber.jpg',
+            imageAlt: 'Rubber tapping trees representing released interim clones',
+        },
+        {
+            id: 'germplasm-selections',
+            text: 'Two non-Wickham germplasm selections were successfully used as the female parent for the first time in the local hybridization history and thirty-six new genotypes raised.',
+            imageSrc: '/images/estateandsubstationsbgimage.webp',
+            imageAlt: 'Genetics and plant breeding field research',
+        },
+        {
+            id: 'selection-criteria',
+            text: 'Utilized strong early selection criteria such as crop physiology, latex physiology, and molecular screening of yield and stress-responsive characters to strengthen and reduce the period of breeding cycle.',
+            imageSrc: '/images/section7_img1.jpg',
+            imageAlt: 'Laboratory and research facilities used for early selection criteria',
+        },
+        {
+            id: 'clone-trials',
+            text: 'Two genotypes selected from small-scale clone trials were established at the Estate collaborative clone trials (ECT) at Eladuwa estate for further characterization under Group II recommendation.',
+            imageSrc: '/images/section7_img2.jpg',
+            imageAlt: 'Field trial setup for collaborative clone trials',
+        },
+        {
+            id: 'tapping-evaluation',
+            text: 'Tapping commences at the clonal evaluation trial at non-traditional rubber growing areas to evaluate the best-performing clone for water stress conditions.',
+            imageSrc: '/images/section7_img3.png',
+            imageAlt: 'Rubber clone evaluation under tapping conditions',
+        },
+        {
+            id: 'water-stress-clone',
+            text: 'Tapping commences at the clonal evaluation trial at non-traditional rubber growing areas to evaluate the best-performing clone for water stress conditions.',
+            imageSrc: '/images/aboutusRubber.jpg',
+            imageAlt: 'Rubber plantation image representing water stress clone evaluation',
+        },
+    ];
 
     return (
         <div className="min-h-screen mb-56">
@@ -46,7 +106,7 @@ export default async function GeneticsPlantBreeding({ searchParams }: Department
                 title="Genetics & Plant Breeding Department"
                 breadcrumbItems={[
                     { label: 'Home', href: '/' },
-                    { label: 'Departments', href: '/departments' },
+                    { label: 'Departments' },
                     { label: 'Genetics & Plant Breeding' },
                 ]}
                 // backgroundImage defaults to /images/aboutus_heroimg.jpg
@@ -79,6 +139,24 @@ export default async function GeneticsPlantBreeding({ searchParams }: Department
                 titlePart1="Our Primary "
                 titlePart2="Services"
                 items={primaryServices}
+                containerClassName="w-[80%]"
+            />
+
+            <DepartmentStaffSection
+                tagText="Recent Project"
+                titlePart1="Research"
+                titlePart2="Staff"
+                staff={researchStaff}
+                containerClassName="w-[80%]"
+            />
+
+            <DepartmentResearchHighlightsSection
+                tagText="Awards & Achievements"
+                titlePart1="Research "
+                titlePart2="Highlights"
+                backgroundImageSrc="/images/departments/ResearchHightlightBackground.jpg"
+                backgroundImageAlt="Research highlights background"
+                highlights={researchHighlights}
                 containerClassName="w-[80%]"
             />
         </div>
