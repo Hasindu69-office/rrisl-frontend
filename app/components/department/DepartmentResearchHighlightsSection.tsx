@@ -36,11 +36,30 @@ const PATH_CENTER_X = CIRCLE_LEFT + IMAGE_RADIUS;
 const PATH_RADIUS = IMAGE_RADIUS + 80 ;
 const PATH_START_ANGLE = -94;
 const PATH_STEP_ANGLE = 31;
-const FOCUS_SLOT_INDEX = 2;
+const FOCUS_SLOT_INDEX = 3;
 const DOT_COLOR = '#A1DF0A';
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(Math.max(value, min), max);
+
+const getWrappedOffset = (index: number, progress: number, total: number) => {
+  if (total <= 1) {
+    return index - progress;
+  }
+
+  let offset = index - progress;
+  const half = total / 2;
+
+  while (offset <= -half) {
+    offset += total;
+  }
+
+  while (offset > half) {
+    offset -= total;
+  }
+
+  return offset;
+};
 
 const getArcPoint = (slotPosition: number, containerHeight: number) => {
   const angle = ((PATH_START_ANGLE + slotPosition * PATH_STEP_ANGLE) * Math.PI) / 180;
@@ -141,6 +160,16 @@ export default function DepartmentResearchHighlightsSection({
           start: 'top top',
           end: `+=${Math.max(highlights.length * 700, 2800)}`,
           scrub: 1.15,
+          snap:
+            highlights.length > 1
+              ? {
+                  snapTo: (value: number) =>
+                    Math.round(value * maxProgress) / maxProgress,
+                  duration: { min: 0.14, max: 0.24 },
+                  delay: 0,
+                  ease: 'power1.inOut',
+                }
+              : undefined,
           pin: true,
           anticipatePin: 1,
           invalidateOnRefresh: true,
@@ -255,14 +284,16 @@ export default function DepartmentResearchHighlightsSection({
             />
 
             {highlights.map((item, index) => {
-              const slotPosition = index - scrollProgress;
+              const slotPosition =
+                FOCUS_SLOT_INDEX +
+                getWrappedOffset(index, scrollProgress, highlights.length);
               const point = getArcPoint(slotPosition, desktopHeight);
               const focusDistance = Math.abs(slotPosition - FOCUS_SLOT_INDEX);
               const emphasis = clamp(1 - focusDistance / 1.35, 0, 1);
               const visibility = slotPosition > -0.75 && slotPosition < 6.85 ? 1 : 0;
               const textX = point.x + 44 + clamp(slotPosition, 0, 6) * 8;
-              const textWidth = 520 - clamp(slotPosition, 0, 4) * 24;
-              const fontSize = 18 + emphasis * 8;
+              const textWidth = 740;
+              const fontSize = 16 + emphasis * 4;
               const lineHeight = 1.33 - emphasis * 0.08;
               const dotSize = 12 + emphasis * 10;
               const ringSize = dotSize + 14;
@@ -294,13 +325,13 @@ export default function DepartmentResearchHighlightsSection({
                     className="absolute max-w-none text-white italic"
                     style={{
                       left: textX,
-                      top: point.y - fontSize * 1.1,
+                      top: point.y,
                       width: textWidth,
                       opacity: clamp(0.5 + emphasis * 0.75, 0, 1) * visibility,
                       fontSize,
                       lineHeight,
                       fontWeight: emphasis > 0.72 ? 600 : 500,
-                      transform: `translateY(${-emphasis * 2}px) scale(${1 + emphasis * 0.04})`,
+                      transform: `translateY(calc(-50% - ${emphasis * 2}px)) scale(${1 + emphasis * 0.04})`,
                       transformOrigin: 'left center',
                     }}
                   >
