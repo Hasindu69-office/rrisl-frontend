@@ -460,7 +460,7 @@ export default function DepartmentResearchHighlightsSection({
               const visibility = slotPosition > -0.75 && slotPosition < 6.85 ? 1 : 0;
               const textX = point.x + textBaseX + clamp(slotPosition, 0, 6) * textStepX;
               const fontSize = isTablet ? 14 : 16;
-              const lineHeight = 1.33 - emphasis * 0.08;
+              const lineHeight = 1.5 - emphasis * 0.08;
               const dotSize = (isTablet ? 10 : 12) + emphasis * (isTablet ? 8 : 10);
               const ringSize = dotSize + (isTablet ? 10 : 14);
               const dotOffset = ringSize / 2;
