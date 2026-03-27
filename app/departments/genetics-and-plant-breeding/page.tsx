@@ -69,7 +69,7 @@ export default async function GeneticsPlantBreeding({ searchParams }: Department
         },
         {
             id: 'germplasm-selections',
-            text: 'Two non-Wickham germplasm selections were successfully used as the female parent for the first time in the local hybridization history and thirty-six new genotypes were raised.',
+            text: 'Two non-Wickham germplasm selections were successfully used as the female parent for the first time in the local hybridization history and thirty-six new genotypes raised.',
             imageSrc: '/images/estateandsubstationsbgimage.webp',
             imageAlt: 'Genetics and plant breeding field research',
         },

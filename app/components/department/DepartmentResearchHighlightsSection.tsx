@@ -39,6 +39,12 @@ const PATH_START_ANGLE = -94;
 const PATH_STEP_ANGLE = 31;
 const FOCUS_SLOT_INDEX = 3;
 const DOT_COLOR = '#A1DF0A';
+const TABLET_MIN_HEIGHT = 640;
+const TABLET_CIRCLE_SIZE = 420;
+const TABLET_CIRCLE_LEFT = -170;
+const TABLET_IMAGE_RADIUS = TABLET_CIRCLE_SIZE / 2;
+const TABLET_PATH_CENTER_X = TABLET_CIRCLE_LEFT + TABLET_IMAGE_RADIUS;
+const TABLET_PATH_RADIUS = TABLET_IMAGE_RADIUS + 54;
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(Math.max(value, min), max);
@@ -62,13 +68,18 @@ const getWrappedOffset = (index: number, progress: number, total: number) => {
   return offset;
 };
 
-const getArcPoint = (slotPosition: number, containerHeight: number) => {
+const getArcPoint = (
+  slotPosition: number,
+  containerHeight: number,
+  pathCenterX: number,
+  pathRadius: number
+) => {
   const angle = ((PATH_START_ANGLE + slotPosition * PATH_STEP_ANGLE) * Math.PI) / 180;
   const pathCenterY = containerHeight / 2;
 
   return {
-    x: PATH_CENTER_X + Math.cos(angle) * PATH_RADIUS,
-    y: pathCenterY + Math.sin(angle) * PATH_RADIUS,
+    x: pathCenterX + Math.cos(angle) * pathRadius,
+    y: pathCenterY + Math.sin(angle) * pathRadius,
   };
 };
 
@@ -112,7 +123,9 @@ export default function DepartmentResearchHighlightsSection({
   const [scrollProgress, setScrollProgress] = useState(0);
   const [mobileActiveIndex, setMobileActiveIndex] = useState(0);
   const [isDesktop, setIsDesktop] = useState(false);
+  const [isTablet, setIsTablet] = useState(false);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const [mobileAutoplayEnabled, setMobileAutoplayEnabled] = useState(true);
   const [containerSize, setContainerSize] = useState({
     width: 1920,
     height: DESKTOP_MIN_HEIGHT,
@@ -166,19 +179,30 @@ export default function DepartmentResearchHighlightsSection({
     }
 
     const desktopQuery = window.matchMedia('(min-width: 1024px)');
+    const tabletQuery = window.matchMedia('(min-width: 768px) and (max-width: 1023px)');
     const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 
     const syncMediaState = () => {
-      setIsDesktop(desktopQuery.matches);
+      const desktopMatches = desktopQuery.matches;
+      const tabletMatches = tabletQuery.matches;
+
+      setIsDesktop(desktopMatches);
+      setIsTablet(tabletMatches);
       setPrefersReducedMotion(reducedMotionQuery.matches);
+
+      if (desktopMatches || tabletMatches) {
+        setMobileAutoplayEnabled(true);
+      }
     };
 
     syncMediaState();
     desktopQuery.addEventListener('change', syncMediaState);
+    tabletQuery.addEventListener('change', syncMediaState);
     reducedMotionQuery.addEventListener('change', syncMediaState);
 
     return () => {
       desktopQuery.removeEventListener('change', syncMediaState);
+      tabletQuery.removeEventListener('change', syncMediaState);
       reducedMotionQuery.removeEventListener('change', syncMediaState);
     };
   }, []);
@@ -198,38 +222,51 @@ export default function DepartmentResearchHighlightsSection({
     const media = gsap.matchMedia();
     const state = { progress: 0 };
 
-    media.add('(min-width: 1024px)', () => {
-      const tween = gsap.to(state, {
-        progress: maxProgress,
-        ease: 'none',
-        onUpdate: () => {
-          setScrollProgress(state.progress);
-        },
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: 'top top',
-          end: `+=${Math.max(highlights.length * 700, 2800)}`,
-          scrub: 1.15,
-          snap:
-            highlights.length > 1
-              ? {
-                  snapTo: (value: number) =>
-                    Math.round(value * maxProgress) / maxProgress,
-                  duration: { min: 0.14, max: 0.24 },
-                  delay: 0,
-                  ease: 'power1.inOut',
-                }
-              : undefined,
-          pin: true,
-          anticipatePin: 1,
-          invalidateOnRefresh: true,
-        },
-      });
+    media.add(
+      {
+        isDesktop: '(min-width: 1024px)',
+        isTablet: '(min-width: 768px) and (max-width: 1023px)',
+      },
+      (context) => {
+        const desktopMode = context.conditions?.isDesktop ?? false;
+        const tabletMode = context.conditions?.isTablet ?? false;
 
-      return () => {
-        tween.kill();
-      };
-    });
+        if (!desktopMode && !tabletMode) {
+          return undefined;
+        }
+
+        const tween = gsap.to(state, {
+          progress: maxProgress,
+          ease: 'none',
+          onUpdate: () => {
+            setScrollProgress(state.progress);
+          },
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top top',
+            end: `+=${desktopMode ? Math.max(highlights.length * 700, 2800) : Math.max(highlights.length * 480, 2200)}`,
+            scrub: 1.15,
+            snap:
+              highlights.length > 1
+                ? {
+                    snapTo: (value: number) =>
+                      Math.round(value * maxProgress) / maxProgress,
+                    duration: { min: 0.14, max: 0.24 },
+                    delay: 0,
+                    ease: 'power1.inOut',
+                  }
+                : undefined,
+            pin: true,
+            anticipatePin: 1,
+            invalidateOnRefresh: true,
+          },
+        });
+
+        return () => {
+          tween.kill();
+        };
+      }
+    );
 
     return () => {
       media.revert();
@@ -242,7 +279,7 @@ export default function DepartmentResearchHighlightsSection({
     }
 
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const mobileOnly = window.matchMedia('(max-width: 1023px)');
+    const mobileOnly = window.matchMedia('(max-width: 767px)');
     let intervalId: ReturnType<typeof setInterval> | null = null;
 
     const syncPlayback = () => {
@@ -251,7 +288,7 @@ export default function DepartmentResearchHighlightsSection({
         intervalId = null;
       }
 
-      if (reducedMotion.matches || !mobileOnly.matches) {
+      if (reducedMotion.matches || !mobileOnly.matches || !mobileAutoplayEnabled) {
         return;
       }
 
@@ -272,13 +309,23 @@ export default function DepartmentResearchHighlightsSection({
       mobileOnly.removeEventListener('change', syncPlayback);
       reducedMotion.removeEventListener('change', syncPlayback);
     };
-  }, [highlights]);
+  }, [highlights, mobileAutoplayEnabled]);
 
   const mobileHighlight = highlights[mobileActiveIndex] ?? highlights[0];
   const desktopActiveIndex =
     highlights.length > 0 ? clamp(Math.round(scrollProgress), 0, highlights.length - 1) : 0;
-  const activeHighlightIndex = isDesktop ? desktopActiveIndex : mobileActiveIndex;
-  const desktopHeight = containerSize.height || DESKTOP_MIN_HEIGHT;
+  const usesArcLayout = isDesktop || isTablet;
+  const activeHighlightIndex = usesArcLayout ? desktopActiveIndex : mobileActiveIndex;
+  const layoutHeight = containerSize.height || (isTablet ? TABLET_MIN_HEIGHT : DESKTOP_MIN_HEIGHT);
+  const circleSize = isTablet ? TABLET_CIRCLE_SIZE : CIRCLE_SIZE;
+  const circleLeft = isTablet ? TABLET_CIRCLE_LEFT : CIRCLE_LEFT;
+  const pathCenterX = isTablet ? TABLET_PATH_CENTER_X : PATH_CENTER_X;
+  const pathRadius = isTablet ? TABLET_PATH_RADIUS : PATH_RADIUS;
+  const textBaseX = isTablet ? 30 : 44;
+  const textStepX = isTablet ? 4 : 8;
+  const textWidth = isTablet ? 420 : 740;
+  const titleRight = isTablet ? 28 : 80;
+  const titleSize = isTablet ? 54 : 72;
 
   useEffect(() => {
     const nextImage = resolveHighlightImage(
@@ -337,7 +384,7 @@ export default function DepartmentResearchHighlightsSection({
   return (
     <section
       ref={sectionRef}
-      className="relative overflow-hidden bg-[#0C5A1D] py-16 md:min-h-[560px] md:py-20 lg:h-screen lg:min-h-[760px] lg:py-0"
+      className="relative overflow-hidden bg-[#0C5A1D] py-0 md:h-screen md:min-h-[640px] md:py-0 lg:min-h-[760px]"
       style={{
         width: '100vw',
         maxWidth: '100vw',
@@ -347,7 +394,7 @@ export default function DepartmentResearchHighlightsSection({
     >
       <div
         ref={geometryRef}
-        className="relative min-h-[420px] overflow-hidden md:min-h-[560px] lg:h-screen lg:min-h-[760px]"
+        className="relative min-h-[420px] overflow-hidden md:h-screen md:min-h-[640px] lg:min-h-[760px]"
       >
           <div className="absolute inset-0">
             <Image
@@ -363,11 +410,11 @@ export default function DepartmentResearchHighlightsSection({
           <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(7,98,26,0.12)_0%,rgba(7,98,26,0.02)_100%)]" />
 
           <div
-            className="absolute top-1/2 hidden -translate-y-1/2 overflow-hidden rounded-full lg:block"
+            className="absolute top-1/2 hidden -translate-y-1/2 overflow-hidden rounded-full md:block"
             style={{
-              left: CIRCLE_LEFT,
-              width: CIRCLE_SIZE,
-              height: CIRCLE_SIZE,
+              left: circleLeft,
+              width: circleSize,
+              height: circleSize,
             }}
           >
             {previousImage ? (
@@ -377,7 +424,7 @@ export default function DepartmentResearchHighlightsSection({
                 alt={previousImage.alt}
                 fill
                 className="object-cover transition-opacity duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
-                sizes="600px"
+                sizes={isTablet ? '420px' : '600px'}
                 style={{ opacity: isImageTransitionActive ? 0 : 1 }}
               />
             ) : null}
@@ -387,19 +434,19 @@ export default function DepartmentResearchHighlightsSection({
               alt={currentImage.alt}
               fill
               className="object-cover transition-opacity duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
-              sizes="600px"
+              sizes={isTablet ? '420px' : '600px'}
               style={{ opacity: previousImage ? (isImageTransitionActive ? 1 : 0) : 1 }}
             />
           </div>
 
-          <div className="absolute inset-0 hidden lg:block" aria-hidden="true">
+          <div className="absolute inset-0 hidden md:block" aria-hidden="true">
             <div
               className="absolute rounded-full border-2 border-white/90"
               style={{
-                left: PATH_CENTER_X - PATH_RADIUS,
-                top: desktopHeight / 2 - PATH_RADIUS,
-                width: PATH_RADIUS * 2,
-                height: PATH_RADIUS * 2,
+                left: pathCenterX - pathRadius,
+                top: layoutHeight / 2 - pathRadius,
+                width: pathRadius * 2,
+                height: pathRadius * 2,
               }}
             />
 
@@ -407,16 +454,15 @@ export default function DepartmentResearchHighlightsSection({
               const slotPosition =
                 FOCUS_SLOT_INDEX +
                 getWrappedOffset(index, scrollProgress, highlights.length);
-              const point = getArcPoint(slotPosition, desktopHeight);
+              const point = getArcPoint(slotPosition, layoutHeight, pathCenterX, pathRadius);
               const focusDistance = Math.abs(slotPosition - FOCUS_SLOT_INDEX);
               const emphasis = clamp(1 - focusDistance / 1.35, 0, 1);
               const visibility = slotPosition > -0.75 && slotPosition < 6.85 ? 1 : 0;
-              const textX = point.x + 44 + clamp(slotPosition, 0, 6) * 8;
-              const textWidth = 740;
-              const fontSize = 16;
+              const textX = point.x + textBaseX + clamp(slotPosition, 0, 6) * textStepX;
+              const fontSize = isTablet ? 14 : 16;
               const lineHeight = 1.33 - emphasis * 0.08;
-              const dotSize = 12 + emphasis * 10;
-              const ringSize = dotSize + 14;
+              const dotSize = (isTablet ? 10 : 12) + emphasis * (isTablet ? 8 : 10);
+              const ringSize = dotSize + (isTablet ? 10 : 14);
               const dotOffset = ringSize / 2;
 
               return (
@@ -463,8 +509,8 @@ export default function DepartmentResearchHighlightsSection({
           </div>
 
           <div className={`relative z-10 mx-auto w-full max-w-[1920px] px-4 md:px-6 lg:px-8 ${containerClassName}`}>
-            <div className="flex min-h-[420px] flex-col justify-between p-6 md:min-h-[560px] md:p-10 lg:h-screen lg:min-h-[760px] lg:p-12">
-              <div className="flex justify-start lg:hidden">
+            <div className="flex min-h-[420px] flex-col p-6 md:h-screen md:min-h-[640px] md:justify-between md:p-10 lg:min-h-[760px] lg:p-12">
+              <div className="flex justify-start md:hidden">
                 <div className="flex flex-col items-start gap-4">
                   <GradientTitle
                     part1={titlePart1}
@@ -479,66 +525,76 @@ export default function DepartmentResearchHighlightsSection({
                 </div>
               </div>
 
-              <div className="relative mt-8 overflow-hidden rounded-[28px] border border-white/15 bg-[rgba(6,58,18,0.38)] p-5 shadow-[0_18px_54px_rgba(0,0,0,0.12)] lg:hidden">
-                <div className="pointer-events-none absolute -left-24 top-1/2 h-[240px] w-[240px] -translate-y-1/2 overflow-hidden rounded-full">
-                  {previousImage ? (
+              <div className="mt-8 md:hidden">
+                <div className="relative flex h-[520px] flex-col overflow-hidden rounded-[28px] border border-white/15 bg-[rgba(6,58,18,0.18)] shadow-[0_18px_54px_rgba(0,0,0,0.12)]">
+                  <div className="relative h-[248px] overflow-hidden">
+                    {previousImage ? (
+                      <Image
+                        key={`mobile-previous-${previousImage.key}`}
+                        src={previousImage.src}
+                        alt={previousImage.alt}
+                        fill
+                        className="object-cover transition-opacity duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
+                        sizes="(max-width: 767px) 100vw"
+                        style={{ opacity: isImageTransitionActive ? 0 : 1 }}
+                      />
+                    ) : null}
                     <Image
-                      key={`mobile-previous-${previousImage.key}`}
-                      src={previousImage.src}
-                      alt={previousImage.alt}
+                      key={`mobile-current-${currentImage.key}`}
+                      src={currentImage.src}
+                      alt={currentImage.alt}
                       fill
                       className="object-cover transition-opacity duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
-                      sizes="240px"
-                      style={{ opacity: isImageTransitionActive ? 0 : 1 }}
+                      sizes="(max-width: 767px) 100vw"
+                      style={{ opacity: previousImage ? (isImageTransitionActive ? 1 : 0) : 1 }}
                     />
-                  ) : null}
-                  <Image
-                    key={`mobile-current-${currentImage.key}`}
-                    src={currentImage.src}
-                    alt={currentImage.alt}
-                    fill
-                    className="object-cover transition-opacity duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
-                    sizes="240px"
-                    style={{ opacity: previousImage ? (isImageTransitionActive ? 1 : 0) : 1 }}
-                  />
-                </div>
-
-                <div className="relative ml-20">
-                  <div className="text-[12px] font-medium uppercase tracking-[0.22em] text-white/65">
-                    Highlight {mobileActiveIndex + 1}
+                    <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(12,90,29,0.04)_0%,rgba(12,90,29,0.28)_100%)]" />
                   </div>
-                  <p className="mt-3 text-[17px] font-semibold italic leading-[1.55] text-white">
-                    {mobileHighlight?.text}
-                  </p>
-                </div>
 
-                <div className="relative mt-6 flex items-center gap-2 pl-20">
-                  {highlights.map((item, index) => (
-                    <button
-                      key={item.id}
-                      type="button"
-                      aria-label={`Show highlight ${index + 1}`}
-                      onClick={() => setMobileActiveIndex(index)}
-                      className="h-3 w-3 rounded-full transition-transform"
-                      style={{
-                        backgroundColor: DOT_COLOR,
-                        opacity: index === mobileActiveIndex ? 1 : 0.35,
-                        transform: index === mobileActiveIndex ? 'scale(1.35)' : 'scale(1)',
-                      }}
-                    />
-                  ))}
+                  <div className="flex flex-1 flex-col px-5 pb-5 pt-5">
+                    <div className="text-[12px] font-medium uppercase tracking-[0.22em] text-white/65">
+                      Highlight {mobileActiveIndex + 1}
+                    </div>
+                    <p className="mt-3 line-clamp-7 text-[17px] font-semibold leading-[1.6] text-white">
+                      {mobileHighlight?.text}
+                    </p>
+
+                    <div className="mt-auto flex flex-wrap items-center gap-2 pt-6">
+                      {highlights.map((item, index) => (
+                        <button
+                          key={item.id}
+                          type="button"
+                          aria-label={`Show highlight ${index + 1}`}
+                          onClick={() => {
+                            setMobileAutoplayEnabled(false);
+                            setMobileActiveIndex(index);
+                          }}
+                          className="h-3 w-3 rounded-full transition-transform"
+                          style={{
+                            backgroundColor: DOT_COLOR,
+                            opacity: index === mobileActiveIndex ? 1 : 0.35,
+                            transform: index === mobileActiveIndex ? 'scale(1.35)' : 'scale(1)',
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div className="hidden lg:absolute lg:right-[80px] lg:top-[47%] lg:flex lg:-translate-y-1/2 lg:items-center lg:gap-2">
+              <div
+                className="hidden md:absolute md:top-[47%] md:flex md:-translate-y-1/2 md:items-center md:gap-2"
+                style={{ right: titleRight }}
+              >
                 <div className="pointer-events-none flex items-center gap-2">
                   <div className="overflow-visible py-3 rotate-180 whitespace-nowrap [writing-mode:vertical-rl]">
-                    <span className="text-[72px] font-bold leading-[1] text-white">
+                    <span className="font-bold leading-[1] text-white" style={{ fontSize: titleSize }}>
                       {titlePart1}{' '}
                     </span>
                     <span
-                      className="text-[72px] font-bold leading-[1] text-transparent"
+                      className="font-bold leading-[1] text-transparent"
                       style={{
+                        fontSize: titleSize,
                         backgroundImage: 'linear-gradient(180deg, #20C997 0%, #A1DF0A 100%)',
                         WebkitBackgroundClip: 'text',
                         backgroundClip: 'text',
