@@ -60,6 +60,32 @@ export default async function GeneticsPlantBreeding({ searchParams }: Department
             imageAlt: 'Thanuja D Waduge',
         },
     ];
+    const researchHighlights = [
+        {
+            id: 'released-clones',
+            text: 'Released five interim clones for the estate sector and two interim clones for the smallholder sector.',
+        },
+        {
+            id: 'germplasm-selections',
+            text: 'Two non-Wickham germplasm selections were successfully used as the female parent for the first time in the local hybridization history and thirty-six new genotypes were raised successfully.',
+        },
+        {
+            id: 'selection-criteria',
+            text: 'Utilized strong early selection criteria such as crop physiology, latex physiology, and molecular screening of yield and stress-responsive characters to strengthen and reduce the period of breeding cycle.',
+        },
+        {
+            id: 'clone-trials',
+            text: 'Two genotypes selected from small-scale clone trials were established at the Estate collaborative clone trials (ECT) at Eladuwa estate for further characterization under Group II recommendation.',
+        },
+        {
+            id: 'tapping-evaluation',
+            text: 'Tapping commences at the clonal evaluation trial at non-traditional rubber growing areas to evaluate the best-performing clone for water stress conditions.',
+        },
+        {
+            id: 'water-stress-clone',
+            text: 'Tapping commences at the clonal evaluation trial at non-traditional rubber growing areas to evaluate the best-performing clone for water stress conditions.',
+        },
+    ];
 
     return (
         <div className="min-h-screen mb-56">
@@ -118,6 +144,7 @@ export default async function GeneticsPlantBreeding({ searchParams }: Department
                 titlePart2="Highlights"
                 backgroundImageSrc="/images/departments/ResearchHightlightBackground.jpg"
                 backgroundImageAlt="Research highlights background"
+                highlights={researchHighlights}
                 containerClassName="w-[80%]"
             />
         </div>
