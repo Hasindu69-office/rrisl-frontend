@@ -185,7 +185,7 @@ export default function DepartmentCurrentProjectsSection({
             />
           </div>
 
-          <div className="flex items-center gap-3 self-end lg:self-start">
+          <div className="hidden items-center gap-3 self-end lg:flex lg:self-start">
             <button
               type="button"
               aria-label="Previous projects"
@@ -231,6 +231,27 @@ export default function DepartmentCurrentProjectsSection({
               </div>
             ))}
           </div>
+        </div>
+
+        <div className="mt-2 flex items-center justify-center gap-3 lg:hidden">
+          <button
+            type="button"
+            aria-label="Previous projects"
+            onClick={handlePrevious}
+            disabled={boundedActiveIndex === 0}
+            className="flex h-12 w-12 items-center justify-center rounded-full bg-[#0F4B1D] text-white transition duration-300 hover:bg-[#136127] disabled:cursor-not-allowed disabled:bg-[#DCE5D7] disabled:text-[#8BA191]"
+          >
+            <ArrowLeft className="h-5 w-5" strokeWidth={2.2} />
+          </button>
+          <button
+            type="button"
+            aria-label="Next projects"
+            onClick={handleNext}
+            disabled={boundedActiveIndex >= maxIndex}
+            className="flex h-12 w-12 items-center justify-center rounded-full bg-[#0F4B1D] text-white transition duration-300 hover:bg-[#136127] disabled:cursor-not-allowed disabled:bg-[#DCE5D7] disabled:text-[#8BA191]"
+          >
+            <ArrowRight className="h-5 w-5" strokeWidth={2.2} />
+          </button>
         </div>
       </div>
     </section>
