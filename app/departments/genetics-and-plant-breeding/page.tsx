@@ -64,26 +64,38 @@ export default async function GeneticsPlantBreeding({ searchParams }: Department
         {
             id: 'released-clones',
             text: 'Released five interim clones for the estate sector and two interim clones for the smallholder sector.',
+            imageSrc: '/images/aboutusRubber.jpg',
+            imageAlt: 'Rubber tapping trees representing released interim clones',
         },
         {
             id: 'germplasm-selections',
-            text: 'Two non-Wickham germplasm selections were successfully used as the female parent for the first time in the local hybridization history and thirty-six new genotypes were raised successfully.',
+            text: 'Two non-Wickham germplasm selections were successfully used as the female parent for the first time in the local hybridization history and thirty-six new genotypes were raised.',
+            imageSrc: '/images/estateandsubstationsbgimage.webp',
+            imageAlt: 'Genetics and plant breeding field research',
         },
         {
             id: 'selection-criteria',
             text: 'Utilized strong early selection criteria such as crop physiology, latex physiology, and molecular screening of yield and stress-responsive characters to strengthen and reduce the period of breeding cycle.',
+            imageSrc: '/images/section7_img1.jpg',
+            imageAlt: 'Laboratory and research facilities used for early selection criteria',
         },
         {
             id: 'clone-trials',
             text: 'Two genotypes selected from small-scale clone trials were established at the Estate collaborative clone trials (ECT) at Eladuwa estate for further characterization under Group II recommendation.',
+            imageSrc: '/images/section7_img2.jpg',
+            imageAlt: 'Field trial setup for collaborative clone trials',
         },
         {
             id: 'tapping-evaluation',
             text: 'Tapping commences at the clonal evaluation trial at non-traditional rubber growing areas to evaluate the best-performing clone for water stress conditions.',
+            imageSrc: '/images/section7_img3.png',
+            imageAlt: 'Rubber clone evaluation under tapping conditions',
         },
         {
             id: 'water-stress-clone',
             text: 'Tapping commences at the clonal evaluation trial at non-traditional rubber growing areas to evaluate the best-performing clone for water stress conditions.',
+            imageSrc: '/images/aboutusRubber.jpg',
+            imageAlt: 'Rubber plantation image representing water stress clone evaluation',
         },
     ];
 

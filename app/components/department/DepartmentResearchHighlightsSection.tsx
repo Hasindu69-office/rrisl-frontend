@@ -13,6 +13,8 @@ if (typeof window !== 'undefined') {
 export interface DepartmentResearchHighlightItem {
   id: string;
   text: string;
+  imageSrc?: string;
+  imageAlt?: string;
 }
 
 interface DepartmentResearchHighlightsSectionProps {
@@ -70,6 +72,27 @@ const getArcPoint = (slotPosition: number, containerHeight: number) => {
   };
 };
 
+interface HighlightImageState {
+  alt: string;
+  key: string;
+  src: string;
+}
+
+const resolveHighlightImage = (
+  item: DepartmentResearchHighlightItem | undefined,
+  fallbackSrc: string,
+  fallbackAlt: string
+): HighlightImageState => {
+  const src = item?.imageSrc ?? fallbackSrc;
+  const alt = item?.imageAlt ?? fallbackAlt;
+
+  return {
+    src,
+    alt,
+    key: `${item?.id ?? 'fallback'}:${src}`,
+  };
+};
+
 /**
  * Department research highlights section with a pinned desktop scroll animation
  * and a lighter autoplay fallback for smaller screens.
@@ -88,10 +111,16 @@ export default function DepartmentResearchHighlightsSection({
   const geometryRef = useRef<HTMLDivElement | null>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [mobileActiveIndex, setMobileActiveIndex] = useState(0);
+  const [isDesktop, setIsDesktop] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const [containerSize, setContainerSize] = useState({
     width: 1920,
     height: DESKTOP_MIN_HEIGHT,
   });
+  const initialImage = resolveHighlightImage(highlights[0], highlightImageSrc, highlightImageAlt);
+  const [currentImage, setCurrentImage] = useState<HighlightImageState>(initialImage);
+  const [previousImage, setPreviousImage] = useState<HighlightImageState | null>(null);
+  const [isImageTransitionActive, setIsImageTransitionActive] = useState(false);
 
   useLayoutEffect(() => {
     if (typeof window === 'undefined' || !geometryRef.current) {
@@ -128,6 +157,29 @@ export default function DepartmentResearchHighlightsSection({
 
     return () => {
       observer.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const desktopQuery = window.matchMedia('(min-width: 1024px)');
+    const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    const syncMediaState = () => {
+      setIsDesktop(desktopQuery.matches);
+      setPrefersReducedMotion(reducedMotionQuery.matches);
+    };
+
+    syncMediaState();
+    desktopQuery.addEventListener('change', syncMediaState);
+    reducedMotionQuery.addEventListener('change', syncMediaState);
+
+    return () => {
+      desktopQuery.removeEventListener('change', syncMediaState);
+      reducedMotionQuery.removeEventListener('change', syncMediaState);
     };
   }, []);
 
@@ -223,7 +275,64 @@ export default function DepartmentResearchHighlightsSection({
   }, [highlights]);
 
   const mobileHighlight = highlights[mobileActiveIndex] ?? highlights[0];
+  const desktopActiveIndex =
+    highlights.length > 0 ? clamp(Math.round(scrollProgress), 0, highlights.length - 1) : 0;
+  const activeHighlightIndex = isDesktop ? desktopActiveIndex : mobileActiveIndex;
   const desktopHeight = containerSize.height || DESKTOP_MIN_HEIGHT;
+
+  useEffect(() => {
+    const nextImage = resolveHighlightImage(
+      highlights[activeHighlightIndex],
+      highlightImageSrc,
+      highlightImageAlt
+    );
+
+    if (nextImage.key === currentImage.key) {
+      return;
+    }
+
+    if (prefersReducedMotion) {
+      const reducedMotionFrameId = window.requestAnimationFrame(() => {
+        setPreviousImage(null);
+        setCurrentImage(nextImage);
+        setIsImageTransitionActive(false);
+      });
+
+      return () => {
+        window.cancelAnimationFrame(reducedMotionFrameId);
+      };
+    }
+
+    const swapFrameId = window.requestAnimationFrame(() => {
+      setIsImageTransitionActive(false);
+      setPreviousImage(currentImage);
+      setCurrentImage(nextImage);
+    });
+
+    const transitionFrameId = window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        setIsImageTransitionActive(true);
+      });
+    });
+
+    const timeoutId = window.setTimeout(() => {
+      setPreviousImage(null);
+      setIsImageTransitionActive(false);
+    }, 700);
+
+    return () => {
+      window.cancelAnimationFrame(swapFrameId);
+      window.cancelAnimationFrame(transitionFrameId);
+      window.clearTimeout(timeoutId);
+    };
+  }, [
+    activeHighlightIndex,
+    currentImage,
+    highlightImageAlt,
+    highlightImageSrc,
+    highlights,
+    prefersReducedMotion,
+  ]);
 
   return (
     <section
@@ -261,12 +370,25 @@ export default function DepartmentResearchHighlightsSection({
               height: CIRCLE_SIZE,
             }}
           >
+            {previousImage ? (
+              <Image
+                key={`desktop-previous-${previousImage.key}`}
+                src={previousImage.src}
+                alt={previousImage.alt}
+                fill
+                className="object-cover transition-opacity duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
+                sizes="600px"
+                style={{ opacity: isImageTransitionActive ? 0 : 1 }}
+              />
+            ) : null}
             <Image
-              src={highlightImageSrc}
-              alt={highlightImageAlt}
+              key={`desktop-current-${currentImage.key}`}
+              src={currentImage.src}
+              alt={currentImage.alt}
               fill
-              className="object-cover"
+              className="object-cover transition-opacity duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
               sizes="600px"
+              style={{ opacity: previousImage ? (isImageTransitionActive ? 1 : 0) : 1 }}
             />
           </div>
 
@@ -359,12 +481,25 @@ export default function DepartmentResearchHighlightsSection({
 
               <div className="relative mt-8 overflow-hidden rounded-[28px] border border-white/15 bg-[rgba(6,58,18,0.38)] p-5 shadow-[0_18px_54px_rgba(0,0,0,0.12)] lg:hidden">
                 <div className="pointer-events-none absolute -left-24 top-1/2 h-[240px] w-[240px] -translate-y-1/2 overflow-hidden rounded-full">
+                  {previousImage ? (
+                    <Image
+                      key={`mobile-previous-${previousImage.key}`}
+                      src={previousImage.src}
+                      alt={previousImage.alt}
+                      fill
+                      className="object-cover transition-opacity duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
+                      sizes="240px"
+                      style={{ opacity: isImageTransitionActive ? 0 : 1 }}
+                    />
+                  ) : null}
                   <Image
-                    src={highlightImageSrc}
-                    alt={highlightImageAlt}
+                    key={`mobile-current-${currentImage.key}`}
+                    src={currentImage.src}
+                    alt={currentImage.alt}
                     fill
-                    className="object-cover"
+                    className="object-cover transition-opacity duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
                     sizes="240px"
+                    style={{ opacity: previousImage ? (isImageTransitionActive ? 1 : 0) : 1 }}
                   />
                 </div>
 
