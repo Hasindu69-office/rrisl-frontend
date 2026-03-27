@@ -4,7 +4,6 @@ import Image from 'next/image';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import GradientTag from '../ui/GradientTag';
 import GradientTitle from '../ui/GradientTitle';
 
 if (typeof window !== 'undefined') {
@@ -76,7 +75,6 @@ const getArcPoint = (slotPosition: number, containerHeight: number) => {
  * and a lighter autoplay fallback for smaller screens.
  */
 export default function DepartmentResearchHighlightsSection({
-  tagText,
   titlePart1,
   titlePart2,
   backgroundImageSrc,
@@ -322,7 +320,7 @@ export default function DepartmentResearchHighlightsSection({
                   </div>
 
                   <div
-                    className="absolute max-w-none text-white italic"
+                    className="absolute max-w-none py-3 text-white italic"
                     style={{
                       left: textX,
                       top: point.y,
@@ -346,13 +344,6 @@ export default function DepartmentResearchHighlightsSection({
             <div className="flex min-h-[420px] flex-col justify-between p-6 md:min-h-[560px] md:p-10 lg:h-screen lg:min-h-[760px] lg:p-12">
               <div className="flex justify-start lg:hidden">
                 <div className="flex flex-col items-start gap-4">
-                  <GradientTag
-                    text={tagText}
-                    className="inline-block"
-                    backgroundColor="white"
-                    padding="px-4 py-1"
-                  />
-
                   <GradientTitle
                     part1={titlePart1}
                     part2={titlePart2}
@@ -404,22 +395,14 @@ export default function DepartmentResearchHighlightsSection({
                 </div>
               </div>
 
-              <div className="hidden lg:absolute lg:right-[80px] lg:top-1/2 lg:flex lg:-translate-y-1/2 lg:items-center lg:gap-2">
+              <div className="hidden lg:absolute lg:right-[80px] lg:top-[47%] lg:flex lg:-translate-y-1/2 lg:items-center lg:gap-2">
                 <div className="pointer-events-none flex items-center gap-2">
-                  <div className="inline-flex rotate-180 rounded-full bg-[linear-gradient(180deg,#20C997_0%,#A1DF0A_100%)] p-[2px]">
-                    <div className="flex min-h-[200px] items-center justify-center rounded-full bg-white px-3 py-5">
-                      <span className="[writing-mode:vertical-rl] text-[14px] font-semibold leading-none text-[#2E7D32]">
-                        {tagText}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="rotate-180 whitespace-nowrap [writing-mode:vertical-rl]">
-                    <span className="text-[72px] font-bold leading-[0.85] text-white">
+                  <div className="overflow-visible py-3 rotate-180 whitespace-nowrap [writing-mode:vertical-rl]">
+                    <span className="text-[72px] font-bold leading-[1] text-white">
                       {titlePart1}{' '}
                     </span>
                     <span
-                      className="text-[72px] font-bold leading-[0.85] text-transparent"
+                      className="text-[72px] font-bold leading-[1] text-transparent"
                       style={{
                         backgroundImage: 'linear-gradient(180deg, #20C997 0%, #A1DF0A 100%)',
                         WebkitBackgroundClip: 'text',
