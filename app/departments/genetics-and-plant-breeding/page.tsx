@@ -3,6 +3,7 @@ import DepartmentSection from '../../components/department/DepartmentSection';
 import DepartmentServicesSection from '../../components/department/DepartmentServicesSection';
 import DepartmentStaffSection from '../../components/department/DepartmentStaffSection';
 import DepartmentResearchHighlightsSection from '../../components/department/DepartmentResearchHighlightsSection';
+import DepartmentCurrentProjectsSection from '../../components/department/DepartmentCurrentProjectsSection';
 
 interface DepartmentProps {
     searchParams: Promise<{ locale?: string }>;
@@ -98,6 +99,43 @@ export default async function GeneticsPlantBreeding({ searchParams }: Department
             imageAlt: 'Rubber plantation image representing water stress clone evaluation',
         },
     ];
+    const currentProjects = [
+        {
+            id: 'plant-watering',
+            title: 'How frequently should my plants be watered?',
+            href: '/departments/genetics-and-plant-breeding',
+            imageSrc: '/images/departments/ResearchProjectsection.jpg',
+            imageAlt: 'Research project visual placeholder 1',
+        },
+        {
+            id: 'clone-screening',
+            title: 'High-potential clone screening for rubber yield stability',
+            href: '/departments/genetics-and-plant-breeding',
+            imageSrc: '/images/departments/ResearchProjectsection.jpg',
+            imageAlt: 'Research project visual placeholder 2',
+        },
+        {
+            id: 'stress-response',
+            title: 'Water stress response mapping across breeding populations',
+            href: '/departments/genetics-and-plant-breeding',
+            imageSrc: '/images/departments/ResearchProjectsection.jpg',
+            imageAlt: 'Research project visual placeholder 3',
+        },
+        {
+            id: 'germplasm-trials',
+            title: 'Non-Wickham germplasm trial observations and field validation',
+            href: '/departments/genetics-and-plant-breeding',
+            imageSrc: '/images/departments/ResearchProjectsection.jpg',
+            imageAlt: 'Research project visual placeholder 4',
+        },
+        {
+            id: 'hybrid-evaluation',
+            title: 'Hybrid evaluation plots for next-generation selection criteria',
+            href: '/departments/genetics-and-plant-breeding',
+            imageSrc: '/images/departments/ResearchProjectsection.jpg',
+            imageAlt: 'Research project visual placeholder 5',
+        },
+    ];
 
     return (
         <div className="min-h-screen mb-56">
@@ -158,6 +196,14 @@ export default async function GeneticsPlantBreeding({ searchParams }: Department
                 backgroundImageAlt="Research highlights background"
                 highlights={researchHighlights}
                 containerClassName="w-[80%]"
+            />
+
+            
+            <DepartmentCurrentProjectsSection
+                tagText="Recent Project"
+                titlePart1="Current Research "
+                titlePart2="Projects"
+                projects={currentProjects}
             />
         </div>
     );
