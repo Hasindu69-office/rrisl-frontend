@@ -20,6 +20,7 @@ interface DepartmentAchievementSectionProps {
 }
 
 const DESKTOP_BREAKPOINT = 1024;
+const AUTO_SLIDE_INTERVAL_MS = 4500;
 
 /**
  * Reusable department showcase shell for achievement-style sections.
@@ -84,6 +85,22 @@ export default function DepartmentAchievementSection({
 
     setCurrentIndex((previousIndex) => Math.min(previousIndex + 1, maxStartIndex));
   };
+
+  useEffect(() => {
+    if (!canSlide) {
+      return;
+    }
+
+    const intervalId = window.setInterval(() => {
+      setCurrentIndex((previousIndex) =>
+        previousIndex >= maxStartIndex ? 0 : previousIndex + 1
+      );
+    }, AUTO_SLIDE_INTERVAL_MS);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [canSlide, maxStartIndex]);
 
   return (
     <section className={`py-16 md:py-20 lg:py-24 px-4 md:px-6 lg:px-0 ${containerClassName}`}>
