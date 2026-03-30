@@ -8,6 +8,9 @@ import DepartmentAwardsTimelineSection from '../../components/department/Departm
 import DepartmentPublicationsSection, {
     DepartmentPublicationSectionItem,
 } from '../../components/department/DepartmentPublicationsSection';
+import DepartmentAchievementSection, {
+    DepartmentAchievementCardItem,
+} from '../../components/department/DepartmentAchievementSection';
 
 interface DepartmentProps {
     searchParams: Promise<{ locale?: string }>;
@@ -254,6 +257,24 @@ export default async function GeneticsPlantBreeding({ searchParams }: Department
             ],
         },
     ];
+    const achievementItems: DepartmentAchievementCardItem[] = [
+        {
+            id: 'achievement-1',
+            text: 'The department developed several high-yielding clone candidates through sustained breeding work and long-term field evaluation across multiple planting regions. The department developed several high-yielding clone candidates through sustained breeding work and long-term field evaluation across multiple planting regions.',
+        },
+        {
+            id: 'achievement-2',
+            text: 'A set of advanced breeding selections showed strong early vigour and promising latex yield performance under contrasting environmental conditions.',
+        },
+        {
+            id: 'achievement-3',
+            text: 'Collaborative studies with local and international partners strengthened germplasm exchange and expanded the department’s breeding resource base.',
+        },
+        {
+            id: 'achievement-4',
+            text: 'Marker-assisted screening workflows were introduced to shorten early selection cycles and improve confidence in identifying robust clone material.',
+        },
+    ];
 
     return (
         <div className="min-h-screen mb-56">
@@ -338,6 +359,13 @@ export default async function GeneticsPlantBreeding({ searchParams }: Department
                 rightBackgroundImageSrc="/images/departments/bgimgourpulications.jpg"
                 rightBackgroundImageAlt="Publications section background"
                 sections={publicationSections}
+            />
+
+            <DepartmentAchievementSection
+                tagText="Main objective"
+                illustrationSrc="/images/departments/Handwireframesection.png"
+                illustrationAlt="Illustrated hand holding an achievement medal"
+                items={achievementItems}
             />
         </div>
     );
