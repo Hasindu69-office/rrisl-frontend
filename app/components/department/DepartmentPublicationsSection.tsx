@@ -75,14 +75,24 @@ export default function DepartmentPublicationsSection({
     const animationFrameId = window.requestAnimationFrame(() => {
       const viewportRect = viewportNode.getBoundingClientRect();
       const sectionRect = activeSectionNode.getBoundingClientRect();
-      const offsetTop = activeSectionNode.offsetTop;
-      const targetScrollTop =
-        offsetTop - Math.max((viewportRect.height - sectionRect.height) / 2, 0);
+      const currentScrollTop = viewportNode.scrollTop;
+      const topOffset = sectionRect.top - viewportRect.top;
+      const bottomOffset = sectionRect.bottom - viewportRect.bottom;
 
-      viewportNode.scrollTo({
-        top: Math.max(targetScrollTop, 0),
-        behavior: 'smooth',
-      });
+      if (topOffset < 0) {
+        viewportNode.scrollTo({
+          top: Math.max(currentScrollTop + topOffset - 12, 0),
+          behavior: 'smooth',
+        });
+        return;
+      }
+
+      if (bottomOffset > 0) {
+        viewportNode.scrollTo({
+          top: currentScrollTop + bottomOffset + 12,
+          behavior: 'smooth',
+        });
+      }
     });
 
     return () => {
