@@ -5,6 +5,9 @@ import DepartmentStaffSection from '../../components/department/DepartmentStaffS
 import DepartmentResearchHighlightsSection from '../../components/department/DepartmentResearchHighlightsSection';
 import DepartmentCurrentProjectsSection from '../../components/department/DepartmentCurrentProjectsSection';
 import DepartmentAwardsTimelineSection from '../../components/department/DepartmentAwardsTimelineSection';
+import DepartmentPublicationsSection, {
+    DepartmentPublicationSectionItem,
+} from '../../components/department/DepartmentPublicationsSection';
 
 interface DepartmentProps {
     searchParams: Promise<{ locale?: string }>;
@@ -190,7 +193,7 @@ export default async function GeneticsPlantBreeding({ searchParams }: Department
             },
             bottom: {
                 variant: 'card' as const,
-                content: 'Early selection criteria using crop physiology, latex physiology, and molecular screening were integrated to shorten the breeding cycle.',
+                content: 'Early selection criteria using crop physiology, latex physiology, and molecular screening were integrated to shorten the breeding.',
             },
         },
         {
@@ -203,6 +206,52 @@ export default async function GeneticsPlantBreeding({ searchParams }: Department
                 variant: 'text' as const,
                 lines: ['2023', 'Field Trial Expansion'],
             },
+        },
+    ];
+    const publicationSections: DepartmentPublicationSectionItem[] = [
+        {
+            id: 'sci-journals',
+            label: 'Journal Papers',
+            entries: [
+                'Liyanage KK, Khan S, Herath V, Brooks S, Mortimer PE, Nadir S, Hyde KD, Xu J, (2020), Genome-Wide Identification of the MLO Gene Family Associated with Powdery Mildew Resistance in Rubber Trees (Hevea brasiliensis), Tropical Plant Biology, https://doi.org/10.1007/s12042-020-09262-3.',
+                'Abeywickrama S, Galagedara NN, Waduge TD, (2021), Genetic diversity assessment of rubber breeding populations under changing climatic conditions, Journal of Crop Improvement, https://doi.org/10.1080/15427528.2021.000001.',
+                'Liyanage KK, Galagedara NN, (2022), Marker-assisted strategies for early clone selection in Hevea brasiliensis breeding programs, Plant Genetic Resources, https://doi.org/10.1017/S1479262122000010.',
+            ],
+        },
+        {
+            id: 'book-chapters',
+            label: 'Book Chapters',
+            entries: [
+                'Dummy entry reserved for future backend integration.',
+            ],
+        },
+        {
+            id: 'conference-proceedings',
+            label: 'Conference Proceedings',
+            entries: [
+                'Dummy entry reserved for future backend integration.',
+            ],
+        },
+        {
+            id: 'technical-reports',
+            label: 'Technical Reports',
+            entries: [
+                'Dummy entry reserved for future backend integration.',
+            ],
+        },
+        {
+            id: 'abstracts',
+            label: 'Abstracts',
+            entries: [
+                'Dummy entry reserved for future backend integration.',
+            ],
+        },
+        {
+            id: 'thesis-dissertations',
+            label: 'Thesis & Dissertations',
+            entries: [
+                'Dummy entry reserved for future backend integration.',
+            ],
         },
     ];
 
@@ -280,6 +329,15 @@ export default async function GeneticsPlantBreeding({ searchParams }: Department
                 titlePart1="Awards "
                 titlePart2="Timeline"
                 items={awardsTimelineItems}
+            />
+
+            <DepartmentPublicationsSection
+                title="Our Publications"
+                leftBackgroundImageSrc="/images/departments/bgdotsourpublications.png"
+                leftBackgroundImageAlt="Decorative dotted background for publications"
+                rightBackgroundImageSrc="/images/departments/bgimgourpulications.jpg"
+                rightBackgroundImageAlt="Publications section background"
+                sections={publicationSections}
             />
         </div>
     );
