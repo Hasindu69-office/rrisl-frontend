@@ -190,7 +190,7 @@ export default async function GeneticsPlantBreeding({ searchParams }: Department
             },
             bottom: {
                 variant: 'card' as const,
-                content: 'Early selection criteria using crop physiology, latex physiology, and molecular screening were integrated to shorten the breeding cycle.',
+                content: 'Early selection criteria using crop physiology, latex physiology, and molecular screening were integrated to shorten the breeding.',
             },
         },
         {
