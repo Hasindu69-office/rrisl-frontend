@@ -19,7 +19,7 @@ export default function BoardMembersSection() {
           />
         </div>
 
-        <div className="mx-auto mt-12 grid max-w-[1450px] grid-cols-1 place-items-center gap-x-[110px] gap-y-8 sm:grid-cols-2 lg:grid-cols-3 lg:gap-y-[45px]">
+        <div className="mx-auto mt-10 grid max-w-[380px] grid-cols-2 place-items-center gap-x-4 gap-y-5 md:mt-12 md:max-w-[560px] md:grid-cols-2 md:gap-x-8 md:gap-y-8 lg:max-w-[1450px] lg:grid-cols-3 lg:gap-x-[110px] lg:gap-y-[45px]">
           {boardMembers.map((member) => (
             <BoardMemberCard key={member.name} member={member} />
           ))}
