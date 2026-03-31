@@ -115,14 +115,14 @@ export default function DepartmentAchievementSection({
         </div>
 
         <div className="relative mt-10 md:mt-12">
-          <div className="pointer-events-none absolute bottom-[48px] left-[-48px] z-[2] h-[300px] w-[220px] md:bottom-[56px] md:left-[-72px] md:h-[380px] md:w-[280px] lg:bottom-[72px] lg:left-[calc(9%-200px)] lg:h-[540px] lg:w-[400px]">
+          <div className="pointer-events-none absolute bottom-[72px] left-[-56px] z-[2] h-[300px] w-[220px] md:bottom-[56px] md:left-[-72px] md:h-[380px] md:w-[280px] lg:bottom-[72px] lg:left-[calc(9%-200px)] lg:h-[540px] lg:w-[400px]">
             <Image
               src={illustrationSrc}
               alt={illustrationAlt}
               fill
               priority={false}
-              className="object-contain object-left-bottom opacity-60"
-              sizes="(max-width: 767px) 220px, (max-width: 1023px) 280px, 400px"
+              className="object-contain object-left-bottom opacity-10 md:opacity-45 lg:opacity-60"
+              sizes="(max-width: 767px) 160px, (max-width: 1023px) 280px, 400px"
             />
           </div>
 
@@ -134,20 +134,20 @@ export default function DepartmentAchievementSection({
                   'linear-gradient(180deg, rgba(161, 223, 10, 0.2) 0%, rgba(255, 255, 255, 0.84) 100%)',
               }}
             >
-              <div className="pointer-events-none absolute bottom-6 left-4 z-[1] md:bottom-8 md:left-5 lg:bottom-10 lg:left-6">
+              <div className="pointer-events-none absolute bottom-4 left-4 z-[1] md:bottom-8 md:left-5 lg:bottom-10 lg:left-6">
                 <span
-                  className="block text-[52px] font-semibold leading-none text-transparent md:text-[72px] lg:text-[100px]"
+                  className="block text-[48px] font-semibold leading-[0.95] text-transparent md:text-[72px] lg:text-[100px]"
                   style={{
                     WebkitTextStroke: '1px #2E7D32',
                   }}
                 >
-                  Our Achievement
+                  Our Achievements
                 </span>
               </div>
 
               <div className="relative z-[1] min-h-[280px] md:min-h-[320px] lg:min-h-[424px]">
                 {(items.length > 0 || children) ? (
-                  <div className="relative z-[1] mt-[100px] w-full">
+                  <div className="relative z-[1] mt-[36px] w-full pb-[74px] md:mt-[72px] md:pb-[120px] lg:mt-[100px] lg:pb-0">
                     {items.length > 0 ? (
                       <div className="overflow-hidden">
                         <div
@@ -173,13 +173,13 @@ export default function DepartmentAchievementSection({
                     {children}
 
                     {canSlide ? (
-                      <div className="mt-8 flex justify-end gap-4">
+                      <div className="mt-5 flex justify-end gap-3 md:mt-8 md:gap-4">
                         <button
                           type="button"
                           onClick={handlePrevious}
                           aria-label="Show previous achievements"
                           disabled={isPreviousDisabled}
-                          className="flex h-12 w-12 items-center justify-center rounded-full bg-[#0F3F1D] text-white transition duration-300 hover:bg-[#145127] disabled:cursor-not-allowed disabled:opacity-45"
+                          className="flex h-10 w-10 items-center justify-center rounded-full bg-[#0F3F1D] text-white transition duration-300 hover:bg-[#145127] disabled:cursor-not-allowed disabled:opacity-45 md:h-12 md:w-12"
                         >
                           <ArrowLeft className="h-5 w-5" strokeWidth={2.2} />
                         </button>
@@ -189,7 +189,7 @@ export default function DepartmentAchievementSection({
                           onClick={handleNext}
                           aria-label="Show next achievements"
                           disabled={isNextDisabled}
-                          className="flex h-12 w-12 items-center justify-center rounded-full bg-[#0F3F1D] text-white transition duration-300 hover:bg-[#145127] disabled:cursor-not-allowed disabled:opacity-45"
+                          className="flex h-10 w-10 items-center justify-center rounded-full bg-[#0F3F1D] text-white transition duration-300 hover:bg-[#145127] disabled:cursor-not-allowed disabled:opacity-45 md:h-12 md:w-12"
                         >
                           <ArrowRight className="h-5 w-5" strokeWidth={2.2} />
                         </button>

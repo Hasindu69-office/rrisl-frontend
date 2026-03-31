@@ -11,6 +11,7 @@ import DepartmentPublicationsSection, {
 import DepartmentAchievementSection, {
     DepartmentAchievementCardItem,
 } from '../../components/department/DepartmentAchievementSection';
+import DepartmentRecommendationsSection from '../../components/department/DepartmentRecommendationsSection';
 
 interface DepartmentProps {
     searchParams: Promise<{ locale?: string }>;
@@ -366,6 +367,20 @@ export default async function GeneticsPlantBreeding({ searchParams }: Department
                 illustrationSrc="/images/departments/Handwireframesection.png"
                 illustrationAlt="Illustrated hand holding an achievement medal"
                 items={achievementItems}
+            />
+
+            <DepartmentRecommendationsSection
+                tagText="Our Recommendation"
+                titlePart1="Recommendations &"
+                titlePart2="Suggestions"
+                description="Discover our key recommendations and the way forward to strengthen future progress and success."
+                leftBackgroundImageSrc="/images/departments/recommendationsSuggestions.webp"
+                leftBackgroundImageAlt="Recommendations and suggestions background"
+                rightBackgroundColor="#0F3F1D"
+                splitPosition="44.5%"
+                bookImageSrc="/images/departments/recommendationBook.webp"
+                bookImageAlt="Clone recommendation publication cover"
+                bookLabel="Clone Recommendation"
             />
         </div>
     );
