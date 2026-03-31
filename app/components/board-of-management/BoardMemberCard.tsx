@@ -7,7 +7,7 @@ interface BoardMemberCardProps {
 
 export default function BoardMemberCard({ member }: BoardMemberCardProps) {
   return (
-    <article className="flex min-h-[316px] w-full max-w-[410px] flex-col items-center rounded-[20px] bg-[#F5F5F5] px-4 pb-6 pt-5 text-center shadow-[0_12px_32px_rgba(15,63,29,0.04)] md:min-h-[326px] md:px-5">
+    <article className="flex h-[400px] w-full max-w-[410px] flex-col items-center rounded-[20px] bg-[#F5F5F5] px-4 pb-6 pt-5 text-center shadow-[0_12px_32px_rgba(15,63,29,0.04)] md:px-5">
       <div className="relative mb-6 h-[182px] w-[182px] shrink-0">
         <div className="absolute inset-[10px] overflow-hidden rounded-full bg-white">
           <Image

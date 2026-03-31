@@ -19,7 +19,7 @@ export default function AttendanceSection() {
           />
         </div>
 
-        <div className="mt-12 flex justify-center lg:justify-start">
+        <div className="mx-auto mt-12 grid max-w-[1450px] grid-cols-1 place-items-center gap-x-[110px] sm:grid-cols-2 lg:grid-cols-3">
           {attendanceMembers.map((member) => (
             <BoardMemberCard key={member.name} member={member} />
           ))}
