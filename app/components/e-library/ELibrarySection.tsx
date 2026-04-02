@@ -376,7 +376,7 @@ export default function ELibrarySection({
 
         <div className="min-w-0">
           {!isDesktop && (
-            <div className="sticky top-3 z-30 mb-6 -mx-4 border-b border-[#EFF2EB] bg-white/95 px-4 pb-4 pt-2 backdrop-blur-sm md:-mx-6 md:px-6">
+            <div className="sticky top-0 z-30 mb-6 -mx-4 border-b border-[#EFF2EB] bg-white/95 px-4 pb-4 pt-2 backdrop-blur-sm md:-mx-6 md:px-6">
               <div className="relative">
                 <label htmlFor="library-search-responsive" className="sr-only">
                   Search library

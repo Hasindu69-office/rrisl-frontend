@@ -2,7 +2,6 @@ import React from 'react';
 import LogoSection from './LogoSection';
 import Navigation from './Navigation';
 import HeaderActions from './HeaderActions';
-import MobileMenu from './MobileMenu';
 import { getGlobalLayout, getMenuBySlug } from '@/app/lib/strapi';
 import { MenuItem } from '@/app/lib/types';
 
@@ -15,18 +14,14 @@ export default async function Header({ locale = 'en' }: HeaderProps) {
   const globalLayout = await getGlobalLayout(locale);
 
   // Fetch menus in parallel using slugs from global layout
-  const [leftMenu, rightMenu] = await Promise.all([
+  const [leftMenu] = await Promise.all([
     globalLayout?.headerLeftMenuSlug
       ? getMenuBySlug(globalLayout.headerLeftMenuSlug, locale)
-      : Promise.resolve(null),
-    globalLayout?.headerRightMenuSlug
-      ? getMenuBySlug(globalLayout.headerRightMenuSlug, locale)
       : Promise.resolve(null),
   ]);
 
   // Extract menu items
   const leftMenuItems: MenuItem[] = leftMenu?.items || [];
-  const rightMenuItems: MenuItem[] = rightMenu?.items || [];
 
   return (
     <header className="relative z-50 bg-transparent">
@@ -39,7 +34,7 @@ export default async function Header({ locale = 'en' }: HeaderProps) {
             <LogoSection globalLayout={globalLayout} />
 
             {/* Right: Actions (Buttons + Language Switcher + Hamburger) */}
-            <HeaderActions menuItems={rightMenuItems} leftMenuItems={leftMenuItems} />
+            <HeaderActions leftMenuItems={leftMenuItems} />
           </div>
         </div>
 
