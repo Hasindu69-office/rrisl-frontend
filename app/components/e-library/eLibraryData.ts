@@ -1,10 +1,6 @@
-export interface ELibraryPublicationItem {
-  id: string;
-  title: string;
-  imageSrc: string;
-  imageAlt: string;
-  readMoreHref: string;
-}
+import type { PublicationCardItem } from '../shared/PublicationCard';
+
+export type ELibraryPublicationItem = PublicationCardItem;
 
 export interface ELibraryFilterNode {
   id: string;
