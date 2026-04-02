@@ -6,10 +6,12 @@ import { MenuItem } from '@/app/lib/types';
 import MobileMenu from './MobileMenu';
 
 interface HeaderActionsProps {
+  menuItems?: MenuItem[];
   leftMenuItems?: MenuItem[];
 }
 
-export default function HeaderActions({ leftMenuItems = [] }: HeaderActionsProps) {
+export default function HeaderActions(props: HeaderActionsProps) {
+  const leftMenuItems = props.leftMenuItems ?? [];
 
   return (
     <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
