@@ -194,7 +194,6 @@ export default function ELibrarySection({
     }
 
     const panel = contentPanelRef.current;
-    const cards = panel.querySelectorAll<HTMLElement>('[data-library-card]');
 
     const context = gsap.context(() => {
       gsap.fromTo(
@@ -208,22 +207,6 @@ export default function ELibrarySection({
           clearProps: 'opacity,visibility,transform',
         },
       );
-
-      if (cards.length > 0) {
-        gsap.fromTo(
-          cards,
-          { autoAlpha: 0, x: 96 },
-          {
-            autoAlpha: 1,
-            x: 0,
-            duration: 0.72,
-            ease: 'power3.out',
-            stagger: 0.08,
-            clearProps: 'opacity,visibility,transform',
-            delay: 0.06,
-          },
-        );
-      }
     }, panel);
 
     return () => context.revert();

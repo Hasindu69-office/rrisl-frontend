@@ -15,13 +15,20 @@ export interface ELibraryFilterNode {
 
 const sharedBookImage = '/images/departments/recommendationBook.webp';
 
+function toPublicationSlug(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
 function createPublication(id: string, title: string): ELibraryPublicationItem {
   return {
     id,
     title,
     imageSrc: sharedBookImage,
     imageAlt: title,
-    readMoreHref: '#',
+    readMoreHref: `/e-Library-Publications/${toPublicationSlug(id)}`,
   };
 }
 
