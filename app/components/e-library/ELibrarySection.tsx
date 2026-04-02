@@ -348,7 +348,7 @@ export default function ELibrarySection({
   return (
     <section className="mb-20 overflow-x-clip bg-white px-4 pb-20 pt-12 md:mb-24 md:px-6 md:pb-24 md:pt-16 lg:mb-48 lg:px-8 lg:pb-28 lg:pt-20">
       <div className="mx-auto grid w-full max-w-[1920px] gap-8 xl:grid-cols-[290px_minmax(0,1fr)] xl:gap-10">
-        <aside className="hidden rounded-[18px] border border-[#E4E8E0] bg-white p-4 shadow-[0_10px_28px_rgba(13,62,28,0.04)] md:p-5 xl:block">
+        <aside className="hidden self-start rounded-[18px] border border-[#E4E8E0] bg-white p-4 shadow-[0_10px_28px_rgba(13,62,28,0.04)] md:p-5 xl:sticky xl:top-6 xl:block">
           <div className="relative">
             <label htmlFor="library-search-desktop" className="sr-only">
               Search library
