@@ -6,11 +6,10 @@ import { MenuItem } from '@/app/lib/types';
 import MobileMenu from './MobileMenu';
 
 interface HeaderActionsProps {
-  menuItems?: MenuItem[];
   leftMenuItems?: MenuItem[];
 }
 
-export default function HeaderActions({ menuItems = [], leftMenuItems = [] }: HeaderActionsProps) {
+export default function HeaderActions({ leftMenuItems = [] }: HeaderActionsProps) {
 
   return (
     <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
@@ -20,10 +19,7 @@ export default function HeaderActions({ menuItems = [], leftMenuItems = [] }: He
 
       {/* Mobile Menu Hamburger - Only on mobile (hide on tablet and up) */}
       <div className="xl:hidden">
-        <MobileMenu
-          menuItems={leftMenuItems}
-          headerRightMenuItems={menuItems}
-        />
+        <MobileMenu menuItems={leftMenuItems} />
       </div>
     </div>
   );
