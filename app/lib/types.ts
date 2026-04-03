@@ -94,8 +94,9 @@ export interface HeroBadge {
   id: number;
   title: string;
   subtitle: string;
-  position: string;
-  avatars: StrapiImage[];
+  position: string | null;
+  avatars?: StrapiImage[];
+  icon?: StrapiImage | null;
 }
 
 export interface HeroLabel {
@@ -111,6 +112,14 @@ export interface HeroCta {
   url: string;
   variant: string;
   openInNewTab: boolean;
+}
+
+export interface SectionHeader {
+  id: number;
+  eyebrow: string;
+  title: string;
+  alignment?: 'left' | 'center' | 'right';
+  hightlightedtext?: string;
 }
 
 export interface HeroNewsItem {
@@ -132,6 +141,7 @@ export interface HeroAnnouncementItem {
   title: string;
   slug: string;
   summary: string | null;
+  cta?: HeroCta | null;
   image: StrapiImage | null;
   isActive?: boolean;
   createdAt?: string;
@@ -140,17 +150,36 @@ export interface HeroAnnouncementItem {
   locale?: string;
 }
 
+export interface AnnouncementSection {
+  id: number;
+  showNewsCard?: boolean;
+  newsCardTitle?: string;
+  showAnnoucementCard?: boolean;
+  announcementCardTitle?: string;
+  annoucementlabel?: string;
+  hero_annoucements_item?: HeroAnnouncementItem | null;
+}
+
+export interface AboutSection {
+  id: number;
+  body: RichTextBlock[];
+  header: SectionHeader | null;
+  primaryCta: HeroCta | null;
+  imageTop: StrapiImage | null;
+  imageBottom: StrapiImage | null;
+}
+
 export interface Hero {
   id: number;
   title: string;
   highlightedText: string;
   description: RichTextBlock[];
   overlayStyle: string;
-  labels: HeroLabel;
-  badges: HeroBadge;
-  primaryCta: HeroCta;
+  labels: HeroLabel | null;
+  badges: HeroBadge | null;
+  primaryCta: HeroCta | null;
   backgroundImageDesktop: StrapiImage[] | StrapiImage | null;
-  backgroundImageMobile: StrapiImage | null;
+  backgroundImageMobile: StrapiImage[] | StrapiImage | null;
   showNewsCard?: boolean;
   newsCardTitle?: string;
   showAnnouncementCard?: boolean;
@@ -166,6 +195,8 @@ export interface HomePage {
   updatedAt: string;
   publishedAt: string;
   locale: string;
-  hero: Hero;
+  hero: Hero | Hero[] | null;
+  aboutSection?: AboutSection | null;
+  Announcement?: AnnouncementSection | null;
 }
 
