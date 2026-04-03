@@ -15,6 +15,11 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   title: "Rubber Research Institute of Sri Lanka",
   description: "Empowering Sri Lanka's rubber industry with world-class research, eco-friendly innovations, and data-driven solutions",
+  icons: {
+    icon: "/api/favicon",
+    shortcut: "/api/favicon",
+    apple: "/api/favicon",
+  },
 };
 
 export default function RootLayout({
