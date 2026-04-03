@@ -139,7 +139,8 @@ async function fetchStrapi<T>(path: string, options: RequestInit = {}): Promise<
 export async function getGlobalLayout(locale: string = 'en'): Promise<GlobalLayout | null> {
   try {
     const queryString = buildQueryString({
-      populate: 'logo',
+      'populate[0]': 'logo',
+      'populate[1]': 'favicon',
       locale: locale,
     });
     

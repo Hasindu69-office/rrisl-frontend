@@ -50,6 +50,7 @@ export interface GlobalLayout {
   id: number;
   siteName: string;
   logo: StrapiImage | null;
+  favicon: StrapiImage | null;
   logoAlt?: string;
   headerLeftMenuSlug: string;
   headerRightMenuSlug: string;
