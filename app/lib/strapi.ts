@@ -293,6 +293,11 @@ function getHomePagePopulateFields(): string[] {
     'hero.hero_news_items.featuredImage',
     'hero.hero_annoucements_items',
     'hero.hero_annoucements_items.image',
+    'aboutSection',
+    'aboutSection.header',
+    'aboutSection.primaryCta',
+    'aboutSection.imageTop',
+    'aboutSection.imageBottom',
   ];
 }
 

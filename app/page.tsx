@@ -1,5 +1,7 @@
 import { Suspense } from 'react';
 import { getHomePage, getGlobalLayout, getMenuBySlug, getAllAnnouncements } from '@/app/lib/strapi';
+import { mapAboutSection } from '@/app/lib/home/aboutSection';
+import { normalizeLocale } from '@/app/lib/locale';
 import HomeHeroWithHeader from './components/home/HomeHeroWithHeader';
 import ContentSection from './components/home/ContentSection';
 import IndustrySupportSection from './components/home/IndustrySupportSection';
@@ -18,15 +20,20 @@ export default async function Home({ searchParams }: HomeProps) {
   // Await searchParams in Next.js 15+
   const params = await searchParams;
   // Get locale from URL search params, default to 'en'
-  const locale = params.locale || 'en';
+  const locale = normalizeLocale(params.locale);
 
-  const [homePage, globalLayout, allAnnouncements] = await Promise.all([
+  const [homePage, fallbackHomePage, globalLayout, allAnnouncements] = await Promise.all([
     getHomePage(locale),
+    locale !== 'en' ? getHomePage('en') : Promise.resolve(null),
     getGlobalLayout(locale),
     getAllAnnouncements(locale),
   ]);
 
-  if (!homePage || !homePage.hero) {
+  const effectiveHomePage = homePage?.hero
+    ? homePage
+    : fallbackHomePage;
+
+  if (!effectiveHomePage?.hero) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -55,17 +62,16 @@ export default async function Home({ searchParams }: HomeProps) {
   const leftMenuItems = leftMenu?.items || [];
   const rightMenuItems = rightMenu?.items || [];
 
-  const { hero } = homePage;
+  const { hero } = effectiveHomePage;
 
   // Check if announcement item exists in current locale
   const hasAnnouncementItem = !!hero.hero_annoucements_items;
 
   // Always fetch English version as fallback for non-English locales
   // Relations (announcements) might not be localized in Strapi
-  let fallbackHomePage: typeof homePage | null = null;
-  if (locale !== 'en') {
-    fallbackHomePage = await getHomePage('en');
-  }
+  const aboutSection = mapAboutSection(
+    homePage?.aboutSection || fallbackHomePage?.aboutSection
+  );
 
   const announcementItem = hasAnnouncementItem
     ? hero.hero_annoucements_items
@@ -107,26 +113,24 @@ export default async function Home({ searchParams }: HomeProps) {
         {/* Mobile and Tablet: Show ContentSection, Hide RubberAnnouncement */}
         <div className="lg:hidden">
           <ContentSection
-            imageSrc="/images/sec1-img 1.png"
-            imageAlt="Rubber Research Institute of Sri Lanka"
-            tagText="Announcement"
-            titlePart1="Advancing Rubber"
-            titlePart2="Research for Sri Lanka's Future"
-            description="Rubber Research Institute of Sri Lanka is the oldest research institute on rubber in the world and is the nodal agency in Sri Lanka with the statutory responsibility for research and development on all aspects of rubber cultivation and processing for the benefit of the rubber industry."
-            buttonText="Read More"
-            buttonLink="#"
+            imageSrc={aboutSection.imageSrc}
+            imageAlt={aboutSection.imageAlt}
+            tagText={aboutSection.eyebrow}
+            titlePart1={aboutSection.title}
+            titlePart2={aboutSection.highlightedText}
+            description={aboutSection.description}
+            cta={aboutSection.cta}
           />
         </div>
         
         {/* Desktop: Hide ContentSection, Show RubberAnnouncement */}
         <div className="hidden lg:block">
           <RubberAnnouncement
-            tagText="Announcement"
-            titlePart1="Advancing Rubber"
-            titlePart2="Research for Sri Lanka's Future"
-            description="Rubber Research Institute of Sri Lanka is the oldest research institute on rubber in the world and is the nodal agency in Sri Lanka with the statutory responsibility for research and development on all aspects of rubber cultivation and processing for the benefit of the rubber industry."
-            buttonText="Read More"
-            buttonLink="#"
+            tagText={aboutSection.eyebrow}
+            titlePart1={aboutSection.title}
+            titlePart2={aboutSection.highlightedText}
+            description={aboutSection.description}
+            cta={aboutSection.cta}
           />
         </div>
       </div>

@@ -3,28 +3,21 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import GradientTag from '@/app/components/ui/GradientTag';
 import Button from '@/app/components/ui/Button';
 import GradientTitle from '@/app/components/ui/GradientTitle';
+import { addLocaleToUrl } from '@/app/lib/locale';
+import type { HeroCta } from '@/app/lib/types';
 
 interface ContentSectionProps {
-  // Image props
   imageSrc: string;
   imageAlt: string;
-
-  // Gradient tag props
-  tagText: string; // Text inside the gradient tag (changeable)
-
-  // Title props
-  titlePart1: string; // "Advancing Rubber" - dark green
-  titlePart2: string; // "Research for Sri Lanka's Future" - with gradient
-
-  // Content props
+  tagText: string;
+  titlePart1: string;
+  titlePart2: string;
   description: string;
-
-  // Button props
-  buttonText?: string;
-  buttonLink?: string;
+  cta?: HeroCta | null;
 }
 
 /**
@@ -38,9 +31,15 @@ export default function ContentSection({
   titlePart1,
   titlePart2,
   description,
-  buttonText = 'Read More',
-  buttonLink = '#',
+  cta,
 }: ContentSectionProps) {
+  const searchParams = useSearchParams();
+  const currentLocale = searchParams.get('locale') || 'en';
+
+  const href = cta?.linkType === 'internal' && cta.url
+    ? addLocaleToUrl(cta.url, currentLocale)
+    : cta?.url || '#';
+
   return (
     <section className="relative bg-white pt-0 md:pt-24 lg:pt-24 pb-8 md:pb-24 lg:pb-24">
       <div className="flex flex-col lg:flex-row items-center w-full">
@@ -108,17 +107,35 @@ export default function ContentSection({
             </p>
 
             {/* Read More Button */}
-            <div className="pt-2 mt-6">
-              <Link href={buttonLink}>
-                <Button
-                  variant="primary"
-                  size="sm"
-                  className="!w-[150px] !h-[48px] md:!w-[178px] md:!h-[56px] !rounded-[30px] !text-sm md:!text-base"
-                >
-                  {buttonText}
-                </Button>
-              </Link>
-            </div>
+            {cta && (
+              <div className="pt-2 mt-6">
+                {cta.linkType === 'internal' ? (
+                  <Link href={href}>
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      className="!w-[150px] !h-[48px] md:!w-[178px] md:!h-[56px] !rounded-[30px] !text-sm md:!text-base"
+                    >
+                      {cta.label}
+                    </Button>
+                  </Link>
+                ) : (
+                  <a
+                    href={href}
+                    target={cta.openInNewTab ? '_blank' : '_self'}
+                    rel={cta.openInNewTab ? 'noopener noreferrer' : undefined}
+                  >
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      className="!w-[150px] !h-[48px] md:!w-[178px] md:!h-[56px] !rounded-[30px] !text-sm md:!text-base"
+                    >
+                      {cta.label}
+                    </Button>
+                  </a>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>

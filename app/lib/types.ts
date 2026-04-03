@@ -113,6 +113,14 @@ export interface HeroCta {
   openInNewTab: boolean;
 }
 
+export interface SectionHeader {
+  id: number;
+  eyebrow: string;
+  title: string;
+  alignment?: 'left' | 'center' | 'right';
+  hightlightedtext?: string;
+}
+
 export interface HeroNewsItem {
   id: number;
   documentId?: string;
@@ -138,6 +146,15 @@ export interface HeroAnnouncementItem {
   updatedAt?: string;
   publishedAt?: string;
   locale?: string;
+}
+
+export interface AboutSection {
+  id: number;
+  body: RichTextBlock[];
+  header: SectionHeader | null;
+  primaryCta: HeroCta | null;
+  imageTop: StrapiImage | null;
+  imageBottom: StrapiImage | null;
 }
 
 export interface Hero {
@@ -167,5 +184,6 @@ export interface HomePage {
   publishedAt: string;
   locale: string;
   hero: Hero;
+  aboutSection?: AboutSection | null;
 }
 

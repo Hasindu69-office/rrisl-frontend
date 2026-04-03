@@ -2,41 +2,30 @@
 
 import React, { useState, useRef, useEffect, startTransition } from 'react';
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
+import { normalizeLocale } from '@/app/lib/locale';
 
 interface Language {
   code: string;
   name: string;
-  locale: string; // Backend locale format (e.g., 'en', 'si-LK', 'ta-LK')
+  locale: string;
 }
 
 interface LanguageSwitcherProps {
   languages?: Language[];
 }
 
-// Default languages with backend locale mapping
 const defaultLanguages: Language[] = [
   { code: 'en', name: 'English', locale: 'en' },
-  { code: 'si', name: 'සිංහල', locale: 'si-LK' },
-  { code: 'ta', name: 'தமிழ்', locale: 'ta-LK' },
+  { code: 'si', name: 'සිංහල', locale: 'si' },
+  { code: 'ta', name: 'தமிழ்', locale: 'ta' },
 ];
 
-/**
- * Convert backend locale to language code
- * e.g., 'si-LK' -> 'si', 'ta-LK' -> 'ta', 'en' -> 'en'
- */
 function localeToCode(locale: string | null): string {
-  if (!locale) return 'en';
-  if (locale === 'en') return 'en';
-  if (locale.startsWith('si')) return 'si';
-  if (locale.startsWith('ta')) return 'ta';
-  return 'en';
+  return normalizeLocale(locale);
 }
 
-/**
- * Get current locale from URL search params
- */
 function getCurrentLocale(searchParams: URLSearchParams): string {
-  return searchParams.get('locale') || 'en';
+  return normalizeLocale(searchParams.get('locale'));
 }
 
 export default function LanguageSwitcher({
@@ -50,7 +39,8 @@ export default function LanguageSwitcher({
 
   const currentLocale = getCurrentLocale(searchParams);
   const currentLanguageCode = localeToCode(currentLocale);
-  const currentLang = languages.find((lang) => lang.code === currentLanguageCode) || languages[0];
+  const currentLang =
+    languages.find((lang) => lang.code === currentLanguageCode) || languages[0];
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -66,16 +56,20 @@ export default function LanguageSwitcher({
   }, []);
 
   const handleLanguageChange = (language: Language) => {
-    // Create new URLSearchParams with updated locale
     const params = new URLSearchParams(searchParams.toString());
-    params.set('locale', language.locale);
+    const locale = normalizeLocale(language.locale);
 
-    // Update the URL with the new locale parameter
-    // Use replace to avoid adding to history
+    if (locale === 'en') {
+      params.delete('locale');
+    } else {
+      params.set('locale', locale);
+    }
+
     startTransition(() => {
-      router.replace(`${pathname}?${params.toString()}`);
+      const queryString = params.toString();
+      router.replace(queryString ? `${pathname}?${queryString}` : pathname);
     });
-    // Refresh after navigation to re-fetch server components with new locale
+
     router.refresh();
     setIsOpen(false);
   };
@@ -88,7 +82,9 @@ export default function LanguageSwitcher({
         aria-label="Select language"
         aria-expanded={isOpen}
       >
-        <span className="text-[9px] sm:text-[11px] md:text-[12px] font-medium">{currentLang.code.toUpperCase()}</span>
+        <span className="text-[9px] sm:text-[11px] md:text-[12px] font-medium">
+          {currentLang.code.toUpperCase()}
+        </span>
         <svg
           className={`w-2 h-2 sm:w-2.5 sm:h-2.5 transition-transform ${isOpen ? 'rotate-180' : ''}`}
           fill="none"
@@ -139,4 +135,3 @@ export default function LanguageSwitcher({
     </div>
   );
 }
-
