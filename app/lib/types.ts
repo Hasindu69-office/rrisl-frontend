@@ -96,6 +96,7 @@ export interface HeroBadge {
   subtitle: string;
   position: string | null;
   avatars?: StrapiImage[];
+  icon?: StrapiImage | null;
 }
 
 export interface HeroLabel {
