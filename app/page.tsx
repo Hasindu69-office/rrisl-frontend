@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 import { getHomePage, getGlobalLayout, getMenuBySlug, getAllAnnouncements } from '@/app/lib/strapi';
 import { mapAboutSection } from '@/app/lib/home/aboutSection';
+import { resolveHeroSlides } from '@/app/lib/home/hero';
 import { normalizeLocale } from '@/app/lib/locale';
 import HomeHeroWithHeader from './components/home/HomeHeroWithHeader';
 import ContentSection from './components/home/ContentSection';
@@ -32,8 +33,9 @@ export default async function Home({ searchParams }: HomeProps) {
   const effectiveHomePage = homePage?.hero
     ? homePage
     : fallbackHomePage;
+  const heroSlides = resolveHeroSlides(homePage?.hero, fallbackHomePage?.hero);
 
-  if (!effectiveHomePage?.hero) {
+  if (!effectiveHomePage?.hero || heroSlides.length === 0) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -62,31 +64,13 @@ export default async function Home({ searchParams }: HomeProps) {
   const leftMenuItems = leftMenu?.items || [];
   const rightMenuItems = rightMenu?.items || [];
 
-  const { hero } = effectiveHomePage;
-
-  // Check if announcement item exists in current locale
-  const hasAnnouncementItem = !!hero.hero_annoucements_items;
-
   // Always fetch English version as fallback for non-English locales
-  // Relations (announcements) might not be localized in Strapi
   const aboutSection = mapAboutSection(
     homePage?.aboutSection || fallbackHomePage?.aboutSection
   );
-
-  const announcementItem = hasAnnouncementItem
-    ? hero.hero_annoucements_items
-    : (fallbackHomePage?.hero?.hero_annoucements_items || null);
-
-  // For show flags: prefer current locale, but use English fallback if current locale doesn't have data
-  // If we're using fallback data, we should also use fallback show flags
-  const usingFallbackAnnouncement = !hasAnnouncementItem && !!announcementItem;
-
-  const showAnnouncementCardFlag = usingFallbackAnnouncement
-    ? (fallbackHomePage?.hero?.showAnnouncementCard ?? true)
-    : (hero.showAnnouncementCard ?? true);
-
-  // Determine if announcement card should be shown
-  const showAnnouncementCard = showAnnouncementCardFlag && announcementItem;
+  const announcementSection = homePage?.Announcement || fallbackHomePage?.Announcement || null;
+  const showAnnouncementCard = announcementSection?.showAnnoucementCard ?? true;
+  const announcementLabel = announcementSection?.annoucementlabel || 'Research & Institute Updates';
 
   return (
     <div className="min-h-screen">
@@ -100,11 +84,12 @@ export default async function Home({ searchParams }: HomeProps) {
         </div>
       }>
         <HomeHeroWithHeader
-          hero={hero}
+          heroes={heroSlides}
           globalLayout={globalLayout}
           leftMenuItems={leftMenuItems}
           rightMenuItems={rightMenuItems}
           announcements={showAnnouncementCard && allAnnouncements && allAnnouncements.length > 0 ? allAnnouncements : []}
+          announcementLabel={announcementLabel}
         />
       </Suspense>
 

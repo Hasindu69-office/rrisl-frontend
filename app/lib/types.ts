@@ -94,8 +94,8 @@ export interface HeroBadge {
   id: number;
   title: string;
   subtitle: string;
-  position: string;
-  avatars: StrapiImage[];
+  position: string | null;
+  avatars?: StrapiImage[];
 }
 
 export interface HeroLabel {
@@ -140,12 +140,23 @@ export interface HeroAnnouncementItem {
   title: string;
   slug: string;
   summary: string | null;
+  cta?: HeroCta | null;
   image: StrapiImage | null;
   isActive?: boolean;
   createdAt?: string;
   updatedAt?: string;
   publishedAt?: string;
   locale?: string;
+}
+
+export interface AnnouncementSection {
+  id: number;
+  showNewsCard?: boolean;
+  newsCardTitle?: string;
+  showAnnoucementCard?: boolean;
+  announcementCardTitle?: string;
+  annoucementlabel?: string;
+  hero_annoucements_item?: HeroAnnouncementItem | null;
 }
 
 export interface AboutSection {
@@ -163,11 +174,11 @@ export interface Hero {
   highlightedText: string;
   description: RichTextBlock[];
   overlayStyle: string;
-  labels: HeroLabel;
-  badges: HeroBadge;
-  primaryCta: HeroCta;
+  labels: HeroLabel | null;
+  badges: HeroBadge | null;
+  primaryCta: HeroCta | null;
   backgroundImageDesktop: StrapiImage[] | StrapiImage | null;
-  backgroundImageMobile: StrapiImage | null;
+  backgroundImageMobile: StrapiImage[] | StrapiImage | null;
   showNewsCard?: boolean;
   newsCardTitle?: string;
   showAnnouncementCard?: boolean;
@@ -183,7 +194,8 @@ export interface HomePage {
   updatedAt: string;
   publishedAt: string;
   locale: string;
-  hero: Hero;
+  hero: Hero | Hero[] | null;
   aboutSection?: AboutSection | null;
+  Announcement?: AnnouncementSection | null;
 }
 

@@ -276,29 +276,24 @@ export function buildPopulateQuery(fields: string[]): string {
     .join('&');
 }
 
-/**
- * Get home page populate fields
- * Centralized configuration for home page data population
- */
-function getHomePagePopulateFields(): string[] {
-  return [
-    'hero',
-    'hero.backgroundImageDesktop',
-    'hero.backgroundImageMobile',
-    'hero.primaryCta',
-    'hero.badges',
-    'hero.badges.avatars',
-    'hero.labels',
-    'hero.hero_news_items',
-    'hero.hero_news_items.featuredImage',
-    'hero.hero_annoucements_items',
-    'hero.hero_annoucements_items.image',
-    'aboutSection',
-    'aboutSection.header',
-    'aboutSection.primaryCta',
-    'aboutSection.imageTop',
-    'aboutSection.imageBottom',
-  ];
+function buildHomePageQuery(locale: string): string {
+  const params = new URLSearchParams();
+
+  if (locale && locale !== 'en') {
+    params.set('locale', locale);
+  }
+
+  // Prefer explicit populate paths over `populate=*` so nested media stays stable.
+  params.set('populate[hero][populate][backgroundImageDesktop]', 'true');
+  params.set('populate[hero][populate][backgroundImageMobile]', 'true');
+  params.set('populate[hero][populate][primaryCta]', 'true');
+  params.set('populate[hero][populate][labels]', 'true');
+  params.set('populate[hero][populate][badges][populate][avatars]', 'true');
+  params.set('populate[hero][populate][badges][populate][icon]', 'true');
+  params.set('populate[aboutSection][populate]', '*');
+  params.set('populate[Announcement][populate]', '*');
+
+  return params.toString();
 }
 
 /**
@@ -306,16 +301,8 @@ function getHomePagePopulateFields(): string[] {
  */
 export async function getHomePage(locale: string = 'en'): Promise<HomePage | null> {
   try {
-    const populateFields = getHomePagePopulateFields();
-    const populateQuery = buildPopulateQuery(populateFields);
-    
-    // Build query string with locale and populate
-    const queryString = buildQueryString({
-      locale: locale,
-    });
-    
-    // Combine locale query with populate query
-    const url = `/api/home-page?${queryString}&${populateQuery}`;
+    const queryString = buildHomePageQuery(locale);
+    const url = queryString ? `/api/home-page?${queryString}` : '/api/home-page';
     
     const response = await fetchStrapi<any>(url);
     
