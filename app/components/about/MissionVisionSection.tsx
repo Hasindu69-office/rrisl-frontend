@@ -72,13 +72,13 @@ const MissionVisionSection = () => {
                                     fontWeight="bold"
                                     fontFamily="sans-serif"
                                 >
-                                    Mission
+                                    Vision
                                 </text>
                             </svg>
                         </div>
 
                         {/* Outline Background Text - Vision (Bottom Right) */}
-                        <div className="absolute bottom-2 right-4 md:right-8 lg:right-52 select-none opacity-20 lg:opacity-30 pointer-events-none">
+                        <div className="absolute bottom-2 right-4 md:right-8 lg:right-36 select-none opacity-20 lg:opacity-30 pointer-events-none">
                             <svg
                                 width="500"
                                 height="150"
@@ -97,7 +97,7 @@ const MissionVisionSection = () => {
                                     fontWeight="bold"
                                     fontFamily="sans-serif"
                                 >
-                                    Vision
+                                    Mission
                                 </text>
                             </svg>
                         </div>
@@ -116,17 +116,17 @@ const MissionVisionSection = () => {
 
                         {/* Mission Content */}
                         <div className="relative mb-12 md:mb-20 lg:mb-[250px] max-w-xl z-10 mt-8 md:mt-16 lg:mt-[144px]">
-                            <h3 className="text-3xl md:text-4xl font-bold text-[#0F3F1D] mb-4 md:mb-6">Mission</h3>
+                            <h3 className="text-3xl md:text-4xl font-bold text-[#0F3F1D] mb-4 md:mb-6">Vision</h3>
                             <p className="text-gray-800 text-base md:text-lg lg:text-[18px] leading-relaxed text-justify">
-                                To revitalize the rubber sector by developing economically and environmentally sustainable innovations and transferring the latest technologies to the stakeholders through training and advisory services.
+                                To emerge as the centre of excellence in providing high quality scientific technologies to the rubber industry.
                             </p>
                         </div>
 
                         {/* Vision Content */}
                         <div className="relative max-w-xl z-10">
-                            <h3 className="text-3xl md:text-4xl font-bold text-[#0F3F1D] mb-4 md:mb-6">Vision</h3>
+                            <h3 className="text-3xl md:text-4xl font-bold text-[#0F3F1D] mb-4 md:mb-6">Mision</h3>
                             <p className="text-gray-800 text-base md:text-lg lg:text-[18px] leading-relaxed text-justify mb-12 md:mb-24 lg:mb-[144px]">
-                                To emerge as the centre of excellence in providing high quality scientific technologies to the rubber industry.
+                                To revitalize the rubber sector by developing economically and environmentally sustainable innovations and transferring the latest technologies to the stakeholders through training and advisory services.
                             </p>
                         </div>
                     </div>
