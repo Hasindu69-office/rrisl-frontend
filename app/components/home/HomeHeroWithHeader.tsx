@@ -320,7 +320,7 @@ export default function HomeHeroWithHeader({
                     ['--badge-delay' as string]: '920ms',
                   }}
                 >
-                  <div className="lg:hidden bg-white/10 backdrop-blur-md rounded-[20px] md:rounded-[25px] p-3 md:p-3.5 border border-white/20 z-20 shadow-lg floating-badge flex flex-col items-center gap-2 md:gap-3 w-[calc(100%-1rem)] md:w-[150px] max-w-[calc(60%-1rem)] md:max-w-[280px] h-auto min-h-[60px] md:min-h-[60px]">
+                  <div className="lg:hidden bg-white/10 backdrop-blur-md rounded-[20px] md:rounded-[25px] p-3 md:p-3.5 border border-white/20 z-20 shadow-lg floating-badge flex flex-col items-center gap-2 md:gap-3 w-[calc(100%-1rem)] md:w-[150px] md:max-w-[280px] h-auto min-h-[60px] md:min-h-[60px]">
                     <div className="flex items-center justify-center -space-x-2 md:-space-x-3">
                       {avatars.slice(0, 2).map((avatar, index) => {
                         const avatarUrl = getAvatarUrl(avatar, index);
