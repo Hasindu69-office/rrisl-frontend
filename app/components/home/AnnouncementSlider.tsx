@@ -10,6 +10,39 @@ import { useSearchParams } from 'next/navigation';
 
 interface AnnouncementSliderProps {
   announcements: HeroAnnouncementItem[];
+  label?: string;
+}
+
+function renderAnnouncementLabel(label: string): React.ReactNode {
+  if (!label) {
+    return null;
+  }
+
+  if (label.includes('\n')) {
+    const lines = label.split('\n');
+    return lines.map((line, index) => (
+      <React.Fragment key={`${line}-${index}`}>
+        {index > 0 && <br />}
+        {line}
+      </React.Fragment>
+    ));
+  }
+
+  const words = label.trim().split(/\s+/);
+  if (words.length <= 1) {
+    return label;
+  }
+
+  const lastWord = words[words.length - 1];
+  const firstLine = words.slice(0, -1).join(' ');
+
+  return (
+    <>
+      {firstLine}
+      <br />
+      {lastWord}
+    </>
+  );
 }
 
 /**
@@ -58,26 +91,21 @@ function formatTitle(title: string): string {
   return lines.join('\n');
 }
 
-export default function AnnouncementSlider({ announcements }: AnnouncementSliderProps) {
+export default function AnnouncementSlider({
+  announcements,
+  label = 'Research & Institute Updates',
+}: AnnouncementSliderProps) {
   const searchParams = useSearchParams();
   const currentLocale = searchParams.get('locale') || 'en';
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(() => announcements.length);
   const [isHovered, setIsHovered] = useState(false);
-  const [windowWidth, setWindowWidth] = useState(0);
-  const [isMounted, setIsMounted] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(() =>
+    typeof window === 'undefined' ? 0 : window.innerWidth
+  );
   const [transitionEnabled, setTransitionEnabled] = useState(true);
-
-  // Initialize currentIndex to totalAnnouncements (start of the middle set)
-  // once announcements are available and component is mounted
-  useEffect(() => {
-    if (announcements && announcements.length > 0) {
-      setCurrentIndex(announcements.length);
-    }
-  }, [announcements]);
 
   // Detect screen size for responsive calculations - only after mount to prevent hydration errors
   useEffect(() => {
-    setIsMounted(true);
     const updateWidth = () => {
       setWindowWidth(window.innerWidth);
     };
@@ -86,18 +114,9 @@ export default function AnnouncementSlider({ announcements }: AnnouncementSlider
     return () => window.removeEventListener('resize', updateWidth);
   }, []);
 
-  // Helper to preserve locale in links
-  const getLocalizedUrl = (slug: string) => {
-    return addLocaleToUrl(`/announcements/${slug}`, currentLocale);
-  };
-
   const getAnnouncementsPageUrl = () => {
     return addLocaleToUrl('/announcements', currentLocale);
   };
-
-  if (!announcements || announcements.length === 0) {
-    return null;
-  }
 
   // Create a circular array for infinite loop - 3 sets are enough for jump logic
   const totalAnnouncements = announcements.length;
@@ -135,33 +154,22 @@ export default function AnnouncementSlider({ announcements }: AnnouncementSlider
     }
   }, [currentIndex, totalAnnouncements, transitionEnabled]);
 
-  // Handle jumping back from index 0
-  const handleNext = () => {
-    if (!transitionEnabled) return;
-    setCurrentIndex((prev) => prev + 1);
-  };
-
-  const handlePrevious = () => {
-    if (!transitionEnabled) return;
-    setCurrentIndex((prev) => prev - 1);
-  };
-
   // Auto-slide functionality
   useEffect(() => {
     if (totalAnnouncements === 0 || isHovered || !transitionEnabled) return;
 
     const interval = setInterval(() => {
-      handleNext();
+      setCurrentIndex((prev) => prev + 1);
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [totalAnnouncements, isHovered, transitionEnabled, handleNext]);
+  }, [totalAnnouncements, isHovered, transitionEnabled]);
 
   // Calculate responsive values based on screen size
   // Use default desktop values during SSR to prevent hydration mismatch
-  const isMobile = isMounted && windowWidth > 0 && windowWidth < 640;
-  const isTablet = isMounted && windowWidth >= 640 && windowWidth < 1024;
-  const isDesktop = !isMounted || windowWidth >= 1024;
+  const isMobile = windowWidth > 0 && windowWidth < 640;
+  const isTablet = windowWidth >= 640 && windowWidth < 1024;
+  const isDesktop = windowWidth === 0 || windowWidth >= 1024;
 
   // Card dimensions
   const baseCardWidth = 303;
@@ -198,6 +206,10 @@ export default function AnnouncementSlider({ announcements }: AnnouncementSlider
   // The transform value calculation is now simpler
   const transformValue = currentIndex * (cardWidth + cardGap);
 
+  if (!announcements || announcements.length === 0) {
+    return null;
+  }
+
   return (
     <div
       className="w-full flex flex-row items-center gap-6 md:gap-6 lg:gap-18 max-[490px]:mt-[-125px] max-[550px]:mt-[-145px] max-[770px]:mt-[-650px] max-[825px]:mt-[-600px] max-[920px]:mt-[-650px]"
@@ -230,8 +242,7 @@ export default function AnnouncementSlider({ announcements }: AnnouncementSlider
             lineHeight: '130%',
           }}
         >
-          Research & Institute<br />
-          Updates
+          {renderAnnouncementLabel(label)}
         </h2>
       </div>
 

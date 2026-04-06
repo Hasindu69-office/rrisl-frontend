@@ -3,12 +3,15 @@
 import React, { useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 import GradientTag from '@/app/components/ui/GradientTag';
 import Button from '@/app/components/ui/Button';
 import GradientTitle from '@/app/components/ui/GradientTitle';
+import { addLocaleToUrl } from '@/app/lib/locale';
+import type { HeroCta } from '@/app/lib/types';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -17,8 +20,7 @@ interface RubberAnnouncementProps {
   titlePart1: string;
   titlePart2: string;
   description: string;
-  buttonText?: string;
-  buttonLink?: string;
+  cta?: HeroCta | null;
 }
 
 export default function RubberAnnouncement({
@@ -26,12 +28,16 @@ export default function RubberAnnouncement({
   titlePart1,
   titlePart2,
   description,
-  buttonText = 'Read More',
-  buttonLink = '#',
+  cta,
 }: RubberAnnouncementProps) {
   const sectionRef = useRef<HTMLElement | null>(null);
   const visualRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const searchParams = useSearchParams();
+  const currentLocale = searchParams.get('locale') || 'en';
+  const href = cta?.linkType === 'internal' && cta.url
+    ? addLocaleToUrl(cta.url, currentLocale)
+    : cta?.url || '#';
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -200,17 +206,35 @@ export default function RubberAnnouncement({
               {description}
             </p>
 
-            <div className="pt-2 mt-6">
-              <Link href={buttonLink}>
-                <Button
-                  variant="primary"
-                  size="sm"
-                  className="!w-[178px] !h-[56px] !rounded-[30px] !text-base"
-                >
-                  {buttonText}
-                </Button>
-              </Link>
-            </div>
+            {cta && (
+              <div className="pt-2 mt-6">
+                {cta.linkType === 'internal' ? (
+                  <Link href={href}>
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      className="!w-[178px] !h-[56px] !rounded-[30px] !text-base"
+                    >
+                      {cta.label}
+                    </Button>
+                  </Link>
+                ) : (
+                  <a
+                    href={href}
+                    target={cta.openInNewTab ? '_blank' : '_self'}
+                    rel={cta.openInNewTab ? 'noopener noreferrer' : undefined}
+                  >
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      className="!w-[178px] !h-[56px] !rounded-[30px] !text-base"
+                    >
+                      {cta.label}
+                    </Button>
+                  </a>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
