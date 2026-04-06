@@ -29,6 +29,7 @@ interface HomeHeroWithHeaderProps {
 }
 
 const avatarFallbacks = ['/images/avatarimg1.png', '/images/avatarimg2.png'];
+const HERO_BACKGROUND_FADE_MS = 1000;
 
 export default function HomeHeroWithHeader({
   heroes,
@@ -42,6 +43,10 @@ export default function HomeHeroWithHeader({
   const currentLocale = searchParams.get('locale') || 'en';
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
+  const [desktopSlideReady, setDesktopSlideReady] = useState<Record<number, boolean>>({});
+  const [mobileSlideReady, setMobileSlideReady] = useState<Record<number, boolean>>({});
+  const [visibleSequenceSlide, setVisibleSequenceSlide] = useState<number | null>(null);
+  const [heroSequenceKey, setHeroSequenceKey] = useState(0);
 
   const totalSlides = heroes.length;
   const currentHero = heroes[currentSlide] || heroes[0];
@@ -76,6 +81,10 @@ export default function HomeHeroWithHeader({
   const desktopBgUrl = currentHero ? getHeroDesktopImage(currentHero, currentSlide) : null;
   const mobileBgUrl = currentHero ? getHeroMobileImage(currentHero, currentSlide) : null;
   const isLocalhost = desktopBgUrl?.includes('localhost') || mobileBgUrl?.includes('localhost') || false;
+  const isCurrentBackgroundReady = isMobile
+    ? !mobileBgUrl || mobileSlideReady[currentSlide]
+    : !desktopBgUrl || desktopSlideReady[currentSlide];
+  const isHeroSequenceReady = visibleSequenceSlide === currentSlide;
 
   const getLocalizedUrl = (url: string) => {
     if (url.startsWith('http') || url.startsWith('//')) {
@@ -93,6 +102,27 @@ export default function HomeHeroWithHeader({
   const goToSlide = (index: number) => {
     setCurrentSlide(index);
   };
+
+  const markDesktopSlideReady = (index: number) => {
+    setDesktopSlideReady((prev) => (prev[index] ? prev : { ...prev, [index]: true }));
+  };
+
+  const markMobileSlideReady = (index: number) => {
+    setMobileSlideReady((prev) => (prev[index] ? prev : { ...prev, [index]: true }));
+  };
+
+  useEffect(() => {
+    if (!isCurrentBackgroundReady) {
+      return;
+    }
+
+    const sequenceTimer = window.setTimeout(() => {
+      setVisibleSequenceSlide(currentSlide);
+      setHeroSequenceKey((prev) => prev + 1);
+    }, HERO_BACKGROUND_FADE_MS);
+
+    return () => window.clearTimeout(sequenceTimer);
+  }, [currentSlide, isCurrentBackgroundReady, isMobile]);
 
   if (!currentHero) {
     return null;
@@ -120,6 +150,7 @@ export default function HomeHeroWithHeader({
                     fill
                     className="object-cover object-top"
                     priority={index === 0}
+                    onLoad={() => markDesktopSlideReady(index)}
                     unoptimized={imageUrl.includes('localhost')}
                   />
                   <div className="absolute inset-0 bg-black/40" />
@@ -146,6 +177,7 @@ export default function HomeHeroWithHeader({
                     fill
                     className="object-cover object-top"
                     priority={index === 0}
+                    onLoad={() => markDesktopSlideReady(index)}
                     unoptimized={imageUrl.includes('localhost')}
                   />
                   <div className="absolute inset-0 bg-black/40" />
@@ -172,6 +204,7 @@ export default function HomeHeroWithHeader({
                     fill
                     className="object-cover object-top"
                     priority={index === 0}
+                    onLoad={() => markMobileSlideReady(index)}
                     unoptimized={imageUrl.includes('localhost')}
                   />
                   <div className="absolute inset-0 bg-black/40" />
@@ -216,48 +249,125 @@ export default function HomeHeroWithHeader({
 
       <div className="flex-1 flex items-start relative z-10 mt-6 md:mt-8 lg:mt-[120px]">
         <div className="container mx-auto px-4 pt-4 md:pt-6 pb-8 md:pb-12 w-full max-w-[1440px]">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 lg:gap-12 items-center">
-            <div className="text-white space-y-4 md:space-y-6 z-10 relative">
+          <div
+            className={`grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 lg:gap-12 items-center hero-banner-sequence ${
+              isHeroSequenceReady ? 'hero-sequence-ready' : ''
+            }`}
+          >
+            <div
+              key={`${currentSlide}-${heroSequenceKey}`}
+              className="text-white space-y-4 md:space-y-6 z-10 relative hero-content-sequence"
+            >
+              <style jsx global>{`
+                @keyframes heroContentFadeUp {
+                  0% {
+                    opacity: 0;
+                    transform: translateY(var(--hero-translate-y, 20px));
+                  }
+                  100% {
+                    opacity: 1;
+                    transform: translateY(0);
+                  }
+                }
+                @keyframes heroBadgeFadeUp {
+                  0% {
+                    opacity: 0;
+                    transform: translateY(var(--badge-translate-y, 18px)) scale(0.96);
+                  }
+                  100% {
+                    opacity: 1;
+                    transform: translateY(0) scale(1);
+                  }
+                }
+                .hero-content-item {
+                  opacity: 0;
+                  will-change: opacity, transform;
+                }
+                .hero-badge-entry {
+                  opacity: 0;
+                  will-change: opacity, transform;
+                }
+                .hero-banner-sequence.hero-sequence-ready .hero-content-item {
+                  animation-name: heroContentFadeUp;
+                  animation-duration: var(--hero-duration, 600ms);
+                  animation-timing-function: ease-out;
+                  animation-delay: var(--hero-delay, 0ms);
+                  animation-fill-mode: forwards;
+                }
+                .hero-banner-sequence.hero-sequence-ready .hero-badge-entry {
+                  animation: heroBadgeFadeUp var(--badge-duration, 650ms) ease-out var(--badge-delay, 920ms) forwards;
+                }
+                @media (prefers-reduced-motion: reduce) {
+                  .hero-content-item {
+                    opacity: 1;
+                    animation: none;
+                    transform: none;
+                  }
+                  .hero-badge-entry {
+                    opacity: 1;
+                    animation: none;
+                    transform: none;
+                  }
+                }
+              `}</style>
               {currentHero.badges && (
-                <div className="lg:hidden absolute bottom-12 right-0 md:top-0 md:bottom-auto md:right-12 bg-white/10 backdrop-blur-md rounded-[20px] md:rounded-[25px] p-3 md:p-3.5 border border-white/20 z-20 shadow-lg floating-badge flex flex-col items-center gap-2 md:gap-3 w-[calc(100%-1rem)] md:w-[150px] max-w-[calc(40%-1rem)] md:max-w-[280px] h-auto min-h-[60px] md:min-h-[60px]">
-                  <div className="flex items-center justify-center -space-x-2 md:-space-x-3">
-                    {avatars.slice(0, 2).map((avatar, index) => {
-                      const avatarUrl = getAvatarUrl(avatar, index);
-                      return avatarUrl ? (
-                        <div
-                          key={avatar.id || index}
-                          className="w-10 h-10 md:w-11 md:h-11 rounded-full overflow-hidden shadow-lg relative"
-                          style={{ zIndex: index + 1 }}
-                        >
-                          <Image
-                            src={avatarUrl}
-                            alt={`Avatar ${index + 1}`}
-                            width={48}
-                            height={48}
-                            className="object-cover w-full h-full"
-                            unoptimized={isLocalhost}
-                          />
-                          {index === 0 && (
-                            <div className="absolute -bottom-0.5 -right-0.5 md:-bottom-1 md:-right-1 w-4 h-4 md:w-5 md:h-5 bg-orange-500 rounded-full border-2 border-white flex items-center justify-center z-20">
-                              <span className="text-white text-[8px] md:text-[10px]">*</span>
-                            </div>
-                          )}
-                        </div>
-                      ) : null;
-                    })}
-                    <div className="w-10 h-10 md:w-11 md:h-11 rounded-full bg-[#2E7D32] flex items-center justify-center text-white text-lg md:text-xl font-bold shadow-lg relative z-10">
-                      +
+                <div
+                  key={`mobile-badge-${currentSlide}`}
+                  className="hero-badge-entry lg:hidden absolute bottom-12 right-0 md:top-0 md:bottom-auto md:right-12"
+                  style={{
+                    ['--badge-translate-y' as string]: '18px',
+                    ['--badge-duration' as string]: '650ms',
+                    ['--badge-delay' as string]: '920ms',
+                  }}
+                >
+                  <div className="lg:hidden bg-white/10 backdrop-blur-md rounded-[20px] md:rounded-[25px] p-3 md:p-3.5 border border-white/20 z-20 shadow-lg floating-badge flex flex-col items-center gap-2 md:gap-3 w-[calc(100%-1rem)] md:w-[150px] max-w-[calc(40%-1rem)] md:max-w-[280px] h-auto min-h-[60px] md:min-h-[60px]">
+                    <div className="flex items-center justify-center -space-x-2 md:-space-x-3">
+                      {avatars.slice(0, 2).map((avatar, index) => {
+                        const avatarUrl = getAvatarUrl(avatar, index);
+                        return avatarUrl ? (
+                          <div
+                            key={avatar.id || index}
+                            className="w-10 h-10 md:w-11 md:h-11 rounded-full overflow-hidden shadow-lg relative"
+                            style={{ zIndex: index + 1 }}
+                          >
+                            <Image
+                              src={avatarUrl}
+                              alt={`Avatar ${index + 1}`}
+                              width={48}
+                              height={48}
+                              className="object-cover w-full h-full"
+                              unoptimized={isLocalhost}
+                            />
+                            {index === 0 && (
+                              <div className="absolute -bottom-0.5 -right-0.5 md:-bottom-1 md:-right-1 w-4 h-4 md:w-5 md:h-5 bg-orange-500 rounded-full border-2 border-white flex items-center justify-center z-20">
+                                <span className="text-white text-[8px] md:text-[10px]">*</span>
+                              </div>
+                            )}
+                          </div>
+                        ) : null;
+                      })}
+                      <div className="w-10 h-10 md:w-11 md:h-11 rounded-full bg-[#2E7D32] flex items-center justify-center text-white text-lg md:text-xl font-bold shadow-lg relative z-10">
+                        +
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="text-white text-center w-full">
-                    <div className="text-[12px] md:text-[14px] font-normal text-[#FFFFFF] leading-tight">{badgeTitle}</div>
-                    <div className="text-[12px] md:text-[14px] font-normal text-[#FFFFFF] leading-tight">{badgeSubtitle}</div>
+                    <div className="text-white text-center w-full">
+                      <div className="text-[12px] md:text-[14px] font-normal text-[#FFFFFF] leading-tight">{badgeTitle}</div>
+                      <div className="text-[12px] md:text-[14px] font-normal text-[#FFFFFF] leading-tight">{badgeSubtitle}</div>
+                    </div>
                   </div>
                 </div>
               )}
 
-              <h1 className="text-[28px] md:text-[40px] lg:text-[60px] font-semibold text-white" style={{ lineHeight: '128%' }}>
+              <h1
+                className="hero-content-item text-[28px] md:text-[40px] lg:text-[60px] font-semibold text-white"
+                style={{
+                  lineHeight: '128%',
+                  ['--hero-translate-y' as string]: '20px',
+                  ['--hero-duration' as string]: '600ms',
+                  ['--hero-delay' as string]: '0ms',
+                }}
+              >
                 <div className="block">
                   {currentHero.title}
                 </div>
@@ -267,13 +377,28 @@ export default function HomeHeroWithHeader({
               </h1>
 
               {descriptionText && (
-                <p className="text-[14px] md:text-[16px] lg:text-[18px] font-normal text-[#FFFFFF] max-w-2xl" style={{ lineHeight: '1.5' }}>
+                <p
+                  className="hero-content-item text-[14px] md:text-[16px] lg:text-[18px] font-normal text-[#FFFFFF] max-w-2xl"
+                  style={{
+                    lineHeight: '1.5',
+                    ['--hero-translate-y' as string]: '18px',
+                    ['--hero-duration' as string]: '500ms',
+                    ['--hero-delay' as string]: '140ms',
+                  }}
+                >
                   {descriptionText}
                 </p>
               )}
 
               {cta && (
-                <div className="pt-2 md:pt-4">
+                <div
+                  className="hero-content-item pt-2 md:pt-4"
+                  style={{
+                    ['--hero-translate-y' as string]: '16px',
+                    ['--hero-duration' as string]: '450ms',
+                    ['--hero-delay' as string]: '280ms',
+                  }}
+                >
                   {cta.linkType === 'internal' ? (
                     <Link href={getLocalizedUrl(cta.url)}>
                       <Button
@@ -310,40 +435,50 @@ export default function HomeHeroWithHeader({
             <div className="relative flex items-start justify-center lg:justify-end h-auto lg:min-h-[600px]">
               <div className="relative w-full max-w-lg aspect-square mt-[-100px] max-[1028px]:mt-[-80px] max-[825px]:mt-[-50px] max-[780px]:mt-[-50px] max-[550px]:mt-[-210px] max-[480px]:mt-[-100px] max-[400px]:mt-[-60px] max-[345px]:mt-[-40px]">
                 {currentHero.badges && (
-                  <div className="hidden lg:flex absolute -top-4 -left-12 bg-white/10 backdrop-blur-md rounded-[30px] p-4 border border-white/20 z-20 shadow-lg items-center gap-6 w-[318px] h-[105px] floating-badge">
-                    <div className="flex items-center -space-x-3">
-                      {avatars.slice(0, 2).map((avatar, index) => {
-                        const avatarUrl = getAvatarUrl(avatar, index);
-                        return avatarUrl ? (
-                          <div
-                            key={avatar.id || index}
-                            className="w-12 h-12 rounded-full overflow-hidden shadow-lg relative"
-                            style={{ zIndex: index + 1 }}
-                          >
-                            <Image
-                              src={avatarUrl}
-                              alt={`Avatar ${index + 1}`}
-                              width={48}
-                              height={48}
-                              className="object-cover"
-                              unoptimized={isLocalhost}
-                            />
-                            {index === 0 && (
-                              <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-orange-500 rounded-full border-2 border-white flex items-center justify-center z-20">
-                                <span className="text-white text-[10px]">*</span>
-                              </div>
-                            )}
-                          </div>
-                        ) : null;
-                      })}
-                      <div className="w-12 h-12 rounded-full bg-[#2E7D32] flex items-center justify-center text-white text-xl font-bold shadow-lg relative z-10">
-                        +
+                  <div
+                    key={`desktop-badge-${currentSlide}`}
+                    className="hero-badge-entry hidden lg:flex absolute -top-4 -left-12 z-20"
+                    style={{
+                      ['--badge-translate-y' as string]: '18px',
+                      ['--badge-duration' as string]: '650ms',
+                      ['--badge-delay' as string]: '920ms',
+                    }}
+                  >
+                    <div className="hidden lg:flex bg-white/10 backdrop-blur-md rounded-[30px] p-4 border border-white/20 z-20 shadow-lg items-center gap-6 w-[318px] h-[105px] floating-badge">
+                      <div className="flex items-center -space-x-3">
+                        {avatars.slice(0, 2).map((avatar, index) => {
+                          const avatarUrl = getAvatarUrl(avatar, index);
+                          return avatarUrl ? (
+                            <div
+                              key={avatar.id || index}
+                              className="w-12 h-12 rounded-full overflow-hidden shadow-lg relative"
+                              style={{ zIndex: index + 1 }}
+                            >
+                              <Image
+                                src={avatarUrl}
+                                alt={`Avatar ${index + 1}`}
+                                width={48}
+                                height={48}
+                                className="object-cover"
+                                unoptimized={isLocalhost}
+                              />
+                              {index === 0 && (
+                                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-orange-500 rounded-full border-2 border-white flex items-center justify-center z-20">
+                                  <span className="text-white text-[10px]">*</span>
+                                </div>
+                              )}
+                            </div>
+                          ) : null;
+                        })}
+                        <div className="w-12 h-12 rounded-full bg-[#2E7D32] flex items-center justify-center text-white text-xl font-bold shadow-lg relative z-10">
+                          +
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="text-white">
-                      <div className="text-[18px] font-normal text-[#FFFFFF]" style={{ lineHeight: '30px' }}>{badgeTitle}</div>
-                      <div className="text-[18px] font-normal text-[#FFFFFF]" style={{ lineHeight: '30px' }}>{badgeSubtitle}</div>
+                      <div className="text-white">
+                        <div className="text-[18px] font-normal text-[#FFFFFF]" style={{ lineHeight: '30px' }}>{badgeTitle}</div>
+                        <div className="text-[18px] font-normal text-[#FFFFFF]" style={{ lineHeight: '30px' }}>{badgeSubtitle}</div>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -395,17 +530,32 @@ export default function HomeHeroWithHeader({
                                    ripplePulse 1.5s ease-out 0.6s infinite;
                       }
                       .animate .vertical-line {
-                        animation: drawVerticalLine 0.5s ease-out 0.8s forwards;
+                        animation: drawVerticalLine 0.45s ease-out 0.85s forwards;
                       }
                       .animate .horizontal-line {
-                        animation: drawHorizontalLine 0.4s ease-out 1.3s forwards;
+                        animation: drawHorizontalLine 0.35s ease-out 1.25s forwards;
                       }
                       .animate .label-text {
-                        animation: labelFadeIn 0.4s ease-out 1.7s forwards;
+                        animation: labelFadeIn 0.35s ease-out 1.6s forwards;
+                      }
+                      @media (prefers-reduced-motion: reduce) {
+                        .circle-inner,
+                        .circle-outer,
+                        .circle-ripple,
+                        .label-text {
+                          opacity: 1;
+                          animation: none;
+                          transform: none;
+                        }
+                        .vertical-line,
+                        .horizontal-line {
+                          stroke-dashoffset: 0;
+                          animation: none;
+                        }
                       }
                     `}</style>
 
-                    <div key={currentSlide} className="animate">
+                    <div key={`${currentSlide}-${heroSequenceKey}`} className={isHeroSequenceReady ? 'animate' : ''}>
                       <div className={`absolute right-4 z-10 ${isMobile ? 'bottom-48' : 'bottom-31'}`}>
                         <span className="label-text text-white text-sm font-medium whitespace-nowrap">{labelText}</span>
                       </div>
