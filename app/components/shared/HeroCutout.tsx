@@ -1,11 +1,13 @@
 import React from 'react';
 import Breadcrumb, { BreadcrumbItem } from './Breadcrumb';
+import styles from './PageHero.module.css';
 
 interface HeroCutoutProps {
     breadcrumbItems?: BreadcrumbItem[];
+    locale?: string;
 }
 
-const HeroCutout = ({ breadcrumbItems = [] }: HeroCutoutProps) => {
+const HeroCutout = ({ breadcrumbItems = [], locale = 'en' }: HeroCutoutProps) => {
     return (
         <div className="absolute bottom-0 right-0 w-full sm:w-auto z-20">
             <div className="relative w-full sm:w-auto">
@@ -25,10 +27,11 @@ const HeroCutout = ({ breadcrumbItems = [] }: HeroCutoutProps) => {
                 </svg>
 
                 {breadcrumbItems.length > 0 && (
-                    <div className="absolute inset-x-0 bottom-2 flex justify-center px-4 sm:bottom-2 md:bottom-3 pl-32 md:pl-0">
+                    <div className={`${styles.breadcrumbReveal} absolute inset-x-0 bottom-2 flex justify-center px-4 sm:bottom-2 md:bottom-3 pl-32 md:pl-0`}>
                         <Breadcrumb
                             items={breadcrumbItems}
                             variant="dark"
+                            locale={locale}
                             className="pointer-events-auto whitespace-nowrap text-xs sm:text-sm md:text-base"
                         />
                     </div>
