@@ -18,7 +18,7 @@ const nextConfig: NextConfig = {
       //For production/staging environments, you can add more patterns
       {
         protocol: 'https',
-        hostname: 'u4cco0sgocc0swookssgg4k8.148.116.105.184.sslip.io',
+        hostname: 'v63yugwa3j9bootl01r65t51.77.42.26.240.sslip.io',
         pathname: '/uploads/**',
       },
     ],

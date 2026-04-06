@@ -1,8 +1,5 @@
-'use client';
-
 import React from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
 import { addLocaleToUrl } from '@/app/lib/locale';
 
 export interface BreadcrumbItem {
@@ -14,22 +11,22 @@ interface BreadcrumbProps {
   items: BreadcrumbItem[];
   variant?: 'light' | 'dark';
   className?: string;
+  locale?: string;
 }
 
 export default function Breadcrumb({
   items,
   variant = 'light',
   className = '',
+  locale = 'en',
 }: BreadcrumbProps) {
-  const searchParams = useSearchParams();
-  const currentLocale = searchParams.get('locale') || 'en';
   const isDark = variant === 'dark';
 
   const getLocalizedUrl = (url: string) => {
     if (url.startsWith('http') || url.startsWith('//')) {
       return url;
     }
-    return addLocaleToUrl(url, currentLocale);
+    return addLocaleToUrl(url, locale);
   };
 
   return (
