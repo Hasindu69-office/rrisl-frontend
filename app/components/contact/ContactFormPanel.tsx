@@ -7,6 +7,8 @@ import type {
   InputHTMLAttributes,
 } from 'react';
 
+import { useContactFormSubmission } from '@/app/hooks/useContactFormSubmission';
+
 const subjectOptions = [
   { id: 'subject-general-1', label: 'General Inquiry', value: 'general-inquiry-1' },
   { id: 'subject-general-2', label: 'General Inquiry', value: 'general-inquiry-2' },
@@ -179,9 +181,18 @@ export default function ContactFormPanel() {
   const [values, setValues] = useState<FormValues>(initialValues);
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<FormTouched>({});
+  const {
+    status,
+    errorMessage: submitErrorMessage,
+    submitContactMessage,
+    resetSubmissionState,
+  } = useContactFormSubmission();
+
+  const isSubmitting = status === 'submitting';
 
   const updateField = (name: FieldName, value: string) => {
     setValues((current) => ({ ...current, [name]: value }));
+    resetSubmissionState();
 
     if (touched[name]) {
       setErrors((current) => ({
@@ -199,7 +210,7 @@ export default function ContactFormPanel() {
     }));
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const nextTouched: FormTouched = {
@@ -228,7 +239,22 @@ export default function ContactFormPanel() {
       return;
     }
 
-    // Submission will be connected once backend approval is in place.
+    try {
+      await submitContactMessage({
+        firstname: values.firstName.trim(),
+        lastname: values.lastName.trim(),
+        email: values.email.trim(),
+        phonenumber: values.phoneNumber.trim(),
+        subject: values.subject.trim(),
+        message: values.message.trim(),
+      });
+
+      setValues(initialValues);
+      setErrors({});
+      setTouched({});
+    } catch {
+      // Error state is handled by the submission hook.
+    }
   };
 
   return (
@@ -353,12 +379,26 @@ export default function ContactFormPanel() {
           </p>
         </label>
 
+        <div className="mt-4 min-h-[24px]" aria-live="polite">
+          {status === 'success' ? (
+            <p className="text-[14px] leading-6 text-[#2E7D32]">
+              Your message has been sent successfully.
+            </p>
+          ) : null}
+          {submitErrorMessage ? (
+            <p className="text-[14px] leading-6 text-[#D92D20]">
+              {submitErrorMessage}
+            </p>
+          ) : null}
+        </div>
+
         <div className="mt-auto flex justify-end pt-12">
           <button
             type="submit"
+            disabled={isSubmitting}
             className="inline-flex min-h-[54px] min-w-[180px] items-center justify-center rounded-[5px] bg-[#2E7D32] px-8 py-3 text-[18px] font-medium text-white transition-colors hover:bg-[#27692A] focus:outline-none focus:ring-2 focus:ring-[#2E7D32] focus:ring-offset-2"
           >
-            Send Message
+            {isSubmitting ? 'Sending...' : 'Send Message'}
           </button>
         </div>
       </form>

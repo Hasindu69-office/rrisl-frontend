@@ -3,6 +3,15 @@ import type { GlobalLayout, Menu, HomePage, HeroAnnouncementItem, AboutPage } fr
 
 const STRAPI_API_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL || 'http://localhost:1337';
 
+export type CreateContactMessageInput = {
+  firstname: string;
+  lastname: string;
+  email: string;
+  phonenumber: string;
+  subject: string;
+  message: string;
+};
+
 /**
  * Get the full Strapi API URL
  */
@@ -131,6 +140,34 @@ async function fetchStrapi<T>(path: string, options: RequestInit = {}): Promise<
   }
   
   return data;
+}
+
+/**
+ * Create a contact message in Strapi
+ */
+export async function createContactMessage(
+  payload: CreateContactMessageInput
+): Promise<void> {
+  const url = getStrapiUrl('/api/contact-messages');
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      data: payload,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => 'Unknown error');
+    console.error(
+      `[Strapi API] Error ${response.status} ${response.statusText} for ${url}`,
+      errorText
+    );
+    throw new Error('Failed to create contact message.');
+  }
 }
 
 /**
