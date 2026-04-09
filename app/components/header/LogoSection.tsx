@@ -2,7 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { GlobalLayout } from '@/app/lib/types';
+import { addLocaleToUrl } from '@/app/lib/locale';
 import { getStrapiImageUrl, getOptimizedImageUrl } from '@/app/lib/strapi';
 
 interface LogoSectionProps {
@@ -10,6 +13,9 @@ interface LogoSectionProps {
 }
 
 export default function LogoSection({ globalLayout }: LogoSectionProps) {
+  const searchParams = useSearchParams();
+  const currentLocale = searchParams.get('locale') || 'en';
+  const homeHref = addLocaleToUrl('/', currentLocale);
   const logoAlt = globalLayout?.logoAlt || 'RRISL Logo';
   
   // Get logo from Strapi
@@ -72,7 +78,7 @@ export default function LogoSection({ globalLayout }: LogoSectionProps) {
   // If using fallback (regular img tag)
   if (useFallback) {
     return (
-      <div className="flex items-center">
+      <Link href={homeHref} className="flex items-center" aria-label="Go to home page">
         <img
           src={desktopLogoUrl}
           alt={logoAlt}
@@ -85,12 +91,12 @@ export default function LogoSection({ globalLayout }: LogoSectionProps) {
           className="block md:hidden object-contain h-auto max-h-10 sm:max-h-12 w-auto"
           onError={() => console.error('Failed to load logo:', mobileLogoUrl)}
         />
-      </div>
+      </Link>
     );
   }
 
   return (
-    <div className="flex items-center">
+    <Link href={homeHref} className="flex items-center" aria-label="Go to home page">
       {/* Desktop Logo */}
       <Image
         src={desktopLogoUrl}
@@ -119,7 +125,7 @@ export default function LogoSection({ globalLayout }: LogoSectionProps) {
           setUseFallback(true);
         }}
       />
-    </div>
+    </Link>
   );
 }
 
