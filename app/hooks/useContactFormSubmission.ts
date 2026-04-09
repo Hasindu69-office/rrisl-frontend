@@ -20,10 +20,17 @@ export function useContactFormSubmission() {
     try {
       await createContactMessage(payload);
       setStatus('success');
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Contact message submission error:', error);
+
       setStatus('error');
-      setErrorMessage('Something went wrong. Please try again later.');
+
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : 'Something went wrong. Please try again later.'
+      );
+
       throw error;
     }
   }
