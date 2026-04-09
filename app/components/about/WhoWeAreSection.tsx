@@ -4,10 +4,22 @@ import GradientTag from '../ui/GradientTag';
 import GradientTitle from '../ui/GradientTitle';
 
 interface WhoWeAreSectionProps {
-  locale?: string;
+  tag: string;
+  title: string;
+  highlightedText: string;
+  description: string;
+  outlineLines: string[];
 }
 
-const WhoWeAreSection = ({ locale = 'en' }: WhoWeAreSectionProps) => {
+const WhoWeAreSection = ({
+  tag,
+  title,
+  highlightedText,
+  description,
+  outlineLines,
+}: WhoWeAreSectionProps) => {
+  const [firstOutlineLine, secondOutlineLine] = outlineLines;
+
   return (
     <section className="relative w-full min-h-[600px] md:min-h-[700px] lg:min-h-[1280px] overflow-hidden">
       {/* Background Image */}
@@ -34,18 +46,18 @@ const WhoWeAreSection = ({ locale = 'en' }: WhoWeAreSectionProps) => {
 
           {/* Left Column: Content (Top Left) */}
           <div className="flex flex-col gap-6 max-w-2xl items-start relative z-20">
-            <GradientTag text="Who We Are" />
+            <GradientTag text={tag} />
 
             <GradientTitle
-              part1="Driving the Future of"
-              part2="Sri Lanka's Rubber Industry"
+              part1={title}
+              part2={highlightedText}
               size="lg"
               lineBreak={true}
               style={{ lineHeight: '130%' }}
             />
 
             <p className="text-[#000000] text-lg md:text-xl leading-relaxed max-w-xl text-justify">
-              Rubber Research Institute of Sri Lanka is the oldest research institute on rubber in the world and is the nodal agency in Sri Lanka with the statutory responsibility for research and development on all aspects of rubber cultivation and processing for the benefit of the rubber industry.
+              {description}
             </p>
           </div>
 
@@ -70,22 +82,24 @@ const WhoWeAreSection = ({ locale = 'en' }: WhoWeAreSectionProps) => {
                   fontWeight="bold"
                   className="font-sans"
                 >
-                  More than 100 years
+                  {firstOutlineLine}
                 </text>
-                <text
-                  x="100%"
-                  y="55%"
-                  textAnchor="end"
-                  dominantBaseline="middle"
-                  fill="transparent"
-                  stroke="#1047203D"
-                  strokeWidth="1"
-                  fontSize="90"
-                  fontWeight="bold"
-                  className="font-sans"
-                >
-                  of Excellence
-                </text>
+                {secondOutlineLine ? (
+                  <text
+                    x="100%"
+                    y="55%"
+                    textAnchor="end"
+                    dominantBaseline="middle"
+                    fill="transparent"
+                    stroke="#1047203D"
+                    strokeWidth="1"
+                    fontSize="90"
+                    fontWeight="bold"
+                    className="font-sans"
+                  >
+                    {secondOutlineLine}
+                  </text>
+                ) : null}
               </svg>
             </div>
           </div>

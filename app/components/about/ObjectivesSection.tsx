@@ -4,29 +4,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import GradientTag from '@/app/components/ui/GradientTag';
 import GradientTitle from '@/app/components/ui/GradientTitle';
-
-const objectives = [
-  {
-    id: '01',
-    text: 'Increase productivity to potential levels of the crop',
-  },
-  {
-    id: '02',
-    text: 'Increase national production of NR to meet the increasing demand',
-  },
-  {
-    id: '03',
-    text: 'Optimal and sustainable utilization of land, labour and other resources',
-  },
-  {
-    id: '04',
-    text: 'Maximize domestic value addition to rubber',
-  },
-  {
-    id: '05',
-    text: 'Transfer the developed technologies through training and advisory services',
-  },
-];
+import type { AboutObjectiveViewModel } from '@/app/lib/about/objectives';
 
 const desktopPositions: Record<string, string> = {
   '01': 'left-[9%] top-[54%] w-[200px]',
@@ -127,8 +105,24 @@ function ObjectiveStackCard({ obj, className = '' }: ObjectiveStackCardProps) {
   );
 }
 
-export default function ObjectivesSection() {
-  const [activeObjective, setActiveObjective] = useState<string>('01');
+interface ObjectivesSectionProps {
+  eyebrow: string;
+  title: string;
+  highlightedText: string;
+  objectives: AboutObjectiveViewModel[];
+  imageSrc: string;
+  imageAlt: string;
+}
+
+export default function ObjectivesSection({
+  eyebrow,
+  title,
+  highlightedText,
+  objectives,
+  imageSrc,
+  imageAlt,
+}: ObjectivesSectionProps) {
+  const [activeObjective, setActiveObjective] = useState<string>(objectives[0]?.id || '01');
 
   return (
     <section className="relative overflow-hidden bg-white pb-20 pt-16 md:pb-24 md:pt-20 xl:mb-20 xl:pb-0 xl:pt-24">
@@ -146,7 +140,7 @@ export default function ObjectivesSection() {
       <div className="container relative z-10 mx-auto px-4 mb-42 md:mb-48 lg:mb-20">
         <div className="text-center">
           <GradientTag
-            text="Who We Are"
+            text={eyebrow}
             className="mx-auto inline-block"
             backgroundColor="transparent"
             gradientFrom="#20C997"
@@ -155,8 +149,8 @@ export default function ObjectivesSection() {
           />
 
           <GradientTitle
-            part1="Our "
-            part2="Objectives"
+            part1={title}
+            part2={highlightedText}
             lineBreak={false}
             part1Color="dark-green"
             size="custom"
@@ -183,11 +177,12 @@ export default function ObjectivesSection() {
         <div className="relative mt-0 hidden h-[640px] xl:block">
           <div className="absolute bottom-[11%] left-1/2 z-20 w-[480px] -translate-x-1/2">
             <Image
-              src="/images/AboutusBottomImg.webp"
-              alt="Researcher examining rubber sample"
+              src={imageSrc}
+              alt={imageAlt}
               width={520}
               height={640}
               className="h-auto w-full object-contain"
+              unoptimized={imageSrc.includes('localhost')}
             />
           </div>
 

@@ -1,9 +1,9 @@
 import React from 'react';
-import Image from 'next/image';
 import Header from '../header/Header';
 import HeroCutout from './HeroCutout';
 import { BreadcrumbItem } from './Breadcrumb';
 import styles from './PageHero.module.css';
+import PageHeroBackground from './PageHeroBackground';
 
 interface PageHeroProps {
   title: string;
@@ -23,12 +23,10 @@ export default async function PageHero({
   return (
     <section className={`${styles.heroRoot} relative min-h-[200px] sm:min-h-[250px] md:min-h-[350px] lg:min-h-[480px] xl:min-h-[480px] flex flex-col overflow-hidden`}>
       <div className={`${styles.backgroundReveal} absolute top-0 left-0 w-full h-full z-0`}>
-        <Image
+        <PageHeroBackground
           src={backgroundImage}
           alt={backgroundImageAlt}
-          fill
-          className="object-cover object-center"
-          priority
+          fallbackSrc="/images/aboutus_heroimg.jpg"
         />
         <div
           className="absolute inset-0"

@@ -1,7 +1,19 @@
 import React from 'react';
 import Image from 'next/image';
 
-const MissionVisionSection = () => {
+interface MissionVisionSectionProps {
+    visionLabel: string;
+    vision: string;
+    missionLabel: string;
+    mission: string;
+}
+
+const MissionVisionSection = ({
+    visionLabel,
+    vision,
+    missionLabel,
+    mission,
+}: MissionVisionSectionProps) => {
     return (
         <section className="relative isolate w-full min-h-[400px] md:min-h-[500px] lg:min-h-[600px] overflow-visible pt-[60px] md:pt-[110px] lg:pt-[150px] -mt-[60px] md:-mt-[110px] lg:-mt-[150px]">
             {/* Decorative Branch Separator */}
@@ -72,7 +84,7 @@ const MissionVisionSection = () => {
                                     fontWeight="bold"
                                     fontFamily="sans-serif"
                                 >
-                                    Vision
+                                    {visionLabel}
                                 </text>
                             </svg>
                         </div>
@@ -97,7 +109,7 @@ const MissionVisionSection = () => {
                                     fontWeight="bold"
                                     fontFamily="sans-serif"
                                 >
-                                    Mission
+                                    {missionLabel}
                                 </text>
                             </svg>
                         </div>
@@ -116,17 +128,17 @@ const MissionVisionSection = () => {
 
                         {/* Mission Content */}
                         <div className="relative mb-12 md:mb-20 lg:mb-[250px] max-w-xl z-10 mt-8 md:mt-16 lg:mt-[144px]">
-                            <h3 className="text-3xl md:text-4xl font-bold text-[#0F3F1D] mb-4 md:mb-6">Vision</h3>
+                            <h3 className="text-3xl md:text-4xl font-bold text-[#0F3F1D] mb-4 md:mb-6">{visionLabel}</h3>
                             <p className="text-gray-800 text-base md:text-lg lg:text-[18px] leading-relaxed text-justify">
-                                To emerge as the centre of excellence in providing high quality scientific technologies to the rubber industry.
+                                {vision}
                             </p>
                         </div>
 
                         {/* Vision Content */}
                         <div className="relative max-w-xl z-10">
-                            <h3 className="text-3xl md:text-4xl font-bold text-[#0F3F1D] mb-4 md:mb-6">Mision</h3>
+                            <h3 className="text-3xl md:text-4xl font-bold text-[#0F3F1D] mb-4 md:mb-6">{missionLabel}</h3>
                             <p className="text-gray-800 text-base md:text-lg lg:text-[18px] leading-relaxed text-justify mb-12 md:mb-24 lg:mb-[144px]">
-                                To revitalize the rubber sector by developing economically and environmentally sustainable innovations and transferring the latest technologies to the stakeholders through training and advisory services.
+                                {mission}
                             </p>
                         </div>
                     </div>

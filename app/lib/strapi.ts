@@ -1,5 +1,5 @@
 // Strapi API Client
-import type { GlobalLayout, Menu, HomePage, StrapiResponse, HeroAnnouncementItem } from './types';
+import type { GlobalLayout, Menu, HomePage, HeroAnnouncementItem, AboutPage } from './types';
 
 const STRAPI_API_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL || 'http://localhost:1337';
 
@@ -296,6 +296,23 @@ function buildHomePageQuery(locale: string): string {
   return params.toString();
 }
 
+function buildAboutPageQuery(locale: string): string {
+  const params = new URLSearchParams();
+
+  if (locale && locale !== 'en') {
+    params.set('locale', locale);
+  }
+
+  params.set('populate[pagehero][populate][backgroundImage]', 'true');
+  params.set('populate[pagehero][populate][Breadcrumb]', 'true');
+  params.set('populate[firstcontent][populate]', '*');
+  params.set('populate[objectives][populate]', '*');
+  params.set('populate[objectivebgimage][populate]', '*');
+  params.set('populate[objectivesection][populate]', '*');
+
+  return params.toString();
+}
+
 /**
  * Fetch Home Page with all required fields populated
  */
@@ -350,6 +367,58 @@ export async function getHomePage(locale: string = 'en'): Promise<HomePage | nul
         console.log(`[Strapi API] Error fetching locale "${locale}", falling back to "en" for home page`);
       }
       return getHomePage('en');
+    }
+    return null;
+  }
+}
+
+/**
+ * Fetch About Page with all required fields populated
+ */
+export async function getAboutPage(locale: string = 'en'): Promise<AboutPage | null> {
+  try {
+    const queryString = buildAboutPageQuery(locale);
+    const url = queryString ? `/api/about-page?${queryString}` : '/api/about-page';
+
+    const response = await fetchStrapi<any>(url);
+
+    if (response === null) {
+      if (locale !== 'en') {
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`[Strapi API] No translation found for locale "${locale}", falling back to "en" for about page`);
+        }
+        return getAboutPage('en');
+      }
+      return null;
+    }
+
+    let result: AboutPage | null = null;
+
+    if (response.data) {
+      if (Array.isArray(response.data)) {
+        result = response.data.length > 0 ? response.data[0] : null;
+      } else {
+        result = response.data;
+      }
+    } else if (response.id || response.attributes) {
+      result = response;
+    }
+
+    if (!result && locale !== 'en') {
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`[Strapi API] No translation found for locale "${locale}", falling back to "en" for about page`);
+      }
+      return getAboutPage('en');
+    }
+
+    return result;
+  } catch (error) {
+    console.error(`Error fetching about page with locale "${locale}":`, error);
+    if (locale !== 'en') {
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`[Strapi API] Error fetching locale "${locale}", falling back to "en" for about page`);
+      }
+      return getAboutPage('en');
     }
     return null;
   }
