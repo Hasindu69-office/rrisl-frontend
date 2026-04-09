@@ -28,6 +28,10 @@ body {
   overflow-x: hidden;
 }
 
+main:has(.rrisl-not-found-page) + .rrisl-site-footer {
+  display: none;
+}
+
 /* Ensure no white background shows through */
 html {
   background: #000;
