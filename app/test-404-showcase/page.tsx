@@ -1,6 +1,8 @@
 import Header from '@/app/components/header/Header';
 import NotFoundShowcase from '@/app/components/not-found/NotFoundShowcase';
 
+export const dynamic = 'force-dynamic';
+
 export default async function Test404ShowcasePage() {
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#F6F8F3] text-[#0F3F1D]">
