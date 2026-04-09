@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { Suspense } from "react";
 import "./globals.css";
-import Header from "./components/header/Header";
 import LocaleUpdater from "./components/ui/LocaleUpdater";
 import Footer from "./components/footer/Footer";
 
@@ -38,7 +37,9 @@ export default function RootLayout({
         </Suspense>
         <div className="flex min-h-screen flex-col">
           <main className="flex-1">{children}</main>
-          <Footer />
+          <div className="rrisl-site-footer">
+            <Footer />
+          </div>
         </div>
       </body>
     </html>
