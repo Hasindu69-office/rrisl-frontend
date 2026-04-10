@@ -18,21 +18,29 @@ export default function NotFoundActions({
   const contactHref = addLocaleToUrl('/contact', locale);
 
   return (
-    <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-      <Link href={homeHref} aria-label="Go back to the RRISL home page">
+    <div className="flex w-full max-w-[28rem] flex-col items-stretch gap-3 sm:max-w-[34rem] sm:flex-row sm:justify-center">
+      <Link
+        href={homeHref}
+        aria-label="Go back to the RRISL home page"
+        className="flex w-full sm:flex-1 md:w-auto md:flex-none"
+      >
         <Button
           variant="primary"
-          className="!flex items-center justify-center gap-2"
+          className="!flex w-full min-w-0 items-center justify-center gap-2 px-5 py-3 text-center leading-tight sm:min-h-[56px] sm:px-6 md:min-w-[178px] xl:!w-[178px]"
         >
           <Home className="h-4 w-4" />
           {homeLabel}
         </Button>
       </Link>
 
-      <Link href={contactHref} aria-label="Go to the RRISL contact page">
+      <Link
+        href={contactHref}
+        aria-label="Go to the RRISL contact page"
+        className="flex w-full sm:flex-1 md:w-auto md:flex-none"
+      >
         <Button
           variant="outline"
-          className="!flex items-center justify-center gap-2"
+          className="!flex w-full min-w-0 items-center justify-center gap-2 px-5 py-3 text-center leading-tight sm:min-h-[56px] sm:px-6 md:min-w-[178px] xl:!w-[178px]"
         >
           <Mail className="h-4 w-4" />
           {contactLabel}
