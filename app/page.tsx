@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import { getHomePage, getGlobalLayout, getMenuBySlug, getAllAnnouncements } from '@/app/lib/strapi';
 import { mapAboutSection } from '@/app/lib/home/aboutSection';
 import { resolveHeroSlides } from '@/app/lib/home/hero';
+import { resolveHomePageStats } from '@/app/lib/home/stats';
 import { normalizeLocale } from '@/app/lib/locale';
 import HomeHeroWithHeader from './components/home/HomeHeroWithHeader';
 import ContentSection from './components/home/ContentSection';
@@ -34,6 +35,7 @@ export default async function Home({ searchParams }: HomeProps) {
     ? homePage
     : fallbackHomePage;
   const heroSlides = resolveHeroSlides(homePage?.hero, fallbackHomePage?.hero);
+  const heroStatistics = resolveHomePageStats(homePage?.stats, fallbackHomePage?.stats);
 
   if (!effectiveHomePage?.hero || heroSlides.length === 0) {
     return (
@@ -85,6 +87,7 @@ export default async function Home({ searchParams }: HomeProps) {
       }>
         <HomeHeroWithHeader
           heroes={heroSlides}
+          statistics={heroStatistics}
           globalLayout={globalLayout}
           leftMenuItems={leftMenuItems}
           rightMenuItems={rightMenuItems}

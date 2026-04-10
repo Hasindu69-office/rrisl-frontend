@@ -342,6 +342,7 @@ function buildHomePageQuery(locale: string): string {
   params.set('populate[hero][populate][labels]', 'true');
   params.set('populate[hero][populate][badges][populate][avatars]', 'true');
   params.set('populate[hero][populate][badges][populate][icon]', 'true');
+  params.set('populate[stats][populate]', '*');
   params.set('populate[aboutSection][populate]', '*');
   params.set('populate[Announcement][populate]', '*');
 

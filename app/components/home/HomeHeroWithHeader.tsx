@@ -12,6 +12,7 @@ import {
   getHeroDesktopImage,
   getHeroMobileImage,
 } from '@/app/lib/home/hero';
+import type { HeroStatisticItem } from '@/app/lib/home/stats';
 import Button from '../ui/Button';
 import LogoSection from '../header/LogoSection';
 import Navigation from '../header/Navigation';
@@ -26,6 +27,7 @@ interface HomeHeroWithHeaderProps {
   rightMenuItems: MenuItem[];
   announcements?: HeroAnnouncementItem[];
   announcementLabel?: string;
+  statistics?: HeroStatisticItem[];
 }
 
 const avatarFallbacks = ['/images/avatarimg1.png', '/images/avatarimg2.png'];
@@ -38,6 +40,7 @@ export default function HomeHeroWithHeader({
   rightMenuItems,
   announcements = [],
   announcementLabel,
+  statistics,
 }: HomeHeroWithHeaderProps) {
   const searchParams = useSearchParams();
   const currentLocale = searchParams.get('locale') || 'en';
@@ -427,8 +430,15 @@ export default function HomeHeroWithHeader({
                 </div>
               )}
 
-              <div className="pt-8 md:pt-12 lg:pt-[86px]">
-                <HeroStatistics />
+              <div
+                className="hero-content-item pt-8 md:pt-12 lg:pt-[86px]"
+                style={{
+                  ['--hero-translate-y' as string]: '16px',
+                  ['--hero-duration' as string]: '450ms',
+                  ['--hero-delay' as string]: '420ms',
+                }}
+              >
+                <HeroStatistics statistics={statistics} />
               </div>
             </div>
 
