@@ -69,26 +69,17 @@ function limitWords(text: string, maxWords: number = 5): string {
 }
 
 /**
- * Format title to show 2 words per line, max 4 lines (8 words total)
- * If exceeds 8 words, show only first word with ellipsis
+ * Limit title length without forcing manual line breaks.
  */
 function formatTitle(title: string): string {
   if (!title) return '';
   const words = title.split(/\s+/).filter(word => word.length > 0);
 
-  // If more than 8 words, show first 8 words with ellipsis
   if (words.length > 8) {
     return words.slice(0, 8).join(' ') + '...';
   }
 
-  // Group words into pairs (2 words per line)
-  const lines: string[] = [];
-  for (let i = 0; i < words.length; i += 2) {
-    const line = words.slice(i, i + 2).join(' ');
-    lines.push(line);
-  }
-
-  return lines.join('\n');
+  return words.join(' ');
 }
 
 export default function AnnouncementSlider({
@@ -277,11 +268,7 @@ export default function AnnouncementSlider({
               getStrapiImageUrl(actualAnnouncement.image)
               : null;
             const isLocalhost = imageUrl?.includes('localhost') || false;
-            const summaryText = limitWords(extractTextFromSummary(actualAnnouncement?.summary || null), 10);
-
-            // Calculate responsive text sizes
-            const titleFontSize = isMobile ? '14px' : isTablet ? '16px' : '20px';
-            const summaryFontSize = isMobile ? '12px' : isTablet ? '14px' : '18px';
+            const summaryText = limitWords(extractTextFromSummary(actualAnnouncement?.summary || null), 25);
 
             return (
               <div
@@ -387,25 +374,24 @@ export default function AnnouncementSlider({
                     >
                       {/* Title */}
                       <div
-                        className={`mb-3 ${isSelected ? 'text-white' : 'text-[#0F3F1D]'
-                          }`}
-                        style={{
-                          width: '201px',
-                          height: '108px',
-                          overflow: 'hidden',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          justifyContent: 'flex-start',
-                        }}
+                        className={`mb-2 overflow-hidden flex flex-col justify-start
+                          w-[180px] min-h-[50px]
+                          md:w-[180px] md:min-h-[60px]
+                          lg:w-[201px] lg:min-h-[75px]
+                          ${isSelected ? 'text-white' : 'text-[#0F3F1D]'}
+                        `}
                       >
                         <h3
+                          className="m-0 whitespace-pre-line break-words font-semibold
+                            text-[24px] leading-[35px]
+                            md:text-[22px] md:leading-[35px]
+                            lg:text-[22px] lg:leading-[35px]"
                           style={{
-                            fontSize: titleFontSize,
-                            lineHeight: '137%',
-                            fontWeight: 600, // semi-bold
-                            whiteSpace: 'pre-line',
-                            wordBreak: 'break-word',
-                            margin: 0,
+                            whiteSpace: 'normal',
+                            display: '-webkit-box',
+                            WebkitLineClamp: isMobile ? 3 : isTablet ? 4 : 4,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden',
                           }}
                         >
                           {formatTitle(actualAnnouncement?.title || '')}
@@ -415,12 +401,17 @@ export default function AnnouncementSlider({
                       {/* Summary */}
                       {summaryText && (
                         <p
-                          className={`flex-grow ${isSelected ? 'text-white/90' : 'text-[#0F3F1D]/80'
-                            }`}
+                          className={`font-normal
+                            text-[20px] leading-[35px]
+                            md:text-[20px] md:leading-[35px]
+                            lg:text-[18px] lg:leading-[35px]
+                            ${isSelected ? 'text-white/90' : 'text-[#0F3F1D]/80'}
+                          `}
                           style={{
-                            fontSize: summaryFontSize,
-                            lineHeight: '35px',
-                            fontWeight: 400, // regular
+                            display: '-webkit-box',
+                            WebkitLineClamp: isMobile ? 3 : isTablet ? 3 : 3,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden',
                           }}
                         >
                           {summaryText}
@@ -429,7 +420,7 @@ export default function AnnouncementSlider({
 
                       {/* Image (optional) */}
                       {imageUrl && (
-                        <div className="mt-4 w-full h-32 rounded-lg overflow-hidden">
+                        <div className="mt-4 w-full h-28 md:h-32 lg:h-32 rounded-lg overflow-hidden">
                           <Image
                             src={imageUrl}
                             alt={actualAnnouncement?.title || ''}
