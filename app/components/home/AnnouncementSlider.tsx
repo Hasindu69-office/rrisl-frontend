@@ -369,7 +369,7 @@ export default function AnnouncementSlider({
                         : 'bg-white text-[#0F3F1D]'
                         }`}
                       style={{
-                        paddingTop: '50px',
+                        paddingTop: '40px',
                       }}
                     >
                       {/* Title */}
