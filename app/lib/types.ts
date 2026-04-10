@@ -243,6 +243,12 @@ export interface Hero {
   hero_annoucements_items?: HeroAnnouncementItem;
 }
 
+export interface HomePageStat {
+  id: number;
+  percentage: string;
+  label: string;
+}
+
 export interface HomePage {
   id: number;
   documentId: string;
@@ -251,6 +257,7 @@ export interface HomePage {
   publishedAt: string;
   locale: string;
   hero: Hero | Hero[] | null;
+  stats?: HomePageStat[] | null;
   aboutSection?: AboutSection | null;
   Announcement?: AnnouncementSection | null;
 }
