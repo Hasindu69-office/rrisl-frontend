@@ -462,11 +462,6 @@ export default function HomeHeroWithHeader({
                                 className="object-cover"
                                 unoptimized={isLocalhost}
                               />
-                              {index === 0 && (
-                                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-orange-500 rounded-full border-2 border-white flex items-center justify-center z-20">
-                                  <span className="text-white text-[10px]">*</span>
-                                </div>
-                              )}
                             </div>
                           ) : null;
                         })}
