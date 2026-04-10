@@ -36,32 +36,32 @@ export default async function NotFound() {
   const content = contentByLocale[locale as keyof typeof contentByLocale] ?? contentByLocale.en;
 
   return (
-    <div className="rrisl-not-found-page min-h-screen bg-[#F6F8F3] text-[#0F3F1D]">
-      <section className="relative overflow-hidden bg-[#0B1F16]">
+    <div className="rrisl-not-found-page min-h-[100dvh] bg-[#0B1F16] text-[#0F3F1D]">
+      <section className="relative flex min-h-[100dvh] flex-col overflow-hidden bg-[#0B1F16]">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(32,201,151,0.18),_transparent_34%),radial-gradient(circle_at_80%_18%,_rgba(161,223,10,0.14),_transparent_22%),linear-gradient(135deg,_rgba(4,32,18,0.96),_rgba(34,58,45,0.92))]" />
         <div className="pointer-events-none absolute inset-0 bg-[url('/images/footer_bg.png')] bg-cover bg-center opacity-15" />
         <div className="pointer-events-none absolute -left-20 top-28 h-56 w-56 rounded-full bg-[#20C997]/12 blur-3xl" />
         <div className="pointer-events-none absolute -right-16 top-20 h-48 w-48 rounded-full bg-[#A1DF0A]/12 blur-3xl" />
 
         <div className="relative z-20">
-          <Header locale={locale} />
+          <Header locale={locale} compactOnMobile />
         </div>
 
-        <div className="relative z-10 mx-auto max-w-[1440px] px-4 pb-24 pt-10 text-center sm:px-6 md:px-8 md:pb-28 lg:px-10 lg:pb-32">
+        <div className="relative z-10 mx-auto flex w-full flex-1 items-center px-4 pb-10 pt-4 text-center sm:px-6 sm:pb-14 sm:pt-6 md:px-8 md:pb-[4.5rem] md:pt-8 lg:px-10 lg:pb-24 lg:pt-10">
           <div className="mx-auto max-w-[860px]">
-            <p className="mt-8 text-[5rem] font-semibold leading-none tracking-[-0.05em] text-white/12 sm:text-[6.5rem] md:text-[8rem]">
+            <p className="text-[3.75rem] font-semibold leading-none tracking-[-0.05em] text-white/12 sm:text-[5rem] md:text-[6.5rem] xl:text-[8rem]">
               404
             </p>
 
-            <h1 className="mx-auto -mt-2 max-w-[12ch] text-4xl font-semibold leading-tight text-white sm:text-5xl md:text-6xl">
+            <h1 className="mx-auto -mt-1 max-w-[14ch] text-[2rem] font-semibold leading-tight text-white sm:-mt-2 sm:max-w-[13ch] sm:text-4xl md:max-w-[12ch] md:text-5xl xl:text-6xl">
               {content.title}
             </h1>
 
-            <p className="mx-auto mt-6 max-w-[42rem] text-base leading-8 text-[#D9E5DD] md:text-lg">
+            <p className="mx-auto mt-5 max-w-[34rem] text-[0.95rem] leading-7 text-[#D9E5DD] sm:mt-6 sm:max-w-[36rem] sm:text-base sm:leading-8 md:max-w-[38rem] md:text-[1.05rem] md:leading-8 lg:max-w-[42rem] lg:text-lg">
               {content.description}
             </p>
 
-            <div className="mt-10 flex justify-center">
+            <div className="mt-8 flex justify-center sm:mt-10">
               <NotFoundActions
                 locale={locale}
                 homeLabel={content.homeLabel}
