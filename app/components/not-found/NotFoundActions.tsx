@@ -26,7 +26,7 @@ export default function NotFoundActions({
       >
         <Button
           variant="primary"
-          className="!flex w-full min-w-0 items-center justify-center gap-2 px-5 py-3 text-center leading-tight sm:min-h-[56px] sm:px-6 md:min-w-[178px] xl:!w-[178px]"
+          className="!flex w-full min-w-0 items-center justify-center gap-2 px-5 py-3 text-center leading-tight sm:min-h-[56px] sm:px-6 md:min-w-[178px] xl:!w-[200px]"
         >
           <Home className="h-4 w-4" />
           {homeLabel}
@@ -40,7 +40,7 @@ export default function NotFoundActions({
       >
         <Button
           variant="outline"
-          className="!flex w-full min-w-0 items-center justify-center gap-2 px-5 py-3 text-center leading-tight sm:min-h-[56px] sm:px-6 md:min-w-[178px] xl:!w-[178px]"
+          className="!flex w-full min-w-0 items-center justify-center gap-2 px-5 py-3 text-center leading-tight sm:min-h-[56px] sm:px-6 md:min-w-[178px] xl:!w-[200px]"
         >
           <Mail className="h-4 w-4" />
           {contactLabel}

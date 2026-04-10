@@ -58,7 +58,7 @@ export default function RubberAnnouncement({
 
     const getFrameSrc = (index: number) => {
       const frameNumber = String(index).padStart(5, '0');
-      return `/animations/Plant_${frameNumber}.png`;
+      return `/animations/Plant_${frameNumber}.webp`;
     };
 
     const images: HTMLImageElement[] = [];
