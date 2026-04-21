@@ -54,8 +54,8 @@ export default async function MediaGalleryPage({
         locale={locale}
       />
 
-      <section className="bg-white px-4 pb-72 pt-14 md:px-6 md:pb-72 md:pt-18 lg:px-8 lg:pb-84 lg:pt-22">
-        <div className="mx-auto w-full max-w-[1440px]">
+      <section className="bg-white px-4 pb-72 pt-14 md:px-6 md:pb-72 md:pt-18 lg:px-36 lg:pb-84 lg:pt-22">
+        <div className="mx-auto w-full max-w-[1480px]">
           <div className="max-w-[760px]">
             <GradientTag
               text="Gallery Collection"
