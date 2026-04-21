@@ -9,7 +9,7 @@ interface HeroCutoutProps {
 
 const HeroCutout = ({ breadcrumbItems = [], locale = 'en' }: HeroCutoutProps) => {
     return (
-        <div className="absolute bottom-0 right-0 w-full sm:w-auto z-20">
+        <div className="absolute -bottom-px right-0 w-full sm:w-auto z-20">
             <div className="relative w-full sm:w-auto">
                 <svg
                     width="874"
