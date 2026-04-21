@@ -189,8 +189,8 @@ export default function VideoAlbumShowcase({
   }, [isClosingLightbox]);
 
   return (
-    <section className="bg-white px-4 pb-72 pt-12 md:px-6 md:pb-72 md:pt-16 lg:px-8 lg:pb-84 lg:pt-20">
-      <div className="mx-auto w-full max-w-[1440px]">
+    <section className="bg-white px-4 pb-72 pt-12 md:px-6 md:pb-72 md:pt-16 lg:px-36 lg:pb-84 lg:pt-20">
+      <div className="mx-auto w-full max-w-[1480px]">
         <div className="grid gap-8 lg:grid-cols-[minmax(0,0.78fr)_minmax(360px,0.42fr)] lg:items-end">
           <div>
             <div className="max-w-[760px]">

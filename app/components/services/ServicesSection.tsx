@@ -165,8 +165,8 @@ function TestingAccordion() {
 
 export default function ServicesSection() {
   return (
-    <section className="bg-white px-4 pb-72 pt-14 md:px-6 md:pb-72 md:pt-20 lg:px-8 lg:pb-84 lg:pt-24">
-      <div className="mx-auto w-full max-w-[1440px]">
+    <section className="bg-white px-4 pb-72 pt-14 md:px-6 md:pb-72 md:pt-20 lg:px-36 lg:pb-84 lg:pt-24">
+      <div className="mx-auto w-full max-w-[1480px]">
         <div className="max-w-[960px]">
           <div>
             <GradientTag
