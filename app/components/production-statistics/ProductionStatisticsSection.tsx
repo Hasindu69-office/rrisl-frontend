@@ -16,7 +16,6 @@ export default function ProductionStatisticsSection() {
   const panelRef = useRef<HTMLDivElement | null>(null);
 
   const activeContent = statisticsTabContent[activeTab];
-  const hasCards = activeContent.cards.length > 0;
 
   useLayoutEffect(() => {
     if (!panelRef.current || typeof window === 'undefined') {
@@ -27,34 +26,49 @@ export default function ProductionStatisticsSection() {
       return;
     }
 
+    const isDesktop = window.matchMedia('(min-width: 1024px)').matches;
+
     const panel = panelRef.current;
     const cards = panel.querySelectorAll<HTMLElement>('[data-stats-card]');
 
     const context = gsap.context(() => {
-      gsap.fromTo(
-        panel,
-        { autoAlpha: 0, x: 72 },
-        {
-          autoAlpha: 1,
-          x: 0,
-          duration: 0.65,
-          ease: 'power3.out',
-          clearProps: 'opacity,visibility,transform',
-        },
-      );
-
-      if (cards.length > 0) {
+      if (isDesktop) {
         gsap.fromTo(
-          cards,
-          { autoAlpha: 0, x: 96 },
+          panel,
+          { autoAlpha: 0, y: 32 },
           {
             autoAlpha: 1,
-            x: 0,
-            duration: 0.85,
-            stagger: 0.12,
+            y: 0,
+            duration: 0.5,
             ease: 'power3.out',
             clearProps: 'opacity,visibility,transform',
-            delay: 0.08,
+          },
+        );
+      } else {
+        gsap.fromTo(
+          panel,
+          { autoAlpha: 0 },
+          {
+            autoAlpha: 1,
+            duration: 0.36,
+            ease: 'power2.out',
+            clearProps: 'opacity,visibility',
+          },
+        );
+      }
+
+      if (isDesktop && cards.length > 0) {
+        gsap.fromTo(
+          cards,
+          { autoAlpha: 0, y: 40 },
+          {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.7,
+            stagger: 0.1,
+            ease: 'power3.out',
+            clearProps: 'opacity,visibility,transform',
+            delay: 0.04,
           },
         );
       }
@@ -65,7 +79,7 @@ export default function ProductionStatisticsSection() {
 
   return (
     <section className="bg-white px-4 py-16 md:px-6 md:py-20 lg:px-8 lg:py-24">
-      <div className="mx-auto w-full max-w-[80vw]">
+      <div className="mx-auto w-full max-w-[80vw] md:max-w-[92vw] xl:max-w-[80vw]">
         <GradientTitle
           part1=""
           part2="Statistics"
@@ -78,7 +92,7 @@ export default function ProductionStatisticsSection() {
         />
 
         <div
-          className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5"
+          className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-3 [scrollbar-color:rgba(46,125,50,0.27)_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar]:h-[5px] [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[rgba(46,125,50,0.27)] [&::-webkit-scrollbar-thumb:hover]:bg-[rgba(46,125,50,0.45)] md:mx-0 md:gap-3 md:px-0 lg:grid lg:grid-cols-5 lg:gap-4 lg:overflow-visible lg:pb-0 lg:[scrollbar-width:auto]"
           role="tablist"
           aria-label="Statistics categories"
         >
@@ -99,29 +113,21 @@ export default function ProductionStatisticsSection() {
           id={`statistics-panel-${activeTab}`}
           role="tabpanel"
           aria-labelledby={`statistics-tab-${activeTab}`}
-          className="mt-[60px]"
+          className="mt-8 sm:mt-10 lg:mt-[56px]"
         >
-          {hasCards ? (
-            <div className="grid gap-x-10 gap-y-10 xl:grid-cols-2">
-              {activeContent.cards.map((card) => (
-                <StatisticsChartCard
-                  key={card.title}
-                  card={card}
-                />
-              ))}
+          <div className="mb-6 max-w-[840px] sm:mb-8">
+            <div className="text-[13px] font-medium uppercase tracking-[0.12em] text-[#1E6B2F]">
+              {activeContent.label} insight
             </div>
-          ) : (
-            <div className="rounded-[24px] bg-white p-10 text-center shadow-[0_16px_40px_rgba(15,63,29,0.06)]">
-              <div className="text-[28px] font-semibold text-[#1E6B2F]">
-                {activeContent.label}
-              </div>
-              <p className="mx-auto mt-3 max-w-[620px] text-[16px] leading-7 text-[#667085]">
-                The frontend structure for this tab is ready. Chart-specific data and
-                visual variations can be added next without changing the overall section
-                architecture.
-              </p>
-            </div>
-          )}
+            <h2 className="mt-3 text-[24px] font-semibold leading-tight text-[#1D2939] sm:text-[28px] lg:text-[34px]">
+              {activeContent.heading}
+            </h2>
+            <p className="mt-3 text-[14px] leading-6 text-[#667085] sm:text-[15px] lg:text-[16px] lg:leading-7">
+              {activeContent.description}
+            </p>
+          </div>
+
+          <StatisticsChartCard card={activeContent.primaryCard} />
         </div>
       </div>
     </section>
