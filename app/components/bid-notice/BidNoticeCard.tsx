@@ -1,22 +1,29 @@
 import React from 'react';
-import Image from 'next/image';
-import Button from '../ui/Button';
 
 interface BidNoticeCardProps {
   title: string;
   refNo: string;
   closingDate: string;
   readMoreHref?: string;
-  locale?: string;
+  logoSrc?: string;
+  logoAlt?: string;
+  closingDateLabel?: string;
+  readMoreLabel?: string;
 }
 
 const BidNoticeCard: React.FC<BidNoticeCardProps> = ({
   title,
   refNo,
   closingDate,
-  readMoreHref = '#',
-  locale = 'en',
+  readMoreHref,
+  logoSrc = '/images/rrisl_logo.png',
+  logoAlt = 'RRISL Logos',
+  closingDateLabel = 'Closing Date',
+  readMoreLabel = 'Read More',
 }) => {
+  const hasDocument = Boolean(readMoreHref);
+  const cardLogoSrc = logoSrc || '/images/rrisl_logo.png';
+
   return (
     <div 
       className="relative overflow-hidden rounded-[20px] p-6 md:p-10 text-white flex flex-col justify-between h-full min-h-[350px] md:min-h-[420px]"
@@ -27,11 +34,10 @@ const BidNoticeCard: React.FC<BidNoticeCardProps> = ({
       {/* Top Section - Logos and Institute Info */}
       <div className="flex flex-col items-center gap-4 mb-4 md:mb-8">
         <div className="relative w-full h-12 md:h-16">
-          <Image
-            src="/images/rrisl_logo.png"
-            alt="RRISL Logos"
-            fill
-            className="object-contain"
+          <img
+            src={cardLogoSrc}
+            alt={logoAlt}
+            className="h-full w-full object-contain"
           />
         </div>
       </div>
@@ -50,16 +56,27 @@ const BidNoticeCard: React.FC<BidNoticeCardProps> = ({
       <div className="flex flex-col sm:flex-row items-center justify-between mt-8 md:mt-10 w-full gap-4 sm:gap-0">
         <div className="flex flex-col">
           <span className="text-[#A1DF0A] font-semibold font-outfit text-[15px] md:text-[17px]">
-            Closing Date: {closingDate}
+            {closingDateLabel}: {closingDate}
           </span>
         </div>
-        <Button 
-          variant="outline" 
-          size="sm"
-          className="!w-auto px-6 md:px-8 !h-[35px] md:!h-[45px] text-xs md:text-sm font-bold"
-        >
-          Read More
-        </Button>
+        {hasDocument ? (
+          <a
+            href={readMoreHref}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex !w-auto min-h-12 items-center justify-center rounded-[30px] border border-[#A1DF0A] px-6 text-xs font-bold text-[#A1DF0A] transition-colors hover:bg-[#2E7D32]/90 hover:text-white focus:outline-none focus:ring-2 focus:ring-[#A1DF0A] focus:ring-offset-2 md:!h-[45px] md:px-8 md:text-sm"
+            aria-label={`Open tender document for ${title}`}
+          >
+            {readMoreLabel}
+          </a>
+        ) : (
+          <span
+            className="inline-flex !w-auto min-h-12 items-center justify-center rounded-[30px] border border-[#A1DF0A]/50 px-6 text-xs font-bold text-[#A1DF0A]/60 md:!h-[45px] md:px-8 md:text-sm"
+            aria-disabled="true"
+          >
+            {readMoreLabel}
+          </span>
+        )}
       </div>
     </div>
   );
