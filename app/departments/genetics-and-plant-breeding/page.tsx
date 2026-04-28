@@ -53,7 +53,7 @@ export default async function GeneticsPlantBreeding({ searchParams }: Department
         {
             name: 'K K Liyanage',
             role: 'Acting Head / Principal Research Officer',
-            imageSrc: '/images/departments/GeneticPerson1.png',
+            imageSrc: '/images/departments/GeneticPerson3.png',
             imageAlt: 'K K Liyanage',
         },
         {
@@ -65,7 +65,7 @@ export default async function GeneticsPlantBreeding({ searchParams }: Department
         {
             name: 'Thanuja D Waduge',
             role: 'Research Officer',
-            imageSrc: '/images/departments/GeneticPerson3.png',
+            imageSrc: '/images/departments/GeneticPerson1.png',
             imageAlt: 'Thanuja D Waduge',
         },
     ];
