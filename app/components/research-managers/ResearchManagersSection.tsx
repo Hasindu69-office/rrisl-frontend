@@ -146,7 +146,7 @@ function ProfileModal({
       onClick={onClose}
     >
       <div
-        className={`relative flex max-h-[92dvh] w-full max-w-[1180px] flex-col overflow-hidden rounded-[30px] border border-white/14 bg-[#F8FBF6] shadow-[0_40px_120px_rgba(0,0,0,0.34)] transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] lg:max-h-[88dvh] lg:flex-row ${
+        className={`relative flex max-h-[92dvh] w-full max-w-[1180px] flex-col overflow-y-auto rounded-[30px] border border-white/14 bg-[#F8FBF6] shadow-[0_40px_120px_rgba(0,0,0,0.34)] transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] lg:max-h-[88dvh] lg:flex-row lg:overflow-hidden ${
           isVisible
             ? 'translate-y-0 scale-100 opacity-100'
             : 'translate-y-5 scale-[0.98] opacity-0'
@@ -162,14 +162,14 @@ function ProfileModal({
           <X className="h-5 w-5" strokeWidth={2.1} aria-hidden="true" />
         </button>
 
-        <div className="relative overflow-hidden bg-[radial-gradient(circle_at_top_left,_rgba(161,223,10,0.18),_rgba(32,201,151,0.08)_32%,_transparent_64%),linear-gradient(180deg,#10341B_0%,#184727_100%)] px-6 pb-6 pt-8 text-white lg:w-[360px] lg:px-8 lg:pb-8 lg:pt-12">
-          <div className="relative h-[180px] w-[180px] overflow-hidden rounded-[30px] border border-white/20 bg-white/12 shadow-[0_20px_50px_rgba(0,0,0,0.20)]">
+        <div className="relative overflow-visible bg-[radial-gradient(circle_at_top_left,_rgba(161,223,10,0.18),_rgba(32,201,151,0.08)_32%,_transparent_64%),linear-gradient(180deg,#10341B_0%,#184727_100%)] px-6 pb-6 pt-8 text-white lg:w-[360px] lg:overflow-hidden lg:px-8 lg:pb-8 lg:pt-12">
+          <div className="relative h-[160px] w-[160px] overflow-hidden rounded-[30px] border border-white/20 bg-white/12 shadow-[0_20px_50px_rgba(0,0,0,0.20)] sm:h-[180px] sm:w-[180px]">
             <Image
               src={profile.imageSrc}
               alt={profile.imageAlt}
               fill
               className="object-cover"
-              sizes="180px"
+              sizes="(max-width: 639px) 160px, 180px"
               priority
             />
           </div>
@@ -204,7 +204,7 @@ function ProfileModal({
           </div>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto px-6 py-6 md:px-8 md:py-8 lg:px-10 lg:py-10">
+        <div className="min-h-0 flex-1 px-6 py-6 md:px-8 md:py-8 lg:overflow-y-auto lg:px-10 lg:py-10">
           <div className="mx-auto max-w-[720px]">
             <div className="grid gap-4 md:grid-cols-3">
               {profile.profilePoints.map((point) => (
