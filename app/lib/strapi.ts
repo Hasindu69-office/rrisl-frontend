@@ -1,5 +1,13 @@
 // Strapi API Client
-import type { GlobalLayout, Menu, HomePage, HeroAnnouncementItem, AboutPage } from './types';
+import type {
+  GlobalLayout,
+  Menu,
+  HomePage,
+  HeroAnnouncementItem,
+  AboutPage,
+  BidNoticePage,
+  Tender,
+} from './types';
 
 const STRAPI_API_URL = process.env.NEXT_PUBLIC_STRAPI_API_URL || 'http://localhost:1337';
 
@@ -22,29 +30,33 @@ export function getStrapiUrl(path: string): string {
 }
 
 /**
+ * Get Strapi media URL
+ */
+export function getStrapiMediaUrl(media: any): string | null {
+  if (!media) return null;
+
+  if (media.data?.attributes?.url) {
+    const url = media.data.attributes.url;
+    return url.startsWith('http') ? url : `${STRAPI_API_URL}${url}`;
+  }
+
+  if (media.attributes?.url) {
+    const url = media.attributes.url;
+    return url.startsWith('http') ? url : `${STRAPI_API_URL}${url}`;
+  }
+
+  if (media.url) {
+    return media.url.startsWith('http') ? media.url : `${STRAPI_API_URL}${media.url}`;
+  }
+
+  return null;
+}
+
+/**
  * Get Strapi image URL
  */
 export function getStrapiImageUrl(image: any): string | null {
-  if (!image) return null;
-  
-  // Handle Strapi v4+ response format with data.attributes
-  if (image.data?.attributes?.url) {
-    const url = image.data.attributes.url;
-    return url.startsWith('http') ? url : `${STRAPI_API_URL}${url}`;
-  }
-  
-  // Handle populated image object (direct attributes)
-  if (image.attributes?.url) {
-    const url = image.attributes.url;
-    return url.startsWith('http') ? url : `${STRAPI_API_URL}${url}`;
-  }
-  
-  // Handle direct image object (already populated)
-  if (image.url) {
-    return image.url.startsWith('http') ? image.url : `${STRAPI_API_URL}${image.url}`;
-  }
-  
-  return null;
+  return getStrapiMediaUrl(image);
 }
 
 /**
@@ -366,6 +378,35 @@ function buildAboutPageQuery(locale: string): string {
   return params.toString();
 }
 
+function buildBidNoticePageQuery(locale: string): string {
+  const params = new URLSearchParams();
+
+  if (locale && locale !== 'en') {
+    params.set('locale', locale);
+  }
+
+  params.set('populate[pagehero][populate][backgroundImage]', 'true');
+  params.set('populate[pagehero][populate][Breadcrumb]', 'true');
+  params.set('populate[rrisllogo]', 'true');
+
+  return params.toString();
+}
+
+function buildTenderQuery(locale: string): string {
+  const params = new URLSearchParams();
+
+  if (locale && locale !== 'en') {
+    params.set('locale', locale);
+  }
+
+  params.set('filters[State][$eq]', 'Open');
+  params.set('sort', 'PublishDate:desc');
+  params.set('populate[Document]', 'true');
+  params.set('pagination[pageSize]', '100');
+
+  return params.toString();
+}
+
 /**
  * Fetch Home Page with all required fields populated
  */
@@ -474,6 +515,125 @@ export async function getAboutPage(locale: string = 'en'): Promise<AboutPage | n
       return getAboutPage('en');
     }
     return null;
+  }
+}
+
+/**
+ * Fetch Bid Notice Page with all required fields populated
+ */
+export async function getBidNoticePage(locale: string = 'en'): Promise<BidNoticePage | null> {
+  try {
+    const queryString = buildBidNoticePageQuery(locale);
+    const url = queryString ? `/api/bid-notice-page?${queryString}` : '/api/bid-notice-page';
+
+    const response = await fetchStrapi<any>(url);
+
+    if (response === null) {
+      if (locale !== 'en') {
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`[Strapi API] No translation found for locale "${locale}", falling back to "en" for bid notice page`);
+        }
+        return getBidNoticePage('en');
+      }
+      return null;
+    }
+
+    let result: BidNoticePage | null = null;
+
+    if (response.data) {
+      if (Array.isArray(response.data)) {
+        result = response.data.length > 0 ? response.data[0] : null;
+      } else {
+        result = response.data;
+      }
+    } else if (response.id || response.attributes) {
+      result = response;
+    }
+
+    if (!result && locale !== 'en') {
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`[Strapi API] No translation found for locale "${locale}", falling back to "en" for bid notice page`);
+      }
+      return getBidNoticePage('en');
+    }
+
+    return result;
+  } catch (error) {
+    console.error(`Error fetching bid notice page with locale "${locale}":`, error);
+    if (locale !== 'en') {
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`[Strapi API] Error fetching locale "${locale}", falling back to "en" for bid notice page`);
+      }
+      return getBidNoticePage('en');
+    }
+    return null;
+  }
+}
+
+/**
+ * Fetch all open tenders for the bid notice page
+ */
+export async function getTenders(locale: string = 'en'): Promise<Tender[]> {
+  try {
+    const queryString = buildTenderQuery(locale);
+    const url = queryString ? `/api/tenders?${queryString}` : '/api/tenders';
+
+    const response = await fetchStrapi<any>(url);
+
+    if (!response) {
+      if (locale !== 'en') {
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`[Strapi API] No tenders found for locale "${locale}", falling back to "en"`);
+        }
+        return getTenders('en');
+      }
+      return [];
+    }
+
+    let tenders: Tender[] = [];
+
+    if (response.data) {
+      tenders = Array.isArray(response.data) ? response.data : [response.data];
+    } else if (Array.isArray(response)) {
+      tenders = response;
+    } else if (response.id) {
+      tenders = [response];
+    }
+
+    if (tenders.length === 0 && locale !== 'en') {
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`[Strapi API] No tenders found for locale "${locale}", falling back to "en"`);
+      }
+      return getTenders('en');
+    }
+
+    return tenders.map((item: any) => {
+      const attributes = item.attributes || item;
+
+      return {
+        id: item.id || attributes.id,
+        documentId: item.documentId || attributes.documentId,
+        Title: attributes.Title || item.Title,
+        TenderNumber: attributes.TenderNumber || item.TenderNumber,
+        ClosingDate: attributes.ClosingDate || item.ClosingDate,
+        PublishDate: attributes.PublishDate || item.PublishDate,
+        State: attributes.State || item.State,
+        Document: attributes.Document || item.Document,
+        createdAt: attributes.createdAt || item.createdAt,
+        updatedAt: attributes.updatedAt || item.updatedAt,
+        publishedAt: attributes.publishedAt || item.publishedAt,
+        locale: attributes.locale || item.locale || locale,
+      };
+    });
+  } catch (error) {
+    console.error(`Error fetching tenders with locale "${locale}":`, error);
+    if (locale !== 'en') {
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`[Strapi API] Error fetching locale "${locale}", falling back to "en" for tenders`);
+      }
+      return getTenders('en');
+    }
+    return [];
   }
 }
 

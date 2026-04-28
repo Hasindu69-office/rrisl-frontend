@@ -1,13 +1,13 @@
 // Strapi API Response Types
 
-export interface StrapiImage {
+export interface StrapiMedia {
   id: number;
   documentId?: string;
   name: string;
   alternativeText?: string | null;
   caption?: string | null;
-  width: number;
-  height: number;
+  width?: number | null;
+  height?: number | null;
   formats?: {
     thumbnail?: StrapiImageFormat;
     small?: StrapiImageFormat;
@@ -25,6 +25,11 @@ export interface StrapiImage {
   createdAt: string;
   updatedAt: string;
   publishedAt: string;
+}
+
+export interface StrapiImage extends StrapiMedia {
+  width: number;
+  height: number;
 }
 
 export interface StrapiImageFormat {
@@ -181,6 +186,43 @@ export interface AboutPageHero {
   backgroundImageAlt?: string | null;
   Breadcrumb?: AboutPageBreadcrumbItem[] | null;
   backgroundImage?: StrapiImage | null;
+}
+
+export interface BidNoticePageHero {
+  id: number;
+  PageTitle: string;
+  backgroundImageAlt?: string | null;
+  Breadcrumb?: AboutPageBreadcrumbItem[] | null;
+  backgroundImage?: StrapiImage | null;
+}
+
+export interface Tender {
+  id: number;
+  documentId?: string;
+  Title: string;
+  TenderNumber: string;
+  ClosingDate: string;
+  PublishDate: string;
+  State: 'Open' | 'Closed' | 'Archived';
+  Document: StrapiMedia | null;
+  createdAt?: string;
+  updatedAt?: string;
+  publishedAt?: string;
+  locale?: string;
+}
+
+export interface BidNoticePage {
+  id: number;
+  documentId: string;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string;
+  locale: string;
+  pagehero?: BidNoticePageHero | null;
+  rrisllogo?: StrapiImage | null;
+  LabelClosingDate?: string | null;
+  LabelReadMore?: string | null;
+  tenders?: Tender[] | null;
 }
 
 export interface AboutPageFirstContent {
