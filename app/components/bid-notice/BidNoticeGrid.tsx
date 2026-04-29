@@ -18,6 +18,8 @@ interface BidNoticeGridProps {
   logoAlt?: string;
   closingDateLabel?: string;
   readMoreLabel?: string;
+  emptyStateTitle?: string;
+  emptyStateDescription?: string;
 }
 
 const BidNoticeGrid: React.FC<BidNoticeGridProps> = ({
@@ -26,6 +28,8 @@ const BidNoticeGrid: React.FC<BidNoticeGridProps> = ({
   logoAlt = 'RRISL Logo',
   closingDateLabel = 'Closing Date',
   readMoreLabel = 'Read More',
+  emptyStateTitle = 'Currently there are no bid notices',
+  emptyStateDescription = 'Please check back later for upcoming tender opportunities and related notices.',
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const gridRef = useRef<HTMLDivElement>(null);
@@ -49,12 +53,8 @@ const BidNoticeGrid: React.FC<BidNoticeGridProps> = ({
       {initialNotices.length === 0 ? (
         <div className="mb-16 rounded-[24px] border border-[#DDE6D7] bg-[linear-gradient(135deg,#F7FBF6_0%,#EEF7EF_100%)] px-6 py-14 text-center shadow-[0_8px_24px_rgba(15,63,29,0.04)] md:px-10">
           <div className="mx-auto max-w-2xl">
-            <h2 className="text-2xl font-semibold text-[#16324F] md:text-3xl">
-              Currently there are no bid notices
-            </h2>
-            <p className="mt-3 text-sm leading-7 text-[#5B6470] md:text-base">
-              Please check back later for upcoming tender opportunities and related notices.
-            </p>
+            <h2 className="text-2xl font-semibold text-[#16324F] md:text-3xl">{emptyStateTitle}</h2>
+            <p className="mt-3 text-sm leading-7 text-[#5B6470] md:text-base">{emptyStateDescription}</p>
           </div>
         </div>
       ) : (

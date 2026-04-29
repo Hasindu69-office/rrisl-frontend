@@ -39,3 +39,9 @@ export interface AboutSection {
   imageTop: StrapiImage | null;
   imageBottom: StrapiImage | null;
 }
+
+export interface ErrorMessageContent {
+  id: number;
+  title: string;
+  description: string;
+}

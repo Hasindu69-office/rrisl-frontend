@@ -18,7 +18,15 @@ export default async function BidNotice({ searchParams }: BidNoticeProps) {
   ]);
   const hero = mapBidNoticeHero(bidNoticePage, fallbackPage);
   const logo = bidNoticePage?.rrisllogo || fallbackPage?.rrisllogo || null;
-  const { notices, logoSrc, logoAlt, closingDateLabel, readMoreLabel } = mapBidNoticeList(
+  const {
+    notices,
+    logoSrc,
+    logoAlt,
+    closingDateLabel,
+    readMoreLabel,
+    emptyStateTitle,
+    emptyStateDescription,
+  } = mapBidNoticeList(
     tenders,
     logo,
     bidNoticePage,
@@ -43,6 +51,8 @@ export default async function BidNotice({ searchParams }: BidNoticeProps) {
             logoAlt={logoAlt}
             closingDateLabel={closingDateLabel}
             readMoreLabel={readMoreLabel}
+            emptyStateTitle={emptyStateTitle}
+            emptyStateDescription={emptyStateDescription}
           />
         </div>
       </section>

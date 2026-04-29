@@ -11,6 +11,7 @@ function buildBidNoticePageQuery(locale: string): string {
   params.set('populate[pagehero][populate][backgroundImage]', 'true');
   params.set('populate[pagehero][populate][Breadcrumb]', 'true');
   params.set('populate[rrisllogo]', 'true');
+  params.set('populate[ErrrorMessage]', 'true');
 
   return params.toString();
 }

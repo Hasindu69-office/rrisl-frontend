@@ -1,7 +1,7 @@
 import type { AboutPageBreadcrumbItem, ErrorMessageContent } from './shared';
 import type { StrapiImage, StrapiMedia } from './strapi';
 
-export interface BidNoticePageHero {
+export interface DownloadPageHero {
   id: number;
   PageTitle: string;
   backgroundImageAlt?: string | null;
@@ -9,32 +9,26 @@ export interface BidNoticePageHero {
   backgroundImage?: StrapiImage | null;
 }
 
-export interface Tender {
+export interface Download {
   id: number;
   documentId?: string;
   Title: string;
-  TenderNumber: string;
-  ClosingDate: string;
-  PublishDate: string;
-  State: 'Open' | 'Closed' | 'Archived';
-  Document: StrapiMedia | null;
+  documentimage: StrapiImage | null;
+  document: StrapiMedia | null;
   createdAt?: string;
   updatedAt?: string;
   publishedAt?: string;
   locale?: string;
 }
 
-export interface BidNoticePage {
+export interface DownloadPage {
   id: number;
   documentId: string;
   createdAt: string;
   updatedAt: string;
   publishedAt: string;
   locale: string;
-  pagehero?: BidNoticePageHero | null;
-  rrisllogo?: StrapiImage | null;
-  LabelClosingDate?: string | null;
   LabelReadMore?: string | null;
   ErrrorMessage?: ErrorMessageContent | null;
-  tenders?: Tender[] | null;
+  pagehero?: DownloadPageHero | null;
 }
