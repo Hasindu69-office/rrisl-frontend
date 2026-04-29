@@ -206,8 +206,8 @@ function RubberPriceArchiveNav({
 
           <div className="mt-6">
             <GradientTitle
-              part1="Browse weekly rubber prices"
-              part2=" by year and auction date."
+              part1="Browse weekly"
+              part2=" rubber prices."
               lineBreak={false}
               part1Color="dark-green"
               size="custom"
@@ -218,8 +218,7 @@ function RubberPriceArchiveNav({
 
           <p className="mt-4 text-[14px] leading-7 text-[#5A6B61] sm:mt-5 sm:text-[15px] md:text-[16px] md:leading-8">
             Select an archive year to view the available weekly uploads, then choose
-            a date to open that auction sheet in an on-page viewer without losing
-            your position in the archive.
+            a date to open that auction sheet.
           </p>
         </div>
 
@@ -776,7 +775,7 @@ export default function RubberPricesSection({
         <div className="grid gap-10 lg:grid-cols-[minmax(0,0.88fr)_minmax(420px,1fr)] lg:items-start">
           <div className="min-w-0">
             <GradientTag
-              text="Weekly Price Archive"
+              text="Weekly Rubber Prices"
               className="inline-block"
               gradientFrom="#20C997"
               gradientTo="#A1DF0A"
@@ -784,8 +783,8 @@ export default function RubberPricesSection({
 
             <div className="mt-6 max-w-[820px]">
               <GradientTitle
-                part1="Rubber auction prices,"
-                part2=" redesigned for faster browsing."
+                part1="Rubber auction"
+                part2=" prices"
                 lineBreak={false}
                 part1Color="dark-green"
                 size="custom"
@@ -826,7 +825,7 @@ export default function RubberPricesSection({
                     Recent updates
                   </p>
                   <h3 className="mt-2 text-[20px] font-semibold text-[#12311D] sm:text-[22px] md:text-[24px]">
-                    Jump directly to a recent auction date
+                    Recent auction date
                   </h3>
                   <p className="mt-2 text-[14px] leading-6 text-[#5E7268] md:hidden">
                     Tap a weekly date to open the archive sheet instantly.
