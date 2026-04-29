@@ -15,6 +15,8 @@ export interface BidNoticeListViewModel {
   logoAlt: string;
   closingDateLabel: string;
   readMoreLabel: string;
+  emptyStateTitle: string;
+  emptyStateDescription: string;
 }
 
 const BID_NOTICE_LIST_FALLBACK: BidNoticeListViewModel = {
@@ -23,6 +25,8 @@ const BID_NOTICE_LIST_FALLBACK: BidNoticeListViewModel = {
   logoAlt: 'RRISL Logo',
   closingDateLabel: 'Closing Date',
   readMoreLabel: 'Read More',
+  emptyStateTitle: 'Currently there are no bid notices',
+  emptyStateDescription: 'Please check back later for upcoming tender opportunities and related notices.',
 };
 
 function normalizeTender(tender: Tender | { attributes?: Tender } | null | undefined): Tender | null {
@@ -100,5 +104,13 @@ export function mapBidNoticeList(
       localizedPage?.LabelReadMore ||
       fallbackPage?.LabelReadMore ||
       BID_NOTICE_LIST_FALLBACK.readMoreLabel,
+    emptyStateTitle:
+      localizedPage?.ErrrorMessage?.title ||
+      fallbackPage?.ErrrorMessage?.title ||
+      BID_NOTICE_LIST_FALLBACK.emptyStateTitle,
+    emptyStateDescription:
+      localizedPage?.ErrrorMessage?.description ||
+      fallbackPage?.ErrrorMessage?.description ||
+      BID_NOTICE_LIST_FALLBACK.emptyStateDescription,
   };
 }
