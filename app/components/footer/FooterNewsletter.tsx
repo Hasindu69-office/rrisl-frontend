@@ -1,15 +1,65 @@
-/* eslint-disable jsx-a11y/label-has-associated-control */
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+
 import { useNewsletterForm } from '@/app/hooks/useNewsletterForm';
 import Button from '@/app/components/ui/Button';
+import { normalizeLocale } from '@/app/lib/locale';
+import { getNewsletterSection, type NewsletterSection } from '@/app/lib/strapi';
+
+const fallbackContent: NewsletterSection = {
+  id: 0,
+  Title: 'Stay Updated With the Latest Research & Insights',
+  EmailPlaceholder: 'Enter Your Email',
+  ButtonText: 'Submit',
+  SuccessMessage: "Thank you for subscribing. You'll start receiving updates soon.",
+  ErrorMessage: 'Something went wrong. Please try again later.',
+};
 
 export default function FooterNewsletter() {
-  const { email, status, errorMessage, setEmail, handleSubmit } = useNewsletterForm();
+  const searchParams = useSearchParams();
+  const locale = normalizeLocale(searchParams.get('locale'));
+  const [content, setContent] = useState<NewsletterSection>(fallbackContent);
+  const { email, status, errorMessage, setEmail, handleSubmit, resetSubmissionState } =
+    useNewsletterForm({
+      genericErrorMessage: content.ErrorMessage,
+    });
 
   const isSubmitting = status === 'submitting';
   const isSuccess = status === 'success';
+  const submitLabel = isSubmitting ? 'Submitting...' : isSuccess ? 'Subscribed' : content.ButtonText;
+
+  useEffect(() => {
+    let isActive = true;
+
+    async function loadNewsletterSection() {
+      try {
+        const nextContent = await getNewsletterSection(locale);
+
+        if (!isActive || !nextContent) {
+          return;
+        }
+
+        setContent({
+          ...fallbackContent,
+          ...nextContent,
+        });
+      } catch (error) {
+        console.error('Failed to load newsletter section content:', error);
+
+        if (isActive) {
+          setContent(fallbackContent);
+        }
+      }
+    }
+
+    void loadNewsletterSection();
+
+    return () => {
+      isActive = false;
+    };
+  }, [locale]);
 
   return (
     <section
@@ -23,7 +73,7 @@ export default function FooterNewsletter() {
             {/* Text */}
             <div className="space-y-4 text-center xl:text-left">
               <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[30px] xl:text-[35px] font-bold leading-[1.2] xl:leading-[130%] text-white">
-                Stay Updated With the Latest Research &amp; Insights
+                {content.Title}
               </h2>
             </div>
 
@@ -43,8 +93,11 @@ export default function FooterNewsletter() {
                   id="footer-newsletter-email"
                   type="email"
                   value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  placeholder="Enter Your Email"
+                  onChange={(event) => {
+                    resetSubmissionState();
+                    setEmail(event.target.value);
+                  }}
+                  placeholder={content.EmailPlaceholder || fallbackContent.EmailPlaceholder || ''}
                   className="w-full h-14 bg-white rounded-[50px] px-8 text-base text-gray-800 placeholder:text-gray-500 outline-none shadow-sm"
                   aria-invalid={errorMessage ? 'true' : 'false'}
                   aria-describedby={errorMessage ? 'footer-newsletter-error' : undefined}
@@ -56,7 +109,7 @@ export default function FooterNewsletter() {
                   disabled={isSubmitting || isSuccess}
                   className="!w-full !max-w-[200px] !mx-auto !h-14 !rounded-[50px] border-[#2E7D32] text-[#2E7D32] bg-white hover:bg-[#2E7D32] hover:text-white disabled:cursor-default disabled:opacity-80 text-base font-bold shadow-md"
                 >
-                  {isSubmitting ? 'Submitting...' : isSuccess ? 'Subscribed' : 'Submit'}
+                  {submitLabel}
                 </Button>
               </div>
 
@@ -66,8 +119,11 @@ export default function FooterNewsletter() {
                   id="footer-newsletter-email"
                   type="email"
                   value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  placeholder="Enter Your Email"
+                  onChange={(event) => {
+                    resetSubmissionState();
+                    setEmail(event.target.value);
+                  }}
+                  placeholder={content.EmailPlaceholder || fallbackContent.EmailPlaceholder || ''}
                   className="flex-1 h-full bg-transparent xl:pl-[39px] xl:pr-[190px] text-base text-gray-800 placeholder:text-gray-500 outline-none rounded-l-[50px]"
                   aria-invalid={errorMessage ? 'true' : 'false'}
                   aria-describedby={errorMessage ? 'footer-newsletter-error' : undefined}
@@ -80,7 +136,7 @@ export default function FooterNewsletter() {
                     disabled={isSubmitting || isSuccess}
                     className="!w-[178px] !h-[56px] !rounded-[50px] border-[#2E7D32] text-[#2E7D32] hover:bg-[#2E7D32] hover:text-white disabled:cursor-default disabled:opacity-80"
                   >
-                    {isSubmitting ? 'Submitting...' : isSuccess ? 'Subscribed' : 'Submit'}
+                    {submitLabel}
                   </Button>
                 </div>
               </div>
@@ -101,7 +157,7 @@ export default function FooterNewsletter() {
                     role="status"
                     className="text-sm font-medium text-emerald-50"
                   >
-                    Thank you for subscribing. You&apos;ll start receiving updates soon.
+                    {content.SuccessMessage}
                   </p>
                 )}
               </div>

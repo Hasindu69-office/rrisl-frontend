@@ -7,5 +7,6 @@ export * from './strapi/downloads';
 export * from './strapi/home';
 export * from './strapi/media';
 export * from './strapi/navigation';
+export * from './strapi/newsletter';
 export * from './strapi/query';
 
