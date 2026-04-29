@@ -7,7 +7,7 @@ export interface RubberPriceEntry {
   archiveYear: string;
 }
 
-const rubberPriceEntriesSource: Omit<RubberPriceEntry, 'archiveYear'>[] = [
+const rubberPriceEntriesSource: Omit<RubberPriceEntry, 'archiveYear' | 'status'>[] = [
   {
     id: 'rubber-price-2026-04-21',
     date: '2026-04-21',
