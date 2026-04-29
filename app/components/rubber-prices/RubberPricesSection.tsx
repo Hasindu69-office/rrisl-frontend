@@ -794,10 +794,7 @@ export default function RubberPricesSection({
             </div>
 
             <p className="mt-4 max-w-[740px] text-[15px] leading-7 text-[#5A6B61] md:mt-5 md:text-[16px] md:leading-8 lg:text-[17px]">
-              View the latest weekly auction sheet first, then move through recent
-              uploads and older archives without leaving the page. The layout keeps
-              the price sheet readable while making date-based browsing much clearer
-              than the older archive list.
+              View the latest weekly auction sheet and the archived rubber price list.
             </p>
 
             <div className="mt-7 grid gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3">
