@@ -39,8 +39,6 @@ const SocialIcon = ({ type }: { type: FooterSocialLink['type'] }) => {
 };
 
 export default function FooterSocials({ links, className = '' }: FooterSocialsProps) {
-  if (!links.length) return null;
-
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [hasEnteredView, setHasEnteredView] = useState(false);
 
@@ -70,6 +68,8 @@ export default function FooterSocials({ links, className = '' }: FooterSocialsPr
       observer.disconnect();
     };
   }, []);
+
+  if (!links.length) return null;
 
   return (
     <div
