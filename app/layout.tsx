@@ -38,7 +38,9 @@ export default function RootLayout({
         <div className="flex min-h-screen flex-col">
           <main className="flex-1">{children}</main>
           <div className="rrisl-site-footer">
-            <Footer />
+            <Suspense fallback={null}>
+              <Footer />
+            </Suspense>
           </div>
         </div>
       </body>

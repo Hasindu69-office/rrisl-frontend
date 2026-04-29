@@ -6,7 +6,8 @@ import { useSearchParams } from 'next/navigation';
 import { useNewsletterForm } from '@/app/hooks/useNewsletterForm';
 import Button from '@/app/components/ui/Button';
 import { normalizeLocale } from '@/app/lib/locale';
-import { getNewsletterSection, type NewsletterSection } from '@/app/lib/strapi';
+import { getNewsletterSection } from '@/app/lib/strapi';
+import type { NewsletterSection } from '@/app/lib/types';
 
 const fallbackContent: NewsletterSection = {
   id: 0,

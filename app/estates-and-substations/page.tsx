@@ -42,7 +42,7 @@ export default async function EstatesAndSubstationsPage({
               <div className="w-full lg:ml-[48%] lg:max-w-[620px]">
                 <div className="flex flex-col items-start gap-5">
                   <GradientTag
-                    text="Main Objective"
+                    text="Locations"
                     className="inline-block"
                     padding="px-4 py-1.5"
                   />
