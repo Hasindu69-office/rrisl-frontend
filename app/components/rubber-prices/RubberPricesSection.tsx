@@ -1,7 +1,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import {
   CalendarDays,
@@ -136,17 +136,21 @@ function RubberPriceDateChip({
   entry,
   active,
   onSelect,
+  compact = false,
 }: {
   entry: RubberPriceEntry;
   active: boolean;
   onSelect: () => void;
+  compact?: boolean;
 }) {
   return (
     <button
       type="button"
       onClick={onSelect}
       aria-pressed={active}
-      className={`group inline-flex min-h-11 min-w-max cursor-pointer items-center gap-3 rounded-full border px-4 py-3 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2E7D32] focus-visible:ring-offset-2 ${
+      className={`group inline-flex cursor-pointer items-center rounded-full border text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2E7D32] focus-visible:ring-offset-2 ${
+        compact ? 'min-h-10 w-full gap-2 px-3 py-2.5' : 'min-h-11 min-w-max gap-3 px-4 py-3'
+      } ${
         active
           ? 'border-[#2E7D32] bg-[#2E7D32] text-white shadow-[0_18px_34px_rgba(46,125,50,0.22)]'
           : 'border-[#D7E3D3] bg-white text-[#16311F] hover:border-[#BFD4B8] hover:bg-[#F7FBF4]'
@@ -154,6 +158,8 @@ function RubberPriceDateChip({
     >
       <span
         className={`inline-flex h-9 w-9 items-center justify-center rounded-full transition ${
+          compact ? 'h-8 w-8' : 'h-9 w-9'
+        } ${
           active
             ? 'bg-white/18 text-white'
             : 'bg-[#F2F7ED] text-[#2E7D32] group-hover:bg-[#E7F2DF]'
@@ -161,7 +167,9 @@ function RubberPriceDateChip({
       >
         <CalendarDays className="h-4 w-4" strokeWidth={2.1} aria-hidden="true" />
       </span>
-      <span className="text-sm font-semibold">{formatCompactDate(entry.date)}</span>
+      <span className={`${compact ? 'text-[12px]' : 'text-sm'} font-semibold`}>
+        {formatCompactDate(entry.date)}
+      </span>
     </button>
   );
 }
@@ -393,6 +401,8 @@ function RubberPriceViewerModal({
   onClose: () => void;
   onSelectEntry: (entryId: string) => void;
 }) {
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+
   useEffect(() => {
     if (!entry) {
       return;
@@ -437,6 +447,16 @@ function RubberPriceViewerModal({
     };
   }, [activeYearEntries, entry, onClose, onSelectEntry]);
 
+  useLayoutEffect(() => {
+    if (!entry) {
+      return;
+    }
+
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = 0;
+    }
+  }, [entry]);
+
   if (!entry) {
     return null;
   }
@@ -476,19 +496,12 @@ function RubberPriceViewerModal({
         <div className="sticky top-0 z-20 border-b border-[#E0E9DC] bg-[radial-gradient(circle_at_top_right,_rgba(161,223,10,0.18),_transparent_26%),linear-gradient(135deg,#F7FBF4_0%,#EEF6EA_100%)] px-4 py-4 backdrop-blur md:px-6 md:py-5 lg:px-7 lg:py-6">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0 pr-2 md:pr-4">
-              <div className="inline-flex items-center rounded-full border border-[#D6E5CF] bg-white/90 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#1E6B2F] sm:px-4 sm:py-2 sm:text-[12px]">
-                Archive viewer
-              </div>
               <h3
                 id={`rubber-price-viewer-title-${entry.id}`}
-                className="mt-3 text-[20px] font-semibold leading-tight text-[#10341B] sm:text-[22px] md:mt-4 md:text-[26px] lg:text-[30px]"
+                className="text-[20px] font-semibold leading-tight text-[#10341B] sm:text-[22px] md:text-[26px] lg:text-[30px]"
               >
                 Auction Prices for {formatDisplayDate(entry.date)}
               </h3>
-              <p className="mt-2 max-w-[720px] text-[13px] leading-6 text-[#566A5F] sm:text-[14px] md:text-[15px] md:leading-7">
-                Browse archived weekly sheets without scrolling back to the featured
-                preview. The selected date stays synchronized with the page state.
-              </p>
             </div>
 
             <button
@@ -519,11 +532,14 @@ function RubberPriceViewerModal({
           </div>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto bg-[linear-gradient(180deg,#F6F9F3_0%,#FFFFFF_100%)] p-3 sm:p-4 md:p-5 lg:p-7">
-          <div className="grid gap-4 lg:gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+        <div
+          ref={scrollContainerRef}
+          className="min-h-0 flex-1 overflow-y-auto bg-[linear-gradient(180deg,#F6F9F3_0%,#FFFFFF_100%)] p-3 sm:p-4 md:p-5 lg:p-7"
+        >
+          <div className="grid gap-4 lg:gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
             <div className="rounded-[22px] border border-[#E1EBDD] bg-white p-2.5 shadow-[0_18px_40px_rgba(15,63,29,0.08)] sm:rounded-[24px] sm:p-3 md:rounded-[26px] md:p-4 lg:rounded-[28px] lg:p-5">
               <div className="rounded-[18px] border border-dashed border-[#D7E4D1] bg-[#FAFCF8] p-2.5 sm:rounded-[20px] sm:p-3 md:rounded-[22px] md:p-4">
-                <div className="relative mx-auto aspect-[454/391] w-full overflow-hidden rounded-[16px] bg-white shadow-[0_18px_40px_rgba(15,63,29,0.08)] sm:rounded-[18px]">
+                <div className="relative mx-auto h-[clamp(280px,42dvh,420px)] w-full overflow-hidden rounded-[16px] bg-white shadow-[0_18px_40px_rgba(15,63,29,0.08)] sm:h-[min(56dvh,520px)] sm:rounded-[18px] lg:h-[min(58dvh,620px)] xl:h-[min(54dvh,560px)]">
                   <Image
                     src={entry.imageSrc}
                     alt={entry.imageAlt}
@@ -532,6 +548,46 @@ function RubberPriceViewerModal({
                     sizes="(max-width: 1279px) 100vw, 900px"
                     priority
                   />
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4 xl:hidden">
+              {activeYearEntries.length > 1 ? (
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => previousEntry && onSelectEntry(previousEntry.id)}
+                    className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-[16px] border border-[#D7E3D3] bg-[#F8FBF6] px-4 py-3 text-sm font-semibold text-[#16311F] transition hover:border-[#BFD4B8] hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2E7D32] focus-visible:ring-offset-2"
+                  >
+                    <ChevronLeft className="h-4 w-4" strokeWidth={2.1} aria-hidden="true" />
+                    <span>Previous</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => nextEntry && onSelectEntry(nextEntry.id)}
+                    className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-[16px] border border-[#D7E3D3] bg-[#F8FBF6] px-4 py-3 text-sm font-semibold text-[#16311F] transition hover:border-[#BFD4B8] hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2E7D32] focus-visible:ring-offset-2"
+                  >
+                    <span>Next</span>
+                    <ChevronRight className="h-4 w-4" strokeWidth={2.1} aria-hidden="true" />
+                  </button>
+                </div>
+              ) : null}
+
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#7A8C82]">
+                  Quick switch
+                </p>
+                <div className="mt-3 grid grid-cols-2 gap-3">
+                  {activeYearEntries.map((activeYearEntry) => (
+                    <RubberPriceDateChip
+                      key={activeYearEntry.id}
+                      entry={activeYearEntry}
+                      active={activeYearEntry.id === entry.id}
+                      compact
+                      onSelect={() => onSelectEntry(activeYearEntry.id)}
+                    />
+                  ))}
                 </div>
               </div>
             </div>
@@ -573,12 +629,13 @@ function RubberPriceViewerModal({
                 <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#7A8C82]">
                   Quick switch
                 </p>
-                <div className="mt-4 flex flex-wrap gap-3">
+                <div className="mt-4 grid grid-cols-2 gap-3">
                   {activeYearEntries.map((activeYearEntry) => (
                     <RubberPriceDateChip
                       key={activeYearEntry.id}
                       entry={activeYearEntry}
                       active={activeYearEntry.id === entry.id}
+                      compact
                       onSelect={() => onSelectEntry(activeYearEntry.id)}
                     />
                   ))}
@@ -588,7 +645,7 @@ function RubberPriceViewerModal({
           </div>
         </div>
 
-        <div className="sticky bottom-0 z-20 border-t border-[#E0E9DC] bg-white/96 px-4 py-4 backdrop-blur md:px-5 xl:hidden">
+        <div className="hidden sticky bottom-0 z-20 border-t border-[#E0E9DC] bg-white/96 px-4 py-4 backdrop-blur md:px-5 xl:hidden">
           {activeYearEntries.length > 1 ? (
             <div className="grid grid-cols-2 gap-3">
               <button
@@ -614,12 +671,13 @@ function RubberPriceViewerModal({
             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#7A8C82]">
               Quick switch
             </p>
-            <div className="mt-3 flex gap-3 overflow-x-auto pb-1 [scrollbar-color:rgba(46,125,50,0.24)_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar]:h-[5px] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[rgba(46,125,50,0.24)]">
+            <div className="mt-3 grid grid-cols-2 gap-3">
               {activeYearEntries.map((activeYearEntry) => (
                 <RubberPriceDateChip
                   key={activeYearEntry.id}
                   entry={activeYearEntry}
                   active={activeYearEntry.id === entry.id}
+                  compact
                   onSelect={() => onSelectEntry(activeYearEntry.id)}
                 />
               ))}
@@ -713,7 +771,7 @@ export default function RubberPricesSection({
   const viewerYearEntries = viewerEntry ? entriesByYear[viewerEntry.archiveYear] ?? [] : [];
 
   return (
-    <section className="overflow-x-hidden bg-white px-4 pb-32 pt-12 md:px-6 md:pb-48 md:pt-16 lg:px-36 lg:pb-80 lg:pt-22">
+    <section className="overflow-x-hidden bg-white px-4 pb-56 pt-12 md:px-6 md:pb-48 md:pt-16 lg:px-36 lg:pb-80 lg:pt-22">
       <div className="mx-auto w-full max-w-[1480px] min-w-0">
         <div className="grid gap-10 lg:grid-cols-[minmax(0,0.88fr)_minmax(420px,1fr)] lg:items-start">
           <div className="min-w-0">
