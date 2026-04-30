@@ -1,4 +1,5 @@
 export * from './types/about';
+export * from './types/board-of-management';
 export * from './types/bid-notice';
 export * from './types/downloads';
 export * from './types/footer';

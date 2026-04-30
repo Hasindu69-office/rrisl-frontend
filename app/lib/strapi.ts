@@ -1,4 +1,5 @@
 export * from './strapi/about';
+export * from './strapi/board-of-management';
 export * from './strapi/announcements';
 export * from './strapi/bid-notice';
 export * from './strapi/client';
