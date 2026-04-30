@@ -5,6 +5,7 @@ export * from './strapi/bid-notice';
 export * from './strapi/client';
 export * from './strapi/contact';
 export * from './strapi/downloads';
+export * from './strapi/e-publications';
 export * from './strapi/footer';
 export * from './strapi/home';
 export * from './strapi/media';

@@ -12,15 +12,29 @@ import {
 } from 'lucide-react';
 import GradientTitle from '@/app/components/ui/GradientTitle';
 import PublicationCard from '../shared/PublicationCard';
-import {
-  eLibraryFilterTree,
-  type ELibraryFilterNode,
-  type ELibraryPublicationItem,
-} from './eLibraryData';
+import type { PublicationCardItem } from '../shared/PublicationCard';
 
 interface ELibrarySectionProps {
-  filters?: ELibraryFilterNode[];
+  filters: ELibraryFilterNode[];
   initialActiveFilterId?: string;
+  itemLabel?: string;
+  filterLibraryLabel?: string;
+  resetButtonLabel?: string;
+  searchLibraryLabel?: string;
+  readMoreLabel?: string;
+  emptyState?: {
+    title: string;
+    description: string;
+  };
+}
+
+export type ELibraryPublicationItem = PublicationCardItem;
+
+export interface ELibraryFilterNode {
+  id: string;
+  label: string;
+  publications?: ELibraryPublicationItem[];
+  children?: ELibraryFilterNode[];
 }
 
 interface FlattenedFilterItem {
@@ -33,7 +47,9 @@ interface FilterTreeProps {
   activeFilterId: string;
   compact: boolean;
   filters: FlattenedFilterItem[];
+  filterLibraryLabel: string;
   maxHeightClassName?: string;
+  resetButtonLabel: string;
   onReset: () => void;
   onSelect: (filterId: string) => void;
 }
@@ -106,7 +122,9 @@ function FilterTree({
   activeFilterId,
   compact,
   filters,
+  filterLibraryLabel,
   maxHeightClassName = 'max-h-[620px]',
+  resetButtonLabel,
   onReset,
   onSelect,
 }: FilterTreeProps) {
@@ -124,13 +142,13 @@ function FilterTree({
   return (
     <>
       <div className="mt-5 flex items-center justify-between">
-        <p className="text-[11px] font-medium text-[#98A2B3]">Filter Library</p>
+        <p className="text-[11px] font-medium text-[#98A2B3]">{filterLibraryLabel}</p>
         <button
           type="button"
           onClick={onReset}
           className="text-[11px] font-medium text-[#98A2B3] transition hover:text-[#2E7D32]"
         >
-          Reset
+          {resetButtonLabel}
         </button>
       </div>
 
@@ -171,8 +189,17 @@ function FilterTree({
 }
 
 export default function ELibrarySection({
-  filters = eLibraryFilterTree,
+  filters,
   initialActiveFilterId,
+  itemLabel = 'items',
+  filterLibraryLabel = 'Filter Library',
+  resetButtonLabel = 'Reset',
+  searchLibraryLabel = 'Search Library',
+  readMoreLabel = 'Read More',
+  emptyState = {
+    title: 'No publications found',
+    description: 'Please check back later for upcoming publications and library resources.',
+  },
 }: ELibrarySectionProps) {
   const defaultActiveNode = useMemo(() => {
     if (initialActiveFilterId) {
@@ -349,7 +376,7 @@ export default function ELibrarySection({
         <aside className="hidden self-start rounded-[18px] border border-[#E4E8E0] bg-white p-4 shadow-[0_10px_28px_rgba(13,62,28,0.04)] md:p-5 xl:sticky xl:top-6 xl:block">
           <div className="relative">
             <label htmlFor="library-search-desktop" className="sr-only">
-              Search library
+              {searchLibraryLabel}
             </label>
             <Search
               className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#98A2B3]"
@@ -360,7 +387,7 @@ export default function ELibrarySection({
               type="search"
               value={searchTerm}
               onChange={(event) => handleSearchChange(event.target.value)}
-              placeholder="Search Library"
+              placeholder={searchLibraryLabel}
               className="h-[40px] w-full rounded-[10px] border border-[#E7E7E7] bg-white pl-9 pr-4 text-[13px] text-[#344054] outline-none transition focus:border-[#2E7D32]"
             />
           </div>
@@ -369,8 +396,10 @@ export default function ELibrarySection({
             activeFilterId={resolvedActiveFilterId}
             compact={false}
             filters={visibleFilters}
+            filterLibraryLabel={filterLibraryLabel}
             onReset={handleReset}
             onSelect={handleFilterChange}
+            resetButtonLabel={resetButtonLabel}
           />
         </aside>
 
@@ -379,7 +408,7 @@ export default function ELibrarySection({
             <div className="sticky top-0 z-30 mb-6 -mx-4 border-b border-[#EFF2EB] bg-white/95 px-4 pb-4 pt-2 backdrop-blur-sm md:-mx-6 md:px-6">
               <div className="relative">
                 <label htmlFor="library-search-responsive" className="sr-only">
-                  Search library
+                  {searchLibraryLabel}
                 </label>
                 <Search
                   className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#98A2B3]"
@@ -390,7 +419,7 @@ export default function ELibrarySection({
                   type="search"
                   value={searchTerm}
                   onChange={(event) => handleSearchChange(event.target.value)}
-                  placeholder="Search Library"
+                  placeholder={searchLibraryLabel}
                   className="h-[48px] w-full rounded-[14px] border border-[#E7E7E7] bg-white pl-10 pr-4 text-[14px] text-[#344054] outline-none transition focus:border-[#2E7D32]"
                 />
               </div>
@@ -404,7 +433,7 @@ export default function ELibrarySection({
                       className="inline-flex h-11 items-center justify-center gap-2 rounded-[14px] border border-[#D5DDD0] bg-[#F7FAF3] px-4 text-sm font-medium text-[#184B2B] transition hover:border-[#2E7D32]"
                     >
                       <SlidersHorizontal className="h-4 w-4" strokeWidth={2} />
-                      <span>Filter</span>
+                      <span>{filterLibraryLabel}</span>
                       <ChevronDown
                         className={`h-4 w-4 transition-transform ${
                           tabletFilterOpen ? 'rotate-180' : ''
@@ -418,7 +447,7 @@ export default function ELibrarySection({
                     </div>
 
                     <div className="inline-flex h-11 items-center rounded-[14px] bg-[#FBFCFA] px-4 text-sm text-[#667085]">
-                      {filteredPublications.length} items
+                      {filteredPublications.length} {itemLabel}
                     </div>
 
                     <button
@@ -426,7 +455,7 @@ export default function ELibrarySection({
                       onClick={handleReset}
                       className="ml-auto text-sm font-medium text-[#98A2B3] transition hover:text-[#2E7D32]"
                     >
-                      Reset
+                      {resetButtonLabel}
                     </button>
                   </div>
 
@@ -436,9 +465,11 @@ export default function ELibrarySection({
                         activeFilterId={resolvedActiveFilterId}
                         compact
                         filters={visibleFilters}
+                        filterLibraryLabel={filterLibraryLabel}
                         maxHeightClassName="max-h-[320px]"
                         onReset={handleReset}
                         onSelect={handleFilterChange}
+                        resetButtonLabel={resetButtonLabel}
                       />
                     </div>
                   )}
@@ -451,7 +482,7 @@ export default function ELibrarySection({
                     className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-[14px] border border-[#D5DDD0] bg-[#F7FAF3] px-4 text-sm font-medium text-[#184B2B] transition hover:border-[#2E7D32]"
                   >
                     <SlidersHorizontal className="h-4 w-4" strokeWidth={2} />
-                    <span>Filter</span>
+                    <span>{filterLibraryLabel}</span>
                   </button>
 
                   <div className="min-w-0 flex-1 rounded-[14px] bg-[#F5F8F1] px-4 py-3">
@@ -459,7 +490,7 @@ export default function ELibrarySection({
                       {activeFilterLabel}
                     </div>
                     <div className="mt-0.5 text-xs text-[#667085]">
-                      {filteredPublications.length} items
+                      {filteredPublications.length} {itemLabel}
                     </div>
                   </div>
                 </div>
@@ -480,7 +511,7 @@ export default function ELibrarySection({
             </div>
 
             <div className="hidden rounded-full bg-[#F5F8F1] px-4 py-2 text-sm font-medium text-[#2E7D32] xl:block">
-              {filteredPublications.length} items
+              {filteredPublications.length} {itemLabel}
             </div>
           </div>
 
@@ -510,7 +541,7 @@ export default function ELibrarySection({
                         key={publication.id}
                         data-library-card
                       >
-                        <PublicationCard item={publication} />
+                        <PublicationCard item={publication} buttonLabel={readMoreLabel} />
                       </div>
                     );
                   })}
@@ -578,10 +609,9 @@ export default function ELibrarySection({
               </div>
             ) : (
               <div className="rounded-[24px] border border-dashed border-[#D6DDD0] bg-[#FBFCFA] px-6 py-16 text-center">
-                <h3 className="text-[22px] font-semibold text-[#184B2B]">No publications found</h3>
+                <h3 className="text-[22px] font-semibold text-[#184B2B]">{emptyState.title}</h3>
                 <p className="mx-auto mt-3 max-w-[540px] text-[15px] leading-7 text-[#667085]">
-                  This state is already wired for backend filtering. Once real library data is connected,
-                  the panel will reflect the selected category and search query automatically.
+                  {emptyState.description}
                 </p>
               </div>
             )}
@@ -612,7 +642,7 @@ export default function ELibrarySection({
                 id="mobile-library-filter-title"
                 className="mt-4 text-[20px] font-semibold text-[#184B2B]"
               >
-                Filter Library
+                {filterLibraryLabel}
               </h3>
             </div>
 
@@ -630,9 +660,11 @@ export default function ELibrarySection({
             activeFilterId={resolvedActiveFilterId}
             compact
             filters={visibleFilters}
+            filterLibraryLabel={filterLibraryLabel}
             maxHeightClassName="max-h-[55vh]"
             onReset={handleReset}
             onSelect={handleFilterChange}
+            resetButtonLabel={resetButtonLabel}
           />
         </div>
       </div>
