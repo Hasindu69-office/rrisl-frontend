@@ -213,10 +213,14 @@ export function mapEPublicationsPageData(
       E_PUBLICATIONS_FALLBACK.readMoreLabel,
     emptyState: {
       title:
+        localizedPage?.ErrorMessage?.Title ||
+        fallbackPage?.ErrorMessage?.Title ||
         localizedPage?.ErrorMessage?.title ||
         fallbackPage?.ErrorMessage?.title ||
         E_PUBLICATIONS_FALLBACK.emptyState.title,
       description:
+        localizedPage?.ErrorMessage?.Description ||
+        fallbackPage?.ErrorMessage?.Description ||
         localizedPage?.ErrorMessage?.description ||
         fallbackPage?.ErrorMessage?.description ||
         E_PUBLICATIONS_FALLBACK.emptyState.description,
