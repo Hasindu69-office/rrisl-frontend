@@ -5,14 +5,68 @@ import Image from 'next/image';
 import GradientTag from '@/app/components/ui/GradientTag';
 import ServiceCard from './ServiceCard';
 import GradientTitle from '@/app/components/ui/GradientTitle';
+import type { IndustrySupportSectionViewModel } from '@/app/lib/home/industrySupportSection';
+
+interface IndustrySupportSectionProps {
+  section: IndustrySupportSectionViewModel;
+}
+
+const CARD_POSITIONS = [
+  {
+    className:
+      'absolute right-[75%] left-[0%] top-[12%] md:left-[15%] md:top-[20%] lg:top-[25%] xl:left-[25%] xl:top-[25%] z-30 transform scale-[0.6] md:scale-[0.8] lg:scale-100 origin-center',
+    side: 'left' as const,
+    order: 0,
+    variant: 'white' as const,
+  },
+  {
+    className:
+      'absolute right-[75%] left-[0%] top-[36%] md:left-[15%] md:top-[47%] xl:left-[20%] xl:top-[50%] z-30 transform scale-[0.6] md:scale-[0.8] lg:scale-100 origin-center',
+    side: 'left' as const,
+    order: 1,
+    variant: 'green' as const,
+  },
+  {
+    className:
+      'absolute right-[75%] left-[0%] top-[60%] md:left-[10%] md:top-[72%] xl:left-[20%] xl:top-[77%] z-30 transform scale-[0.6] md:scale-[0.8] lg:scale-100 origin-center',
+    side: 'left' as const,
+    order: 2,
+    variant: 'green' as const,
+  },
+  {
+    className:
+      'absolute -right-[15%] top-[24%] md:right-[15%] md:top-[33%] xl:right-[22%] xl:top-[30%] z-30 transform scale-[0.6] md:scale-[0.8] lg:scale-100 origin-center',
+    side: 'right' as const,
+    order: 0,
+    variant: 'green' as const,
+  },
+  {
+    className:
+      'absolute -right-[15%] top-[48%] md:right-[10%] md:top-[60%] xl:right-[18%] xl:top-[58%] z-30 transform scale-[0.6] md:scale-[0.8] lg:scale-100 origin-center',
+    side: 'right' as const,
+    order: 1,
+    variant: 'green' as const,
+  },
+  {
+    className:
+      'absolute -right-[15%] top-[72%] md:right-[10%] md:top-[84%] lg:right-[15%] lg:top-[80%] xl:right-[30%] xl:top-[75%] z-30 transform scale-[0.6] md:scale-[0.8] lg:scale-100 origin-center',
+    side: 'right' as const,
+    order: 2,
+    variant: 'green' as const,
+  },
+] as const;
 
 /**
  * Industry Support Section Component
  * Features a dark background with plant image, "What We Do" tag, and title
  */
-export default function IndustrySupportSection() {
+export default function IndustrySupportSection({
+  section,
+}: IndustrySupportSectionProps) {
   const sectionRef = useRef<HTMLDivElement | null>(null);
   const [hasEnteredView, setHasEnteredView] = useState(false);
+  const hasLocalhostImages =
+    section.backgroundImageSrc.includes('localhost') || section.plantImageSrc.includes('localhost');
 
   // Detect when the section scrolls into view
   useEffect(() => {
@@ -61,12 +115,13 @@ export default function IndustrySupportSection() {
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <Image
-          src="/images/section3_bg.jpg"
-          alt="Dark soil background"
+          src={section.backgroundImageSrc}
+          alt={section.backgroundImageAlt}
           fill
           className="object-cover"
           priority
           quality={90}
+          unoptimized={hasLocalhostImages}
         />
         {/* Optional dark overlay for better text contrast if needed */}
         <div className="absolute inset-0 bg-black/20" />
@@ -78,7 +133,7 @@ export default function IndustrySupportSection() {
           {/* What We Do Tag */}
           <div className="mt-8 mb-4 md:mt-16 md:mb-8 lg:mt-[75px] lg:mb-[14px]">
             <GradientTag
-              text="What We Do"
+              text={section.eyebrow}
               className="inline-block"
               gradientFrom="#20C997"
               gradientTo="#A1DF0A"
@@ -90,8 +145,8 @@ export default function IndustrySupportSection() {
           {/* Title */}
           <div className="mb-8 md:mb-20">
             <GradientTitle
-              part1="How We"
-              part2="Support the Industry"
+              part1={section.title}
+              part2={section.highlightedText}
               part1Color="white"
               size="custom"
               align="center"
@@ -106,88 +161,39 @@ export default function IndustrySupportSection() {
           >
             <div className="relative w-full h-full">
               <Image
-                src="/images/section3_plant.png"
-                alt="Growing plant representing industry support"
+                src={section.plantImageSrc}
+                alt={section.plantImageAlt}
                 fill
                 className="object-contain"
                 priority
                 quality={90}
+                unoptimized={hasLocalhostImages}
               />
             </div>
           </div>
 
           {/* Service Cards - Positioned around the plant */}
-          {/* Top Left - Research & Innovation (White) */}
-          <div
-            className="absolute right-[75%] left-[0%] top-[12%] md:left-[15%] md:top-[20%] lg:top-[25%] xl:left-[25%] xl:top-[25%] z-30 transform scale-[0.6] md:scale-[0.8] lg:scale-100 origin-center"
-            style={getCardAnimationStyle('left', 0)}
-          >
-            <ServiceCard
-              title="Research & Innovation"
-              description="Advancing rubber science through multidisciplinary research."
-              variant="white"
-            />
-          </div>
+          {section.cards.map((card, index) => {
+            const position = CARD_POSITIONS[index];
 
-          {/* Middle Left - Training & Development (Green) */}
-          <div
-            className="absolute right-[75%] left-[0%] top-[36%] md:left-[15%] md:top-[47%] xl:left-[20%] xl:top-[50%] z-30 transform scale-[0.6] md:scale-[0.8] lg:scale-100 origin-center"
-            style={getCardAnimationStyle('left', 1)}
-          >
-            <ServiceCard
-              title="Training & Development"
-              description="Workshops and programs to boost industry knowledge."
-              variant="green"
-            />
-          </div>
+            if (!position) {
+              return null;
+            }
 
-          {/* Bottom Left - Statistics & Market Insights (Green) */}
-          <div
-            className="absolute right-[75%] left-[0%] top-[60%] md:left-[10%] md:top-[72%] xl:left-[20%] xl:top-[77%] z-30 transform scale-[0.6] md:scale-[0.8] lg:scale-100 origin-center"
-            style={getCardAnimationStyle('left', 2)}
-          >
-            <ServiceCard
-              title="Statistics & Market Insights"
-              description="Trusted rubber production data and industry analysis."
-              variant="green"
-            />
-          </div>
-
-          {/* Top Right - Field Advisory Services (Green) */}
-          <div
-            className="absolute -right-[15%] top-[24%] md:right-[15%] md:top-[33%] xl:right-[22%] xl:top-[30%] z-30 transform scale-[0.6] md:scale-[0.8] lg:scale-100 origin-center"
-            style={getCardAnimationStyle('right', 0)}
-          >
-            <ServiceCard
-              title="Field Advisory Services"
-              description="Providing expert, on-ground support for rubber growers."
-              variant="green"
-            />
-          </div>
-
-          {/* Middle Right - Laboratory Services (Green) */}
-          <div
-            className="absolute -right-[15%] top-[48%] md:right-[10%] md:top-[60%] xl:right-[18%] xl:top-[58%] z-30 transform scale-[0.6] md:scale-[0.8] lg:scale-100 origin-center"
-            style={getCardAnimationStyle('right', 1)}
-          >
-            <ServiceCard
-              title="Laboratory Services"
-              description="Soil testing, plant diagnostics, and quality analysis."
-              variant="green"
-            />
-          </div>
-
-          {/* Bottom Right - Rubber Clone Development (Green) */}
-          <div
-            className="absolute -right-[15%] top-[72%] md:right-[10%] md:top-[84%] lg:right-[15%] lg:top-[80%] xl:right-[30%] xl:top-[75%] z-30 transform scale-[0.6] md:scale-[0.8] lg:scale-100 origin-center"
-            style={getCardAnimationStyle('right', 2)}
-          >
-            <ServiceCard
-              title="Rubber Clone Development"
-              description="High-performing clones for sustainable cultivation."
-              variant="green"
-            />
-          </div>
+            return (
+              <div
+                key={card.id}
+                className={position.className}
+                style={getCardAnimationStyle(position.side, position.order)}
+              >
+                <ServiceCard
+                  title={card.title}
+                  description={card.description}
+                  variant={position.variant}
+                />
+              </div>
+            );
+          })}
 
           {/* Vertical "What We Do" Text - Right side, rotated -90 degrees (reads bottom to top) */}
           <div
@@ -223,7 +229,7 @@ export default function IndustrySupportSection() {
                 fontWeight="bold"
                 fontFamily="sans-serif"
               >
-                What We Do
+                {section.outlineText}
               </text>
             </svg>
           </div>

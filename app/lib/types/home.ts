@@ -1,4 +1,5 @@
 import type { AboutSection, HeroCta, RichTextBlock } from './shared';
+import type { SectionHeader } from './shared';
 import type { StrapiImage } from './strapi';
 
 export interface HeroBadge {
@@ -79,6 +80,23 @@ export interface HomePageStat {
   label: string;
 }
 
+export interface IndustrySupportCard {
+  id: number;
+  title: string;
+  description: string;
+  sortorder?: number | null;
+  url?: string | null;
+}
+
+export interface IndustrySupportSection {
+  id: number;
+  supporttheindustrysection: SectionHeader | null;
+  supporttheindustrycard: IndustrySupportCard[] | null;
+  outlinetext: string;
+  backgroundImage: StrapiImage | null;
+  plantimage: StrapiImage | null;
+}
+
 export interface HomePage {
   id: number;
   documentId: string;
@@ -89,5 +107,6 @@ export interface HomePage {
   hero: Hero | Hero[] | null;
   stats?: HomePageStat[] | null;
   aboutSection?: AboutSection | null;
+  industrysupportsection?: IndustrySupportSection | null;
   Announcement?: AnnouncementSection | null;
 }

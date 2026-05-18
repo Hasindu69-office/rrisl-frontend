@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import { getHomePage, getGlobalLayout, getMenuBySlug, getAllAnnouncements } from '@/app/lib/strapi';
 import { mapAboutSection } from '@/app/lib/home/aboutSection';
 import { resolveHeroSlides } from '@/app/lib/home/hero';
+import { mapIndustrySupportSection } from '@/app/lib/home/industrySupportSection';
 import { resolveHomePageStats } from '@/app/lib/home/stats';
 import { normalizeLocale } from '@/app/lib/locale';
 import HomeHeroWithHeader from './components/home/HomeHeroWithHeader';
@@ -70,6 +71,9 @@ export default async function Home({ searchParams }: HomeProps) {
   const aboutSection = mapAboutSection(
     homePage?.aboutSection || fallbackHomePage?.aboutSection
   );
+  const industrySupportSection = mapIndustrySupportSection(
+    homePage?.industrysupportsection || fallbackHomePage?.industrysupportsection
+  );
   const announcementSection = homePage?.Announcement || fallbackHomePage?.Announcement || null;
   const showAnnouncementCard = announcementSection?.showAnnoucementCard ?? true;
   const announcementLabel = announcementSection?.annoucementlabel || 'Research & Institute Updates';
@@ -124,7 +128,7 @@ export default async function Home({ searchParams }: HomeProps) {
       </div>
 
       {/* Industry Support Section */}
-      <IndustrySupportSection />
+      <IndustrySupportSection section={industrySupportSection} />
 
       {/* Research Section */}
       <ResearchSection />

@@ -16,7 +16,10 @@ function buildHomePageQuery(locale: string): string {
   params.set('populate[hero][populate][badges][populate][icon]', 'true');
   params.set('populate[stats][populate]', '*');
   params.set('populate[aboutSection][populate]', '*');
-  params.set('populate[Announcement][populate]', '*');
+  params.set('populate[industrysupportsection][populate][supporttheindustrysection]', 'true');
+  params.set('populate[industrysupportsection][populate][supporttheindustrycard]', 'true');
+  params.set('populate[industrysupportsection][populate][backgroundImage]', 'true');
+  params.set('populate[industrysupportsection][populate][plantimage]', 'true');
 
   return params.toString();
 }
