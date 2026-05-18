@@ -1,28 +1,38 @@
+'use client';
+
 import React from 'react';
+import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import GradientTag from '@/app/components/ui/GradientTag';
 import GradientTitle from '@/app/components/ui/GradientTitle';
 import Button from '@/app/components/ui/Button';
 import CustomPieChart from './CustomPieChart';
+import { addLocaleToUrl } from '@/app/lib/locale';
+import type { DataInsightsSectionViewModel } from '@/app/lib/home/dataInsightsSection';
 
-const chartData = [
-  { label: 'Production', value: 12799 },
-  { label: 'Plantation', value: 12799 },
-  { label: 'Price', value: 15000 },
-  { label: 'Price', value: 17000 },
-  { label: 'Other', value: 10000 },
-];
+interface DataInsightsSectionProps {
+  section: DataInsightsSectionViewModel;
+}
 
 /**
  * Data Insights Section Component
  * Features a light background with statistics visualization and detailed insights
  */
-export default function DataInsightsSection() {
+export default function DataInsightsSection({
+  section,
+}: DataInsightsSectionProps) {
+  const searchParams = useSearchParams();
+  const currentLocale = searchParams.get('locale') || 'en';
+  const href = section.cta?.linkType === 'internal' && section.cta.url
+    ? addLocaleToUrl(section.cta.url, currentLocale)
+    : section.cta?.url || '#';
+
   return (
     <section
       className="relative w-full overflow-hidden flex items-center justify-center py-12 md:py-24 -mt-[1px]"
       style={{
         minHeight: '600px',
-        backgroundImage: 'linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.7) 100%, rgba(255, 255, 255, 0) 100%), url("/images/datainsightsbackground.jpg")',
+        backgroundImage: `linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.7) 100%, rgba(255, 255, 255, 0) 100%), url("${section.backgroundImageSrc}")`,
         backgroundSize: 'cover',
         backgroundPosition: 'center top',
         backgroundColor: 'white',
@@ -38,12 +48,12 @@ export default function DataInsightsSection() {
                 <div
                   className="font-medium text-sm md:text-lg text-[#929292]"
                 >
-                  Statistics
+                  {section.statisticsLabel}
                 </div>
                 <div
                   className="font-medium text-right text-sm md:text-lg text-[#929292]"
                 >
-                  Year
+                  {section.yearLabel}
                 </div>
               </div>
               <div className="flex justify-between items-start w-full gap-4">
@@ -51,14 +61,14 @@ export default function DataInsightsSection() {
                   <h3
                     className="font-bold tracking-tight text-lg md:text-[22px] text-[#17203E]"
                   >
-                    Rubber Production by Different Types
+                    {section.statisticsTitle}
                   </h3>
                 </div>
                 <div className="text-right whitespace-nowrap">
                   <div
                     className="font-bold text-xl md:text-[22px] text-[#17203E]"
                   >
-                    2024
+                    {section.year}
                   </div>
                 </div>
               </div>
@@ -69,7 +79,7 @@ export default function DataInsightsSection() {
 
             {/* Custom SVG Pie Chart */}
             <div className="flex-1 flex items-center justify-center">
-              <CustomPieChart data={chartData} />
+              <CustomPieChart data={section.chartData} />
             </div>
           </div>
 
@@ -78,7 +88,7 @@ export default function DataInsightsSection() {
             {/* Data & Insights Tag */}
             <div className="mb-6">
               <GradientTag
-                text="Data & Insights"
+                text={section.eyebrow}
                 backgroundColor="transparent"
                 textColor="#2E7D32"
               />
@@ -86,8 +96,8 @@ export default function DataInsightsSection() {
 
             {/* Title */}
             <GradientTitle
-              part1="Real-Time "
-              part2="Data & Insights"
+              part1={section.title}
+              part2={section.highlightedText}
               part1Color="dark-green"
               lineBreak={false}
               size="lg"
@@ -98,29 +108,33 @@ export default function DataInsightsSection() {
 
             {/* Description */}
             <div className="space-y-4 md:space-y-6 text-[#4A4A4A] text-sm md:text-base leading-[160%] max-w-[600px] mb-8 md:mb-10 text-justify">
-              <p>
-                This section presents a detailed year-to-year comparison of growth across
-                major rubber product categories, including Sheet, Sole Crepe, Scrap Crepe,
-                Latex Crepe, T.S.R., and Latex Other. It allows users to analyze annual
-                performance by examining changes in production volumes and identifying
-                patterns of growth, decline, or stability over time. Through clear visualization
-                and structured data presentation, the section supports easy comparison
-                between years and product types, helping users understand both short-term
-                fluctuations and long-term industry trends.
-              </p>
-              <p>
-                The information is particularly useful for researchers, policymakers,
-                rubber growers, exporters, and industry stakeholders who require reliable
-                insights for planning and evaluation. By observing year-on-year movements,
-                users can assess how market demand, production conditions, and policy or
-                environmental factors may influence different product segments.
-              </p>
+              {section.descriptionParagraphs.map((paragraph, index) => (
+                <p key={index}>
+                  {paragraph}
+                </p>
+              ))}
             </div>
 
             {/* View Data Button */}
-            <Button variant="primary" size="lg">
-              View Data
-            </Button>
+            {section.cta && (
+              section.cta.linkType === 'internal' ? (
+                <Link href={href}>
+                  <Button variant="primary" size="lg">
+                    {section.cta.label}
+                  </Button>
+                </Link>
+              ) : (
+                <a
+                  href={href}
+                  target={section.cta.openInNewTab ? '_blank' : '_self'}
+                  rel={section.cta.openInNewTab ? 'noopener noreferrer' : undefined}
+                >
+                  <Button variant="primary" size="lg">
+                    {section.cta.label}
+                  </Button>
+                </a>
+              )
+            )}
           </div>
         </div>
       </div>

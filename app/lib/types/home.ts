@@ -97,6 +97,29 @@ export interface IndustrySupportSection {
   plantimage: StrapiImage | null;
 }
 
+export interface HomepageStatisticsSectionItem {
+  id: number;
+  documentId?: string;
+  label: string;
+  value: number;
+  createdAt?: string;
+  updatedAt?: string;
+  publishedAt?: string;
+  locale?: string;
+}
+
+export interface DataInsightsSection {
+  id: number;
+  statisticslabel: string;
+  statisticstitle: string;
+  yearlabel: string;
+  year: number;
+  statisticsrightheader: SectionHeader | null;
+  description: string;
+  viewdatabutton: HeroCta | null;
+  backgroundimage: StrapiImage | null;
+}
+
 export interface HomePage {
   id: number;
   documentId: string;
@@ -108,5 +131,6 @@ export interface HomePage {
   stats?: HomePageStat[] | null;
   aboutSection?: AboutSection | null;
   industrysupportsection?: IndustrySupportSection | null;
+  datainsightssection?: DataInsightsSection | null;
   Announcement?: AnnouncementSection | null;
 }

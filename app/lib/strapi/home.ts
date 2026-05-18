@@ -20,6 +20,9 @@ function buildHomePageQuery(locale: string): string {
   params.set('populate[industrysupportsection][populate][supporttheindustrycard]', 'true');
   params.set('populate[industrysupportsection][populate][backgroundImage]', 'true');
   params.set('populate[industrysupportsection][populate][plantimage]', 'true');
+  params.set('populate[datainsightssection][populate][statisticsrightheader]', 'true');
+  params.set('populate[datainsightssection][populate][viewdatabutton]', 'true');
+  params.set('populate[datainsightssection][populate][backgroundimage]', 'true');
 
   return params.toString();
 }
