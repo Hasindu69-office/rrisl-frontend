@@ -8,13 +8,7 @@ import type {
 } from 'react';
 
 import { useContactFormSubmission } from '@/app/hooks/useContactFormSubmission';
-
-const subjectOptions = [
-  { id: 'subject-general-1', label: 'General Inquiry', value: 'general-inquiry-1' },
-  { id: 'subject-general-2', label: 'General Inquiry', value: 'general-inquiry-2' },
-  { id: 'subject-general-3', label: 'General Inquiry', value: 'general-inquiry-3' },
-  { id: 'subject-general-4', label: 'General Inquiry', value: 'general-inquiry-4' },
-];
+import type { ContactFormPanelProps } from '@/app/lib/contact/pageData';
 
 const contactFormValidation = {
   firstName: { minLength: 3, maxLength: 50 },
@@ -37,21 +31,27 @@ type FormErrors = Partial<Record<keyof FormValues, string>>;
 type FormTouched = Partial<Record<keyof FormValues, boolean>>;
 type FieldName = keyof FormValues;
 
-const initialValues: FormValues = {
-  firstName: '',
-  lastName: '',
-  email: '',
-  phoneNumber: '',
-  subject: subjectOptions[0].value,
-  message: '',
-};
+function buildInitialValues(subjectOptions: ContactFormPanelProps['subjectOptions']): FormValues {
+  return {
+    firstName: '',
+    lastName: '',
+    email: '',
+    phoneNumber: '',
+    subject: subjectOptions[0]?.value || '',
+    message: '',
+  };
+}
 
-function validateField(name: FieldName, value: string): string {
+function validateField(
+  name: FieldName,
+  value: string,
+  labels: ContactFormPanelProps['labels']
+): string {
   const trimmedValue = value.trim();
 
   switch (name) {
     case 'firstName':
-      if (!trimmedValue) return 'First name is required.';
+      if (!trimmedValue) return labels.firstNameRequiredMessage;
       if (trimmedValue.length < contactFormValidation.firstName.minLength) {
         return `First name must be at least ${contactFormValidation.firstName.minLength} characters.`;
       }
@@ -61,7 +61,7 @@ function validateField(name: FieldName, value: string): string {
       return '';
 
     case 'lastName':
-      if (!trimmedValue) return 'Last name is required.';
+      if (!trimmedValue) return labels.lastNameRequiredMessage;
       if (trimmedValue.length < contactFormValidation.lastName.minLength) {
         return `Last name must be at least ${contactFormValidation.lastName.minLength} characters.`;
       }
@@ -71,7 +71,7 @@ function validateField(name: FieldName, value: string): string {
       return '';
 
     case 'email':
-      if (!trimmedValue) return 'Email is required.';
+      if (!trimmedValue) return labels.emailRequiredMessage;
       if (trimmedValue.length < contactFormValidation.email.minLength) {
         return `Email must be at least ${contactFormValidation.email.minLength} characters.`;
       }
@@ -84,7 +84,7 @@ function validateField(name: FieldName, value: string): string {
       return '';
 
     case 'phoneNumber':
-      if (!trimmedValue) return 'Phone number is required.';
+      if (!trimmedValue) return labels.phoneNumberRequiredMessage;
       if (!new RegExp(contactFormValidation.phoneNumber.pattern).test(trimmedValue)) {
         return 'Phone number must contain digits only.';
       }
@@ -95,7 +95,7 @@ function validateField(name: FieldName, value: string): string {
       return '';
 
     case 'message':
-      if (!trimmedValue) return 'Message is required.';
+      if (!trimmedValue) return labels.messageRequiredMessage;
       if (trimmedValue.length < contactFormValidation.message.minLength) {
         return `Message must be at least ${contactFormValidation.message.minLength} characters.`;
       }
@@ -177,8 +177,8 @@ function UnderlineField({
   );
 }
 
-export default function ContactFormPanel() {
-  const [values, setValues] = useState<FormValues>(initialValues);
+export default function ContactFormPanel({ labels, subjectOptions }: ContactFormPanelProps) {
+  const [values, setValues] = useState<FormValues>(() => buildInitialValues(subjectOptions));
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<FormTouched>({});
   const {
@@ -197,7 +197,7 @@ export default function ContactFormPanel() {
     if (touched[name]) {
       setErrors((current) => ({
         ...current,
-        [name]: validateField(name, value),
+        [name]: validateField(name, value, labels),
       }));
     }
   };
@@ -206,7 +206,7 @@ export default function ContactFormPanel() {
     setTouched((current) => ({ ...current, [name]: true }));
     setErrors((current) => ({
       ...current,
-      [name]: validateField(name, values[name]),
+      [name]: validateField(name, values[name], labels),
     }));
   };
 
@@ -223,12 +223,12 @@ export default function ContactFormPanel() {
     };
 
     const nextErrors: FormErrors = {
-      firstName: validateField('firstName', values.firstName),
-      lastName: validateField('lastName', values.lastName),
-      email: validateField('email', values.email),
-      phoneNumber: validateField('phoneNumber', values.phoneNumber),
-      subject: validateField('subject', values.subject),
-      message: validateField('message', values.message),
+      firstName: validateField('firstName', values.firstName, labels),
+      lastName: validateField('lastName', values.lastName, labels),
+      email: validateField('email', values.email, labels),
+      phoneNumber: validateField('phoneNumber', values.phoneNumber, labels),
+      subject: validateField('subject', values.subject, labels),
+      message: validateField('message', values.message, labels),
     };
 
     setTouched(nextTouched);
@@ -249,7 +249,7 @@ export default function ContactFormPanel() {
         message: values.message.trim(),
       });
 
-      setValues(initialValues);
+      setValues(buildInitialValues(subjectOptions));
       setErrors({});
       setTouched({});
     } catch {
@@ -263,7 +263,7 @@ export default function ContactFormPanel() {
         <div className="grid gap-x-10 gap-y-8 md:grid-cols-2">
           <UnderlineField
             id="firstName"
-            label="First Name"
+            label={labels.firstNameLabel}
             value={values.firstName}
             onChange={(event) => updateField('firstName', event.target.value)}
             onBlur={() => handleBlur('firstName')}
@@ -275,7 +275,7 @@ export default function ContactFormPanel() {
           />
           <UnderlineField
             id="lastName"
-            label="Last Name"
+            label={labels.lastNameLabel}
             value={values.lastName}
             onChange={(event) => updateField('lastName', event.target.value)}
             onBlur={() => handleBlur('lastName')}
@@ -287,7 +287,7 @@ export default function ContactFormPanel() {
           />
           <UnderlineField
             id="email"
-            label="Email"
+            label={labels.emailLabel}
             type="email"
             value={values.email}
             onChange={(event) => updateField('email', event.target.value)}
@@ -300,7 +300,7 @@ export default function ContactFormPanel() {
           />
           <UnderlineField
             id="phoneNumber"
-            label="Phone Number"
+            label={labels.phoneNumberLabel}
             type="tel"
             value={values.phoneNumber}
             onChange={(event) => updateField('phoneNumber', event.target.value)}
@@ -316,7 +316,7 @@ export default function ContactFormPanel() {
 
         <fieldset className="mt-10 border-0 p-0">
           <legend className="text-[12px] font-medium leading-[1.2] text-[#000000]">
-            Select Subject?
+            {labels.selectSubjectLabel}
           </legend>
           <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             {subjectOptions.map((option) => (
@@ -349,7 +349,7 @@ export default function ContactFormPanel() {
         </fieldset>
 
         <label htmlFor="message" className="mt-10 block">
-          <span className="block text-[12px] leading-[1.2] text-[#000000]">Message</span>
+          <span className="block text-[12px] leading-[1.2] text-[#000000]">{labels.messageLabel}</span>
           <textarea
             id="message"
             name="message"
@@ -357,7 +357,7 @@ export default function ContactFormPanel() {
             value={values.message}
             onChange={(event) => updateField('message', event.target.value)}
             onBlur={() => handleBlur('message')}
-            placeholder="Write your message.."
+            placeholder={labels.messagePlaceholder}
             autoComplete="off"
             minLength={contactFormValidation.message.minLength}
             maxLength={contactFormValidation.message.maxLength}
@@ -398,7 +398,7 @@ export default function ContactFormPanel() {
             disabled={isSubmitting}
             className="inline-flex min-h-[54px] min-w-[180px] items-center justify-center rounded-[5px] bg-[#2E7D32] px-8 py-3 text-[18px] font-medium text-white transition-colors hover:bg-[#27692A] focus:outline-none focus:ring-2 focus:ring-[#2E7D32] focus:ring-offset-2"
           >
-            {isSubmitting ? 'Sending...' : 'Send Message'}
+            {isSubmitting ? 'Sending...' : labels.buttonLabel}
           </button>
         </div>
       </form>
