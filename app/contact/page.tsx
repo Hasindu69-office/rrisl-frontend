@@ -3,8 +3,6 @@ import ContactInfoPanel from '../components/contact/ContactInfoPanel';
 import ContactFormPanel from '../components/contact/ContactFormPanel';
 import LocationSection from '../components/contact/LocationSection';
 import SubStationSection from '../components/contact/SubStationSection';
-import { headOfficeCard, laboratoryCard } from '../components/contact/locationData';
-import { subStationCards } from '../components/contact/subStationData';
 import { mapContactPageData } from '../lib/contact/pageData';
 import { normalizeLocale } from '../lib/locale';
 import { getContactPage, getContactSubjects } from '../lib/strapi';
@@ -57,16 +55,16 @@ export default async function ContactPage({ searchParams }: ContactPageProps) {
             style={{ backgroundColor: 'rgba(245, 245, 245, 1)' }}
           >
             <div className="mx-auto w-full max-w-[1480px]">
-              <LocationSection cards={[headOfficeCard, laboratoryCard]} />
+              <LocationSection cards={pageData.locationCards} />
             </div>
           </div>
 
           <div className="-mx-4 bg-white px-4 py-2 md:-mx-6 md:px-6 md:py-16 lg:-mx-36 lg:px-36 lg:py-6">
             <div className="mx-auto w-full max-w-[1480px]">
               <SubStationSection
-                titlePart1="Rubber Research Institute"
-                titlePart2="Sub-stations"
-                cards={subStationCards}
+                titlePart1={pageData.subStationTitlePart1}
+                titlePart2={pageData.subStationTitlePart2}
+                cards={pageData.subStationCards}
               />
             </div>
           </div>

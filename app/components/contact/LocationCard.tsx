@@ -69,7 +69,7 @@ export default function LocationCard({
   return (
     <section className="mt-16 md:mt-20">
       <h2 className="text-[34px] font-semibold leading-[1.2] tracking-[-0.02em] text-[#0F3F1D] md:text-[48px]">
-        {titlePart1} <span className="bg-gradient-to-r from-[#20C997] to-[#A1DF0A] bg-clip-text text-transparent">- {titlePart2}</span>
+        {titlePart1} <span className="bg-gradient-to-r from-[#20C997] to-[#A1DF0A] bg-clip-text text-transparent"> {titlePart2}</span>
       </h2>
 
       <div className="mt-10 overflow-hidden rounded-[30px] border-b border-transparent bg-white shadow-[0_24px_70px_rgba(0,0,0,0.08)] transition-colors duration-200 hover:border-[rgba(46,125,50,0.27)]">

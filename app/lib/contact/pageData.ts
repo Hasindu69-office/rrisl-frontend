@@ -1,11 +1,15 @@
 import type { BreadcrumbItem } from '@/app/components/shared/Breadcrumb';
+import type { LocationCardData, LocationDetail } from '@/app/components/contact/locationData';
+import type { SubStationCardData, SubStationContact } from '@/app/components/contact/subStationData';
 import { getOptimizedImageUrl, getStrapiImageUrl } from '@/app/lib/strapi';
 import type {
   ContactFormLabels,
+  ContactLocationCard,
   ContactPage,
   ContactPageHero,
   ContactPhoneNumber,
   ContactSocialLink,
+  ContactSubStationCard,
   ContactSubject,
 } from '@/app/lib/types';
 
@@ -72,6 +76,10 @@ export interface ContactPageViewModel {
   hero: ContactHeroViewModel;
   infoPanel: ContactInfoPanelProps;
   formPanel: ContactFormPanelProps;
+  locationCards: LocationCardData[];
+  subStationTitlePart1: string;
+  subStationTitlePart2: string;
+  subStationCards: SubStationCardData[];
 }
 
 const CONTACT_PAGE_FALLBACK: ContactPageViewModel = {
@@ -113,6 +121,10 @@ const CONTACT_PAGE_FALLBACK: ContactPageViewModel = {
     },
     subjectOptions: [],
   },
+  locationCards: [],
+  subStationTitlePart1: 'Rubber Research Institute',
+  subStationTitlePart2: 'Sub-stations',
+  subStationCards: [],
 };
 
 function mapBreadcrumbItems(hero: ContactPageHero | null | undefined): BreadcrumbItem[] {
@@ -142,6 +154,10 @@ function buildPhoneHref(number: string): string {
   return sanitized ? `tel:${sanitized}` : '#';
 }
 
+function buildMailHref(email: string): string {
+  return `mailto:${email.trim()}`;
+}
+
 function mapPhoneGroups(phoneNumbers: ContactPhoneNumber[] | null | undefined): ContactInfoPanelPhoneGroup[] {
   const sortedNumbers = sortPhoneNumbers(phoneNumbers)
     .map((phone) => phone?.number?.trim())
@@ -164,6 +180,117 @@ function mapPhoneGroups(phoneNumbers: ContactPhoneNumber[] | null | undefined): 
   }
 
   return phoneGroups;
+}
+
+function buildMapTitle(title: string, highlightedText?: string | null): string {
+  const parts = [title?.trim(), highlightedText?.trim()].filter(Boolean);
+  const combinedTitle = parts.join(' ');
+  return combinedTitle ? `${combinedTitle} Map` : 'Location Map';
+}
+
+function mapLocationDetails(phoneNumbers: ContactPhoneNumber[] | null | undefined): LocationDetail[] {
+  return sortPhoneNumbers(phoneNumbers)
+    .reduce<LocationDetail[]>((details, phone) => {
+      const number = phone?.number?.trim();
+      if (!number) {
+        return details;
+      }
+
+      details.push({
+        label: phone.label?.trim() || 'Telephone',
+        value: number,
+        href: buildPhoneHref(number),
+      });
+
+      return details;
+    }, []);
+}
+
+function mapLocationCards(
+  localizedPage: ContactPage | null | undefined,
+  fallbackPage: ContactPage | null | undefined
+): LocationCardData[] {
+  const cards =
+    localizedPage?.headofficeandboardofficedetails?.length
+      ? localizedPage.headofficeandboardofficedetails
+      : fallbackPage?.headofficeandboardofficedetails || [];
+
+  return cards
+    .filter((card): card is ContactLocationCard => Boolean(card?.title && card?.verticaltext && card?.gmapembedlink))
+    .map((card, index) => ({
+      titlePart1: card.title,
+      titlePart2: card.hightlightedtext?.trim() || '',
+      sideLabel: card.verticaltext,
+      orientation: index % 2 === 0 ? 'details-left' : 'map-left',
+      mapSrc: card.gmapembedlink,
+      mapTitle: buildMapTitle(card.title, card.hightlightedtext),
+      details: [
+        {
+          label: card.addresslabel || 'Postal Address',
+          value: card.address,
+        },
+        ...mapLocationDetails(card.phonenumber),
+      ],
+    }));
+}
+
+function mapSubStationPhoneContacts(phoneNumbers: ContactPhoneNumber[] | null | undefined): SubStationContact[] {
+  return sortPhoneNumbers(phoneNumbers)
+    .reduce<SubStationContact[]>((contacts, phone) => {
+      const number = phone?.number?.trim();
+      if (!number) {
+        return contacts;
+      }
+
+      contacts.push({
+        label: phone.label?.trim() || 'Telephone',
+        value: number,
+        href: buildPhoneHref(number),
+      });
+
+      return contacts;
+    }, []);
+}
+
+function mapSubStationCards(
+  localizedPage: ContactPage | null | undefined,
+  fallbackPage: ContactPage | null | undefined
+): SubStationCardData[] {
+  const cards =
+    localizedPage?.substations?.length
+      ? localizedPage.substations
+      : fallbackPage?.substations || [];
+
+  return [...cards]
+    .sort((left, right) => {
+      const leftOrder = typeof left?.sortorder === 'number' ? left.sortorder : Number.MAX_SAFE_INTEGER;
+      const rightOrder = typeof right?.sortorder === 'number' ? right.sortorder : Number.MAX_SAFE_INTEGER;
+      return leftOrder - rightOrder;
+    })
+    .filter((card): card is ContactSubStationCard => Boolean(card?.substationtitle && card?.postaladdress))
+    .map((card) => {
+      const contacts: SubStationContact[] = [
+        {
+          label: card.postaladdresslabel || 'Postal Address',
+          value: card.postaladdress,
+        },
+      ];
+
+      if (card.emailaddress?.trim()) {
+        contacts.push({
+          label: card.emaillabel?.trim() || 'e-mail',
+          value: card.emailaddress.trim(),
+          href: buildMailHref(card.emailaddress),
+        });
+      }
+
+      contacts.push(...mapSubStationPhoneContacts(card.phonenumbers));
+
+      return {
+        name: card.substationtitle,
+        contacts,
+      };
+    });
 }
 
 function mapSocialPlatform(
@@ -296,6 +423,14 @@ export function mapContactPageData(
     localizedSubjects && localizedSubjects.length > 0
       ? localizedSubjects
       : fallbackSubjects || [];
+  const subStationTitlePart1 =
+    localizedPage?.substationtitle ||
+    fallbackPage?.substationtitle ||
+    CONTACT_PAGE_FALLBACK.subStationTitlePart1;
+  const subStationTitlePart2 =
+    localizedPage?.hightlightedtext ||
+    fallbackPage?.hightlightedtext ||
+    CONTACT_PAGE_FALLBACK.subStationTitlePart2;
 
   return {
     hero: mapHero(localizedPage, fallbackPage),
@@ -315,5 +450,9 @@ export function mapContactPageData(
       labels: mapFormLabels(labels, fallbackLabels),
       subjectOptions: mapSubjectOptions(subjects),
     },
+    locationCards: mapLocationCards(localizedPage, fallbackPage),
+    subStationTitlePart1,
+    subStationTitlePart2,
+    subStationCards: mapSubStationCards(localizedPage, fallbackPage),
   };
 }

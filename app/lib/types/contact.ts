@@ -56,6 +56,28 @@ export interface ContactSocialLink {
   isvisible: boolean;
 }
 
+export interface ContactLocationCard {
+  id: number;
+  title: string;
+  hightlightedtext?: string | null;
+  addresslabel: string;
+  address: string;
+  phonenumber?: ContactPhoneNumber[] | null;
+  verticaltext: string;
+  gmapembedlink: string;
+}
+
+export interface ContactSubStationCard {
+  id: number;
+  substationtitle: string;
+  postaladdresslabel: string;
+  postaladdress: string;
+  emaillabel?: string | null;
+  emailaddress?: string | null;
+  phonenumbers?: ContactPhoneNumber[] | null;
+  sortorder: number;
+}
+
 export interface ContactPage {
   id: number;
   documentId?: string;
@@ -66,6 +88,10 @@ export interface ContactPage {
   pagehero?: ContactPageHero | null;
   contactinformationdetails?: ContactInformationDetails | null;
   sociallinkscontact?: ContactSocialLink[] | null;
+  headofficeandboardofficedetails?: ContactLocationCard[] | null;
+  substationtitle?: string | null;
+  hightlightedtext?: string | null;
+  substations?: ContactSubStationCard[] | null;
 }
 
 export interface ContactSubject {

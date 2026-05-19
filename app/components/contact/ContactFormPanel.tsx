@@ -161,7 +161,7 @@ function UnderlineField({
         title={title}
         aria-invalid={error ? 'true' : 'false'}
         aria-describedby={error ? errorId : undefined}
-        className={`mt-2 h-10 w-full border-b bg-transparent pb-2 text-[18px] leading-6 text-[#102337] outline-none placeholder:text-[rgba(141,141,141,1)] focus:border-[#2E7D32] ${
+        className={`mt-2 h-10 w-full border-b bg-transparent pb-2 text-[16px] leading-6 text-[#102337] outline-none placeholder:text-[rgba(141,141,141,1)] focus:border-[#2E7D32] ${
           error ? 'border-[#D92D20]' : 'border-[rgba(141,141,141,1)]'
         }`}
       />
@@ -365,7 +365,7 @@ export default function ContactFormPanel({ labels, subjectOptions }: ContactForm
             aria-invalid={errors.message ? 'true' : 'false'}
             aria-describedby={errors.message ? 'message-error' : undefined}
             title={`Message must be between ${contactFormValidation.message.minLength} and ${contactFormValidation.message.maxLength} characters.`}
-            className={`mt-2 min-h-[48px] w-full resize-none border-b bg-transparent pb-2 text-[18px] leading-6 text-[#102337] outline-none placeholder:text-[rgba(141,141,141,1)] focus:border-[#2E7D32] ${
+            className={`mt-2 min-h-[48px] w-full resize-none border-b bg-transparent pb-2 text-[16px] leading-6 text-[#102337] outline-none placeholder:text-[rgba(141,141,141,1)] focus:border-[#2E7D32] ${
               errors.message ? 'border-[#D92D20]' : 'border-[rgba(141,141,141,1)]'
             }`}
           />

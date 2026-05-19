@@ -28,8 +28,42 @@ function NavigationIcon() {
   );
 }
 
+function MailIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M4 6H20C20.5523 6 21 6.44772 21 7V17C21 17.5523 20.5523 18 20 18H4C3.44772 18 3 17.5523 3 17V7C3 6.44772 3.44772 6 4 6Z"
+        stroke="rgba(46, 125, 50, 1)"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M21 7L12.5657 12.9031C12.2218 13.1438 11.7782 13.1438 11.4343 12.9031L3 7"
+        stroke="rgba(46, 125, 50, 1)"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function isEmailContact(item: SubStationContact): boolean {
+  return (
+    item.href?.startsWith('mailto:') === true ||
+    item.label.toLowerCase().includes('mail') ||
+    item.value.includes('@')
+  );
+}
+
 function ContactRow({ item }: { item: SubStationContact }) {
-  const icon = item.label === 'Postal Address' ? <NavigationIcon /> : <PhoneIcon />;
+  const icon =
+    item.label === 'Postal Address'
+      ? <NavigationIcon />
+      : isEmailContact(item)
+        ? <MailIcon />
+        : <PhoneIcon />;
   const content = item.href ? (
     <a href={item.href} className="font-semibold text-[#2E7D32] hover:text-[#246327]">
       {item.value}

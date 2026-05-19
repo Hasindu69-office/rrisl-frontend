@@ -22,6 +22,8 @@ function buildContactPageQuery(locale: string): string {
   params.set('populate[contactinformationdetails][populate][phonenumbers]', 'true');
   params.set('populate[contactinformationdetails][populate][contactformlabels]', 'true');
   params.set('populate[sociallinkscontact]', 'true');
+  params.set('populate[headofficeandboardofficedetails][populate][phonenumber]', 'true');
+  params.set('populate[substations][populate][phonenumbers]', 'true');
 
   return params.toString();
 }
