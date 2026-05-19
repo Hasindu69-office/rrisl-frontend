@@ -183,13 +183,16 @@ export default function ContactInfoPanel({
         <div className="mt-12 space-y-10">
           <InfoRow icon={<PhoneIcon />} title={phoneLabel}>
             {phoneGroups.map((group) => (
-              <a
-                key={group.href + group.displayNumber}
-                href={group.href}
-                className="block hover:text-white/85"
-              >
-                {group.displayNumber}
-              </a>
+              <div key={group.links.map((link) => link.href).join('|')} className="block">
+                {group.links.map((link, index) => (
+                  <span key={link.href + link.displayNumber}>
+                    <a href={link.href} className="hover:text-white/85">
+                      {link.displayNumber}
+                    </a>
+                    {index < group.links.length - 1 ? ', ' : null}
+                  </span>
+                ))}
+              </div>
             ))}
           </InfoRow>
 

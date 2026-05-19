@@ -17,8 +17,10 @@ export interface ContactHeroViewModel {
 }
 
 export interface ContactInfoPanelPhoneGroup {
-  displayNumber: string;
-  href: string;
+  links: Array<{
+    displayNumber: string;
+    href: string;
+  }>;
 }
 
 export interface ContactInfoPanelSocialLink {
@@ -154,8 +156,10 @@ function mapPhoneGroups(phoneNumbers: ContactPhoneNumber[] | null | undefined): 
     }
 
     phoneGroups.push({
-      displayNumber: groupNumbers.join(', '),
-      href: buildPhoneHref(groupNumbers[0]),
+      links: groupNumbers.map((number) => ({
+        displayNumber: number,
+        href: buildPhoneHref(number),
+      })),
     });
   }
 
