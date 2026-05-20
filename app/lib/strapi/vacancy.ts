@@ -5,7 +5,7 @@ import type {
   VacancyPage,
   VacancyState,
 } from '../types';
-import { fetchStrapi, unwrapCollection, unwrapSingleEntity, withLocaleFallback } from './client';
+import { fetchStrapi, getStrapiUrl, unwrapCollection, unwrapSingleEntity, withLocaleFallback } from './client';
 
 type DepartmentRecord = Partial<Department> & {
   id?: number;
@@ -45,6 +45,14 @@ export interface VacancyQueryOptions {
   pageSize?: number;
   state?: VacancyState;
 }
+
+export type CreateVacancyApplicationInput = {
+  slug: string;
+  fullname: string;
+  email: string;
+  contactnumber: string;
+  cv: File;
+};
 
 interface VacancyResponseMeta {
   pagination?: Partial<VacancyPagination>;
@@ -396,3 +404,62 @@ export {
   buildVacanciesQuery,
   buildVacancyPageQuery,
 };
+
+export async function createVacancyApplication(
+  payload: CreateVacancyApplicationInput
+): Promise<{ message?: string; vacancyTitle?: string }> {
+  const url = getStrapiUrl(`/api/vacancies/${encodeURIComponent(payload.slug)}/apply`);
+  const formData = new FormData();
+
+  formData.set('fullname', payload.fullname);
+  formData.set('email', payload.email);
+  formData.set('contactnumber', payload.contactnumber);
+  formData.set('cv', payload.cv);
+
+  const response = await fetch(url, {
+    method: 'POST',
+    body: formData,
+  });
+
+  const responseText = await response.text().catch(() => '');
+  let parsedBody: {
+    data?: {
+      message?: string;
+      vacancyTitle?: string;
+    };
+    message?: string;
+    error?: {
+      message?: string;
+      details?: {
+        errors?: Array<{
+          message?: string;
+        }>;
+      };
+    };
+  } | null = null;
+
+  if (responseText) {
+    try {
+      parsedBody = JSON.parse(responseText);
+    } catch {
+      parsedBody = null;
+    }
+  }
+
+  if (!response.ok) {
+    const fieldError = parsedBody?.error?.details?.errors?.[0]?.message;
+    const errorMessage =
+      fieldError ||
+      parsedBody?.error?.message ||
+      parsedBody?.message ||
+      'Failed to submit vacancy application.';
+
+    console.error(
+      `[Strapi API] Error ${response.status} ${response.statusText} for ${url}`,
+      responseText
+    );
+    throw new Error(errorMessage);
+  }
+
+  return parsedBody?.data || {};
+}

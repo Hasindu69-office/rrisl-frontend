@@ -135,6 +135,7 @@ export default function VacancyDetailContent({ job, labels }: VacancyDetailConte
         fullNameLabel={labels.fullNameLabel}
         heading={labels.applyFormTitle}
         jobTitle={job.title}
+        slug={job.slug}
         submitLabel={labels.submitLabel}
       />
     </div>
