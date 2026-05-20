@@ -47,16 +47,23 @@ export default async function VacancyDetailPage({
 
   const pageData = mapVacancyPageData(vacancyPage, fallbackPage);
   const job = mapVacancyToDetailViewModel(vacancy);
+  const detailBreadcrumbItems = [
+    ...pageData.hero.breadcrumbItems.map((item, index, items) =>
+      index === items.length - 1
+        ? {
+            ...item,
+            href: item.href || '/vacancy',
+          }
+        : item
+    ),
+    { label: pageData.labels.jobDetailsLabel },
+  ];
 
   return (
     <div className="min-h-screen bg-[#F6F8F3]">
       <PageHero
         title={pageData.labels.jobDetailsLabel}
-        breadcrumbItems={[
-          { label: 'Home', href: '/' },
-          { label: pageData.hero.title, href: '/vacancy' },
-          { label: pageData.labels.jobDetailsLabel },
-        ]}
+        breadcrumbItems={detailBreadcrumbItems}
         backgroundImage={pageData.hero.backgroundImage}
         backgroundImageAlt={pageData.hero.backgroundImageAlt}
         locale={locale}
