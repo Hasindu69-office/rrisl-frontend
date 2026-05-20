@@ -1,7 +1,13 @@
 import { ArrowRight } from 'lucide-react';
 
 interface VacancyApplicationFormProps {
+  contactNumberLabel: string;
+  cvLabel: string;
+  emailLabel: string;
+  fullNameLabel: string;
+  heading: string;
   jobTitle: string;
+  submitLabel: string;
 }
 
 function FormField({
@@ -39,23 +45,29 @@ function FormField({
 }
 
 export default function VacancyApplicationForm({
+  contactNumberLabel,
+  cvLabel,
+  emailLabel,
+  fullNameLabel,
+  heading,
   jobTitle,
+  submitLabel,
 }: VacancyApplicationFormProps) {
   return (
     <section id="apply-form" className="mt-14 scroll-mt-28">
       <h2 className="text-[34px] font-semibold leading-tight text-[#1F3552]">
-        Apply For This Role
+        {heading}
       </h2>
 
       <form className="mt-8 space-y-6" action="#" method="post" encType="multipart/form-data">
         <input type="hidden" name="jobTitle" value={jobTitle} />
 
-        <FormField id="fullName" label="Full Name" />
-        <FormField id="email" label="Email" type="email" />
-        <FormField id="contactNumber" label="Contact Number" type="tel" />
+        <FormField id="fullName" label={fullNameLabel} />
+        <FormField id="email" label={emailLabel} type="email" />
+        <FormField id="contactNumber" label={contactNumberLabel} type="tel" />
         <FormField
           id="cv"
-          label="Upload Your CV*"
+          label={cvLabel}
           type="file"
           accept=".pdf,.doc,.docx"
         />
@@ -65,7 +77,7 @@ export default function VacancyApplicationForm({
           className="inline-flex min-h-[52px] items-center justify-center gap-4 rounded-[2px] bg-[#2E7D32] px-6 text-sm font-medium text-white transition hover:bg-[#256A2A] focus:outline-none focus:ring-2 focus:ring-[#2E7D32] focus:ring-offset-2"
           aria-label={`Send application for ${jobTitle}`}
         >
-          <span>Send Application</span>
+          <span>{submitLabel}</span>
           <ArrowRight className="h-4 w-4" strokeWidth={2.2} aria-hidden="true" />
         </button>
       </form>

@@ -13,4 +13,5 @@ export * from './strapi/media';
 export * from './strapi/navigation';
 export * from './strapi/newsletter';
 export * from './strapi/query';
+export * from './strapi/vacancy';
 

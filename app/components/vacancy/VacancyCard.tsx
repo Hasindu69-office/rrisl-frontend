@@ -1,14 +1,15 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { BriefcaseBusiness, Clock3, WalletCards, MapPin } from 'lucide-react';
-import type { VacancyJob } from './vacancyData';
+import type { VacancyListItemViewModel } from '@/app/lib/vacancy/pageData';
 
 interface VacancyCardProps {
-  job: VacancyJob;
+  job: VacancyListItemViewModel;
+  jobDetailsLabel: string;
   locale: string;
 }
 
-function buildVacancyDetailHref(jobId: string, locale: string) {
+function buildVacancyDetailHref(slug: string, locale: string) {
   const params = new URLSearchParams();
 
   if (locale !== 'en') {
@@ -16,10 +17,10 @@ function buildVacancyDetailHref(jobId: string, locale: string) {
   }
 
   const query = params.toString();
-  return `/vacancy/${jobId}${query ? `?${query}` : ''}`;
+  return `/vacancy/${slug}${query ? `?${query}` : ''}`;
 }
 
-export default function VacancyCard({ job, locale }: VacancyCardProps) {
+export default function VacancyCard({ job, jobDetailsLabel, locale }: VacancyCardProps) {
   const metadata = [
     {
       key: 'category',
@@ -59,10 +60,9 @@ export default function VacancyCard({ job, locale }: VacancyCardProps) {
             </div>
 
             <div className="min-w-0">
-              <h2 className="text-[22px] font-semibold leading-tight text-[#111827]">
+              <h2 className="text-[22px] font-semibold leading-tight text-[#111827] mt-2">
                 {job.title}
               </h2>
-              <p className="mt-2 text-sm text-[#3F3F46]">{job.organization}</p>
             </div>
           </div>
 
@@ -81,11 +81,11 @@ export default function VacancyCard({ job, locale }: VacancyCardProps) {
 
         <div className="flex shrink-0 justify-start lg:justify-end">
           <Link
-            href={buildVacancyDetailHref(job.id, locale)}
+            href={buildVacancyDetailHref(job.slug, locale)}
             className="inline-flex min-h-[40px] items-center justify-center rounded-[7px] bg-[#2E7D32] px-5 text-sm font-semibold text-white transition hover:bg-[#256A2A] focus:outline-none focus:ring-2 focus:ring-[#2E7D32] focus:ring-offset-2"
             aria-label={`View details for ${job.title}`}
           >
-            Job Details
+            {jobDetailsLabel}
           </Link>
         </div>
       </div>
