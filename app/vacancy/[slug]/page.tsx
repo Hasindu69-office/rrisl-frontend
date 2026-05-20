@@ -3,8 +3,12 @@ import { notFound } from 'next/navigation';
 import PageHero from '../../components/shared/PageHero';
 import VacancyDetailContent from '../../components/vacancy/VacancyDetailContent';
 import VacancyOverviewPanel from '../../components/vacancy/VacancyOverviewPanel';
-import { getVacancyBySlug, getVacancyPage } from '../../lib/strapi';
-import { mapVacancyPageData, mapVacancyToDetailViewModel } from '../../lib/vacancy/pageData';
+import { getVacancyBySlug, getVacancyDetailsPage, getVacancyPage } from '../../lib/strapi';
+import {
+  mapVacancyDetailLabelsData,
+  mapVacancyPageData,
+  mapVacancyToDetailViewModel,
+} from '../../lib/vacancy/pageData';
 
 interface VacancyDetailPageProps {
   params: Promise<{ slug: string }>;
@@ -35,10 +39,12 @@ export default async function VacancyDetailPage({
 }: VacancyDetailPageProps) {
   const [{ slug }, query] = await Promise.all([params, searchParams]);
   const locale = query.locale || 'en';
-  const [vacancy, vacancyPage, fallbackPage] = await Promise.all([
+  const [vacancy, vacancyPage, fallbackPage, vacancyDetailsPage, fallbackDetailsPage] = await Promise.all([
     getVacancyBySlug(slug, locale),
     getVacancyPage(locale),
     locale === 'en' ? Promise.resolve(null) : getVacancyPage('en'),
+    getVacancyDetailsPage(locale),
+    locale === 'en' ? Promise.resolve(null) : getVacancyDetailsPage('en'),
   ]);
 
   if (!vacancy) {
@@ -46,6 +52,7 @@ export default async function VacancyDetailPage({
   }
 
   const pageData = mapVacancyPageData(vacancyPage, fallbackPage);
+  const detailLabels = mapVacancyDetailLabelsData(vacancyDetailsPage, fallbackDetailsPage);
   const job = mapVacancyToDetailViewModel(vacancy);
   const detailBreadcrumbItems = [
     ...pageData.hero.breadcrumbItems.map((item, index, items) =>
@@ -71,7 +78,7 @@ export default async function VacancyDetailPage({
 
       <section className="mb-72 bg-white px-4 py-12 md:px-6 md:py-16 lg:px-36 lg:py-20">
         <div className="mx-auto grid w-full max-w-[1480px] gap-10 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-12">
-          <VacancyDetailContent job={job} labels={pageData.labels} />
+          <VacancyDetailContent job={job} labels={pageData.labels} detailLabels={detailLabels} />
           <div className="hidden self-start lg:sticky lg:top-2 lg:block">
             <VacancyOverviewPanel
               heading={pageData.labels.overviewTitle}

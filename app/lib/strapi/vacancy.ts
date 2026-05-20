@@ -1,6 +1,8 @@
 import type {
   Department,
+  ValidationLabels,
   Vacancy,
+  VacancyDetailsPage,
   VacancyListBlock,
   VacancyPage,
   VacancyState,
@@ -15,6 +17,11 @@ type DepartmentRecord = Partial<Department> & {
 type VacancyPageRecord = Partial<VacancyPage> & {
   id?: number;
   attributes?: Partial<VacancyPage>;
+};
+
+type VacancyDetailsPageRecord = Partial<VacancyDetailsPage> & {
+  id?: number;
+  attributes?: Partial<VacancyDetailsPage>;
 };
 
 type VacancyRecord = Partial<Vacancy> & {
@@ -138,6 +145,20 @@ function buildVacancyPageQuery(locale: string): string {
   return params.toString();
 }
 
+function buildVacancyDetailsPageQuery(locale: string): string {
+  const params = new URLSearchParams();
+
+  if (locale && locale !== 'en') {
+    params.set('locale', locale);
+  }
+
+  params.set('populate[fullnamelabels]', 'true');
+  params.set('populate[emaillabels]', 'true');
+  params.set('populate[contactnumberlabels]', 'true');
+
+  return params.toString();
+}
+
 function buildVacancyDepartmentsQuery(locale: string): string {
   const params = new URLSearchParams();
 
@@ -241,6 +262,42 @@ function mapVacancyPageRecord(record: VacancyPageRecord | null | undefined, loca
   };
 }
 
+function mapValidationLabels(component: unknown): ValidationLabels | null {
+  return normalizeRelation<ValidationLabels>(component);
+}
+
+function mapVacancyDetailsPageRecord(
+  record: VacancyDetailsPageRecord | null | undefined,
+  locale: string
+): VacancyDetailsPage | null {
+  if (!record) {
+    return null;
+  }
+
+  const attributes = record.attributes || record;
+
+  return {
+    id: record.id || attributes.id || 0,
+    documentId: record.documentId || attributes.documentId,
+    createdAt: attributes.createdAt || record.createdAt,
+    updatedAt: attributes.updatedAt || record.updatedAt,
+    publishedAt: attributes.publishedAt || record.publishedAt,
+    locale: attributes.locale || record.locale || locale,
+    fullnamelabels: mapValidationLabels(attributes.fullnamelabels || record.fullnamelabels),
+    emaillabels: mapValidationLabels(attributes.emaillabels || record.emaillabels),
+    contactnumberlabels: mapValidationLabels(
+      attributes.contactnumberlabels || record.contactnumberlabels
+    ),
+    cvrequiredvalidationlabel:
+      attributes.cvrequiredvalidationlabel || record.cvrequiredvalidationlabel,
+    cvtypevalidationlabel: attributes.cvtypevalidationlabel || record.cvtypevalidationlabel,
+    cvemptyfilelabels: attributes.cvemptyfilelabels || record.cvemptyfilelabels,
+    submitsuccessmessage: attributes.submitsuccessmessage || record.submitsuccessmessage,
+    applicationerrormessage:
+      attributes.applicationerrormessage || record.applicationerrormessage,
+  };
+}
+
 function mapDepartmentRecord(item: DepartmentRecord, locale: string): Department {
   const attributes = item.attributes || item;
 
@@ -303,6 +360,29 @@ export async function getVacancyPage(locale: string = 'en'): Promise<VacancyPage
     locale,
     label: 'vacancy page',
     fetcher: fetchVacancyPage,
+    hasValue: (value) => value !== null,
+    emptyValue: null,
+  });
+}
+
+async function fetchVacancyDetailsPage(locale: string): Promise<VacancyDetailsPage | null> {
+  const queryString = buildVacancyDetailsPageQuery(locale);
+  const url = queryString
+    ? `/api/vacancy-details-page?${queryString}`
+    : '/api/vacancy-details-page';
+  const response = await fetchStrapi<unknown>(url);
+  const page = unwrapSingleEntity<VacancyDetailsPageRecord>(response);
+
+  return mapVacancyDetailsPageRecord(page, locale);
+}
+
+export async function getVacancyDetailsPage(
+  locale: string = 'en'
+): Promise<VacancyDetailsPage | null> {
+  return withLocaleFallback({
+    locale,
+    label: 'vacancy details page',
+    fetcher: fetchVacancyDetailsPage,
     hasValue: (value) => value !== null,
     emptyValue: null,
   });
@@ -401,6 +481,7 @@ export async function getVacancyBySlug(
 export {
   buildVacancyBySlugQuery,
   buildVacancyDepartmentsQuery,
+  buildVacancyDetailsPageQuery,
   buildVacanciesQuery,
   buildVacancyPageQuery,
 };

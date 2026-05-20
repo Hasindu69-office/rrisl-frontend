@@ -1,6 +1,6 @@
 import type { BreadcrumbItem } from '@/app/components/shared/Breadcrumb';
 import { getStrapiMediaUrl, getOptimizedImageUrl, getStrapiImageUrl } from '@/app/lib/strapi';
-import type { Department, Vacancy, VacancyPage } from '@/app/lib/types';
+import type { Department, ValidationLabels, Vacancy, VacancyDetailsPage, VacancyPage } from '@/app/lib/types';
 
 export interface VacancyHeroViewModel {
   title: string;
@@ -39,6 +39,25 @@ export interface VacancyLabelsViewModel {
     jobType: string;
     location: string;
     offeredSalary: string;
+  };
+}
+
+export interface VacancyValidationLabelGroupViewModel {
+  requiredLabel: string;
+  minimumCharacterLabel: string;
+  maximumCharactersLabel: string;
+}
+
+export interface VacancyDetailLabelsViewModel {
+  validationLabels: {
+    fullName: VacancyValidationLabelGroupViewModel;
+    email: VacancyValidationLabelGroupViewModel;
+    contactNumber: VacancyValidationLabelGroupViewModel;
+    cvRequired: string;
+    cvType: string;
+    cvEmptyFile: string;
+    submitSuccessMessage: string;
+    applicationErrorMessage: string;
   };
 }
 
@@ -120,6 +139,31 @@ const VACANCY_PAGE_FALLBACK: VacancyPageViewModel = {
   },
 };
 
+const VACANCY_DETAIL_LABELS_FALLBACK: VacancyDetailLabelsViewModel = {
+  validationLabels: {
+    fullName: {
+      requiredLabel: 'required',
+      minimumCharacterLabel: 'must be at least 3 characters.',
+      maximumCharactersLabel: 'cannot exceed 255 characters.',
+    },
+    email: {
+      requiredLabel: 'required',
+      minimumCharacterLabel: 'must be at least 3 characters.',
+      maximumCharactersLabel: 'cannot exceed 255 characters.',
+    },
+    contactNumber: {
+      requiredLabel: 'required',
+      minimumCharacterLabel: 'must be at least 3 characters.',
+      maximumCharactersLabel: 'cannot exceed 255 characters.',
+    },
+    cvRequired: 'CV file is required.',
+    cvType: 'CV must be a PDF, DOC, or DOCX file.',
+    cvEmptyFile: 'CV file is empty.',
+    submitSuccessMessage: 'Vacancy application submitted successfully.',
+    applicationErrorMessage: 'Unable to submit vacancy application.',
+  },
+};
+
 function mapBreadcrumbItems(page: VacancyPage | null | undefined): BreadcrumbItem[] {
   const breadcrumbItems =
     page?.pagehero?.Breadcrumb
@@ -155,6 +199,27 @@ function mapListBlocks(items: Array<{ text?: string | null }> | null | undefined
 
 function getDepartmentLabel(department: Department | null | undefined): string {
   return department?.departmentname?.trim() || 'General';
+}
+
+function mapValidationLabelGroup(
+  localizedLabels: ValidationLabels | null | undefined,
+  fallbackLabels: ValidationLabels | null | undefined,
+  fallbackValues: VacancyValidationLabelGroupViewModel
+): VacancyValidationLabelGroupViewModel {
+  return {
+    requiredLabel:
+      localizedLabels?.requiredlabel ||
+      fallbackLabels?.requiredlabel ||
+      fallbackValues.requiredLabel,
+    minimumCharacterLabel:
+      localizedLabels?.minimumcharacterlabel ||
+      fallbackLabels?.minimumcharacterlabel ||
+      fallbackValues.minimumCharacterLabel,
+    maximumCharactersLabel:
+      localizedLabels?.maximumcharacterslabel ||
+      fallbackLabels?.maximumcharacterslabel ||
+      fallbackValues.maximumCharactersLabel,
+  };
 }
 
 export function mapVacancyPageData(
@@ -287,6 +352,51 @@ export function mapVacancyPageData(
         localizedPage?.emptystate?.description ||
         fallbackPage?.emptystate?.description ||
         VACANCY_PAGE_FALLBACK.emptyState.description,
+    },
+  };
+}
+
+export function mapVacancyDetailLabelsData(
+  localizedPage: VacancyDetailsPage | null | undefined,
+  fallbackPage: VacancyDetailsPage | null | undefined
+): VacancyDetailLabelsViewModel {
+  return {
+    validationLabels: {
+      fullName: mapValidationLabelGroup(
+        localizedPage?.fullnamelabels,
+        fallbackPage?.fullnamelabels,
+        VACANCY_DETAIL_LABELS_FALLBACK.validationLabels.fullName
+      ),
+      email: mapValidationLabelGroup(
+        localizedPage?.emaillabels,
+        fallbackPage?.emaillabels,
+        VACANCY_DETAIL_LABELS_FALLBACK.validationLabels.email
+      ),
+      contactNumber: mapValidationLabelGroup(
+        localizedPage?.contactnumberlabels,
+        fallbackPage?.contactnumberlabels,
+        VACANCY_DETAIL_LABELS_FALLBACK.validationLabels.contactNumber
+      ),
+      cvRequired:
+        localizedPage?.cvrequiredvalidationlabel ||
+        fallbackPage?.cvrequiredvalidationlabel ||
+        VACANCY_DETAIL_LABELS_FALLBACK.validationLabels.cvRequired,
+      cvType:
+        localizedPage?.cvtypevalidationlabel ||
+        fallbackPage?.cvtypevalidationlabel ||
+        VACANCY_DETAIL_LABELS_FALLBACK.validationLabels.cvType,
+      cvEmptyFile:
+        localizedPage?.cvemptyfilelabels ||
+        fallbackPage?.cvemptyfilelabels ||
+        VACANCY_DETAIL_LABELS_FALLBACK.validationLabels.cvEmptyFile,
+      submitSuccessMessage:
+        localizedPage?.submitsuccessmessage ||
+        fallbackPage?.submitsuccessmessage ||
+        VACANCY_DETAIL_LABELS_FALLBACK.validationLabels.submitSuccessMessage,
+      applicationErrorMessage:
+        localizedPage?.applicationerrormessage ||
+        fallbackPage?.applicationerrormessage ||
+        VACANCY_DETAIL_LABELS_FALLBACK.validationLabels.applicationErrorMessage,
     },
   };
 }

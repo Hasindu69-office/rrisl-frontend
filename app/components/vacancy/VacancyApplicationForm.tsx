@@ -4,6 +4,7 @@ import { useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { createVacancyApplication } from '@/app/lib/strapi';
+import type { VacancyDetailLabelsViewModel } from '@/app/lib/vacancy/pageData';
 
 interface VacancyApplicationFormProps {
   contactNumberLabel: string;
@@ -14,6 +15,7 @@ interface VacancyApplicationFormProps {
   jobTitle: string;
   slug: string;
   submitLabel: string;
+  validationLabels: VacancyDetailLabelsViewModel['validationLabels'];
 }
 
 function FormField({
@@ -82,25 +84,35 @@ type FormErrors = Partial<Record<keyof FormValues | 'cv', string>>;
 type FormTouched = Partial<Record<keyof FormValues | 'cv', boolean>>;
 type SubmissionStatus = 'idle' | 'submitting' | 'success' | 'error';
 
-function validateField(name: keyof FormValues | 'cv', value: string | File | null): string {
+function validateField(
+  name: keyof FormValues | 'cv',
+  value: string | File | null,
+  validationLabels: VacancyApplicationFormProps['validationLabels']
+): string {
   switch (name) {
     case 'fullName': {
       const normalized = typeof value === 'string' ? value.trim() : '';
-      if (!normalized) return 'Full name is required.';
-      if (normalized.length < 3) return 'Full name must be at least 3 characters.';
-      if (normalized.length > 255) return 'Full name cannot exceed 255 characters.';
+      if (!normalized) return validationLabels.fullName.requiredLabel;
+      if (normalized.length < 3) {
+        return validationLabels.fullName.minimumCharacterLabel;
+      }
+      if (normalized.length > 255) {
+        return validationLabels.fullName.maximumCharactersLabel;
+      }
       return '';
     }
     case 'email': {
       const normalized = typeof value === 'string' ? value.trim() : '';
-      if (!normalized) return 'Email is required.';
+      if (!normalized) return validationLabels.email.requiredLabel;
+      if (normalized.length > 255) {
+        return validationLabels.email.maximumCharactersLabel;
+      }
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized)) return 'Enter a valid email address.';
-      if (normalized.length > 255) return 'Email cannot exceed 255 characters.';
       return '';
     }
     case 'contactNumber': {
       const normalized = typeof value === 'string' ? value.trim() : '';
-      if (!normalized) return 'Contact number is required.';
+      if (!normalized) return validationLabels.contactNumber.requiredLabel;
       if (normalized.length < 7 || normalized.length > 20) {
         return 'Contact number must be between 7 and 20 characters.';
       }
@@ -110,12 +122,12 @@ function validateField(name: keyof FormValues | 'cv', value: string | File | nul
       return '';
     }
     case 'cv': {
-      if (!(value instanceof File)) return 'CV file is required.';
+      if (!(value instanceof File)) return validationLabels.cvRequired;
       const lowerName = value.name.toLowerCase();
       if (!lowerName.endsWith('.pdf') && !lowerName.endsWith('.doc') && !lowerName.endsWith('.docx')) {
-        return 'CV must be a PDF, DOC, or DOCX file.';
+        return validationLabels.cvType;
       }
-      if (value.size <= 0) return 'CV file is empty.';
+      if (value.size <= 0) return validationLabels.cvEmptyFile;
       return '';
     }
     default:
@@ -132,6 +144,7 @@ export default function VacancyApplicationForm({
   jobTitle,
   slug,
   submitLabel,
+  validationLabels,
 }: VacancyApplicationFormProps) {
   const [values, setValues] = useState<FormValues>({
     contactNumber: '',
@@ -160,7 +173,7 @@ export default function VacancyApplicationForm({
     if (touched[name]) {
       setErrors((current) => ({
         ...current,
-        [name]: validateField(name, value),
+        [name]: validateField(name, value, validationLabels),
       }));
     }
   }
@@ -170,7 +183,9 @@ export default function VacancyApplicationForm({
     setErrors((current) => ({
       ...current,
       [name]:
-        name === 'cv' ? validateField('cv', cvFile) : validateField(name, values[name]),
+        name === 'cv'
+          ? validateField('cv', cvFile, validationLabels)
+          : validateField(name, values[name], validationLabels),
     }));
   }
 
@@ -182,7 +197,7 @@ export default function VacancyApplicationForm({
     if (touched.cv) {
       setErrors((current) => ({
         ...current,
-        cv: validateField('cv', nextFile),
+        cv: validateField('cv', nextFile, validationLabels),
       }));
     }
   }
@@ -192,10 +207,10 @@ export default function VacancyApplicationForm({
     const formElement = event.currentTarget;
 
     const nextErrors: FormErrors = {
-      fullName: validateField('fullName', values.fullName),
-      email: validateField('email', values.email),
-      contactNumber: validateField('contactNumber', values.contactNumber),
-      cv: validateField('cv', cvFile),
+      fullName: validateField('fullName', values.fullName, validationLabels),
+      email: validateField('email', values.email, validationLabels),
+      contactNumber: validateField('contactNumber', values.contactNumber, validationLabels),
+      cv: validateField('cv', cvFile, validationLabels),
     };
 
     setTouched({
@@ -232,15 +247,15 @@ export default function VacancyApplicationForm({
       setTouched({});
       setStatus('success');
       setSubmitMessage(
-        response.message || `Your application for ${jobTitle} has been submitted successfully.`
+        response.message || validationLabels.submitSuccessMessage
       );
       formElement.reset();
     } catch (error: unknown) {
       setStatus('error');
       setSubmitMessage(
         error instanceof Error
-          ? error.message || 'Failed to submit vacancy application.'
-          : 'Failed to submit vacancy application.'
+          ? error.message || validationLabels.applicationErrorMessage
+          : validationLabels.applicationErrorMessage
       );
     }
   }

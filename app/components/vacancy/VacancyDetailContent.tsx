@@ -4,11 +4,16 @@ import { BriefcaseBusiness, Check, Clock3, MapPin, WalletCards } from 'lucide-re
 import VacancyApplicationForm from './VacancyApplicationForm';
 import VacancyAttachmentLink from './VacancyAttachmentLink';
 import VacancyOverviewPanel from './VacancyOverviewPanel';
-import type { VacancyDetailViewModel, VacancyLabelsViewModel } from '@/app/lib/vacancy/pageData';
+import type {
+  VacancyDetailLabelsViewModel,
+  VacancyDetailViewModel,
+  VacancyLabelsViewModel,
+} from '@/app/lib/vacancy/pageData';
 
 interface VacancyDetailContentProps {
   job: VacancyDetailViewModel;
   labels: VacancyLabelsViewModel;
+  detailLabels: VacancyDetailLabelsViewModel;
 }
 
 function VacancySectionList({
@@ -33,7 +38,11 @@ function VacancySectionList({
   );
 }
 
-export default function VacancyDetailContent({ job, labels }: VacancyDetailContentProps) {
+export default function VacancyDetailContent({
+  job,
+  labels,
+  detailLabels,
+}: VacancyDetailContentProps) {
   const metaItems = [
     {
       key: 'category',
@@ -137,6 +146,7 @@ export default function VacancyDetailContent({ job, labels }: VacancyDetailConte
         jobTitle={job.title}
         slug={job.slug}
         submitLabel={labels.submitLabel}
+        validationLabels={detailLabels.validationLabels}
       />
     </div>
   );

@@ -3,6 +3,13 @@ import type { StrapiImage, StrapiMedia } from './strapi';
 
 export type VacancyState = 'open' | 'closed' | 'archived';
 
+export interface ValidationLabels {
+  id?: number;
+  requiredlabel?: string | null;
+  minimumcharacterlabel?: string | null;
+  maximumcharacterslabel?: string | null;
+}
+
 export interface VacancyPageHero {
   id: number;
   PageTitle: string;
@@ -43,6 +50,23 @@ export interface VacancyPage {
   degreelabel?: string | null;
   offeredsalarylabel?: string | null;
   locationlabel?: string | null;
+}
+
+export interface VacancyDetailsPage {
+  id: number;
+  documentId?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  publishedAt?: string;
+  locale?: string;
+  fullnamelabels?: ValidationLabels | null;
+  emaillabels?: ValidationLabels | null;
+  contactnumberlabels?: ValidationLabels | null;
+  cvrequiredvalidationlabel?: string | null;
+  cvtypevalidationlabel?: string | null;
+  cvemptyfilelabels?: string | null;
+  submitsuccessmessage?: string | null;
+  applicationerrormessage?: string | null;
 }
 
 export interface Department {
