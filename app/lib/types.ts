@@ -9,6 +9,7 @@ export * from './types/gallery';
 export * from './types/home';
 export * from './types/navigation';
 export * from './types/newsletter';
+export * from './types/organization-structure';
 export * from './types/research-managers';
 export * from './types/rubber-prices';
 export * from './types/shared';

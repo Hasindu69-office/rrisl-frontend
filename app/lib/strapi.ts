@@ -13,6 +13,7 @@ export * from './strapi/homepageStatistics';
 export * from './strapi/media';
 export * from './strapi/navigation';
 export * from './strapi/newsletter';
+export * from './strapi/organization-structure';
 export * from './strapi/query';
 export * from './strapi/research-managers';
 export * from './strapi/rubber-prices';
