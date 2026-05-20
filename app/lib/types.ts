@@ -8,6 +8,7 @@ export * from './types/footer';
 export * from './types/home';
 export * from './types/navigation';
 export * from './types/newsletter';
+export * from './types/research-managers';
 export * from './types/shared';
 export * from './types/strapi';
 export * from './types/vacancy';
