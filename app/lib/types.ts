@@ -5,6 +5,7 @@ export * from './types/contact';
 export * from './types/downloads';
 export * from './types/e-publications';
 export * from './types/footer';
+export * from './types/gallery';
 export * from './types/home';
 export * from './types/navigation';
 export * from './types/newsletter';
