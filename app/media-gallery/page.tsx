@@ -5,9 +5,8 @@ import PageHero from '../components/shared/PageHero';
 import GradientTag from '../components/ui/GradientTag';
 import GradientTitle from '../components/ui/GradientTitle';
 import { normalizeLocale, addLocaleToUrl } from '../lib/locale';
-import { getGalleryPage, isLocalhostAssetUrl } from '../lib/strapi';
+import { getGalleryPage, getPhotoGalleryAlbums, isLocalhostAssetUrl } from '../lib/strapi';
 import { mapMediaGalleryPageData } from '../lib/media-gallery/pageData';
-import { photoGalleryAlbums } from './photo-gallery/photoGalleryData';
 import { videoGalleryAlbums } from './video-gallery/videoGalleryData';
 
 interface MediaGalleryPageProps {
@@ -18,7 +17,6 @@ const galleryCardMeta = [
   {
     id: 'photo-gallery',
     icon: Camera,
-    albums: photoGalleryAlbums,
   },
   {
     id: 'video-gallery',
@@ -32,9 +30,10 @@ export default async function MediaGalleryPage({
 }: MediaGalleryPageProps) {
   const params = await searchParams;
   const locale = normalizeLocale(params.locale);
-  const [galleryPage, fallbackGalleryPage] = await Promise.all([
+  const [galleryPage, fallbackGalleryPage, photoAlbums] = await Promise.all([
     getGalleryPage(locale),
     locale === 'en' ? Promise.resolve(null) : getGalleryPage('en'),
+    getPhotoGalleryAlbums(locale),
   ]);
   const pageData = mapMediaGalleryPageData(galleryPage, fallbackGalleryPage);
 
@@ -78,6 +77,10 @@ export default async function MediaGalleryPage({
               const Icon = meta.icon;
               const href = addLocaleToUrl(card.href, locale);
               const useUnoptimizedImage = isLocalhostAssetUrl(card.coverImage);
+              const albumCount =
+                card.id === 'photo-gallery'
+                  ? photoAlbums.length
+                  : videoGalleryAlbums.length;
 
               return (
                 <Link
@@ -102,7 +105,7 @@ export default async function MediaGalleryPage({
                         <Icon className="h-5 w-5" strokeWidth={2.2} aria-hidden="true" />
                       </span>
                       <span className="rounded-full bg-white/88 px-4 py-2 text-sm font-semibold text-[#0F3F1D] backdrop-blur">
-                        {meta.albums.length} {card.albumLabel}
+                        {albumCount} {card.albumLabel}
                       </span>
                     </div>
 

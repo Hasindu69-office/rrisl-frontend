@@ -203,9 +203,8 @@ export default function VideoAlbumShowcase({
 
               <div className="mt-6">
                 <GradientTitle
-                  part1="Stories from the album,"
-                  part2="presented as a video collection."
-                  part1Color="dark-green"
+                  part1=""
+                  part2="Stories from the album, presented as a video collection."
                   size="custom"
                   className="text-[32px] font-semibold md:text-[46px] lg:text-[58px]"
                   style={{ lineHeight: '1.08' }}

@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { addLocaleToUrl } from '@/app/lib/locale';
+import { isLocalhostAssetUrl } from '@/app/lib/strapi';
 
 export interface MediaAlbumSlide {
   id: string;
@@ -191,6 +192,7 @@ function MediaAlbumCard({
   const titleRightPadding = isMobile ? 'pr-[92px]' : 'pr-[88px]';
   const actionSize = isMobile ? 'h-[64px] w-[64px]' : 'h-[60px] w-[60px]';
   const actionRadius = isMobile ? 'rounded-tl-[30px]' : 'rounded-tl-[28px]';
+  const useUnoptimizedImage = isLocalhostAssetUrl(slide.imageSrc);
 
   return (
     <Link
@@ -203,6 +205,7 @@ function MediaAlbumCard({
         alt={slide.imageAlt}
         fill
         className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
+        unoptimized={useUnoptimizedImage}
         sizes={
           presentation === 'desktop-active'
             ? '350px'
