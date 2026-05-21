@@ -14,7 +14,6 @@ export interface TestingService {
 
 export interface TestingServiceGroup {
   title: string;
-  range: string;
   items: TestingService[];
 }
 
@@ -39,7 +38,6 @@ export const serviceHighlights: ServiceHighlight[] = [
 export const testingServiceGroups: TestingServiceGroup[] = [
   {
     title: 'Latex & Raw Rubber Tests',
-    range: '01-32',
     items: [
       { number: 1, name: 'Dry Rubber Content (DRC)' },
       { number: 2, name: 'Total Solid Content (TSC)' },
@@ -77,7 +75,6 @@ export const testingServiceGroups: TestingServiceGroup[] = [
   },
   {
     title: 'Fertilizer, Leaf, Compost & Soil Tests',
-    range: '33-52',
     items: [
       { number: 33, name: 'Site Specific Fertilizer Recommendation / Fertilizer, Leaf, Compost (Total digestions)' },
       { number: 34, name: 'N, P, K, Mg' },
@@ -103,7 +100,6 @@ export const testingServiceGroups: TestingServiceGroup[] = [
   },
   {
     title: 'Instrumental & Physical Rubber Tests',
-    range: '53-89',
     items: [
       { number: 53, name: 'FTIR analysis per sample' },
       { number: 54, name: 'TGA analysis per sample' },
@@ -146,7 +142,6 @@ export const testingServiceGroups: TestingServiceGroup[] = [
   },
   {
     title: 'Microbiology, Quarantine & Land Evaluation',
-    range: '90-97',
     items: [
       { number: 90, name: 'Identification of a diseased sample - up to genus level of the causative agent' },
       { number: 91, name: 'Soil microbiological Test' },

@@ -105,8 +105,9 @@ function TestingAccordion() {
     <div className="mt-10 space-y-5 md:mt-12">
       {testingServiceGroups.map((group) => {
         const isOpen = openGroups.has(group.title);
-        const panelId = `testing-service-panel-${group.range}`;
-        const buttonId = `testing-service-trigger-${group.range}`;
+        const groupSlug = group.title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        const panelId = `testing-service-panel-${groupSlug}`;
+        const buttonId = `testing-service-trigger-${groupSlug}`;
         let transitionDuration = 'duration-500';
 
         if (group.items.length > 30) {
@@ -141,9 +142,6 @@ function TestingAccordion() {
               className="flex w-full cursor-pointer items-center justify-between gap-4 px-5 py-5 text-left md:px-7 md:py-6"
             >
               <div>
-                <div className="mb-2 inline-flex rounded-full bg-[#EFF8EA] px-3 py-1 text-[12px] font-semibold text-[#2E7D32]">
-                  Tests {group.range}
-                </div>
                 <h3 className="text-[18px] font-semibold leading-[1.3] text-[#0F3F1D] md:text-[22px]">
                   {group.title}
                 </h3>
