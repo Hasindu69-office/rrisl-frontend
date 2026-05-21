@@ -13,6 +13,7 @@ export * from './types/organization-structure';
 export * from './types/research-managers';
 export * from './types/rubber-prices';
 export * from './types/shared';
+export * from './types/services';
 export * from './types/strapi';
 export * from './types/vacancy';
 
