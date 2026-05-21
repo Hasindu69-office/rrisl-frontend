@@ -233,7 +233,7 @@ export default function PhotoAlbumShowcase({
             <div className="mb-4 flex items-center justify-between gap-4">
               <div className="min-w-0">
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#A1DF0A]">
-                  Photo {activePhotoIndex + 1} / {album.photos.length}
+                  {album.labels.photos} {activePhotoIndex + 1} / {album.photos.length}
                 </p>
               </div>
 
