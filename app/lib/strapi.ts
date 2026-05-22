@@ -19,5 +19,6 @@ export * from './strapi/query';
 export * from './strapi/research-managers';
 export * from './strapi/services';
 export * from './strapi/rubber-prices';
+export * from './strapi/video-gallery';
 export * from './strapi/vacancy';
 

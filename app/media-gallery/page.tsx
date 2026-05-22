@@ -5,9 +5,13 @@ import PageHero from '../components/shared/PageHero';
 import GradientTag from '../components/ui/GradientTag';
 import GradientTitle from '../components/ui/GradientTitle';
 import { normalizeLocale, addLocaleToUrl } from '../lib/locale';
-import { getGalleryPage, getPhotoGalleryAlbums, isLocalhostAssetUrl } from '../lib/strapi';
+import {
+  getGalleryPage,
+  getPhotoGalleryAlbums,
+  getVideoGalleryAlbums,
+  isLocalhostAssetUrl,
+} from '../lib/strapi';
 import { mapMediaGalleryPageData } from '../lib/media-gallery/pageData';
-import { videoGalleryAlbums } from './video-gallery/videoGalleryData';
 
 interface MediaGalleryPageProps {
   searchParams: Promise<{ locale?: string }>;
@@ -21,7 +25,6 @@ const galleryCardMeta = [
   {
     id: 'video-gallery',
     icon: Film,
-    albums: videoGalleryAlbums,
   },
 ] as const;
 
@@ -30,10 +33,11 @@ export default async function MediaGalleryPage({
 }: MediaGalleryPageProps) {
   const params = await searchParams;
   const locale = normalizeLocale(params.locale);
-  const [galleryPage, fallbackGalleryPage, photoAlbums] = await Promise.all([
+  const [galleryPage, fallbackGalleryPage, photoAlbums, videoAlbums] = await Promise.all([
     getGalleryPage(locale),
     locale === 'en' ? Promise.resolve(null) : getGalleryPage('en'),
     getPhotoGalleryAlbums(locale),
+    getVideoGalleryAlbums(locale),
   ]);
   const pageData = mapMediaGalleryPageData(galleryPage, fallbackGalleryPage);
 
@@ -80,7 +84,7 @@ export default async function MediaGalleryPage({
               const albumCount =
                 card.id === 'photo-gallery'
                   ? photoAlbums.length
-                  : videoGalleryAlbums.length;
+                  : videoAlbums.length;
 
               return (
                 <Link

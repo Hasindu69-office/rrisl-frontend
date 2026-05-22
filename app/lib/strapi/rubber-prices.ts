@@ -57,9 +57,8 @@ async function fetchRubberAuctionPrices(): Promise<RubberAuctionPrice[]> {
     : '/api/rubber-auction-prices';
   const response = await fetchStrapi<unknown>(url);
   const entries = unwrapCollection<RubberAuctionPriceRecord>(response);
-
-  return entries
-    .map((item) => {
+  const mappedEntries = entries
+    .map((item): RubberAuctionPrice | null => {
       const attributes = item.attributes || item;
       const id = item.id || attributes.id || 0;
       const date = attributes.date || item.date;
@@ -79,6 +78,8 @@ async function fetchRubberAuctionPrices(): Promise<RubberAuctionPrice[]> {
       };
     })
     .filter((item): item is RubberAuctionPrice => item !== null);
+
+  return mappedEntries;
 }
 
 export async function getRubberAuctionPrices(): Promise<RubberAuctionPrice[]> {

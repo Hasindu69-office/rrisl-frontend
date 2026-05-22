@@ -12,22 +12,25 @@ import {
 } from 'lucide-react';
 import GradientTag from '@/app/components/ui/GradientTag';
 import GradientTitle from '@/app/components/ui/GradientTitle';
+import { isLocalhostAssetUrl } from '@/app/lib/strapi';
 import type {
-  VideoGalleryAlbum,
-  VideoGalleryItem,
-} from '@/app/media-gallery/video-gallery/videoGalleryData';
+  VideoGalleryAlbumViewModel,
+  VideoGalleryItemViewModel,
+} from '@/app/lib/video-gallery/pageData';
 
 interface VideoAlbumShowcaseProps {
-  album: VideoGalleryAlbum;
+  album: VideoGalleryAlbumViewModel;
 }
 
 function VideoCard({
   video,
   onOpen,
 }: {
-  video: VideoGalleryItem;
+  video: VideoGalleryItemViewModel;
   onOpen: () => void;
 }) {
+  const useUnoptimizedImage = isLocalhostAssetUrl(video.thumbnailSrc);
+
   return (
     <button
       type="button"
@@ -41,6 +44,7 @@ function VideoCard({
           alt={video.thumbnailAlt}
           fill
           className="object-cover transition duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.045]"
+          unoptimized={useUnoptimizedImage}
           sizes="(max-width: 767px) 100vw, (max-width: 1279px) 50vw, 33vw"
         />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(4,32,18,0.08)_0%,rgba(4,32,18,0.18)_42%,rgba(4,32,18,0.9)_100%)]" />
@@ -70,7 +74,7 @@ function VideoCard({
   );
 }
 
-function VideoPlayer({ video }: { video: VideoGalleryItem }) {
+function VideoPlayer({ video }: { video: VideoGalleryItemViewModel }) {
   if (video.sourceType === 'youtube') {
     return (
       <iframe
@@ -155,15 +159,28 @@ export default function VideoAlbumShowcase({
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        closeLightbox();
+        setIsClosingLightbox(true);
+        setIsLightboxVisible(false);
       }
 
       if (event.key === 'ArrowLeft') {
-        showPreviousVideo();
+        setActiveVideoIndex((currentIndex) => {
+          if (currentIndex === null || album.videos.length === 0) {
+            return currentIndex;
+          }
+
+          return (currentIndex - 1 + album.videos.length) % album.videos.length;
+        });
       }
 
       if (event.key === 'ArrowRight') {
-        showNextVideo();
+        setActiveVideoIndex((currentIndex) => {
+          if (currentIndex === null || album.videos.length === 0) {
+            return currentIndex;
+          }
+
+          return (currentIndex + 1) % album.videos.length;
+        });
       }
     };
 
@@ -195,7 +212,7 @@ export default function VideoAlbumShowcase({
           <div>
             <div className="max-w-[760px]">
               <GradientTag
-                text="Videos"
+                text={album.labels.videos}
                 className="inline-block"
                 gradientFrom="#20C997"
                 gradientTo="#A1DF0A"
@@ -204,7 +221,7 @@ export default function VideoAlbumShowcase({
               <div className="mt-6">
                 <GradientTitle
                   part1=""
-                  part2="Stories from the album, presented as a video collection."
+                  part2={album.albumTitle}
                   size="custom"
                   className="text-[32px] font-semibold md:text-[46px] lg:text-[58px]"
                   style={{ lineHeight: '1.08' }}
@@ -223,7 +240,7 @@ export default function VideoAlbumShowcase({
                 <Film className="h-5 w-5" strokeWidth={2.2} aria-hidden="true" />
               </span>
               <div>
-                <p className="text-sm font-medium text-[#667085]">Album Videos</p>
+                <p className="text-sm font-medium text-[#667085]">{album.labels.albumVideos}</p>
                 <p className="text-3xl font-semibold leading-none text-[#0F3F1D]">
                   {album.videos.length}
                 </p>
@@ -241,6 +258,7 @@ export default function VideoAlbumShowcase({
                     alt=""
                     fill
                     className="object-cover"
+                    unoptimized={isLocalhostAssetUrl(video.thumbnailSrc)}
                     sizes="120px"
                   />
                   <div className="absolute inset-0 flex items-center justify-center bg-[#042012]/20">

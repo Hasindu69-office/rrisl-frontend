@@ -177,7 +177,7 @@ function mapEntries(entries: RubberAuctionPrice[]): RubberPriceEntry[] {
   return [...entries]
     .filter((entry) => Boolean(entry.date && entry.price))
     .sort((left, right) => right.date.localeCompare(left.date))
-    .map((entry, index) => {
+    .map((entry, index): RubberPriceEntry => {
       const imageSrc =
         getOptimizedImageUrl(entry.price, 'large') ||
         getOptimizedImageUrl(entry.price, 'medium') ||
