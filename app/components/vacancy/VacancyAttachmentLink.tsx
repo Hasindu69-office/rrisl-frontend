@@ -1,11 +1,15 @@
 import { ArrowDownToLine, FileText } from 'lucide-react';
 
 interface VacancyAttachmentLinkProps {
+  buttonLabel: string;
   href: string;
+  title: string;
 }
 
 export default function VacancyAttachmentLink({
+  buttonLabel,
   href,
+  title,
 }: VacancyAttachmentLinkProps) {
   return (
     <section className="mt-10 rounded-[18px] border border-[#DDE6D7] bg-[linear-gradient(135deg,#F7FBF6_0%,#EEF7EF_100%)] p-5 shadow-[0_8px_24px_rgba(15,63,29,0.04)] md:p-6">
@@ -16,12 +20,7 @@ export default function VacancyAttachmentLink({
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold text-[#16324F]">
-              Download Vacancy Notice
-            </h3>
-            <p className="mt-1 text-sm leading-6 text-[#5B6470]">
-              Get the job advertisement and supporting application instructions as a PDF.
-            </p>
+            <h3 className="text-lg font-semibold text-[#16324F]">{title}</h3>
           </div>
         </div>
 
@@ -31,7 +30,7 @@ export default function VacancyAttachmentLink({
           className="inline-flex min-h-[46px] items-center justify-center gap-3 rounded-[8px] bg-[#2E7D32] px-5 text-sm font-semibold text-white transition hover:bg-[#256A2A] focus:outline-none focus:ring-2 focus:ring-[#2E7D32] focus:ring-offset-2"
         >
           <ArrowDownToLine className="h-4 w-4" strokeWidth={2.2} aria-hidden="true" />
-          <span>Download PDF</span>
+          <span>{buttonLabel}</span>
         </a>
       </div>
     </section>

@@ -4,53 +4,50 @@ import { ArrowRight, Camera, Film } from 'lucide-react';
 import PageHero from '../components/shared/PageHero';
 import GradientTag from '../components/ui/GradientTag';
 import GradientTitle from '../components/ui/GradientTitle';
-import { addLocaleToUrl } from '../lib/locale';
-import { photoGalleryAlbums } from './photo-gallery/photoGalleryData';
-import { videoGalleryAlbums } from './video-gallery/videoGalleryData';
+import { normalizeLocale, addLocaleToUrl } from '../lib/locale';
+import {
+  getGalleryPage,
+  getPhotoGalleryAlbums,
+  getVideoGalleryAlbums,
+  isLocalhostAssetUrl,
+} from '../lib/strapi';
+import { mapMediaGalleryPageData } from '../lib/media-gallery/pageData';
 
 interface MediaGalleryPageProps {
   searchParams: Promise<{ locale?: string }>;
 }
 
-const galleryCards = [
+const galleryCardMeta = [
   {
     id: 'photo-gallery',
-    title: 'Photo Gallery',
-    description:
-      'Browse photo albums from research activities, field visits, outreach programmes, and institutional events.',
-    href: '/media-gallery/photo-gallery',
-    albumLabel: 'Photo Albums',
     icon: Camera,
-    albums: photoGalleryAlbums,
   },
   {
     id: 'video-gallery',
-    title: 'Video Gallery',
-    description:
-      'Watch video albums covering symposium highlights, field extension stories, demonstrations, and stakeholder sessions.',
-    href: '/media-gallery/video-gallery',
-    albumLabel: 'Video Albums',
     icon: Film,
-    albums: videoGalleryAlbums,
   },
-];
+] as const;
 
 export default async function MediaGalleryPage({
   searchParams,
 }: MediaGalleryPageProps) {
   const params = await searchParams;
-  const locale = params.locale || 'en';
+  const locale = normalizeLocale(params.locale);
+  const [galleryPage, fallbackGalleryPage, photoAlbums, videoAlbums] = await Promise.all([
+    getGalleryPage(locale),
+    locale === 'en' ? Promise.resolve(null) : getGalleryPage('en'),
+    getPhotoGalleryAlbums(locale),
+    getVideoGalleryAlbums(locale),
+  ]);
+  const pageData = mapMediaGalleryPageData(galleryPage, fallbackGalleryPage);
 
   return (
     <div className="min-h-screen bg-white">
       <PageHero
-        title="Media Gallery"
-        breadcrumbItems={[
-          { label: 'Home', href: '/' },
-          { label: 'Media Gallery' },
-        ]}
-        backgroundImage="/images/aboutus_heroimg.jpg"
-        backgroundImageAlt="Media gallery background"
+        title={pageData.hero.title}
+        breadcrumbItems={pageData.hero.breadcrumbItems}
+        backgroundImage={pageData.hero.backgroundImage}
+        backgroundImageAlt={pageData.hero.backgroundImageAlt}
         locale={locale}
       />
 
@@ -58,15 +55,15 @@ export default async function MediaGalleryPage({
         <div className="mx-auto w-full max-w-[1480px]">
           <div className="max-w-[760px]">
             <GradientTag
-              text="Gallery Collection"
+              text={pageData.section.tag}
               className="inline-block"
               gradientFrom="#20C997"
               gradientTo="#A1DF0A"
             />
             <div className="mt-6">
               <GradientTitle
-                part1="Explore RRISL moments"
-                part2="through photos and videos."
+                part1={pageData.section.titlePart1}
+                part2={pageData.section.titlePart2}
                 part1Color="dark-green"
                 size="custom"
                 className="text-[32px] font-semibold md:text-[46px] lg:text-[58px]"
@@ -74,19 +71,20 @@ export default async function MediaGalleryPage({
               />
             </div>
             <p className="mt-5 max-w-[680px] text-[16px] leading-8 text-[#667085] md:text-[17px]">
-              Choose a media type to view organized albums from institute
-              programmes, field work, research events, and knowledge sharing
-              activities.
+              {pageData.section.description}
             </p>
           </div>
 
           <div className="mt-12 grid gap-6 lg:grid-cols-2">
-            {galleryCards.map((card) => {
-              const Icon = card.icon;
-              const coverAlbum = card.albums[0];
-              const coverImage = coverAlbum?.coverImage ?? '/images/aboutus_heroimg.jpg';
-              const coverAlt = coverAlbum?.imageAlt ?? `${card.title} cover image`;
+            {pageData.cards.map((card) => {
+              const meta = galleryCardMeta.find((item) => item.id === card.id)!;
+              const Icon = meta.icon;
               const href = addLocaleToUrl(card.href, locale);
+              const useUnoptimizedImage = isLocalhostAssetUrl(card.coverImage);
+              const albumCount =
+                card.id === 'photo-gallery'
+                  ? photoAlbums.length
+                  : videoAlbums.length;
 
               return (
                 <Link
@@ -97,11 +95,12 @@ export default async function MediaGalleryPage({
                 >
                   <div className="relative aspect-[16/12] min-h-[360px] md:aspect-[16/10] lg:min-h-[460px]">
                     <Image
-                      src={coverImage}
-                      alt={coverAlt}
+                      src={card.coverImage}
+                      alt={card.coverAlt}
                       fill
                       className="object-cover transition duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
                       sizes="(max-width: 1023px) 100vw, 50vw"
+                      unoptimized={useUnoptimizedImage}
                     />
                     <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(4,32,18,0.08)_0%,rgba(4,32,18,0.2)_36%,rgba(4,32,18,0.92)_100%)]" />
 
@@ -110,7 +109,7 @@ export default async function MediaGalleryPage({
                         <Icon className="h-5 w-5" strokeWidth={2.2} aria-hidden="true" />
                       </span>
                       <span className="rounded-full bg-white/88 px-4 py-2 text-sm font-semibold text-[#0F3F1D] backdrop-blur">
-                        {card.albums.length} {card.albumLabel}
+                        {albumCount} {card.albumLabel}
                       </span>
                     </div>
 
@@ -123,7 +122,7 @@ export default async function MediaGalleryPage({
                       </p>
 
                       <div className="mt-6 inline-flex items-center gap-3 text-sm font-semibold text-[#A1DF0A]">
-                        <span>View albums</span>
+                        <span>{card.viewAlbumLabel}</span>
                         <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#A1DF0A] text-[#0F3F1D] transition duration-300 group-hover:translate-x-1">
                           <ArrowRight className="h-4 w-4" strokeWidth={2.4} aria-hidden="true" />
                         </span>

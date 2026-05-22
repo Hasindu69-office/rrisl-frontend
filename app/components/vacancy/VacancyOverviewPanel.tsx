@@ -1,8 +1,18 @@
 import { BriefcaseBusiness, Clock3, GraduationCap, MapPin, ShieldCheck, WalletCards } from 'lucide-react';
-import type { VacancyJob } from './vacancyData';
+import type { VacancyDetailViewModel } from '@/app/lib/vacancy/pageData';
 
 interface VacancyOverviewPanelProps {
-  job: VacancyJob;
+  heading: string;
+  job: VacancyDetailViewModel;
+  labels: {
+    category: string;
+    degree: string;
+    experience: string;
+    jobTitle: string;
+    jobType: string;
+    location: string;
+    offeredSalary: string;
+  };
 }
 
 function OverviewMapCard({ location }: { location: string }) {
@@ -25,40 +35,44 @@ function OverviewMapCard({ location }: { location: string }) {
   );
 }
 
-export default function VacancyOverviewPanel({ job }: VacancyOverviewPanelProps) {
+export default function VacancyOverviewPanel({
+  heading,
+  job,
+  labels,
+}: VacancyOverviewPanelProps) {
   const overviewItems = [
     {
-      label: 'Job Title',
+      label: labels.jobTitle,
       value: job.title,
       icon: ShieldCheck,
     },
     {
-      label: 'Job Type',
+      label: labels.jobType,
       value: job.employmentType,
       icon: Clock3,
     },
     {
-      label: 'Category',
+      label: labels.category,
       value: job.category,
       icon: BriefcaseBusiness,
     },
     {
-      label: 'Experience',
+      label: labels.experience,
       value: job.experience,
       icon: ShieldCheck,
     },
     {
-      label: 'Degree',
+      label: labels.degree,
       value: job.degree,
       icon: GraduationCap,
     },
     {
-      label: 'Offered Salary',
+      label: labels.offeredSalary,
       value: job.salaryRange,
       icon: WalletCards,
     },
     {
-      label: 'Location',
+      label: labels.location,
       value: job.overviewLocation,
       icon: MapPin,
     },
@@ -66,7 +80,7 @@ export default function VacancyOverviewPanel({ job }: VacancyOverviewPanelProps)
 
   return (
     <aside className="h-fit rounded-[20px] bg-[#EAF4F5] p-6 shadow-[0_12px_28px_rgba(15,63,29,0.06)]">
-      <h2 className="text-lg font-semibold text-[#111827]">Job Overview</h2>
+      <h2 className="text-lg font-semibold text-[#111827]">{heading}</h2>
 
       <div className="mt-5 space-y-5">
         {overviewItems.map(({ label, value, icon: Icon }) => (

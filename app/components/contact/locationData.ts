@@ -28,10 +28,6 @@ export const headOfficeCard: LocationCardData = {
       value: 'Dartonfield, Agalawatta, Sri Lanka, 12200',
     },
     {
-      label: 'Telephone',
-      value: 'Dartonfield, Agalawatta, Sri Lanka, 12200',
-    },
-    {
       label: 'Director',
       value: '034 - 2248457',
       href: 'tel:0342248457',
@@ -61,10 +57,6 @@ export const laboratoryCard: LocationCardData = {
     {
       label: 'Postal Address',
       value: 'Telewela Road, Ratmalana',
-    },
-    {
-      label: 'Telephone',
-      value: 'Dartonfield, Agalawatta, Sri Lanka, 12200',
     },
     {
       label: 'Chairman',

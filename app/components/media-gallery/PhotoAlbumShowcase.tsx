@@ -3,44 +3,43 @@
 import { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import { Camera, ChevronLeft, ChevronRight, Images, X } from 'lucide-react';
+import { isLocalhostAssetUrl } from '@/app/lib/strapi';
 import GradientTag from '@/app/components/ui/GradientTag';
 import GradientTitle from '@/app/components/ui/GradientTitle';
-import type { PhotoGalleryAlbum } from '@/app/media-gallery/photo-gallery/photoGalleryData';
+import type { PhotoGalleryAlbumViewModel } from '@/app/lib/photo-gallery/pageData';
 
 interface PhotoAlbumShowcaseProps {
-  album: PhotoGalleryAlbum;
+  album: PhotoGalleryAlbumViewModel;
 }
 
 function PhotoTile({
   photo,
   onOpen,
 }: {
-  photo: PhotoGalleryAlbum['photos'][number];
+  photo: PhotoGalleryAlbumViewModel['photos'][number];
   onOpen: () => void;
 }) {
+  const useUnoptimizedImage = isLocalhostAssetUrl(photo.src);
+
   return (
     <button
       type="button"
       onClick={onOpen}
       className="group relative block w-full cursor-pointer overflow-hidden rounded-[26px] bg-[#DDE6DD] text-left shadow-[0_18px_50px_rgba(15,63,29,0.08)] outline-none transition duration-300 hover:-translate-y-1 hover:shadow-[0_26px_70px_rgba(15,63,29,0.16)] focus-visible:ring-2 focus-visible:ring-[#2E7D32] focus-visible:ring-offset-4"
-      aria-label={`View ${photo.caption}`}
+      aria-label={`View ${photo.accessibilityLabel}`}
     >
       <div className="relative aspect-[4/5]">
         <Image
           src={photo.src}
           alt={photo.alt}
           fill
+          unoptimized={useUnoptimizedImage}
           className="object-cover transition duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.045]"
           sizes="(max-width: 767px) 100vw, (max-width: 1279px) 50vw, 25vw"
         />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(4,32,18,0)_28%,rgba(4,32,18,0.18)_58%,rgba(4,32,18,0.86)_100%)]" />
         <div className="absolute left-4 top-4 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/88 text-[#0F3F1D] shadow-[0_10px_24px_rgba(4,32,18,0.16)] backdrop-blur transition duration-300 group-hover:bg-[#A1DF0A] group-hover:scale-105">
           <Camera className="h-4 w-4" strokeWidth={2.2} aria-hidden="true" />
-        </div>
-        <div className="absolute inset-x-0 bottom-0 p-5 md:p-6">
-          <p className="max-w-[30rem] text-[15px] font-semibold leading-6 text-white drop-shadow-[0_4px_16px_rgba(0,0,0,0.34)] md:text-[17px]">
-            {photo.caption}
-          </p>
         </div>
       </div>
     </button>
@@ -145,7 +144,7 @@ export default function PhotoAlbumShowcase({
           <div>
             <div className="max-w-[760px]">
               <GradientTag
-                text="Photos"
+                text={album.labels.photos}
                 className="inline-block"
                 gradientFrom="#20C997"
                 gradientTo="#A1DF0A"
@@ -153,9 +152,8 @@ export default function PhotoAlbumShowcase({
 
               <div className="mt-6">
                 <GradientTitle
-                  part1="Moments from the album,"
-                  part2="arranged as a visual field journal."
-                  part1Color="dark-green"
+                  part1=""
+                  part2={album.albumTitle}
                   size="custom"
                   className="text-[32px] font-semibold md:text-[46px] lg:text-[58px]"
                   style={{ lineHeight: '1.08' }}
@@ -174,7 +172,9 @@ export default function PhotoAlbumShowcase({
                 <Images className="h-5 w-5" strokeWidth={2.2} aria-hidden="true" />
               </span>
               <div>
-                <p className="text-sm font-medium text-[#667085]">Album Photos</p>
+                <p className="text-sm font-medium text-[#667085]">
+                  {album.labels.albumPhotos}
+                </p>
                 <p className="text-3xl font-semibold leading-none text-[#0F3F1D]">
                   {album.photos.length}
                 </p>
@@ -191,6 +191,7 @@ export default function PhotoAlbumShowcase({
                     src={photo.src}
                     alt=""
                     fill
+                    unoptimized={isLocalhostAssetUrl(photo.src)}
                     className="object-cover"
                     sizes="120px"
                   />
@@ -218,7 +219,7 @@ export default function PhotoAlbumShowcase({
           }`}
           role="dialog"
           aria-modal="true"
-          aria-label={activePhoto.caption}
+          aria-label={activePhoto.accessibilityLabel}
           onClick={closeLightbox}
         >
           <div
@@ -232,10 +233,7 @@ export default function PhotoAlbumShowcase({
             <div className="mb-4 flex items-center justify-between gap-4">
               <div className="min-w-0">
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#A1DF0A]">
-                  Photo {activePhotoIndex + 1} / {album.photos.length}
-                </p>
-                <p className="mt-1 truncate text-sm font-medium text-white/82 md:text-base">
-                  {activePhoto.caption}
+                  {album.labels.photos} {activePhotoIndex + 1} / {album.photos.length}
                 </p>
               </div>
 
@@ -254,6 +252,7 @@ export default function PhotoAlbumShowcase({
                 src={activePhoto.src}
                 alt={activePhoto.alt}
                 fill
+                unoptimized={isLocalhostAssetUrl(activePhoto.src)}
                 className="object-contain"
                 sizes="100vw"
                 priority

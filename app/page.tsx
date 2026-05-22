@@ -1,7 +1,9 @@
 import { Suspense } from 'react';
-import { getHomePage, getGlobalLayout, getMenuBySlug, getAllAnnouncements } from '@/app/lib/strapi';
+import { getHomePage, getGlobalLayout, getMenuBySlug, getAllAnnouncements, getHomepageStatistics } from '@/app/lib/strapi';
 import { mapAboutSection } from '@/app/lib/home/aboutSection';
+import { mapDataInsightsSection } from '@/app/lib/home/dataInsightsSection';
 import { resolveHeroSlides } from '@/app/lib/home/hero';
+import { mapIndustrySupportSection } from '@/app/lib/home/industrySupportSection';
 import { resolveHomePageStats } from '@/app/lib/home/stats';
 import { normalizeLocale } from '@/app/lib/locale';
 import HomeHeroWithHeader from './components/home/HomeHeroWithHeader';
@@ -24,9 +26,11 @@ export default async function Home({ searchParams }: HomeProps) {
   // Get locale from URL search params, default to 'en'
   const locale = normalizeLocale(params.locale);
 
-  const [homePage, fallbackHomePage, globalLayout, allAnnouncements] = await Promise.all([
+  const [homePage, fallbackHomePage, homePageStatistics, fallbackHomePageStatistics, globalLayout, allAnnouncements] = await Promise.all([
     getHomePage(locale),
     locale !== 'en' ? getHomePage('en') : Promise.resolve(null),
+    getHomepageStatistics(locale),
+    locale !== 'en' ? getHomepageStatistics('en') : Promise.resolve([]),
     getGlobalLayout(locale),
     getAllAnnouncements(locale),
   ]);
@@ -69,6 +73,13 @@ export default async function Home({ searchParams }: HomeProps) {
   // Always fetch English version as fallback for non-English locales
   const aboutSection = mapAboutSection(
     homePage?.aboutSection || fallbackHomePage?.aboutSection
+  );
+  const industrySupportSection = mapIndustrySupportSection(
+    homePage?.industrysupportsection || fallbackHomePage?.industrysupportsection
+  );
+  const dataInsightsSection = mapDataInsightsSection(
+    homePage?.datainsightssection || fallbackHomePage?.datainsightssection,
+    homePageStatistics.length > 0 ? homePageStatistics : fallbackHomePageStatistics
   );
   const announcementSection = homePage?.Announcement || fallbackHomePage?.Announcement || null;
   const showAnnouncementCard = announcementSection?.showAnnoucementCard ?? true;
@@ -124,13 +135,13 @@ export default async function Home({ searchParams }: HomeProps) {
       </div>
 
       {/* Industry Support Section */}
-      <IndustrySupportSection />
+      <IndustrySupportSection section={industrySupportSection} />
 
       {/* Research Section */}
       <ResearchSection />
 
       {/* Data Insights Section */}
-      <DataInsightsSection />
+      <DataInsightsSection section={dataInsightsSection} />
 
       {/* News & Blog Section */}
       <div className="mt-8 md:mt-16 lg:mt-[150px]">

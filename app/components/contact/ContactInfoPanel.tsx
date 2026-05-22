@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { footerConfig } from '../footer/footerData';
+import type { ContactInfoPanelProps } from '@/app/lib/contact/pageData';
 
 function PhoneIcon() {
   return (
@@ -109,6 +109,21 @@ function TwitterIcon() {
   );
 }
 
+function getSocialIcon(platform: ContactInfoPanelProps['socials'][number]['platform']) {
+  switch (platform) {
+    case 'facebook':
+      return <FacebookIcon />;
+    case 'instagram':
+      return <InstagramIcon />;
+    case 'linkedin':
+      return <LinkedinIcon />;
+    case 'x':
+      return <TwitterIcon />;
+    default:
+      return null;
+  }
+}
+
 function InfoRow({
   icon,
   title,
@@ -136,19 +151,17 @@ function InfoRow({
   );
 }
 
-export default function ContactInfoPanel() {
-  const phoneGroups = [
-    `${footerConfig.phones[0]?.number}, ${footerConfig.phones[1]?.number}`,
-    `${footerConfig.phones[2]?.number}, ${footerConfig.phones[3]?.number}`,
-  ];
-
-  const socials = [
-    { href: footerConfig.socialLinks.find((item) => item.type === 'facebook')?.href || '#', icon: <FacebookIcon />, label: 'Facebook' },
-    { href: footerConfig.socialLinks.find((item) => item.type === 'instagram')?.href || '#', icon: <InstagramIcon />, label: 'Instagram' },
-    { href: footerConfig.socialLinks.find((item) => item.type === 'linkedin')?.href || '#', icon: <LinkedinIcon />, label: 'LinkedIn' },
-    { href: '#', icon: <TwitterIcon />, label: 'Twitter' },
-  ];
-
+export default function ContactInfoPanel({
+  title,
+  subtitle,
+  phoneLabel,
+  phoneGroups,
+  addressLabel,
+  address,
+  emailLabel,
+  email,
+  socials,
+}: ContactInfoPanelProps) {
   return (
     <div
       className="relative h-full min-h-[520px] overflow-hidden px-6 py-8 text-white shadow-[0_22px_60px_rgba(46,125,50,0.22)] md:px-8 md:py-10 lg:px-8 lg:py-8 xl:px-10 xl:py-9"
@@ -160,33 +173,36 @@ export default function ContactInfoPanel() {
       <div className="relative z-10 flex h-full flex-col">
         <div>
           <h2 className="text-[28px] font-semibold leading-[1.2] text-white">
-            Contact Information
+            {title}
           </h2>
           <p className="mt-3 text-[18px] leading-6 text-white/88">
-            Say something to start a live chat!
+            {subtitle}
           </p>
         </div>
 
         <div className="mt-12 space-y-10">
-          <InfoRow icon={<PhoneIcon />} title="Looking for Consultation">
+          <InfoRow icon={<PhoneIcon />} title={phoneLabel}>
             {phoneGroups.map((group) => (
-              <a
-                key={group}
-                href={`tel:${group.split(',')[0].replace(/[^0-9+]/g, '')}`}
-                className="block hover:text-white/85"
-              >
-                {group}
-              </a>
+              <div key={group.links.map((link) => link.href).join('|')} className="block">
+                {group.links.map((link, index) => (
+                  <span key={link.href + link.displayNumber}>
+                    <a href={link.href} className="hover:text-white/85">
+                      {link.displayNumber}
+                    </a>
+                    {index < group.links.length - 1 ? ', ' : null}
+                  </span>
+                ))}
+              </div>
             ))}
           </InfoRow>
 
-          <InfoRow icon={<LocationIcon />} title="Visit Our Location">
-            <p>{footerConfig.addressLines[1]}</p>
+          <InfoRow icon={<LocationIcon />} title={addressLabel}>
+            <p>{address}</p>
           </InfoRow>
 
-          <InfoRow icon={<MailIcon />} title="Email">
-            <a href={`mailto:${footerConfig.email}`} className="block hover:text-white/85">
-              {footerConfig.email}
+          <InfoRow icon={<MailIcon />} title={emailLabel}>
+            <a href={`mailto:${email}`} className="block hover:text-white/85">
+              {email}
             </a>
           </InfoRow>
         </div>
@@ -202,7 +218,7 @@ export default function ContactInfoPanel() {
                 aria-label={social.label}
                 className="flex h-[45px] w-[45px] items-center justify-center rounded-full bg-white transition-transform duration-200 hover:-translate-y-1"
               >
-                {social.icon}
+                {getSocialIcon(social.platform)}
               </a>
             ))}
           </div>

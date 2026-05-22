@@ -26,6 +26,14 @@ export function getStrapiImageUrl(image: any): string | null {
   return getStrapiMediaUrl(image);
 }
 
+export function isLocalhostAssetUrl(url: string | null | undefined): boolean {
+  if (!url) {
+    return false;
+  }
+
+  return url.includes('localhost') || url.includes('127.0.0.1');
+}
+
 export function getOptimizedImageUrl(
   image: any,
   format: 'thumbnail' | 'small' | 'medium' | 'large' = 'small'

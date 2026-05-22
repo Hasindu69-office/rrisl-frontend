@@ -23,7 +23,7 @@ export default function SubStationSection({
               'linear-gradient(to right, rgba(32, 201, 151, 1), rgba(161, 223, 10, 1))',
           }}
         >
-          - {titlePart2}
+          {titlePart2}
         </span>
       </h2>
 

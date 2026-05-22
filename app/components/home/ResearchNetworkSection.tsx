@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import ResearchStationCard from './ResearchStationCard';
 import ResearchNetworkMap from './ResearchNetworkMap';
@@ -27,6 +27,8 @@ interface LocationMarker {
   label: string;
   position: { x: number; y: number };
 }
+
+type ViewportKind = 'mobile' | 'tablet' | 'desktop';
 
 /**
  * ResearchNetworkSection Component
@@ -113,24 +115,100 @@ export default function ResearchNetworkSection() {
     },
   ];
 
-  // Location markers on the map
-  const locations: LocationMarker[] = [
+  // Desktop markers remain unchanged.
+  const desktopLocations: LocationMarker[] = [
     {
       id: 'ratmalana',
       label: 'Rathmalana',
-      position: { x: 45, y: 60 }, // Adjust these percentages based on actual map positions
+      position: { x: 26, y: 73 },
     },
     {
       id: 'location2',
       label: 'Research Station 2',
-      position: { x: 50, y: 70 },
+      position: { x: 36, y: 78 },
     },
     {
       id: 'location3',
       label: 'Research Station 3',
-      position: { x: 55, y: 65 },
+      position: { x: 35, y: 70 },
     },
   ];
+
+  // Tablet markers can be adjusted independently from desktop/mobile.
+  const tabletLocations: LocationMarker[] = [
+    {
+      id: 'ratmalana',
+      label: 'Rathmalana',
+      position: { x: 33, y: 73 },
+    },
+    {
+      id: 'location2',
+      label: 'Research Station 2',
+      position: { x: 44, y: 88 },
+    },
+    {
+      id: 'location3',
+      label: 'Research Station 3',
+      position: { x: 45, y: 75 },
+    },
+  ];
+
+  // Mobile markers can be adjusted independently from desktop/tablet.
+  const mobileLocations: LocationMarker[] = [
+    {
+      id: 'ratmalana',
+      label: 'Rathmalana',
+      position: { x: 33, y: 73 },
+    },
+    {
+      id: 'location2',
+      label: 'Research Station 2',
+      position: { x: 44, y: 88 },
+    },
+    {
+      id: 'location3',
+      label: 'Research Station 3',
+      position: { x: 45, y: 75 },
+    },
+  ];
+
+  const getViewportKind = (): ViewportKind => {
+    if (typeof window === 'undefined') {
+      return 'desktop';
+    }
+
+    if (window.innerWidth < 768) {
+      return 'mobile';
+    }
+
+    if (window.innerWidth < 1280) {
+      return 'tablet';
+    }
+
+    return 'desktop';
+  };
+
+  const [viewportKind, setViewportKind] = useState<ViewportKind>(getViewportKind);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setViewportKind(getViewportKind());
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  const locations =
+    viewportKind === 'mobile'
+      ? mobileLocations
+      : viewportKind === 'tablet'
+        ? tabletLocations
+        : desktopLocations;
 
   // State management
   const [activeStationId, setActiveStationId] = useState<string | null>(

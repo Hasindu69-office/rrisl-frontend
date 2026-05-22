@@ -13,11 +13,13 @@ import {
   FolderKanban,
   X,
 } from 'lucide-react';
+import { isLocalhostAssetUrl } from '@/app/lib/strapi';
 import GradientTag from '@/app/components/ui/GradientTag';
 import GradientTitle from '@/app/components/ui/GradientTitle';
-import type { RubberPriceEntry } from './rubberPricesData';
+import type { RubberPriceEntry, RubberPricesSectionContent } from '@/app/lib/types';
 
 interface RubberPricesSectionProps {
+  content: RubberPricesSectionContent;
   entries: RubberPriceEntry[];
   latestEntry: RubberPriceEntry | null;
   recentEntries: RubberPriceEntry[];
@@ -45,14 +47,14 @@ function formatCompactDate(date: string) {
 
 function getStatusLabel(entry: RubberPriceEntry) {
   if (entry.status === 'latest') {
-    return 'Latest weekly upload';
+    return 'latest';
   }
 
   if (entry.status === 'recent') {
-    return 'Recent weekly upload';
+    return 'recent';
   }
 
-  return 'Archive entry';
+  return 'archive';
 }
 
 function StatCard({
@@ -81,22 +83,31 @@ function StatCard({
 
 function RubberPricePreviewCard({
   entry,
+  content,
 }: {
   entry: RubberPriceEntry;
+  content: RubberPricesSectionContent;
 }) {
+  const statusLabelMap = {
+    latest: content.latestWeeklyUploadLabel,
+    recent: content.recentWeeklyUploadLabel,
+    archive: content.archiveEntryLabel,
+  } as const;
+  const useUnoptimizedImage = isLocalhostAssetUrl(entry.imageSrc);
+
   return (
     <article className="overflow-hidden rounded-[24px] border border-[#E1EBDD] bg-white shadow-[0_26px_80px_rgba(15,63,29,0.10)] sm:rounded-[28px] lg:rounded-[30px]">
       <div className="border-b border-[#E5EEE1] bg-[radial-gradient(circle_at_top_right,_rgba(161,223,10,0.16),_transparent_32%),linear-gradient(135deg,#F7FBF4_0%,#EEF6EA_100%)] px-4 py-5 sm:px-6 sm:py-6 md:px-7">
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div>
             <div className="inline-flex items-center rounded-full border border-[#D6E5CF] bg-white/90 px-4 py-2 text-[12px] font-semibold uppercase tracking-[0.14em] text-[#1E6B2F]">
-              {getStatusLabel(entry)}
+              {statusLabelMap[getStatusLabel(entry)]}
             </div>
             <h3 className="mt-4 text-[24px] font-semibold leading-tight text-[#10341B] sm:text-[28px] md:text-[34px]">
-              Auction Prices
+              {content.auctionPriceLabel}
             </h3>
             <p className="mt-2 text-[14px] leading-7 text-[#566A5F] sm:text-[15px] md:text-[16px]">
-              Date of auction: {formatDisplayDate(entry.date)}
+              {content.dateOfAuctionLabel} {formatDisplayDate(entry.date)}
             </p>
           </div>
 
@@ -106,7 +117,7 @@ function RubberPricePreviewCard({
             rel="noopener noreferrer"
             className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 self-start rounded-full bg-[#0F3F1D] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#1A5A2A] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2E7D32] focus-visible:ring-offset-4 sm:px-5"
           >
-            <span>Open full sheet</span>
+            <span>{content.openFullSheetButtonLabel}</span>
             <ExternalLink className="h-4 w-4" strokeWidth={2.1} aria-hidden="true" />
           </a>
         </div>
@@ -123,6 +134,7 @@ function RubberPricePreviewCard({
                 className="object-contain"
                 sizes="(max-width: 767px) 100vw, (max-width: 1279px) 90vw, 860px"
                 priority
+                unoptimized={useUnoptimizedImage}
               />
             </div>
           </div>
@@ -175,6 +187,7 @@ function RubberPriceDateChip({
 }
 
 function RubberPriceArchiveNav({
+  content,
   archiveYears,
   entriesByYear,
   activeYear,
@@ -184,6 +197,7 @@ function RubberPriceArchiveNav({
   onMobileYearToggle,
   onEntrySelect,
 }: {
+  content: RubberPricesSectionContent;
   archiveYears: string[];
   entriesByYear: Record<string, RubberPriceEntry[]>;
   activeYear: string;
@@ -198,7 +212,7 @@ function RubberPriceArchiveNav({
       <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
         <div className="max-w-[720px] min-w-0">
           <GradientTag
-            text="Archive Browser"
+            text={content.archiveTag}
             className="inline-block"
             gradientFrom="#20C997"
             gradientTo="#A1DF0A"
@@ -206,8 +220,8 @@ function RubberPriceArchiveNav({
 
           <div className="mt-6">
             <GradientTitle
-              part1="Browse weekly"
-              part2=" rubber prices."
+              part1={content.archiveTitlePart1}
+              part2={content.archiveTitlePart2}
               lineBreak={false}
               part1Color="dark-green"
               size="custom"
@@ -217,18 +231,17 @@ function RubberPriceArchiveNav({
           </div>
 
           <p className="mt-4 text-[14px] leading-7 text-[#5A6B61] sm:mt-5 sm:text-[15px] md:text-[16px] md:leading-8">
-            Select an archive year to view the available weekly uploads, then choose
-            a date to open that auction sheet.
+            {content.archiveDescription}
           </p>
         </div>
 
         <div className="inline-flex self-start rounded-full border border-[#E6EEE2] bg-[#F7FBF5] px-4 py-2.5 text-sm text-[#4E6358] lg:hidden">
-          <span className="font-semibold text-[#11351D]">Year:</span>{' '}
+          <span className="font-semibold text-[#11351D]">{content.archiveYearLabel}:</span>{' '}
           {activeYear}
         </div>
 
         <div className="hidden rounded-[24px] border border-[#E6EEE2] bg-[#F7FBF5] px-5 py-4 text-sm text-[#4E6358] lg:block">
-          <span className="font-semibold text-[#11351D]">Active archive:</span>{' '}
+          <span className="font-semibold text-[#11351D]">{content.activeArchiveLabel}:</span>{' '}
           {activeYear}
         </div>
       </div>
@@ -254,13 +267,13 @@ function RubberPriceArchiveNav({
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <p className={`text-[12px] font-semibold uppercase tracking-[0.14em] ${isActive ? 'text-[#BFEA8B]' : 'text-[#759081]'}`}>
-                      Archive year
+                      {content.archiveYearLabel}
                     </p>
                     <p className="mt-2 text-[28px] font-semibold leading-none">
                       {year}
                     </p>
                     <p className={`mt-3 text-sm ${isActive ? 'text-white/78' : 'text-[#5E7268]'}`}>
-                      {yearEntries.length} upload{yearEntries.length === 1 ? '' : 's'}
+                      {yearEntries.length} {content.uploadsLabel.toLowerCase()}
                     </p>
                   </div>
                   <span className={`mt-1 inline-flex h-10 w-10 items-center justify-center rounded-full ${isActive ? 'bg-white/14 text-white' : 'bg-white text-[#2E7D32]'}`}>
@@ -276,16 +289,16 @@ function RubberPriceArchiveNav({
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#7A8C82]">
-                Available Dates
+                {content.availableDatesLabel}
               </p>
               <p className="mt-2 text-[24px] font-semibold text-[#12311D]">
-                {activeYear} weekly uploads
+                {activeYear} {content.weeklyUploadsLabel.toLowerCase()}
               </p>
             </div>
 
             <div className="inline-flex items-center gap-2 text-sm font-medium text-[#436055]">
               <Clock3 className="h-4 w-4 text-[#2E7D32]" strokeWidth={2.1} aria-hidden="true" />
-              <span>Newest dates shown first</span>
+              <span>{content.newestDataShownLabel}</span>
             </div>
           </div>
 
@@ -325,13 +338,13 @@ function RubberPriceArchiveNav({
               >
                 <div className="min-w-0">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#759081]">
-                    Archive year
+                    {content.archiveYearLabel}
                   </p>
                   <p className="mt-2 text-[24px] font-semibold leading-none text-[#16311F]">
                     {year}
                   </p>
                   <p className={`mt-2 text-sm ${isActive ? 'text-[#2E7D32]' : 'text-[#5E7268]'}`}>
-                    {yearEntries.length} upload{yearEntries.length === 1 ? '' : 's'}
+                    {yearEntries.length} {content.uploadsLabel.toLowerCase()}
                   </p>
                 </div>
                 <span
@@ -364,7 +377,7 @@ function RubberPriceArchiveNav({
                   >
                   <div className="flex items-center gap-2 text-sm font-medium text-[#436055]">
                     <Clock3 className="h-4 w-4 text-[#2E7D32]" strokeWidth={2.1} aria-hidden="true" />
-                    <span>Tap a weekly date to open the sheet</span>
+                    <span>{content.tapWeeklyDateLabel}</span>
                   </div>
                   <div className="mt-4 flex flex-wrap gap-3">
                     {yearEntries.map((entry) => (
@@ -388,12 +401,14 @@ function RubberPriceArchiveNav({
 }
 
 function RubberPriceViewerModal({
+  content,
   entry,
   activeYearEntries,
   isVisible,
   onClose,
   onSelectEntry,
 }: {
+  content: RubberPricesSectionContent;
   entry: RubberPriceEntry | null;
   activeYearEntries: RubberPriceEntry[];
   isVisible: boolean;
@@ -473,6 +488,7 @@ function RubberPriceViewerModal({
     currentIndex >= 0
       ? activeYearEntries[(currentIndex + 1) % activeYearEntries.length]
       : null;
+  const useUnoptimizedImage = isLocalhostAssetUrl(entry.imageSrc);
 
   return (
     <div
@@ -499,7 +515,7 @@ function RubberPriceViewerModal({
                 id={`rubber-price-viewer-title-${entry.id}`}
                 className="text-[20px] font-semibold leading-tight text-[#10341B] sm:text-[22px] md:text-[26px] lg:text-[30px]"
               >
-                Auction Prices for {formatDisplayDate(entry.date)}
+                {content.auctionPriceLabel} - {formatDisplayDate(entry.date)}
               </h3>
             </div>
 
@@ -507,7 +523,7 @@ function RubberPriceViewerModal({
               type="button"
               onClick={onClose}
               className="inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[#D7E3D3] bg-white text-[#15341F] transition hover:border-[#BFD4B8] hover:bg-[#F4FAF0] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2E7D32] focus-visible:ring-offset-2"
-              aria-label="Close archive viewer"
+              aria-label={content.closeArchiveViewerLabel}
             >
               <X className="h-5 w-5" strokeWidth={2.1} aria-hidden="true" />
             </button>
@@ -520,13 +536,13 @@ function RubberPriceViewerModal({
               rel="noopener noreferrer"
               className="inline-flex min-h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-[#0F3F1D] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#1A5A2A] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2E7D32] focus-visible:ring-offset-2 sm:w-auto"
             >
-              <span>Open full sheet</span>
+              <span>{content.openFullSheetButtonLabel}</span>
               <ExternalLink className="h-4 w-4" strokeWidth={2.1} aria-hidden="true" />
             </a>
 
             <div className="inline-flex items-center gap-2 rounded-full border border-[#D6E5CF] bg-white/85 px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-[#1E6B2F]">
               <Clock3 className="h-3.5 w-3.5" strokeWidth={2.1} aria-hidden="true" />
-              <span>{entry.archiveYear} archive</span>
+              <span>{entry.archiveYear} {content.archiveSuffixLabel}</span>
             </div>
           </div>
         </div>
@@ -546,6 +562,7 @@ function RubberPriceViewerModal({
                     className="object-contain"
                     sizes="(max-width: 1279px) 100vw, 900px"
                     priority
+                    unoptimized={useUnoptimizedImage}
                   />
                 </div>
               </div>
@@ -560,14 +577,14 @@ function RubberPriceViewerModal({
                     className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-[16px] border border-[#D7E3D3] bg-[#F8FBF6] px-4 py-3 text-sm font-semibold text-[#16311F] transition hover:border-[#BFD4B8] hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2E7D32] focus-visible:ring-offset-2"
                   >
                     <ChevronLeft className="h-4 w-4" strokeWidth={2.1} aria-hidden="true" />
-                    <span>Previous</span>
+                    <span>{content.previousButtonLabel}</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => nextEntry && onSelectEntry(nextEntry.id)}
                     className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-[16px] border border-[#D7E3D3] bg-[#F8FBF6] px-4 py-3 text-sm font-semibold text-[#16311F] transition hover:border-[#BFD4B8] hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2E7D32] focus-visible:ring-offset-2"
                   >
-                    <span>Next</span>
+                    <span>{content.nextButtonLabel}</span>
                     <ChevronRight className="h-4 w-4" strokeWidth={2.1} aria-hidden="true" />
                   </button>
                 </div>
@@ -575,7 +592,7 @@ function RubberPriceViewerModal({
 
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#7A8C82]">
-                  Quick switch
+                  {content.quickSwitchLabel}
                 </p>
                 <div className="mt-3 grid grid-cols-2 gap-3">
                   {activeYearEntries.map((activeYearEntry) => (
@@ -593,14 +610,13 @@ function RubberPriceViewerModal({
 
             <aside className="hidden rounded-[28px] border border-[#E1EBDD] bg-white p-5 shadow-[0_18px_40px_rgba(15,63,29,0.06)] xl:block">
               <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#7A8C82]">
-                In this archive year
+                {content.inThisArchiveYearLabel}
               </p>
               <p className="mt-2 text-[24px] font-semibold text-[#10341B]">
                 {entry.archiveYear}
               </p>
               <p className="mt-3 text-[14px] leading-7 text-[#5A6B61]">
-                {activeYearEntries.length} weekly upload
-                {activeYearEntries.length === 1 ? '' : 's'} available.
+                {activeYearEntries.length} {content.weeklyUploadsLabel.toLowerCase()}.
               </p>
 
               {activeYearEntries.length > 1 ? (
@@ -611,14 +627,14 @@ function RubberPriceViewerModal({
                     className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-[18px] border border-[#D7E3D3] bg-[#F8FBF6] px-4 py-3 text-sm font-semibold text-[#16311F] transition hover:border-[#BFD4B8] hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2E7D32] focus-visible:ring-offset-2"
                   >
                     <ChevronLeft className="h-4 w-4" strokeWidth={2.1} aria-hidden="true" />
-                    <span>Previous</span>
+                    <span>{content.previousButtonLabel}</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => nextEntry && onSelectEntry(nextEntry.id)}
                     className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-[18px] border border-[#D7E3D3] bg-[#F8FBF6] px-4 py-3 text-sm font-semibold text-[#16311F] transition hover:border-[#BFD4B8] hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2E7D32] focus-visible:ring-offset-2"
                   >
-                    <span>Next</span>
+                    <span>{content.nextButtonLabel}</span>
                     <ChevronRight className="h-4 w-4" strokeWidth={2.1} aria-hidden="true" />
                   </button>
                 </div>
@@ -626,7 +642,7 @@ function RubberPriceViewerModal({
 
               <div className="mt-6 border-t border-[#E8EFE3] pt-6">
                 <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#7A8C82]">
-                  Quick switch
+                  {content.quickSwitchLabel}
                 </p>
                 <div className="mt-4 grid grid-cols-2 gap-3">
                   {activeYearEntries.map((activeYearEntry) => (
@@ -653,14 +669,14 @@ function RubberPriceViewerModal({
                 className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-[16px] border border-[#D7E3D3] bg-[#F8FBF6] px-4 py-3 text-sm font-semibold text-[#16311F] transition hover:border-[#BFD4B8] hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2E7D32] focus-visible:ring-offset-2"
               >
                 <ChevronLeft className="h-4 w-4" strokeWidth={2.1} aria-hidden="true" />
-                <span>Previous</span>
+                <span>{content.previousButtonLabel}</span>
               </button>
               <button
                 type="button"
                 onClick={() => nextEntry && onSelectEntry(nextEntry.id)}
                 className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-[16px] border border-[#D7E3D3] bg-[#F8FBF6] px-4 py-3 text-sm font-semibold text-[#16311F] transition hover:border-[#BFD4B8] hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2E7D32] focus-visible:ring-offset-2"
               >
-                <span>Next</span>
+                <span>{content.nextButtonLabel}</span>
                 <ChevronRight className="h-4 w-4" strokeWidth={2.1} aria-hidden="true" />
               </button>
             </div>
@@ -668,7 +684,7 @@ function RubberPriceViewerModal({
 
           <div className="mt-4">
             <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#7A8C82]">
-              Quick switch
+              {content.quickSwitchLabel}
             </p>
             <div className="mt-3 grid grid-cols-2 gap-3">
               {activeYearEntries.map((activeYearEntry) => (
@@ -689,6 +705,7 @@ function RubberPriceViewerModal({
 }
 
 export default function RubberPricesSection({
+  content,
   entries,
   latestEntry,
   recentEntries,
@@ -706,15 +723,15 @@ export default function RubberPricesSection({
       <section className="bg-white px-4 py-16 md:px-6 md:py-20 lg:px-36 lg:py-24">
         <div className="mx-auto w-full max-w-[1480px] rounded-[30px] border border-[#E3EBDD] bg-[#F8FBF6] px-6 py-14 text-center shadow-[0_18px_50px_rgba(15,63,29,0.06)] md:px-10">
           <GradientTag
-            text="Rubber Prices"
+            text={content.emptyStateTag}
             className="inline-block"
             gradientFrom="#20C997"
             gradientTo="#A1DF0A"
           />
           <div className="mt-6">
             <GradientTitle
-              part1="Weekly auction sheets"
-              part2=" will appear here once uploads are available."
+              part1={content.emptyStateTitlePart1}
+              part2={content.emptyStateTitlePart2}
               lineBreak={false}
               part1Color="dark-green"
               size="custom"
@@ -723,8 +740,7 @@ export default function RubberPricesSection({
             />
           </div>
           <p className="mx-auto mt-5 max-w-[680px] text-[16px] leading-8 text-[#5A6B61]">
-            This page is ready for weekly image-based price uploads and archive
-            browsing, but no records are available yet.
+            {content.emptyStateDescription}
           </p>
         </div>
       </section>
@@ -775,7 +791,7 @@ export default function RubberPricesSection({
         <div className="grid gap-10 lg:grid-cols-[minmax(0,0.88fr)_minmax(420px,1fr)] lg:items-start">
           <div className="min-w-0">
             <GradientTag
-              text="Weekly Rubber Prices"
+              text={content.sectionTag}
               className="inline-block"
               gradientFrom="#20C997"
               gradientTo="#A1DF0A"
@@ -783,8 +799,8 @@ export default function RubberPricesSection({
 
             <div className="mt-6 max-w-[820px]">
               <GradientTitle
-                part1="Rubber auction"
-                part2=" prices"
+                part1={content.sectionTitlePart1}
+                part2={content.sectionTitlePart2}
                 lineBreak={false}
                 part1Color="dark-green"
                 size="custom"
@@ -794,24 +810,19 @@ export default function RubberPricesSection({
             </div>
 
             <p className="mt-4 max-w-[740px] text-[15px] leading-7 text-[#5A6B61] md:mt-5 md:text-[16px] md:leading-8 lg:text-[17px]">
-              View the latest weekly auction sheet and the archived rubber price list.
+              {content.sectionDescription}
             </p>
 
             <div className="mt-7 grid gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3">
               <StatCard
                 icon={<CalendarDays className="h-5 w-5" strokeWidth={2.1} aria-hidden="true" />}
-                label="Latest update"
+                label={content.latestUpdateLabel}
                 value={formatCompactDate(latestEntry.date)}
               />
               <StatCard
                 icon={<FolderKanban className="h-5 w-5" strokeWidth={2.1} aria-hidden="true" />}
-                label="Archive years"
+                label={content.archivedYearsLabel}
                 value={`${archiveYears.length}`}
-              />
-              <StatCard
-                icon={<Clock3 className="h-5 w-5" strokeWidth={2.1} aria-hidden="true" />}
-                label="Uploads ready"
-                value={`${entries.length}`}
               />
             </div>
 
@@ -819,18 +830,18 @@ export default function RubberPricesSection({
               <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                 <div>
                   <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#7A8C82]">
-                    Recent updates
+                    {content.recentUpdatesLabel}
                   </p>
                   <h3 className="mt-2 text-[20px] font-semibold text-[#12311D] sm:text-[22px] md:text-[24px]">
-                    Recent auction date
+                    {content.recentAuctionDateLabel}
                   </h3>
                   <p className="mt-2 text-[14px] leading-6 text-[#5E7268] md:hidden">
-                    Tap a weekly date to open the archive sheet instantly.
+                    {content.tapWeeklyDateLabel}
                   </p>
                 </div>
 
                 <div className="inline-flex items-center gap-2 text-sm font-medium text-[#2E7D32]">
-                  <span>Weekly uploads</span>
+                  <span>{content.weeklyUploadsLabel}</span>
                   <ChevronRight className="h-4 w-4" strokeWidth={2.1} aria-hidden="true" />
                 </div>
               </div>
@@ -848,10 +859,11 @@ export default function RubberPricesSection({
             </div>
           </div>
 
-          <RubberPricePreviewCard entry={latestEntry} />
+          <RubberPricePreviewCard entry={latestEntry} content={content} />
         </div>
 
         <RubberPriceArchiveNav
+          content={content}
           archiveYears={archiveYears}
           entriesByYear={entriesByYear}
           activeYear={activeYear}
@@ -864,6 +876,7 @@ export default function RubberPricesSection({
       </div>
 
       <RubberPriceViewerModal
+        content={content}
         entry={viewerEntry}
         activeYearEntries={viewerYearEntries}
         isVisible={isViewerVisible}

@@ -4,10 +4,16 @@ import { BriefcaseBusiness, Check, Clock3, MapPin, WalletCards } from 'lucide-re
 import VacancyApplicationForm from './VacancyApplicationForm';
 import VacancyAttachmentLink from './VacancyAttachmentLink';
 import VacancyOverviewPanel from './VacancyOverviewPanel';
-import type { VacancyJob } from './vacancyData';
+import type {
+  VacancyDetailLabelsViewModel,
+  VacancyDetailViewModel,
+  VacancyLabelsViewModel,
+} from '@/app/lib/vacancy/pageData';
 
 interface VacancyDetailContentProps {
-  job: VacancyJob;
+  job: VacancyDetailViewModel;
+  labels: VacancyLabelsViewModel;
+  detailLabels: VacancyDetailLabelsViewModel;
 }
 
 function VacancySectionList({
@@ -32,7 +38,11 @@ function VacancySectionList({
   );
 }
 
-export default function VacancyDetailContent({ job }: VacancyDetailContentProps) {
+export default function VacancyDetailContent({
+  job,
+  labels,
+  detailLabels,
+}: VacancyDetailContentProps) {
   const metaItems = [
     {
       key: 'category',
@@ -97,16 +107,20 @@ export default function VacancyDetailContent({ job }: VacancyDetailContentProps)
           className="hidden min-h-[46px] items-center justify-center rounded-[7px] bg-[#2E7D32] px-8 text-sm font-semibold text-white transition hover:bg-[#256A2A] focus:outline-none focus:ring-2 focus:ring-[#2E7D32] focus:ring-offset-2 lg:inline-flex"
           aria-label={`Apply for ${job.title}`}
         >
-          Apply Job
+          {labels.applyJobLabel}
         </Link>
       </div>
 
       <div className="mt-8 lg:hidden">
-        <VacancyOverviewPanel job={job} />
+        <VacancyOverviewPanel
+          heading={labels.overviewTitle}
+          job={job}
+          labels={labels.overviewItemLabels}
+        />
       </div>
 
       <section className="mt-10">
-        <h2 className="text-[24px] font-semibold text-[#111827]">Job Description</h2>
+        <h2 className="text-[24px] font-semibold text-[#111827]">{labels.descriptionTitle}</h2>
         <div className="mt-5 space-y-4 text-[15px] leading-7 text-[#4B5563]">
           {job.description.map((paragraph) => (
             <p key={paragraph}>{paragraph}</p>
@@ -114,10 +128,26 @@ export default function VacancyDetailContent({ job }: VacancyDetailContentProps)
         </div>
       </section>
 
-      <VacancySectionList title="Key Responsibilities" items={job.responsibilities} />
-      <VacancySectionList title="Professional Skills" items={job.skills} />
-      <VacancyAttachmentLink href="/documents/vacancy-application-notice.pdf" />
-      <VacancyApplicationForm jobTitle={job.title} />
+      <VacancySectionList title={labels.responsibilitiesTitle} items={job.responsibilities} />
+      <VacancySectionList title={labels.skillsTitle} items={job.skills} />
+      {job.noticeDocumentUrl ? (
+        <VacancyAttachmentLink
+          buttonLabel={labels.downloadButtonLabel}
+          href={job.noticeDocumentUrl}
+          title={labels.downloadNoticeTitle}
+        />
+      ) : null}
+      <VacancyApplicationForm
+        contactNumberLabel={labels.contactNumberLabel}
+        cvLabel={labels.cvLabel}
+        emailLabel={labels.emailLabel}
+        fullNameLabel={labels.fullNameLabel}
+        heading={labels.applyFormTitle}
+        jobTitle={job.title}
+        slug={job.slug}
+        submitLabel={labels.submitLabel}
+        validationLabels={detailLabels.validationLabels}
+      />
     </div>
   );
 }

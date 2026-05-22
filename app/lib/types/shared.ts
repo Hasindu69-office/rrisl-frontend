@@ -42,6 +42,8 @@ export interface AboutSection {
 
 export interface ErrorMessageContent {
   id: number;
-  title: string;
-  description: string;
+  title?: string;
+  description?: string;
+  Title?: string;
+  Description?: string;
 }
