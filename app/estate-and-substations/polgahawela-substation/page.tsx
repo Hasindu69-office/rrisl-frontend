@@ -1,6 +1,8 @@
 import PageHero from '../../components/shared/PageHero';
+import EstateSubstationActivitiesSection from '../../components/estates/EstateSubstationActivitiesSection';
 import EstateSubstationFacilitiesSection from '../../components/estates/EstateSubstationFacilitiesSection';
 import EstateSubstationIntroSection from '../../components/estates/EstateSubstationIntroSection';
+import { polgahawelaSubstationActivitiesContent } from './activitiesSectionContent';
 import { polgahawelaSubstationFacilitiesContent } from './facilitiesSectionContent';
 import { polgahawelaSubstationIntroContent } from './introSectionContent';
 
@@ -34,6 +36,10 @@ export default async function PolgahawelaSubstationPage({
 
       <EstateSubstationFacilitiesSection
         content={polgahawelaSubstationFacilitiesContent}
+      />
+
+      <EstateSubstationActivitiesSection
+        content={polgahawelaSubstationActivitiesContent}
       />
     </div>
   );
