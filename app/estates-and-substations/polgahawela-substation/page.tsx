@@ -4,6 +4,7 @@ import EstateSubstationAnnualRainfallCard from '../../components/estates/EstateS
 import EstateSubstationFacilitiesSection from '../../components/estates/EstateSubstationFacilitiesSection';
 import EstateSubstationRainfallDistributionCard from '../../components/estates/EstateSubstationRainfallDistributionCard';
 import EstateSubstationIntroSection from '../../components/estates/EstateSubstationIntroSection';
+import EstateSubstationPerformanceSection from '../../components/estates/EstateSubstationPerformanceSection';
 import EstateSubstationSectionShell from '../../components/estates/EstateSubstationSectionShell';
 import { polgahawelaSubstationActivitiesContent } from './activitiesSectionContent';
 import { polgahawelaSubstationFacilitiesContent } from './facilitiesSectionContent';
@@ -11,6 +12,7 @@ import { polgahawelaSubstationIntroContent } from './introSectionContent';
 import { polgahawelaAnnualRainfallContent } from './monitoringAnnualRainfallContent';
 import { polgahawelaRainfallDistributionContent } from './monitoringRainfallDistributionContent';
 import { polgahawelaSubstationMonitoringSectionContent } from './monitoringSectionContent';
+import { polgahawelaPerformanceSectionContent } from './performanceSectionContent';
 
 interface PolgahawelaSubstationPageProps {
   searchParams: Promise<{ locale?: string }>;
@@ -62,6 +64,10 @@ export default async function PolgahawelaSubstationPage({
           />
         </div>
       </EstateSubstationSectionShell>
+
+      <EstateSubstationPerformanceSection
+        content={polgahawelaPerformanceSectionContent}
+      />
     </div>
   );
 }
