@@ -190,7 +190,7 @@ function BarValueLabel({
       y={y - 14}
       textAnchor="middle"
       fill="#2D3646"
-      fontSize={13}
+      fontSize={11}
       fontWeight={700}
     >
       {value.toLocaleString()} mm
@@ -260,7 +260,7 @@ function InsightCard({ item }: { item: AnnualRainfallInsightCard }) {
   const accent = accentStyles[item.accent];
 
   return (
-    <article className="rounded-[16px] border border-[#E3EAF3] bg-white/80 px-3 py-3 md:px-4">
+    <article className="min-h-[122px] rounded-[16px] border border-[#E3EAF3] bg-white/80 px-3 py-3 md:px-4">
       <div className="flex items-start gap-3">
         <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${accent.iconBg}`}>
           <InsightIcon icon={item.icon} className={`h-5 w-5 ${accent.iconColor}`} />
@@ -413,7 +413,7 @@ export default function EstateSubstationAnnualRainfallCard({
                   value: content.averageLineLabel,
                   position: 'right',
                   fill: '#246BDE',
-                  fontSize: 12,
+                  fontSize: 10,
                   fontWeight: 700,
                 }}
               />
@@ -436,7 +436,6 @@ export default function EstateSubstationAnnualRainfallCard({
                 stroke="#FFFFFF"
                 strokeWidth={3}
                 ifOverflow="visible"
-                isFront
                 label={<HighestLabel text={content.highestAnnotation.label} />}
               />
             </ComposedChart>
@@ -447,7 +446,7 @@ export default function EstateSubstationAnnualRainfallCard({
           <div className="grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1.8fr)] lg:items-start">
             {featuredInsight ? <FeaturedInsightCard item={featuredInsight} /> : null}
 
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="grid gap-3 sm:grid-cols-2">
               {metricInsights.map((item) => (
                 <InsightCard key={`${item.label}-${item.value}`} item={item} />
               ))}

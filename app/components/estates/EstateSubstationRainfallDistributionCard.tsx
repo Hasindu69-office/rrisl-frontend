@@ -294,7 +294,7 @@ function MetricCard({ item }: { item: RainfallMetricCard }) {
   const accent = accentStyles[item.accent];
 
   return (
-    <article className="rounded-[16px] border border-[#E6EDF6] bg-white/88 px-4 py-3 shadow-[0_10px_24px_rgba(31,62,95,0.05)] backdrop-blur-sm md:px-4 md:py-3.5">
+    <article className="min-h-[122px] rounded-[16px] border border-[#E6EDF6] bg-white/88 px-4 py-3 shadow-[0_10px_24px_rgba(31,62,95,0.05)] backdrop-blur-sm md:px-4 md:py-3.5">
       <div className="flex items-start gap-3">
         <div
           className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${accent.iconBg}`}
