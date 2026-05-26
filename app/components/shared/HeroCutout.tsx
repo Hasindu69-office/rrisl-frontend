@@ -27,12 +27,12 @@ const HeroCutout = ({ breadcrumbItems = [], locale = 'en' }: HeroCutoutProps) =>
                 </svg>
 
                 {breadcrumbItems.length > 0 && (
-                    <div className={`${styles.breadcrumbReveal} absolute inset-x-0 bottom-2 flex justify-center px-4 sm:bottom-2 md:bottom-3 pl-32 md:pl-0`}>
+                    <div className={`${styles.breadcrumbReveal} absolute right-0 bottom-2 md:bottom-3 w-[70vw] sm:w-[55vw] md:w-[50vw] xl:w-[680px] px-4 md:px-8`}>
                         <Breadcrumb
                             items={breadcrumbItems}
                             variant="dark"
                             locale={locale}
-                            className="pointer-events-auto whitespace-nowrap text-xs sm:text-sm md:text-base"
+                            className="pointer-events-auto text-xs sm:text-sm md:text-base"
                         />
                     </div>
                 )}
