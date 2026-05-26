@@ -1,10 +1,14 @@
 import PageHero from '../../components/shared/PageHero';
 import EstateSubstationActivitiesSection from '../../components/estates/EstateSubstationActivitiesSection';
+import EstateSubstationContactSection from '../../components/estates/EstateSubstationContactSection';
 import EstateSubstationFacilitiesSection from '../../components/estates/EstateSubstationFacilitiesSection';
+import EstateSubstationFeatureSection from '../../components/estates/EstateSubstationFeatureSection';
 import EstateSubstationIntroSection from '../../components/estates/EstateSubstationIntroSection';
 import { monaragalaSubstationActivitiesContent } from './activitiesSectionContent';
+import { monaragalaContactSectionContent } from './contactSectionContent';
 import { monaragalaSubstationFacilitiesContent } from './facilitiesSectionContent';
 import { monaragalaSubstationIntroContent } from './introSectionContent';
+import { monaragalaIntercroppingSectionContent } from './intercroppingSectionContent';
 
 interface MonaragalaSubstationPageProps {
   searchParams: Promise<{ locale?: string }>;
@@ -40,6 +44,14 @@ export default async function MonaragalaSubstationPage({
 
       <EstateSubstationActivitiesSection
         content={monaragalaSubstationActivitiesContent}
+      />
+
+      <EstateSubstationFeatureSection
+        content={monaragalaIntercroppingSectionContent}
+      />
+
+      <EstateSubstationContactSection
+        content={monaragalaContactSectionContent}
       />
     </div>
   );
