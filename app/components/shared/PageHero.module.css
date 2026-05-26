@@ -63,35 +63,11 @@
   }
 }
 
-.marqueeActive {
-  will-change: transform;
-  animation: marqueeBounce 8s ease-in-out infinite alternate;
-}
-
-.marqueeActive:hover,
-.marqueeActive:active {
-  animation-play-state: paused;
-}
-
-@keyframes marqueeBounce {
-  0%, 15% {
-    transform: translateX(0);
-  }
-  85%, 100% {
-    transform: translateX(calc(-1px * var(--scroll-distance)));
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .backgroundReveal,
   .titleReveal,
   .breadcrumbReveal {
     opacity: 1;
-    animation: none;
-    transform: none;
-  }
-
-  .marqueeActive {
     animation: none;
     transform: none;
   }

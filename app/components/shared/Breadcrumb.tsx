@@ -42,7 +42,6 @@ export default function Breadcrumb({
       if (containerRef.current && contentRef.current) {
         const containerWidth = containerRef.current.clientWidth;
         const contentWidth = contentRef.current.scrollWidth;
-        console.log('Breadcrumb width debug:', { containerWidth, contentWidth, overflows: contentWidth > containerWidth });
         if (contentWidth > containerWidth) {
           setScrollDistance(contentWidth - containerWidth);
         } else {
@@ -96,6 +95,12 @@ export default function Breadcrumb({
           .custom-marquee-active:hover,
           .custom-marquee-active:active {
             animation-play-state: paused;
+          }
+          @media (prefers-reduced-motion: reduce) {
+            .custom-marquee-active {
+              animation: none !important;
+              transform: none !important;
+            }
           }
         `}} />
       )}
