@@ -140,6 +140,9 @@ const accentStyles = {
   },
 } as const;
 
+const cardMotionClass =
+  'transition-[transform,box-shadow,border-color,ring-color,opacity,filter] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none';
+
 function PerformanceCardShell({
   accent,
   title,
@@ -155,7 +158,7 @@ function PerformanceCardShell({
     <article
       tabIndex={0}
       aria-label={title}
-      className={`group flex min-h-[420px] flex-col overflow-hidden rounded-[24px] border ${styles.softBorder} ${styles.softPanel} px-5 py-5 text-left shadow-[0_18px_40px_rgba(15,63,29,0.05)] ring-1 ring-transparent outline-none transition-[transform,box-shadow,border-color,ring-color] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1.5 hover:scale-[1.01] focus-visible:-translate-y-1.5 focus-visible:scale-[1.01] focus-visible:ring-2 focus-visible:ring-offset-4 focus-visible:ring-offset-white ${styles.hoverRing} ${styles.hoverShadow} md:px-6 md:py-6`}
+      className={`group flex min-h-[420px] flex-col overflow-hidden rounded-[24px] border ${styles.softBorder} ${styles.softPanel} px-5 py-5 text-left shadow-[0_18px_40px_rgba(15,63,29,0.05)] ring-1 ring-transparent outline-none ${cardMotionClass} hover:-translate-y-0.5 hover:scale-[1.003] focus-visible:-translate-y-0.5 focus-visible:scale-[1.003] focus-visible:ring-2 focus-visible:ring-offset-4 focus-visible:ring-offset-white ${styles.hoverRing} ${styles.hoverShadow} md:px-6 md:py-6`}
     >
       {children}
     </article>
@@ -188,7 +191,7 @@ function CardIcon({
 
   return (
     <div
-      className={`flex h-14 w-14 items-center justify-center rounded-full ${styles.iconBg} ${styles.iconColor} transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-105 group-focus-visible:scale-105`}
+      className={`flex h-14 w-14 items-center justify-center rounded-full ${styles.iconBg} ${styles.iconColor} ${cardMotionClass} group-hover:scale-[1.04] group-focus-visible:scale-[1.04]`}
     >
       {icon}
     </div>
@@ -227,7 +230,7 @@ function ProductionTrendCard({
         {card.description}
       </p>
 
-      <div className="mt-5 h-[150px] w-full transition-opacity duration-500 group-hover:opacity-100 group-focus-visible:opacity-100">
+      <div className={`mt-5 h-[150px] w-full ${cardMotionClass} group-hover:brightness-[1.03] group-focus-visible:brightness-[1.03]`}>
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart
             data={card.chart}
@@ -302,7 +305,7 @@ function YieldGaugeCard({
         {card.title}
       </h3>
 
-      <div className="relative mt-4 h-[185px] w-full transition-opacity duration-500 group-hover:opacity-100 group-focus-visible:opacity-100">
+      <div className={`relative mt-4 h-[185px] w-full ${cardMotionClass} group-hover:brightness-[1.03] group-focus-visible:brightness-[1.03]`}>
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
@@ -374,7 +377,7 @@ function QualityGaugeCard({
         {card.title}
       </h3>
 
-      <div className="relative mt-5 h-[190px] w-full transition-opacity duration-500 group-hover:opacity-100 group-focus-visible:opacity-100">
+      <div className={`relative mt-5 h-[190px] w-full ${cardMotionClass} group-hover:brightness-[1.03] group-focus-visible:brightness-[1.03]`}>
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
@@ -462,7 +465,7 @@ function ProductivityBarsCard({
         {card.description}
       </p>
 
-      <div className="mt-4 h-[145px] w-full transition-opacity duration-500 group-hover:opacity-100 group-focus-visible:opacity-100">
+      <div className={`mt-4 h-[145px] w-full ${cardMotionClass} group-hover:brightness-[1.03] group-focus-visible:brightness-[1.03]`}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={card.chart} margin={{ top: 14, right: 0, left: 0, bottom: 12 }}>
             <Bar

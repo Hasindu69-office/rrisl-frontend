@@ -4,9 +4,11 @@ import EstateSubstationAnnualRainfallCard from '../../components/estates/EstateS
 import EstateSubstationFacilitiesSection from '../../components/estates/EstateSubstationFacilitiesSection';
 import EstateSubstationRainfallDistributionCard from '../../components/estates/EstateSubstationRainfallDistributionCard';
 import EstateSubstationIntroSection from '../../components/estates/EstateSubstationIntroSection';
+import EstateSubstationContactSection from '../../components/estates/EstateSubstationContactSection';
 import EstateSubstationPerformanceSection from '../../components/estates/EstateSubstationPerformanceSection';
 import EstateSubstationSectionShell from '../../components/estates/EstateSubstationSectionShell';
 import { polgahawelaSubstationActivitiesContent } from './activitiesSectionContent';
+import { polgahawelaContactSectionContent } from './contactSectionContent';
 import { polgahawelaSubstationFacilitiesContent } from './facilitiesSectionContent';
 import { polgahawelaSubstationIntroContent } from './introSectionContent';
 import { polgahawelaAnnualRainfallContent } from './monitoringAnnualRainfallContent';
@@ -67,6 +69,10 @@ export default async function PolgahawelaSubstationPage({
 
       <EstateSubstationPerformanceSection
         content={polgahawelaPerformanceSectionContent}
+      />
+
+      <EstateSubstationContactSection
+        content={polgahawelaContactSectionContent}
       />
     </div>
   );
