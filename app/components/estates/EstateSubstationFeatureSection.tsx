@@ -44,18 +44,18 @@ function FeatureCard({
       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.02)_0%,rgba(13,38,17,0.12)_100%)]" />
 
       <div className="relative z-10 flex min-h-[410px] items-end p-4 md:p-5">
-        <div className="flex h-[170px] w-full flex-col rounded-[22px] bg-white px-5 py-4 shadow-[0_12px_24px_rgba(15,63,29,0.08)] md:px-6 md:py-5">
-          <h3 className="text-[20px] font-semibold leading-[1.25] text-[#567184]">
+        <div className="flex h-[170px] w-full flex-col overflow-hidden rounded-[22px] bg-white px-5 py-4 shadow-[0_12px_24px_rgba(15,63,29,0.08)] md:px-6 md:py-5">
+          <h3 className="text-[17px] font-semibold leading-[1.15] text-[#567184] md:text-[18px]">
             {title}
           </h3>
 
-          <div className="mt-4 inline-flex rounded-full bg-[#9DE100] px-4 py-2">
-            <span className="text-[13px] font-semibold leading-none text-white md:text-[14px]">
+          <div className="mt-2 inline-flex rounded-full bg-[#9DE100] px-3 py-1.5">
+            <span className="text-[12px] font-semibold leading-none text-white md:text-[13px]">
               {badge}
             </span>
           </div>
 
-          <p className="mt-4 max-w-[260px] text-[15px] leading-[1.75] text-[#5E7280]">
+          <p className="mt-2 max-w-[260px] overflow-hidden text-[12.5px] leading-[1.42] text-[#5E7280] [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:4] md:text-[13.5px]">
             {description}
           </p>
         </div>
