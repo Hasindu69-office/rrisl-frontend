@@ -48,7 +48,7 @@ export const polgahawelaAnnualRainfallContent: EstateSubstationAnnualRainfallCar
     insightCards: [
       {
         label: 'Key Insight',
-        value: 'Annual rainfall shows significant variation over the years',
+        value: 'Annual rainfall',
         detail: 'The highest recorded year was 2014 and the lowest in 2016.',
         icon: 'insight',
         accent: 'green',

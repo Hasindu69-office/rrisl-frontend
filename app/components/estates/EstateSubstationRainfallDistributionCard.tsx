@@ -1,7 +1,7 @@
 'use client';
 
 import { useId } from 'react';
-import type { SVGProps } from 'react';
+import type { ReactElement } from 'react';
 import {
   Area,
   Bar,
@@ -16,6 +16,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import type { DotItemDotProps, RenderableText } from 'recharts';
 import {
   BarChart3,
   CalendarRange,
@@ -90,6 +91,24 @@ interface TooltipContentProps {
     payload?: RainfallMonthDatum;
   }>;
   label?: string;
+}
+
+interface ValueLabelRendererProps {
+  x?: number | string;
+  y?: number | string;
+  value?: RenderableText;
+  index?: number;
+}
+
+function VerticalAxisTitle({ text }: { text: string }) {
+  return (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute left-6 top-1/2 z-10 -translate-y-1/2 -rotate-90 text-[12px] font-semibold text-[#35475F] md:left-0"
+    >
+      {text}
+    </div>
+  );
 }
 
 const accentStyles = {
@@ -190,16 +209,16 @@ function ValueLabel({
   data,
   peakMonth,
 }: {
-  x?: number;
-  y?: number;
-  value?: number | string;
+  x?: number | string;
+  y?: number | string;
+  value?: RenderableText;
   index?: number;
   data: RainfallMonthDatum[];
   peakMonth: string;
 }) {
   if (
-    typeof x !== 'number' ||
-    typeof y !== 'number' ||
+    (typeof x !== 'number' && typeof x !== 'string') ||
+    (typeof y !== 'number' && typeof y !== 'string') ||
     typeof value !== 'number' ||
     typeof index !== 'number'
   ) {
@@ -208,11 +227,17 @@ function ValueLabel({
 
   const month = data[index]?.month;
   const fill = month === peakMonth ? '#1F9E55' : '#246BDE';
+  const labelX = typeof x === 'number' ? x : Number(x);
+  const labelY = typeof y === 'number' ? y : Number(y);
+
+  if (Number.isNaN(labelX) || Number.isNaN(labelY)) {
+    return null;
+  }
 
   return (
     <text
-      x={x}
-      y={y - 15}
+      x={labelX}
+      y={labelY - 15}
       textAnchor="middle"
       fill={fill}
       fontSize={13}
@@ -269,7 +294,7 @@ function CustomLineDot({
   cy,
   payload,
   peakMonth,
-}: SVGProps<SVGCircleElement> & {
+}: DotItemDotProps & {
   payload?: RainfallMonthDatum;
   peakMonth: string;
 }) {
@@ -287,6 +312,27 @@ function CustomLineDot({
       ) : null}
       <circle cx={cx} cy={cy} r={isPeak ? 6.5 : 5} fill={fill} />
     </g>
+  );
+}
+
+function renderLineDot(props: DotItemDotProps, peakMonth: string): ReactElement | null {
+  return <CustomLineDot {...props} peakMonth={peakMonth} />;
+}
+
+function renderValueLabel(
+  props: ValueLabelRendererProps,
+  data: RainfallMonthDatum[],
+  peakMonth: string,
+): ReactElement | null {
+  return (
+    <ValueLabel
+      x={props.x}
+      y={props.y}
+      value={props.value}
+      index={props.index}
+      data={data}
+      peakMonth={peakMonth}
+    />
   );
 }
 
@@ -385,11 +431,12 @@ export default function EstateSubstationRainfallDistributionCard({
         <div className="relative h-[320px] w-full overflow-hidden rounded-[18px] bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(244,248,255,0.98)_100%)] md:h-[400px]">
           <div className="absolute inset-0 rounded-[18px] border border-[#E7EDF7]" />
           <div className="absolute inset-x-0 top-0 z-0 h-full rounded-[18px] bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.9)_0%,rgba(250,252,255,0)_56%)]" />
+          <VerticalAxisTitle text={content.yAxisLabel} />
 
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart
               data={content.months}
-              margin={{ top: 30, right: 18, left: 0, bottom: 26 }}
+              margin={{ top: 30, right: 28, left: 34, bottom: 26 }}
               accessibilityLayer
             >
               <defs>
@@ -435,19 +482,10 @@ export default function EstateSubstationRainfallDistributionCard({
               <YAxis
                 tickLine={false}
                 axisLine={false}
-                width={46}
+                width={52}
                 domain={[0, content.yAxisMax]}
                 ticks={content.yAxisTicks}
                 tick={{ fill: '#5A6C85', fontSize: 12 }}
-                label={{
-                  value: content.yAxisLabel,
-                  angle: -90,
-                  position: 'insideLeft',
-                  offset: 0,
-                  fill: '#35475F',
-                  fontSize: 12,
-                  fontWeight: 600,
-                }}
               />
 
               <Tooltip
@@ -476,30 +514,22 @@ export default function EstateSubstationRainfallDistributionCard({
                 dataKey="trend"
                 stroke="#246BDE"
                 strokeWidth={2}
-                dot={(props) => <CustomLineDot {...props} peakMonth={peakMonth} />}
+                dot={(props) => renderLineDot(props, peakMonth)}
                 activeDot={{ r: 7, fill: '#FFFFFF', stroke: '#246BDE', strokeWidth: 2 }}
                 isAnimationActive={false}
               >
                 <LabelList
                   dataKey="trend"
-                  content={(props) => (
-                    <ValueLabel
-                      x={props.x}
-                      y={props.y}
-                      value={props.value}
-                      index={props.index}
-                      data={content.months}
-                      peakMonth={peakMonth}
-                    />
-                  )}
+                  content={(props) =>
+                    renderValueLabel(props as ValueLabelRendererProps, content.months, peakMonth)
+                  }
                 />
               </Line>
 
-              <ReferenceDot
+              <ReferenceDot<string, number>
                 x={content.peakAnnotation.month}
                 y={content.peakAnnotation.value}
                 r={0}
-                isFront
                 ifOverflow="visible"
                 label={<PeakLabel text={content.peakAnnotation.label} />}
               />

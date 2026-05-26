@@ -66,6 +66,17 @@ export interface EstateSubstationAnnualRainfallCardContent {
   sourceNote: string;
 }
 
+function VerticalAxisTitle({ text }: { text: string }) {
+  return (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute left-2 top-1/2 z-10 -translate-y-1/2 -rotate-90 text-[12px] font-semibold text-[#35475F] md:left-0"
+    >
+      {text}
+    </div>
+  );
+}
+
 const accentStyles = {
   blue: {
     iconBg: 'bg-[#EEF5FF]',
@@ -231,6 +242,51 @@ function HighestLabel({
   );
 }
 
+function AverageLineLabel({
+  viewBox,
+  value,
+}: {
+  viewBox?: { x?: number; y?: number; width?: number };
+  value: string;
+}) {
+  if (
+    !viewBox ||
+    typeof viewBox.x !== 'number' ||
+    typeof viewBox.y !== 'number' ||
+    typeof viewBox.width !== 'number'
+  ) {
+    return null;
+  }
+
+  const textWidth = Math.max(88, value.length * 6.5 + 18);
+  const x = viewBox.x + viewBox.width - 12;
+  const y = viewBox.y - 10;
+
+  return (
+    <g>
+      <rect
+        x={x - textWidth}
+        y={y - 12}
+        width={textWidth}
+        height={20}
+        rx={10}
+        fill="rgba(255,255,255,0.96)"
+        stroke="#D9E6FA"
+      />
+      <text
+        x={x - 10}
+        y={y + 2}
+        textAnchor="end"
+        fill="#246BDE"
+        fontSize={10}
+        fontWeight={700}
+      >
+        {value}
+      </text>
+    </g>
+  );
+}
+
 function SummaryCard({ item }: { item: AnnualRainfallSummaryCard }) {
   const accent = accentStyles[item.accent];
 
@@ -348,11 +404,12 @@ export default function EstateSubstationAnnualRainfallCard({
       <div className="mt-5 rounded-[20px] border border-[#DFE6F1] bg-white/78 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] md:p-4">
         <div className="relative h-[340px] w-full overflow-hidden rounded-[18px] bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(244,248,255,0.98)_100%)] md:h-[420px]">
           <div className="absolute inset-0 rounded-[18px] border border-[#E7EDF7]" />
+          <VerticalAxisTitle text={content.yAxisLabel} />
 
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart
               data={content.years}
-              margin={{ top: 34, right: 58, left: 6, bottom: 28 }}
+              margin={{ top: 34, right: 48, left: 34, bottom: 28 }}
               accessibilityLayer
             >
               <defs>
@@ -383,20 +440,11 @@ export default function EstateSubstationAnnualRainfallCard({
               <YAxis
                 tickLine={false}
                 axisLine={false}
-                width={52}
+                width={62}
                 domain={[0, content.yAxisMax]}
                 ticks={content.yAxisTicks}
                 tick={{ fill: '#5A6C85', fontSize: 12 }}
                 tickFormatter={(value: number) => value.toLocaleString()}
-                label={{
-                  value: content.yAxisLabel,
-                  angle: -90,
-                  position: 'insideLeft',
-                  offset: 0,
-                  fill: '#35475F',
-                  fontSize: 12,
-                  fontWeight: 600,
-                }}
               />
 
               <Tooltip
@@ -409,13 +457,7 @@ export default function EstateSubstationAnnualRainfallCard({
                 stroke="#7BA7EF"
                 strokeDasharray="4 4"
                 ifOverflow="extendDomain"
-                label={{
-                  value: content.averageLineLabel,
-                  position: 'right',
-                  fill: '#246BDE',
-                  fontSize: 10,
-                  fontWeight: 700,
-                }}
+                label={<AverageLineLabel value={content.averageLineLabel} />}
               />
 
               <Bar
