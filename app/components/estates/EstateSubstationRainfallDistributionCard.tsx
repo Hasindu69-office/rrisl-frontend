@@ -294,7 +294,7 @@ function MetricCard({ item }: { item: RainfallMetricCard }) {
   const accent = accentStyles[item.accent];
 
   return (
-    <article className="rounded-[16px] border border-[#E6EDF6] bg-white/88 px-4 py-3 shadow-[0_10px_24px_rgba(31,62,95,0.05)] backdrop-blur-sm">
+    <article className="rounded-[16px] border border-[#E6EDF6] bg-white/88 px-4 py-3 shadow-[0_10px_24px_rgba(31,62,95,0.05)] backdrop-blur-sm md:px-4 md:py-3.5">
       <div className="flex items-start gap-3">
         <div
           className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${accent.iconBg}`}
@@ -302,13 +302,13 @@ function MetricCard({ item }: { item: RainfallMetricCard }) {
           <MetricIcon icon={item.icon} className={`h-5 w-5 ${accent.iconColor}`} />
         </div>
         <div className="min-w-0">
-          <div className="text-[11px] font-medium leading-[1.35] text-[#617089]">
+          <div className="text-[11px] font-medium leading-[1.3] text-[#617089]">
             {item.label}
           </div>
-          <div className={`mt-1 text-[16px] font-semibold leading-[1.1] ${accent.valueColor}`}>
+          <div className={`mt-1 text-[15px] font-semibold leading-[1.1] ${accent.valueColor} md:text-[16px]`}>
             {item.value}
           </div>
-          <div className="mt-1 text-[12px] leading-[1.4] text-[#6A7A91]">
+          <div className="mt-1 text-[11px] leading-[1.35] text-[#6A7A91] md:text-[12px]">
             {item.detail}
           </div>
         </div>
@@ -329,34 +329,34 @@ export default function EstateSubstationRainfallDistributionCard({
 
   return (
     <article className="w-full rounded-[26px] border border-white/80 bg-white/88 p-4 shadow-[0_22px_60px_rgba(31,62,95,0.08)] backdrop-blur-[2px] md:rounded-[30px] md:p-5 lg:p-6">
-      <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-        <div className="flex min-w-0 items-start gap-4">
-          <div className="flex h-[68px] w-[68px] shrink-0 items-center justify-center rounded-full bg-[radial-gradient(circle_at_top,#F5FFEC_0%,#EBF7D8_100%)]">
-            <CloudRain className="h-8 w-8 text-[#4BA965]" strokeWidth={1.8} />
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_258px] lg:items-start lg:gap-5">
+        <div className="flex min-w-0 items-start gap-4 text-left">
+          <div className="flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-full bg-[radial-gradient(circle_at_top,#F5FFEC_0%,#EBF7D8_100%)] md:h-[64px] md:w-[64px]">
+            <CloudRain className="h-7 w-7 text-[#4BA965] md:h-8 md:w-8" strokeWidth={1.8} />
           </div>
-          <div className="min-w-0">
-            <h3 className="text-[30px] font-semibold leading-none tracking-[-0.02em] text-[#125F46]">
+          <div className="min-w-0 max-w-[500px]">
+            <h3 className="text-[24px] font-semibold leading-[1.02] tracking-[-0.02em] text-[#125F46] md:text-[26px]">
               {content.title}
             </h3>
-            <p className="mt-2 text-[17px] leading-[1.35] text-[#516684] md:text-[18px]">
+            <p className="mt-1.5 max-w-[500px] text-[16px] leading-[1.28] text-[#516684] md:text-[17px]">
               {content.subtitle}
             </p>
           </div>
         </div>
 
-        <div className="w-full max-w-[258px] rounded-[16px] border border-[#E5EAF4] bg-white/92 px-5 py-4 shadow-[0_10px_26px_rgba(31,62,95,0.06)]">
+        <div className="w-full rounded-[16px] border border-[#E5EAF4] bg-white/92 px-3.5 py-3 text-left shadow-[0_10px_22px_rgba(31,62,95,0.05)] md:px-4 md:py-3.5 lg:self-start">
           <div className="flex items-start gap-3">
-            <div className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#EDF4FF]">
-              <Droplets className="h-5 w-5 text-[#246BDE]" strokeWidth={1.8} />
+            <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#EDF4FF] md:h-8.5 md:w-8.5">
+              <Droplets className="h-4 w-4 text-[#246BDE] md:h-4.5 md:w-4.5" strokeWidth={1.8} />
             </div>
             <div>
-              <div className="text-[12px] leading-[1.35] text-[#6B7C94]">
+              <div className="text-[10px] leading-[1.3] text-[#6B7C94] md:text-[11px]">
                 {content.summaryBadge.label}
               </div>
-              <div className="mt-1 text-[18px] font-semibold leading-none text-[#246BDE] md:text-[20px]">
+              <div className="mt-1 text-[15px] font-semibold leading-none text-[#246BDE] md:text-[16px]">
                 {content.summaryBadge.value}
               </div>
-              <div className="mt-2 text-[12px] leading-[1.35] text-[#607087]">
+              <div className="mt-1 text-[10px] leading-[1.3] text-[#607087] md:text-[11px]">
                 {content.summaryBadge.detail}
               </div>
             </div>
@@ -364,7 +364,7 @@ export default function EstateSubstationRainfallDistributionCard({
         </div>
       </div>
 
-      <p className="mt-5 max-w-[860px] text-[14px] leading-[1.75] text-[#5E6F87] md:text-[15px]">
+      <p className="mt-4 max-w-[720px] text-left text-[14px] leading-[1.75] text-[#5E6F87] md:text-[15px]">
         {content.description}
       </p>
 
@@ -529,7 +529,7 @@ export default function EstateSubstationRainfallDistributionCard({
         </div>
       </div>
 
-      <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+      <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {content.metricCards.map((item) => (
           <MetricCard key={`${item.label}-${item.value}`} item={item} />
         ))}

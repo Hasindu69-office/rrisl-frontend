@@ -14,6 +14,7 @@ export interface EstateSubstationSectionShellProps {
   content: EstateSubstationSectionShellContent;
   className?: string;
   contentClassName?: string;
+  containerClassName?: string;
   children?: ReactNode;
 }
 
@@ -21,6 +22,7 @@ export default function EstateSubstationSectionShell({
   content,
   className = '',
   contentClassName = '',
+  containerClassName = 'max-w-[1440px]',
   children,
 }: EstateSubstationSectionShellProps) {
   return (
@@ -38,8 +40,8 @@ export default function EstateSubstationSectionShell({
       <div
         className={`relative z-10 px-4 py-16 md:px-6 md:py-20 lg:px-36 lg:py-24 ${contentClassName}`.trim()}
       >
-        <div className="mx-auto flex w-full max-w-[1440px] justify-center">
-          <div className="flex w-full flex-col items-center text-center">
+        <div className={`mx-auto flex w-full justify-center ${containerClassName}`.trim()}>
+          <div className="flex w-full flex-col items-center">
             <div className="flex max-w-[980px] flex-col items-center text-center">
               <GradientTag
                 text={content.eyebrow}

@@ -1,5 +1,6 @@
 import PageHero from '../../components/shared/PageHero';
 import EstateSubstationActivitiesSection from '../../components/estates/EstateSubstationActivitiesSection';
+import EstateSubstationAnnualRainfallCard from '../../components/estates/EstateSubstationAnnualRainfallCard';
 import EstateSubstationFacilitiesSection from '../../components/estates/EstateSubstationFacilitiesSection';
 import EstateSubstationRainfallDistributionCard from '../../components/estates/EstateSubstationRainfallDistributionCard';
 import EstateSubstationIntroSection from '../../components/estates/EstateSubstationIntroSection';
@@ -7,6 +8,7 @@ import EstateSubstationSectionShell from '../../components/estates/EstateSubstat
 import { polgahawelaSubstationActivitiesContent } from './activitiesSectionContent';
 import { polgahawelaSubstationFacilitiesContent } from './facilitiesSectionContent';
 import { polgahawelaSubstationIntroContent } from './introSectionContent';
+import { polgahawelaAnnualRainfallContent } from './monitoringAnnualRainfallContent';
 import { polgahawelaRainfallDistributionContent } from './monitoringRainfallDistributionContent';
 import { polgahawelaSubstationMonitoringSectionContent } from './monitoringSectionContent';
 
@@ -48,10 +50,17 @@ export default async function PolgahawelaSubstationPage({
 
       <EstateSubstationSectionShell
         content={polgahawelaSubstationMonitoringSectionContent}
+        contentClassName="px-4 py-16 md:px-6 md:py-20 lg:px-8 xl:px-10 lg:py-24"
+        containerClassName="max-w-none"
       >
-        <EstateSubstationRainfallDistributionCard
-          content={polgahawelaRainfallDistributionContent}
-        />
+        <div className="grid gap-6 xl:grid-cols-2 xl:items-start">
+          <EstateSubstationRainfallDistributionCard
+            content={polgahawelaRainfallDistributionContent}
+          />
+          <EstateSubstationAnnualRainfallCard
+            content={polgahawelaAnnualRainfallContent}
+          />
+        </div>
       </EstateSubstationSectionShell>
     </div>
   );
