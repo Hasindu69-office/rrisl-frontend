@@ -1,12 +1,12 @@
 'use client';
 
 import React from 'react';
+import HeaderCta from './HeaderCta';
 import LanguageSwitcher from '../ui/LanguageSwitcher';
 import { MenuItem } from '@/app/lib/types';
 import MobileMenu from './MobileMenu';
 
 interface HeaderActionsProps {
-  menuItems?: MenuItem[];
   leftMenuItems?: MenuItem[];
 }
 
@@ -15,11 +15,12 @@ export default function HeaderActions(props: HeaderActionsProps) {
 
   return (
     <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
+      <div className="hidden sm:block xl:mr-[40px]">
+        <HeaderCta />
+      </div>
 
-      {/* Language Switcher */}
       <LanguageSwitcher />
 
-      {/* Mobile Menu Hamburger - Only on mobile (hide on tablet and up) */}
       <div className="xl:hidden">
         <MobileMenu menuItems={leftMenuItems} />
       </div>

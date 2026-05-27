@@ -24,7 +24,6 @@ interface HomeHeroWithHeaderProps {
   heroes: Hero[];
   globalLayout: GlobalLayout | null;
   leftMenuItems: MenuItem[];
-  rightMenuItems: MenuItem[];
   announcements?: HeroAnnouncementItem[];
   announcementLabel?: string;
   statistics?: HeroStatisticItem[];
@@ -37,7 +36,6 @@ export default function HomeHeroWithHeader({
   heroes,
   globalLayout,
   leftMenuItems,
-  rightMenuItems,
   announcements = [],
   announcementLabel,
   statistics,
@@ -238,7 +236,7 @@ export default function HomeHeroWithHeader({
           <div className="container mx-auto px-3 sm:px-4 md:px-5 lg:px-8 py-2 sm:py-3 md:py-3 max-w-[1440px] w-full">
             <div className="flex items-center justify-between">
               <LogoSection globalLayout={globalLayout} />
-              <HeaderActions menuItems={rightMenuItems} leftMenuItems={leftMenuItems} />
+              <HeaderActions leftMenuItems={leftMenuItems} />
             </div>
           </div>
 
