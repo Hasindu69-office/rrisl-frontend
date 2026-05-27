@@ -7,6 +7,7 @@ import { createPortal } from 'react-dom';
 import { ChevronDown } from 'lucide-react';
 import { MenuItem as MenuItemType } from '@/app/lib/types';
 import { addLocaleToUrl } from '@/app/lib/locale';
+import HeaderCta from './HeaderCta';
 
 interface MobileMenuProps {
   menuItems: MenuItemType[];
@@ -345,6 +346,12 @@ export default function MobileMenu({ menuItems }: MobileMenuProps) {
                       onToggleItem={handleToggleItem}
                     />
                   </nav>
+
+                  <HeaderCta
+                    className="block"
+                    buttonClassName="w-full"
+                    onClick={handleCloseMenu}
+                  />
                 </div>
               </div>
             </>,

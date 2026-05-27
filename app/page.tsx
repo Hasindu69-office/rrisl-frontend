@@ -57,18 +57,14 @@ export default async function Home({ searchParams }: HomeProps) {
   }
 
   // Fetch menus in parallel using slugs from global layout
-  const [leftMenu, rightMenu] = await Promise.all([
+  const [leftMenu] = await Promise.all([
     globalLayout?.headerLeftMenuSlug
       ? getMenuBySlug(globalLayout.headerLeftMenuSlug, locale)
-      : Promise.resolve(null),
-    globalLayout?.headerRightMenuSlug
-      ? getMenuBySlug(globalLayout.headerRightMenuSlug, locale)
       : Promise.resolve(null),
   ]);
 
   // Extract menu items
   const leftMenuItems = leftMenu?.items || [];
-  const rightMenuItems = rightMenu?.items || [];
 
   // Always fetch English version as fallback for non-English locales
   const aboutSection = mapAboutSection(
@@ -101,7 +97,6 @@ export default async function Home({ searchParams }: HomeProps) {
           statistics={heroStatistics}
           globalLayout={globalLayout}
           leftMenuItems={leftMenuItems}
-          rightMenuItems={rightMenuItems}
           announcements={showAnnouncementCard && allAnnouncements && allAnnouncements.length > 0 ? allAnnouncements : []}
           announcementLabel={announcementLabel}
         />

@@ -54,10 +54,10 @@ export default async function PolgahawelaSubstationPage({
 
       <EstateSubstationSectionShell
         content={polgahawelaSubstationMonitoringSectionContent}
-        contentClassName="px-4 py-16 md:px-6 md:py-20 lg:px-8 xl:px-10 lg:py-24"
+        contentClassName="px-4 py-12 md:px-6 md:py-16 lg:px-8 lg:py-24 xl:px-10"
         containerClassName="max-w-none"
       >
-        <div className="grid gap-6 xl:grid-cols-2 xl:items-start">
+        <div className="grid gap-4 md:gap-5 min-[960px]:grid-cols-2 min-[960px]:items-start xl:gap-6">
           <EstateSubstationRainfallDistributionCard
             content={polgahawelaRainfallDistributionContent}
           />

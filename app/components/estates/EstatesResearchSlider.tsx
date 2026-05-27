@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { startTransition, useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowRight, Building2 } from 'lucide-react';
 import {
@@ -180,8 +181,8 @@ function EstateSlideCard({
 
           <div className="mt-8 flex items-end justify-between gap-4">
             <div className="h-px flex-1 border-t border-dotted border-[#C7C006]" />
-            <button
-              type="button"
+            <Link
+              href={slide.href}
               className="inline-flex items-center gap-3 font-medium text-[#0F3F1D]"
               style={{ fontSize: compact ? '16px' : '18px' }}
               aria-label={`Read more about ${slide.title}`}
@@ -190,7 +191,7 @@ function EstateSlideCard({
               <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#0F3F1D] text-white">
                 <ArrowRight className="h-4 w-4" strokeWidth={2.2} />
               </span>
-            </button>
+            </Link>
           </div>
         </div>
       </div>

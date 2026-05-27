@@ -1,6 +1,6 @@
 'use client';
 
-import { useId } from 'react';
+import { useEffect, useId, useState } from 'react';
 import type { ReactElement } from 'react';
 import {
   Area,
@@ -104,7 +104,7 @@ function VerticalAxisTitle({ text }: { text: string }) {
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none absolute left-6 top-1/2 z-10 -translate-y-1/2 -rotate-90 text-[12px] font-semibold text-[#35475F] md:left-0"
+      className="pointer-events-none absolute -left-8 top-1/2 z-10 -translate-y-1/2 -rotate-90 text-[12px] font-semibold text-[#35475F] md:left-0"
     >
       {text}
     </div>
@@ -368,29 +368,57 @@ export default function EstateSubstationRainfallDistributionCard({
 }: {
   content: EstateSubstationRainfallDistributionCardContent;
 }) {
+  const [viewportWidth, setViewportWidth] = useState(1280);
   const chartGradientId = useId().replace(/:/g, '');
   const areaGradientId = `${chartGradientId}-area`;
   const barGradientId = `${chartGradientId}-bar`;
   const peakMonth = content.peakAnnotation.month;
+  const isCompact = viewportWidth < 640;
+  const isTablet = viewportWidth >= 640 && viewportWidth < 1024;
+  const chartHeightClassName = isCompact
+    ? 'h-[280px]'
+    : isTablet
+      ? 'h-[340px]'
+      : 'h-[400px]';
+  const chartMargin = isCompact
+    ? { top: 22, right: 8, left: 2, bottom: 18 }
+    : isTablet
+      ? { top: 26, right: 20, left: 18, bottom: 22 }
+      : { top: 30, right: 28, left: 34, bottom: 26 };
+  const xTickFontSize = isCompact ? 10 : 12;
+  const yTickFontSize = isCompact ? 10 : 12;
+  const yAxisWidth = isCompact ? 40 : isTablet ? 46 : 52;
+  const barSize = isCompact ? 14 : isTablet ? 18 : 24;
+
+  useEffect(() => {
+    const updateViewportWidth = () => {
+      setViewportWidth(window.innerWidth);
+    };
+
+    updateViewportWidth();
+    window.addEventListener('resize', updateViewportWidth);
+
+    return () => window.removeEventListener('resize', updateViewportWidth);
+  }, []);
 
   return (
-    <article className="w-full rounded-[26px] border border-white/80 bg-white/88 p-4 shadow-[0_22px_60px_rgba(31,62,95,0.08)] backdrop-blur-[2px] md:rounded-[30px] md:p-5 lg:p-6">
-      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_258px] lg:items-start lg:gap-5">
-        <div className="flex min-w-0 items-start gap-4 text-left">
-          <div className="flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-full bg-[radial-gradient(circle_at_top,#F5FFEC_0%,#EBF7D8_100%)] md:h-[64px] md:w-[64px]">
+    <article className="w-full rounded-[22px] border border-white/80 bg-white/88 p-3.5 shadow-[0_22px_60px_rgba(31,62,95,0.08)] backdrop-blur-[2px] md:rounded-[30px] md:p-5 lg:p-6">
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_258px] lg:items-start lg:gap-5">
+        <div className="flex min-w-0 items-start gap-3 text-left md:gap-4">
+          <div className="flex h-[54px] w-[54px] shrink-0 items-center justify-center rounded-full bg-[radial-gradient(circle_at_top,#F5FFEC_0%,#EBF7D8_100%)] md:h-[64px] md:w-[64px]">
             <CloudRain className="h-7 w-7 text-[#4BA965] md:h-8 md:w-8" strokeWidth={1.8} />
           </div>
           <div className="min-w-0 max-w-[500px]">
-            <h3 className="text-[24px] font-semibold leading-[1.02] tracking-[-0.02em] text-[#125F46] md:text-[26px]">
+            <h3 className="text-[21px] font-semibold leading-[1.04] tracking-[-0.02em] text-[#125F46] md:text-[26px]">
               {content.title}
             </h3>
-            <p className="mt-1.5 max-w-[500px] text-[16px] leading-[1.28] text-[#516684] md:text-[17px]">
+            <p className="mt-1.5 max-w-[500px] text-[14px] leading-[1.3] text-[#516684] md:text-[17px]">
               {content.subtitle}
             </p>
           </div>
         </div>
 
-        <div className="w-full rounded-[16px] border border-[#E5EAF4] bg-white/92 px-3.5 py-3 text-left shadow-[0_10px_22px_rgba(31,62,95,0.05)] md:px-4 md:py-3.5 lg:self-start">
+        <div className="w-full rounded-[16px] border border-[#E5EAF4] bg-white/92 px-3 py-3 text-left shadow-[0_10px_22px_rgba(31,62,95,0.05)] md:px-4 md:py-3.5 lg:self-start">
           <div className="flex items-start gap-3">
             <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#EDF4FF] md:h-8.5 md:w-8.5">
               <Droplets className="h-4 w-4 text-[#246BDE] md:h-4.5 md:w-4.5" strokeWidth={1.8} />
@@ -410,16 +438,16 @@ export default function EstateSubstationRainfallDistributionCard({
         </div>
       </div>
 
-      <p className="mt-4 max-w-[720px] text-left text-[14px] leading-[1.75] text-[#5E6F87] md:text-[15px]">
+      <p className="mt-4 max-w-[720px] text-left text-[13px] leading-[1.72] text-[#5E6F87] md:text-[15px]">
         {content.description}
       </p>
 
-      <div className="mt-5 rounded-[20px] border border-[#DFE6F1] bg-white/78 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] md:p-4">
-        <div className="mb-3 grid gap-3 text-[11px] font-semibold uppercase tracking-[0.02em] md:grid-cols-3">
+      <div className="mt-5 rounded-[18px] border border-[#DFE6F1] bg-white/78 p-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] md:rounded-[20px] md:p-4">
+        <div className="mb-3 grid gap-2.5 text-[10px] font-semibold uppercase tracking-[0.02em] sm:grid-cols-2 md:text-[11px] lg:grid-cols-3">
           {content.seasonBands.map((band) => (
             <div
               key={`${band.label}-${band.startMonth}`}
-              className="flex items-center justify-center gap-2"
+              className="flex items-center justify-center gap-2 text-center"
               style={{ color: band.textColor }}
             >
               <SeasonIcon icon={band.icon} className="h-4 w-4" />
@@ -428,7 +456,9 @@ export default function EstateSubstationRainfallDistributionCard({
           ))}
         </div>
 
-        <div className="relative h-[320px] w-full overflow-hidden rounded-[18px] bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(244,248,255,0.98)_100%)] md:h-[400px]">
+        <div
+          className={`relative w-full overflow-hidden rounded-[16px] bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(244,248,255,0.98)_100%)] md:rounded-[18px] ${chartHeightClassName}`}
+        >
           <div className="absolute inset-0 rounded-[18px] border border-[#E7EDF7]" />
           <div className="absolute inset-x-0 top-0 z-0 h-full rounded-[18px] bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.9)_0%,rgba(250,252,255,0)_56%)]" />
           <VerticalAxisTitle text={content.yAxisLabel} />
@@ -436,7 +466,7 @@ export default function EstateSubstationRainfallDistributionCard({
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart
               data={content.months}
-              margin={{ top: 30, right: 28, left: 34, bottom: 26 }}
+              margin={chartMargin}
               accessibilityLayer
             >
               <defs>
@@ -467,14 +497,15 @@ export default function EstateSubstationRainfallDistributionCard({
                 dataKey="month"
                 tickLine={false}
                 axisLine={false}
-                tick={{ fill: '#374B65', fontSize: 12, fontWeight: 500 }}
-                dy={8}
+                tick={{ fill: '#374B65', fontSize: xTickFontSize, fontWeight: 500 }}
+                dy={isCompact ? 5 : 8}
+                interval={isCompact ? 1 : 0}
                 label={{
                   value: content.xAxisLabel,
                   position: 'insideBottom',
-                  offset: -6,
+                  offset: isCompact ? -2 : -6,
                   fill: '#35475F',
-                  fontSize: 12,
+                  fontSize: isCompact ? 10 : 12,
                   fontWeight: 600,
                 }}
               />
@@ -482,10 +513,10 @@ export default function EstateSubstationRainfallDistributionCard({
               <YAxis
                 tickLine={false}
                 axisLine={false}
-                width={52}
+                width={yAxisWidth}
                 domain={[0, content.yAxisMax]}
                 ticks={content.yAxisTicks}
-                tick={{ fill: '#5A6C85', fontSize: 12 }}
+                tick={{ fill: '#5A6C85', fontSize: yTickFontSize }}
               />
 
               <Tooltip
@@ -505,7 +536,7 @@ export default function EstateSubstationRainfallDistributionCard({
                 dataKey="rainfall"
                 fill={`url(#${barGradientId})`}
                 radius={[10, 10, 0, 0]}
-                barSize={24}
+                barSize={barSize}
                 isAnimationActive={false}
               />
 
@@ -518,12 +549,18 @@ export default function EstateSubstationRainfallDistributionCard({
                 activeDot={{ r: 7, fill: '#FFFFFF', stroke: '#246BDE', strokeWidth: 2 }}
                 isAnimationActive={false}
               >
-                <LabelList
-                  dataKey="trend"
-                  content={(props) =>
-                    renderValueLabel(props as ValueLabelRendererProps, content.months, peakMonth)
-                  }
-                />
+                {!isCompact ? (
+                  <LabelList
+                    dataKey="trend"
+                    content={(props) =>
+                      renderValueLabel(
+                        props as ValueLabelRendererProps,
+                        content.months,
+                        peakMonth,
+                      )
+                    }
+                  />
+                ) : null}
               </Line>
 
               <ReferenceDot<string, number>
@@ -531,14 +568,14 @@ export default function EstateSubstationRainfallDistributionCard({
                 y={content.peakAnnotation.value}
                 r={0}
                 ifOverflow="visible"
-                label={<PeakLabel text={content.peakAnnotation.label} />}
+                label={isCompact ? undefined : <PeakLabel text={content.peakAnnotation.label} />}
               />
             </ComposedChart>
           </ResponsiveContainer>
         </div>
 
-        <div className="mt-4 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div className="flex flex-wrap items-center gap-6 text-[13px] font-medium text-[#4D5E75]">
+        <div className="mt-4 flex flex-col gap-3 md:gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div className="flex flex-wrap items-center gap-4 text-[12px] font-medium text-[#4D5E75] md:gap-6 md:text-[13px]">
             <div className="flex items-center gap-2">
               <span className="h-4 w-5 rounded-[5px] bg-[linear-gradient(180deg,#2A8DD6_0%,#44C1D8_100%)]" />
               <span>{content.legend.barLabel}</span>
@@ -552,14 +589,14 @@ export default function EstateSubstationRainfallDistributionCard({
             </div>
           </div>
 
-          <div className="flex max-w-[380px] items-start gap-2 text-left text-[12px] leading-[1.55] text-[#70819A] lg:justify-end">
+          <div className="flex max-w-[380px] items-start gap-2 text-left text-[11px] leading-[1.55] text-[#70819A] md:text-[12px] lg:justify-end">
             <Info className="mt-[1px] h-4 w-4 shrink-0 text-[#9AA8BC]" strokeWidth={1.8} />
             <span>{content.sourceNote}</span>
           </div>
         </div>
       </div>
 
-      <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+      <div className="mt-5 grid gap-3 sm:grid-cols-2 min-[960px]:grid-cols-3">
         {content.metricCards.map((item) => (
           <MetricCard key={`${item.label}-${item.value}`} item={item} />
         ))}
