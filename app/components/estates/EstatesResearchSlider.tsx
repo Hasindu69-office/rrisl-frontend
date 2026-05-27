@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { startTransition, useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowRight, Building2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Building2 } from 'lucide-react';
 import {
   estatesResearchSlides,
   type EstateResearchSlide,
@@ -18,8 +18,40 @@ const SIDE_CARD_TOP = 126;
 const CENTER_CARD_TOP = 0;
 const SIDE_CARD_CENTER_OFFSET =
   EXPANDED_CARD_WIDTH / 2 + DESKTOP_CARD_GAP + COLLAPSED_CARD_WIDTH / 2;
+const NAV_BUTTON_EDGE_OFFSET =
+  SIDE_CARD_CENTER_OFFSET + COLLAPSED_CARD_WIDTH / 2 + 40;
 
 type ResponsiveMode = 'desktop' | 'tablet' | 'mobile';
+
+function SliderNavButton({
+  direction,
+  onClick,
+}: {
+  direction: 'previous' | 'next';
+  onClick: () => void;
+}) {
+  const isPrevious = direction === 'previous';
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={isPrevious ? 'Show previous estate' : 'Show next estate'}
+      className="absolute top-1/2 z-10 hidden h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-[#D7D7D7] bg-white text-[#0F3F1D] shadow-[0_10px_24px_rgba(15,63,29,0.12)] transition-colors duration-300 hover:border-[#C7C006] hover:bg-[#FFF9C4] lg:flex"
+      style={{
+        left: isPrevious
+          ? `calc(50% - ${NAV_BUTTON_EDGE_OFFSET}px)`
+          : `calc(50% + ${NAV_BUTTON_EDGE_OFFSET}px)`,
+      }}
+    >
+      {isPrevious ? (
+        <ArrowLeft className="h-5 w-5" strokeWidth={2.2} />
+      ) : (
+        <ArrowRight className="h-5 w-5" strokeWidth={2.2} />
+      )}
+    </button>
+  );
+}
 
 function getWrappedOffset(index: number, activeIndex: number, total: number) {
   let offset = index - activeIndex;
@@ -307,6 +339,18 @@ export default function EstatesResearchSlider() {
     });
   };
 
+  const goToPreviousSlide = () => {
+    startTransition(() => {
+      setActiveIndex((current) => (current - 1 + slides.length) % slides.length);
+    });
+  };
+
+  const goToNextSlide = () => {
+    startTransition(() => {
+      setActiveIndex((current) => (current + 1) % slides.length);
+    });
+  };
+
   const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
     if (mode === 'desktop') return;
 
@@ -350,6 +394,9 @@ export default function EstatesResearchSlider() {
     <div className="relative mt-10 pb-8 lg:mt-14 lg:pb-10">
       {mode === 'desktop' ? (
         <div className="relative h-[500px] md:h-[540px] lg:h-[600px]">
+          <SliderNavButton direction="previous" onClick={goToPreviousSlide} />
+          <SliderNavButton direction="next" onClick={goToNextSlide} />
+
           {positionedSlides.map(({ slide, offset }) => {
             const styleConfig = getDesktopStyle(offset);
             const expanded = offset === 0;
