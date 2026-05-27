@@ -32,7 +32,7 @@ function FeatureCard({
   imageAlt,
 }: EstateSubstationFeatureCard) {
   return (
-    <article className="relative overflow-hidden rounded-[24px] min-h-[410px] shadow-[0_18px_34px_rgba(33,72,24,0.12)]">
+    <article className="relative overflow-hidden rounded-[18px] min-h-[320px] shadow-[0_18px_34px_rgba(33,72,24,0.12)] md:rounded-[22px] md:min-h-[360px] xl:rounded-[24px] xl:min-h-[410px]">
       <Image
         src={imageSrc}
         alt={imageAlt}
@@ -43,19 +43,19 @@ function FeatureCard({
 
       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.02)_0%,rgba(13,38,17,0.12)_100%)]" />
 
-      <div className="relative z-10 flex min-h-[410px] items-end p-4 md:p-5">
-        <div className="flex h-[170px] w-full flex-col overflow-hidden rounded-[22px] bg-white px-5 py-4 shadow-[0_12px_24px_rgba(15,63,29,0.08)] md:px-6 md:py-5">
-          <h3 className="text-[17px] font-semibold leading-[1.15] text-[#567184] md:text-[18px]">
+      <div className="relative z-10 flex min-h-[320px] items-end p-3.5 md:min-h-[360px] md:p-4 xl:min-h-[410px] xl:p-5">
+        <div className="flex min-h-[142px] w-full flex-col overflow-hidden rounded-[18px] bg-white px-4 py-3.5 shadow-[0_12px_24px_rgba(15,63,29,0.08)] md:min-h-[156px] md:rounded-[20px] md:px-5 md:py-4 xl:h-[170px] xl:rounded-[22px] xl:px-6 xl:py-5">
+          <h3 className="text-[16px] font-semibold leading-[1.15] text-[#567184] md:text-[17px] xl:text-[18px]">
             {title}
           </h3>
 
-          <div className="mt-2 inline-flex rounded-full bg-[#9DE100] px-3 py-1.5">
-            <span className="text-[12px] font-semibold leading-none text-white md:text-[13px]">
+          <div className="mt-2 inline-flex self-start rounded-full bg-[#9DE100] px-2.5 py-1 md:px-3 md:py-1.5">
+            <span className="text-[11px] font-semibold leading-none text-white md:text-[12px] xl:text-[13px]">
               {badge}
             </span>
           </div>
 
-          <p className="mt-2 max-w-[260px] overflow-hidden text-[12.5px] leading-[1.42] text-[#5E7280] [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:4] md:text-[13.5px]">
+          <p className="mt-2 max-w-[280px] overflow-hidden text-[12px] leading-[1.5] text-[#5E7280] [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:5] md:max-w-[260px] md:text-[13px] md:leading-[1.46] md:[-webkit-line-clamp:4] xl:text-[13.5px] xl:leading-[1.42]">
             {description}
           </p>
         </div>
@@ -80,9 +80,9 @@ export default function EstateSubstationFeatureSection({
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.72)_0%,rgba(255,255,255,0.78)_38%,rgba(255,255,255,0.56)_100%)]" />
       </div>
 
-      <div className="relative z-10 px-4 py-16 md:px-6 md:py-20 lg:px-36 lg:py-24">
+      <div className="relative z-10 px-4 py-12 md:px-6 md:py-16 lg:px-36 lg:py-24">
         <div className="mx-auto w-full max-w-[1440px]">
-          <div className="grid gap-10 lg:grid-cols-[minmax(0,0.95fr)_minmax(320px,0.85fr)] lg:items-start lg:gap-16">
+          <div className="grid gap-7 md:gap-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(320px,0.85fr)] lg:items-start lg:gap-16">
             <div className="max-w-[640px]">
               <GradientTag
                 text={content.eyebrow}
@@ -96,21 +96,21 @@ export default function EstateSubstationFeatureSection({
                 lineBreak
                 align="left"
                 size="custom"
-                customSize="clamp(2.2rem, 3vw, 3.6rem)"
-                className="mt-5 leading-[1.1] tracking-[-0.02em]"
+                customSize="clamp(2rem, 5vw, 3.6rem)"
+                className="mt-4 leading-[1.08] tracking-[-0.02em] md:mt-5 md:leading-[1.1]"
               />
             </div>
 
             <div className="max-w-[560px] justify-self-start lg:justify-self-end">
-              <p className="text-justify text-[15px] leading-[2] text-[#5E7280] md:text-[16px] md:leading-[2.05]">
+              <p className="text-justify text-[14px] leading-[1.82] text-[#5E7280] md:text-[15px] md:leading-[1.92] lg:text-[16px] lg:leading-[2.05]">
                 {content.description}
               </p>
             </div>
           </div>
 
           {content.cards?.length ? (
-            <div className="mt-12 md:mt-14 lg:relative lg:left-1/2 lg:w-screen lg:max-w-none lg:-translate-x-1/2 lg:px-8 xl:px-10">
-              <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-5">
+            <div className="mt-8 md:mt-10 lg:mt-12 lg:relative lg:left-1/2 lg:w-screen lg:max-w-none lg:-translate-x-1/2 lg:px-8 xl:px-10">
+              <div className="grid gap-4 md:grid-cols-2 md:gap-5 xl:grid-cols-5 xl:gap-6">
                 {content.cards.map((card) => (
                   <FeatureCard key={`${card.title}-${card.badge}`} {...card} />
                 ))}

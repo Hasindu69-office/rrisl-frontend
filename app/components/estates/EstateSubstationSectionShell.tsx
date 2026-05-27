@@ -38,7 +38,7 @@ export default function EstateSubstationSectionShell({
       </div>
 
       <div
-        className={`relative z-10 px-4 py-16 md:px-6 md:py-20 lg:px-36 lg:py-24 ${contentClassName}`.trim()}
+        className={`relative z-10 px-4 py-12 md:px-6 md:py-16 lg:px-36 lg:py-24 ${contentClassName}`.trim()}
       >
         <div className={`mx-auto flex w-full justify-center ${containerClassName}`.trim()}>
           <div className="flex w-full flex-col items-center">
@@ -55,12 +55,12 @@ export default function EstateSubstationSectionShell({
                 lineBreak={false}
                 align="center"
                 size="custom"
-                customSize="clamp(2.2rem, 4vw, 3.85rem)"
-                className="mt-5 leading-[1.12] tracking-[-0.02em]"
+                customSize="clamp(2rem, 5.2vw, 3.85rem)"
+                className="mt-4 leading-[1.08] tracking-[-0.02em] md:mt-5 md:leading-[1.12]"
               />
             </div>
 
-            {children ? <div className="mt-12 w-full">{children}</div> : null}
+            {children ? <div className="mt-8 w-full md:mt-10 lg:mt-12">{children}</div> : null}
           </div>
         </div>
       </div>
