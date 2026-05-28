@@ -1,4 +1,7 @@
 import type { BreadcrumbItem } from '@/app/components/shared/Breadcrumb';
+import type {
+  EstateSubstationFeatureSectionContent,
+} from '@/app/components/estates/EstateSubstationFeatureSection';
 import type { EstateSubstationActivitiesContent } from '@/app/components/estates/EstateSubstationActivitiesSection';
 import type { EstateSubstationContactSectionContent } from '@/app/components/estates/EstateSubstationContactSection';
 import type { EstateSubstationFacilitiesContent } from '@/app/components/estates/EstateSubstationFacilitiesSection';
@@ -48,6 +51,7 @@ export interface EstateDetailPageViewModel {
   intro: EstateSubstationIntroContent;
   facilities: EstateSubstationFacilitiesContent;
   activities: EstateSubstationActivitiesContent;
+  feature?: EstateSubstationFeatureSectionContent;
   contact: EstateSubstationContactSectionContent;
 }
 
@@ -104,6 +108,7 @@ const ESTATE_DETAIL_FALLBACK: EstateDetailPageViewModel = {
     backgroundImageAlt: 'Research and operational activities background',
     cards: [],
   },
+  feature: undefined,
   contact: {
     titlePart1: 'Contact',
     titlePart2: 'Information',
@@ -319,6 +324,7 @@ export function mapEstateDetailPageData(
   const introHeader = estate.introduction?.sectionheader;
   const facilitiesHeader = estate.facilitiessection?.sectionheader;
   const activitiesHeader = estate.activitiessection?.sectionheader;
+  const featureHeader = estate.featuressection?.sectionheader;
   const substationContactCard = getSubstationContactCard(estate, contactPage);
   const headOfficeCard = getHeadOfficeCard(contactPage);
   const resolvedContactDetails =
@@ -412,6 +418,35 @@ export function mapEstateDetailPageData(
           imageAlt: card.imagealt || card.image?.alternativeText || `${card.title} activity`,
         })) || [],
     },
+    feature:
+      estate.hasfeaturesection && estate.featuressection
+        ? {
+            eyebrow: featureHeader?.eyebrow?.trim() || '',
+            titlePart1: featureHeader?.title?.trim() || '',
+            titlePart2: featureHeader?.hightlightedtext?.trim() || '',
+            description: estate.featuressection.description?.trim() || '',
+            backgroundImageSrc:
+              getOptimizedImageUrl(estate.featuressection.featuresectionbackgroundimage, 'large') ||
+              getOptimizedImageUrl(estate.featuressection.featuresectionbackgroundimage, 'medium') ||
+              getStrapiImageUrl(estate.featuressection.featuresectionbackgroundimage) ||
+              '/images/estateandsubstations/monaragalanewsectionbgimg.png',
+            backgroundImageAlt:
+              estate.featuressection.featuresectionbackgroundimagealt ||
+              estate.featuressection.featuresectionbackgroundimage?.alternativeText ||
+              'Feature section background',
+            cards:
+              estate.featuressection.cards?.map((card) => ({
+                title: card.title,
+                badge: card.badge?.trim() || '',
+                description: card.description,
+                imageSrc:
+                  getOptimizedImageUrl(card.image, 'medium') ||
+                  getStrapiImageUrl(card.image) ||
+                  '/images/aboutusRubber.jpg',
+                imageAlt: card.imagealt || card.image?.alternativeText || `${card.title} feature`,
+              })) || [],
+          }
+        : undefined,
     contact: {
       titlePart1: estate.contacttitlepart1 || ESTATE_DETAIL_FALLBACK.contact.titlePart1,
       titlePart2: estate.contacttitlepart2 || ESTATE_DETAIL_FALLBACK.contact.titlePart2,

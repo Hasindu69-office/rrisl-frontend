@@ -40,6 +40,9 @@ function buildEstateSubstationsQuery(locale: string, slug?: string): string {
   params.set('populate[activitiessection][populate][sectionheader]', 'true');
   params.set('populate[activitiessection][populate][card][populate][image]', 'true');
   params.set('populate[activitiessectionbgimage]', 'true');
+  params.set('populate[featuressection][populate][sectionheader]', 'true');
+  params.set('populate[featuressection][populate][cards][populate][image]', 'true');
+  params.set('populate[featuressection][populate][featuresectionbackgroundimage]', 'true');
 
   return params.toString();
 }

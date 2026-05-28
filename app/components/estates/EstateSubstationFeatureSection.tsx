@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { isLocalhostAssetUrl } from '@/app/lib/strapi';
 import GradientTag from '../ui/GradientTag';
 import GradientTitle from '../ui/GradientTitle';
 
@@ -31,6 +32,8 @@ function FeatureCard({
   imageSrc,
   imageAlt,
 }: EstateSubstationFeatureCard) {
+  const useUnoptimizedImage = isLocalhostAssetUrl(imageSrc);
+
   return (
     <article className="relative overflow-hidden rounded-[18px] min-h-[320px] shadow-[0_18px_34px_rgba(33,72,24,0.12)] md:rounded-[22px] md:min-h-[360px] xl:rounded-[24px] xl:min-h-[410px]">
       <Image
@@ -38,6 +41,7 @@ function FeatureCard({
         alt={imageAlt}
         fill
         className="object-cover"
+        unoptimized={useUnoptimizedImage}
         sizes="(max-width: 767px) 100vw, (max-width: 1023px) 48vw, 20vw"
       />
 
@@ -67,6 +71,8 @@ function FeatureCard({
 export default function EstateSubstationFeatureSection({
   content,
 }: EstateSubstationFeatureSectionProps) {
+  const useUnoptimizedBackground = isLocalhostAssetUrl(content.backgroundImageSrc);
+
   return (
     <section className="relative overflow-hidden">
       <div className="absolute inset-0">
@@ -76,6 +82,7 @@ export default function EstateSubstationFeatureSection({
           fill
           className="object-cover object-center"
           sizes="100vw"
+          unoptimized={useUnoptimizedBackground}
         />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.72)_0%,rgba(255,255,255,0.78)_38%,rgba(255,255,255,0.56)_100%)]" />
       </div>

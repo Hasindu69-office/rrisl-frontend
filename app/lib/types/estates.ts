@@ -62,6 +62,24 @@ export interface EstateSubstationActivitiesSectionData {
   card?: EstateSubstationActivityCard[] | null;
 }
 
+export interface EstateSubstationFeatureCard {
+  id: number;
+  title: string;
+  badge?: string | null;
+  description: string;
+  image?: StrapiImage | null;
+  imagealt?: string | null;
+}
+
+export interface EstateSubstationFeatureSectionData {
+  id: number;
+  sectionheader?: SectionHeader | null;
+  description?: string | null;
+  cards?: EstateSubstationFeatureCard[] | null;
+  featuresectionbackgroundimage?: StrapiImage | null;
+  featuresectionbackgroundimagealt?: string | null;
+}
+
 export interface EstateSubstationPageHero {
   id: number;
   PageTitle: string;
@@ -90,6 +108,8 @@ export interface EstateSubstation {
   activitiessection?: EstateSubstationActivitiesSectionData | null;
   activitiessectionbgimage?: StrapiImage | null;
   activitiessectionbgimagealt?: string | null;
+  hasfeaturesection?: boolean | null;
+  featuressection?: EstateSubstationFeatureSectionData | null;
   contacttitlepart1?: string | null;
   contacttitlepart2?: string | null;
   contactverticaltext?: string | null;
