@@ -178,9 +178,6 @@ function ActivityRailCard({
           </>
         ) : (
           <div className="mt-auto text-white">
-            <div className="inline-flex rounded-full bg-white/14 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-white/88 backdrop-blur-sm">
-              Activity
-            </div>
             <h3 className={`mt-4 font-medium ${headingClassName}`}>{card.title}</h3>
             <p className={descriptionClassName}>{card.description}</p>
           </div>
