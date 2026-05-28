@@ -3,10 +3,12 @@ import type { EstateSubstationActivitiesContent } from '@/app/components/estates
 import type { EstateSubstationContactSectionContent } from '@/app/components/estates/EstateSubstationContactSection';
 import type { EstateSubstationFacilitiesContent } from '@/app/components/estates/EstateSubstationFacilitiesSection';
 import type { EstateSubstationIntroContent } from '@/app/components/estates/EstateSubstationIntroSection';
+import type { LocationDetail } from '@/app/components/contact/locationData';
 import { getOptimizedImageUrl, getStrapiImageUrl } from '@/app/lib/strapi';
 import type {
   ContactLocationCard,
   ContactPage,
+  ContactSubStationCard,
   EstateAndSubstationsPage,
   EstateSubstation,
   SectionHeader,
@@ -154,6 +156,19 @@ function buildPhoneHref(number: string): string {
   return sanitized ? `tel:${sanitized}` : '#';
 }
 
+function buildMailHref(email: string): string {
+  return `mailto:${email.trim()}`;
+}
+
+function normalizeContactKey(value: string | null | undefined): string {
+  return (value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/sub-?station/g, 'substation')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
 function mapContactDetails(locationCard: ContactLocationCard | null | undefined) {
   if (!locationCard) {
     return [];
@@ -183,9 +198,67 @@ function mapContactDetails(locationCard: ContactLocationCard | null | undefined)
   return [...details, ...phoneDetails];
 }
 
+function mapSubstationContactDetails(contactCard: ContactSubStationCard | null | undefined) {
+  if (!contactCard) {
+    return [];
+  }
+
+  const details: LocationDetail[] = [
+    {
+      label: contactCard.postaladdresslabel || 'Postal Address',
+      value: contactCard.postaladdress,
+    },
+  ];
+
+  if (contactCard.emailaddress?.trim()) {
+    details.push({
+      label: contactCard.emaillabel?.trim() || 'Email',
+      value: contactCard.emailaddress.trim(),
+      href: buildMailHref(contactCard.emailaddress),
+    });
+  }
+
+  const phoneDetails =
+    [...(contactCard.phonenumbers || [])]
+      .sort((left, right) => {
+        const leftOrder = typeof left?.sortorder === 'number' ? left.sortorder : Number.MAX_SAFE_INTEGER;
+        const rightOrder = typeof right?.sortorder === 'number' ? right.sortorder : Number.MAX_SAFE_INTEGER;
+        return leftOrder - rightOrder;
+      })
+      .filter((phone) => phone?.number?.trim())
+      .map((phone) => ({
+        label: phone.label?.trim() || 'Telephone',
+        value: phone.number.trim(),
+        href: buildPhoneHref(phone.number),
+      }));
+
+  return [...details, ...phoneDetails];
+}
+
 function getHeadOfficeCard(contactPage: ContactPage | null | undefined): ContactLocationCard | null {
   const cards = contactPage?.headofficeandboardofficedetails || [];
   return cards.length > 0 ? cards[0] : null;
+}
+
+function getSubstationContactCard(
+  estate: EstateSubstation | null | undefined,
+  contactPage: ContactPage | null | undefined
+): ContactSubStationCard | null {
+  const targetKey = normalizeContactKey(estate?.contactkey);
+  if (!targetKey) {
+    return null;
+  }
+
+  const cards = [...(contactPage?.substations || [])].sort((left, right) => {
+    const leftOrder = typeof left?.sortorder === 'number' ? left.sortorder : Number.MAX_SAFE_INTEGER;
+    const rightOrder = typeof right?.sortorder === 'number' ? right.sortorder : Number.MAX_SAFE_INTEGER;
+    return leftOrder - rightOrder;
+  });
+
+  return (
+    cards.find((card) => normalizeContactKey(card?.substationtitle) === targetKey) ||
+    null
+  );
 }
 
 export function mapEstateLandingPageData(
@@ -246,7 +319,12 @@ export function mapEstateDetailPageData(
   const introHeader = estate.introduction?.sectionheader;
   const facilitiesHeader = estate.facilitiessection?.sectionheader;
   const activitiesHeader = estate.activitiessection?.sectionheader;
+  const substationContactCard = getSubstationContactCard(estate, contactPage);
   const headOfficeCard = getHeadOfficeCard(contactPage);
+  const resolvedContactDetails =
+    substationContactCard
+      ? mapSubstationContactDetails(substationContactCard)
+      : mapContactDetails(headOfficeCard);
 
   return {
     hero: {
@@ -341,7 +419,10 @@ export function mapEstateDetailPageData(
       orientation: 'details-left',
       mapTitle: `${estate.title} map`,
       mapSrc: headOfficeCard?.gmapembedlink || ESTATE_DETAIL_FALLBACK.contact.mapSrc,
-      details: mapContactDetails(headOfficeCard),
+      details:
+        resolvedContactDetails.length > 0
+          ? resolvedContactDetails
+          : ESTATE_DETAIL_FALLBACK.contact.details,
     },
   };
 }
