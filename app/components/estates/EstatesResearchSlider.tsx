@@ -1,12 +1,19 @@
 'use client';
 
 import Link from 'next/link';
+import { addLocaleToUrl } from '@/app/lib/locale';
 import { startTransition, useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, Building2 } from 'lucide-react';
 import {
   estatesResearchSlides,
   type EstateResearchSlide,
 } from './estatesResearchSlides';
+
+interface EstatesResearchSliderProps {
+  slides?: EstateResearchSlide[];
+  readMoreLabel?: string;
+  locale?: string;
+}
 
 const AUTOPLAY_DELAY_MS = 4500;
 const DESKTOP_CARD_GAP = 56;
@@ -108,13 +115,18 @@ function EstateSlideCard({
   expanded,
   isLeft,
   compact = false,
+  readMoreLabel = 'Read More',
+  locale = 'en',
 }: {
   slide: EstateResearchSlide;
   expanded: boolean;
   isLeft: boolean;
   compact?: boolean;
+  readMoreLabel?: string;
+  locale?: string;
 }) {
   const contentMaxHeight = compact ? '380px' : '340px';
+  const localizedHref = addLocaleToUrl(slide.href, locale);
 
   return (
     <div
@@ -214,12 +226,12 @@ function EstateSlideCard({
           <div className="mt-8 flex items-end justify-between gap-4">
             <div className="h-px flex-1 border-t border-dotted border-[#C7C006]" />
             <Link
-              href={slide.href}
+              href={localizedHref}
               className="inline-flex items-center gap-3 font-medium text-[#0F3F1D]"
               style={{ fontSize: compact ? '16px' : '18px' }}
               aria-label={`Read more about ${slide.title}`}
             >
-              <span>Read More</span>
+              <span>{readMoreLabel}</span>
               <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#0F3F1D] text-white">
                 <ArrowRight className="h-4 w-4" strokeWidth={2.2} />
               </span>
@@ -231,7 +243,11 @@ function EstateSlideCard({
   );
 }
 
-export default function EstatesResearchSlider() {
+export default function EstatesResearchSlider({
+  slides: slidesProp,
+  readMoreLabel = 'Read More',
+  locale = 'en',
+}: EstatesResearchSliderProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [mode, setMode] = useState<ResponsiveMode>('desktop');
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
@@ -241,7 +257,7 @@ export default function EstatesResearchSlider() {
   const touchStartXRef = useRef<number | null>(null);
   const viewportRef = useRef<HTMLDivElement | null>(null);
 
-  const slides = estatesResearchSlides;
+  const slides = slidesProp && slidesProp.length > 0 ? slidesProp : estatesResearchSlides;
 
   useEffect(() => {
     const viewportMedia = {
@@ -422,6 +438,8 @@ export default function EstatesResearchSlider() {
                   slide={slide}
                   expanded={expanded}
                   isLeft={offset < 0}
+                  readMoreLabel={readMoreLabel}
+                  locale={locale}
                 />
               </article>
             );
@@ -468,6 +486,8 @@ export default function EstatesResearchSlider() {
                   expanded
                   isLeft={false}
                   compact={compactResponsiveCard}
+                  readMoreLabel={readMoreLabel}
+                  locale={locale}
                 />
               </article>
             ))}

@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { isLocalhostAssetUrl } from '@/app/lib/strapi';
 import {
   startTransition,
   type TouchEvent,
@@ -59,6 +60,7 @@ function ActivityRailCard({
 }) {
   const isDesktop = mode === 'desktop';
   const isTablet = mode === 'tablet';
+  const useUnoptimizedImage = isLocalhostAssetUrl(card.imageSrc);
   const transitionDuration = reduceMotion ? '0ms' : '700ms';
   const cardWidth = isDesktop
     ? expanded
@@ -106,6 +108,7 @@ function ActivityRailCard({
           alt={card.imageAlt}
           fill
           className="object-cover"
+          unoptimized={useUnoptimizedImage}
           sizes={
             isDesktop
               ? '(max-width: 767px) 78vw, (max-width: 1023px) 42vw, 420px'
@@ -220,6 +223,7 @@ export default function EstateSubstationActivitiesSection({
   const [isDragging, setIsDragging] = useState(false);
   const touchStartXRef = useRef<number | null>(null);
   const viewportRef = useRef<HTMLDivElement | null>(null);
+  const useUnoptimizedBackground = isLocalhostAssetUrl(content.backgroundImageSrc);
 
   useEffect(() => {
     const mobileQuery = window.matchMedia('(max-width: 767px)');
@@ -356,6 +360,7 @@ export default function EstateSubstationActivitiesSection({
           fill
           className="object-cover object-center"
           sizes="100vw"
+          unoptimized={useUnoptimizedBackground}
         />
         <div
           className="absolute inset-0"
