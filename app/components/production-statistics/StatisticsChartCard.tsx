@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { Download } from 'lucide-react';
 import StatisticsBarChart from './StatisticsBarChart';
 import StatisticsDonutChart from './StatisticsDonutChart';
 import StatisticsLineChart from './StatisticsLineChart';
@@ -8,8 +9,10 @@ import type {
   StatisticsBarDatum,
   StatisticsChartCardData,
   StatisticsKpi,
+  StatisticsLine,
   StatisticsPeriod,
   StatisticsPoint,
+  StatisticsSidePanelData,
   StatisticsSummaryData,
 } from './productionStatisticsData';
 
@@ -55,6 +58,105 @@ function createDynamicTrendKpis(points: StatisticsPoint[]): StatisticsKpi[] {
   ];
 }
 
+function createDynamicMultiLineTrendKpis(lines: StatisticsLine[]): StatisticsKpi[] {
+  const lineKpis = lines.map((line) => {
+    const latest = line.points[line.points.length - 1];
+
+    return {
+      label: line.label,
+      value: latest.value.toLocaleString(),
+      detail: `${latest.year}`,
+    };
+  });
+
+  const allYears = lines.flatMap((line) => line.points.map((point) => point.year));
+
+  return [
+    ...lineKpis,
+    {
+      label: 'Period',
+      value: `${Math.min(...allYears)} - ${Math.max(...allYears)}`,
+      detail: `${allYears.length > 0 ? new Set(allYears).size : 0} data points`,
+    },
+  ];
+}
+
+function StatisticsDownloadPanel({
+  downloadUrl,
+  downloadLabel,
+  downloadDescription,
+}: {
+  downloadUrl: string;
+  downloadLabel?: string;
+  downloadDescription?: string;
+}) {
+  return (
+    <div className="rounded-[20px] border border-[#DDEBDF] bg-[#F5FAF4] p-3.5 sm:rounded-[22px] sm:p-4 lg:p-5">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <div className="text-[13px] font-semibold uppercase tracking-[0.08em] text-[#1E6B2F]">
+            Detailed data
+          </div>
+          <p className="mt-1 text-[13px] leading-6 text-[#667085] sm:text-[14px]">
+            {downloadDescription ?? 'Download the underlying dataset in CSV format.'}
+          </p>
+        </div>
+
+        <a
+          href={downloadUrl}
+          download
+          className="inline-flex shrink-0 items-center justify-center gap-2 rounded-[14px] bg-[#1E6B2F] px-4 py-3 text-[13px] font-semibold text-white transition-colors hover:bg-[#175426]"
+        >
+          <Download className="h-4 w-4" aria-hidden="true" />
+          {downloadLabel ?? 'Download CSV'}
+        </a>
+      </div>
+    </div>
+  );
+}
+
+function StatisticsSidePanel({
+  panel,
+}: {
+  panel: StatisticsSidePanelData;
+}) {
+  return (
+    <div className="w-full rounded-[18px] border border-[#E4EDE1] bg-[#FCFEFB] p-3.5 sm:rounded-[20px] sm:p-4">
+      <div className="mb-4">
+        <div className="text-[15px] font-semibold text-[#1E6B2F]">
+          {panel.title}
+        </div>
+        {panel.description ? (
+          <p className="mt-1 text-[12px] leading-5 text-[#667085]">
+            {panel.description}
+          </p>
+        ) : null}
+      </div>
+
+      <div className="space-y-2.5 sm:space-y-3">
+        {panel.items.map((item) => (
+          <div
+            key={`${panel.title}-${item.label}`}
+            className="rounded-[12px] bg-white px-3 py-3 shadow-[0_4px_12px_rgba(15,63,29,0.035)] sm:rounded-[14px] sm:shadow-[0_8px_18px_rgba(15,63,29,0.04)]"
+          >
+            <div className="text-[12px] text-[#667085]">
+              {item.label}
+            </div>
+            <div className="mt-1 text-[20px] font-semibold text-[#16341D]">
+              {item.value}
+            </div>
+            {item.detail ? (
+              <div className="mt-1 text-[12px] text-[#98A2B3]">
+                {item.detail}
+              </div>
+            ) : null}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function StatisticsChartCard({
   card,
 }: StatisticsChartCardProps) {
@@ -68,19 +170,22 @@ export default function StatisticsChartCard({
     [card.periods, selectedPeriodId],
   );
 
-  const filteredPoints = useMemo(() => {
-    if (!card.line) {
+  const filteredTrendLines = useMemo(() => {
+    const sourceLines = card.lines ?? (card.line ? [card.line] : []);
+
+    if (sourceLines.length === 0) {
       return [];
     }
 
-    if (!selectedPeriod) {
-      return card.line.points;
-    }
-
-    return card.line.points.filter(
-      (point) => point.year >= selectedPeriod.startYear && point.year <= selectedPeriod.endYear,
-    );
-  }, [card.line, selectedPeriod]);
+    return sourceLines.map((line) => ({
+      ...line,
+      points: selectedPeriod
+        ? line.points.filter(
+          (point) => point.year >= selectedPeriod.startYear && point.year <= selectedPeriod.endYear,
+        )
+        : line.points,
+    })).filter((line) => line.points.length > 0);
+  }, [card.line, card.lines, selectedPeriod]);
 
   const activeBarSnapshot = useMemo(() => {
     if (!card.barSeries || card.barSeries.length === 0) {
@@ -89,13 +194,16 @@ export default function StatisticsChartCard({
 
     const allPoints = card.barSeries.flatMap((series) => series.points);
     const latestYear = Math.max(...allPoints.map((point) => point.year));
-    const snapshotYear = selectedPeriod?.endYear ?? latestYear;
+    const targetYear = selectedPeriod?.endYear ?? latestYear;
+    const matchingPoints = card.barSeries.map((series) =>
+      [...series.points]
+        .reverse()
+        .find((point) => point.year <= targetYear) ?? series.points[series.points.length - 1]
+    );
+    const snapshotYear = matchingPoints[0]?.year ?? latestYear;
 
-    const bars: StatisticsBarDatum[] = card.barSeries.map((series) => {
-      const matchingPoint =
-        [...series.points]
-          .reverse()
-          .find((point) => point.year <= snapshotYear) ?? series.points[series.points.length - 1];
+    const bars: StatisticsBarDatum[] = card.barSeries.map((series, index) => {
+      const matchingPoint = matchingPoints[index];
 
       return {
         label: series.label,
@@ -111,7 +219,7 @@ export default function StatisticsChartCard({
   }, [card.barSeries, selectedPeriod]);
 
   const activeKpis = useMemo(() => {
-    if (card.primaryChartType !== 'trend' || filteredPoints.length === 0) {
+    if (card.primaryChartType !== 'trend' || filteredTrendLines.length === 0) {
       if (card.primaryChartType !== 'bar' || !activeBarSnapshot) {
         return card.kpis;
       }
@@ -143,8 +251,12 @@ export default function StatisticsChartCard({
       ];
     }
 
-    return createDynamicTrendKpis(filteredPoints);
-  }, [activeBarSnapshot, card.kpis, card.primaryChartType, filteredPoints]);
+    if (filteredTrendLines.length === 1) {
+      return createDynamicTrendKpis(filteredTrendLines[0].points);
+    }
+
+    return createDynamicMultiLineTrendKpis(filteredTrendLines);
+  }, [activeBarSnapshot, card.kpis, card.primaryChartType, filteredTrendLines]);
 
   const activeShareSummary = useMemo<StatisticsSummaryData | undefined>(() => {
     if (card.primaryChartType !== 'bar' || !activeBarSnapshot || !card.shareSummary) {
@@ -266,11 +378,21 @@ export default function StatisticsChartCard({
                 ))}
               </div>
             </div>
+
+            {card.downloadUrl ? (
+              <StatisticsDownloadPanel
+                downloadUrl={card.downloadUrl}
+                downloadLabel={card.downloadLabel}
+                downloadDescription={card.downloadDescription}
+              />
+            ) : null}
           </div>
 
           <div className="xl:w-[360px] xl:justify-self-end xl:pl-2">
             {activeShareSummary ? (
               <StatisticsDonutChart summary={activeShareSummary} compact />
+            ) : card.sidePanel ? (
+              <StatisticsSidePanel panel={card.sidePanel} />
             ) : null}
           </div>
         </div>
@@ -278,10 +400,9 @@ export default function StatisticsChartCard({
         <div className="grid gap-4 lg:gap-5 xl:grid-cols-[minmax(0,1fr)_360px] xl:items-start xl:gap-8">
           <div className="min-w-0 space-y-4">
             <div className="rounded-[20px] border border-[#EDF2EC] bg-[#FCFEFB] p-3.5 sm:rounded-[22px] sm:p-4 lg:p-5">
-              {card.line ? (
+              {filteredTrendLines.length > 0 ? (
                 <StatisticsLineChart
-                  line={card.line}
-                  points={filteredPoints}
+                  lines={filteredTrendLines}
                   xAxisLabel={card.xAxisLabel}
                   yAxisLabel={card.yAxisLabel}
                 />
@@ -313,11 +434,21 @@ export default function StatisticsChartCard({
                 ))}
               </div>
             </div>
+
+            {card.downloadUrl ? (
+              <StatisticsDownloadPanel
+                downloadUrl={card.downloadUrl}
+                downloadLabel={card.downloadLabel}
+                downloadDescription={card.downloadDescription}
+              />
+            ) : null}
           </div>
 
           <div className="xl:w-[360px] xl:justify-self-end xl:pl-2">
             {card.shareSummary ? (
               <StatisticsDonutChart summary={card.shareSummary} compact />
+            ) : card.sidePanel ? (
+              <StatisticsSidePanel panel={card.sidePanel} />
             ) : null}
           </div>
         </div>

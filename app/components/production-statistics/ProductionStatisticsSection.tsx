@@ -6,16 +6,50 @@ import GradientTitle from '../ui/GradientTitle';
 import StatisticsChartCard from './StatisticsChartCard';
 import StatisticsTabButton from './StatisticsTabButton';
 import {
+  defaultProductionCard,
   statisticsTabContent,
   statisticsTabs,
+  type StatisticsChartCardData,
   type StatisticsTabId,
 } from './productionStatisticsData';
 
-export default function ProductionStatisticsSection() {
+interface ProductionStatisticsSectionProps {
+  productionCard?: StatisticsChartCardData | null;
+  exportCard?: StatisticsChartCardData | null;
+  priceCard?: StatisticsChartCardData | null;
+  consumptionCard?: StatisticsChartCardData | null;
+}
+
+export default function ProductionStatisticsSection({
+  productionCard,
+  exportCard,
+  priceCard,
+  consumptionCard,
+}: ProductionStatisticsSectionProps) {
   const [activeTab, setActiveTab] = useState<StatisticsTabId>('production');
   const panelRef = useRef<HTMLDivElement | null>(null);
 
-  const activeContent = statisticsTabContent[activeTab];
+  const tabContent = {
+    ...statisticsTabContent,
+    production: {
+      ...statisticsTabContent.production,
+      primaryCard: productionCard ?? defaultProductionCard,
+    },
+    export: {
+      ...statisticsTabContent.export,
+      primaryCard: exportCard ?? statisticsTabContent.export.primaryCard,
+    },
+    price: {
+      ...statisticsTabContent.price,
+      primaryCard: priceCard ?? statisticsTabContent.price.primaryCard,
+    },
+    consumption: {
+      ...statisticsTabContent.consumption,
+      primaryCard: consumptionCard ?? statisticsTabContent.consumption.primaryCard,
+    },
+  };
+
+  const activeContent = tabContent[activeTab];
 
   useLayoutEffect(() => {
     if (!panelRef.current || typeof window === 'undefined') {

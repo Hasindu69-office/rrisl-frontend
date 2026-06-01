@@ -21,6 +21,21 @@ function formatValue(value: number) {
   return `${value}`;
 }
 
+function getNiceStep(maxValue: number, divisions: number) {
+  if (maxValue <= 0) {
+    return 1;
+  }
+
+  const roughStep = maxValue / Math.max(divisions, 1);
+  const magnitude = 10 ** Math.floor(Math.log10(roughStep));
+  const normalizedStep = roughStep / magnitude;
+
+  if (normalizedStep <= 1) return magnitude;
+  if (normalizedStep <= 2) return 2 * magnitude;
+  if (normalizedStep <= 5) return 5 * magnitude;
+  return 10 * magnitude;
+}
+
 function splitLabel(label: string) {
   return label.split(' ');
 }
@@ -80,18 +95,21 @@ export default function StatisticsBarChart({
   const innerWidth = chartWidth - margin.left - margin.right;
   const innerHeight = chartHeight - margin.top - margin.bottom;
 
+  const divisions = isCompact ? 3 : 4;
+
   const maxValue = useMemo(() => {
     const localMax = Math.max(...bars.map((item) => item.value), 0);
-    return Math.ceil(localMax * 1.15 / 10000) * 10000 || 10000;
-  }, [bars]);
+    const paddedMax = localMax * 1.15;
+    const step = getNiceStep(paddedMax, divisions);
+    return Math.max(step * divisions, Math.ceil(paddedMax / step) * step);
+  }, [bars, divisions]);
 
   const yTicks = useMemo(() => {
-    const divisions = isCompact ? 3 : 4;
     return Array.from(
       { length: divisions + 1 },
-      (_, index) => Math.round((maxValue / divisions) * index),
+      (_, index) => (maxValue / divisions) * index,
     );
-  }, [isCompact, maxValue]);
+  }, [divisions, maxValue]);
 
   const barWidth = innerWidth / Math.max(bars.length * (isCompact ? 1.2 : 1.35), 1);
   const gap = bars.length > 1 ? (innerWidth - (barWidth * bars.length)) / (bars.length - 1) : 0;

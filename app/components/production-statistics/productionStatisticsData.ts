@@ -58,20 +58,31 @@ export interface StatisticsKpi {
   detail?: string;
 }
 
+export interface StatisticsSidePanelData {
+  title: string;
+  description?: string;
+  items: StatisticsKpi[];
+}
+
 export interface StatisticsChartCardData {
   title: string;
   subtitle: string;
   primaryChartType: StatisticsChartType;
   xAxisLabel: string;
   yAxisLabel: string;
+  downloadUrl?: string;
+  downloadLabel?: string;
+  downloadDescription?: string;
   contextLabel?: string;
   contextValue?: string;
   periods?: StatisticsPeriod[];
   defaultPeriodId?: string;
   line?: StatisticsLine;
+  lines?: StatisticsLine[];
   barSeries?: StatisticsBarSeries[];
   bars?: StatisticsBarDatum[];
   shareSummary?: StatisticsSummaryData;
+  sidePanel?: StatisticsSidePanelData;
   kpis: StatisticsKpi[];
 }
 
@@ -92,13 +103,6 @@ export const statisticsTabs: Array<Pick<StatisticsTabData, 'id' | 'label' | 'eye
   { id: 'plantation', label: 'Plantation', eyebrow: 'Statistics' },
 ];
 
-const defaultPeriods: StatisticsPeriod[] = [
-  { id: '1980-1990', label: '1980 - 1990', startYear: 1980, endYear: 1990 },
-  { id: '1990-2000', label: '1990 - 2000', startYear: 1990, endYear: 2000 },
-  { id: '2000-2010', label: '2000 - 2010', startYear: 2000, endYear: 2010 },
-  { id: '2010-2020', label: '2010 - 2020', startYear: 2010, endYear: 2020 },
-];
-
 const years = [
   1980, 1982, 1984, 1986, 1988, 1990,
   1992, 1994, 1996, 1998, 2000,
@@ -107,7 +111,6 @@ const years = [
 ];
 
 const summaryPalette = ['#2AC669', '#0F9D58', '#8BCF5B', '#D7E870', '#FFB648', '#F27D42'];
-const latestRecordedYear = years[years.length - 1];
 
 function buildPoints(values: number[]): StatisticsPoint[] {
   return years.map((year, index) => ({
@@ -131,6 +134,31 @@ export function formatCompactValue(value: number) {
 function formatDeltaValue(delta: number) {
   const sign = delta > 0 ? '+' : '';
   return `${sign}${formatCompactValue(delta)}`;
+}
+
+export function createPeriodsFromYears(yearValues: number[]): StatisticsPeriod[] {
+  const sortedYears = [...new Set(yearValues)].sort((first, second) => first - second);
+
+  if (sortedYears.length < 2) {
+    return [];
+  }
+
+  const firstYear = sortedYears[0];
+  const lastYear = sortedYears[sortedYears.length - 1];
+  const periods: StatisticsPeriod[] = [];
+
+  for (let startYear = firstYear; startYear < lastYear; startYear += 10) {
+    const endYear = Math.min(startYear + 10, lastYear);
+
+    periods.push({
+      id: `${startYear}-${endYear}`,
+      label: `${startYear} - ${endYear}`,
+      startYear,
+      endYear,
+    });
+  }
+
+  return periods;
 }
 
 function createRecentYearSummary(
@@ -176,6 +204,156 @@ function createTrendKpis(points: StatisticsPoint[]): StatisticsKpi[] {
       detail: `${points.length} data points`,
     },
   ];
+}
+
+export function createTrendStatisticsCard(
+  title: string,
+  subtitle: string,
+  lineLabel: string,
+  points: StatisticsPoint[],
+  options?: {
+    downloadUrl?: string;
+    downloadLabel?: string;
+    downloadDescription?: string;
+  },
+): StatisticsChartCardData {
+  return {
+    title,
+    subtitle,
+    primaryChartType: 'trend',
+    xAxisLabel: 'Year',
+    yAxisLabel: lineLabel,
+    downloadUrl: options?.downloadUrl,
+    downloadLabel: options?.downloadLabel,
+    downloadDescription: options?.downloadDescription,
+    periods: createPeriodsFromYears(points.map((point) => point.year)),
+    line: {
+      label: lineLabel,
+      color: '#2AC669',
+      points,
+    },
+    shareSummary: createRecentYearSummary(points, title),
+    kpis: createTrendKpis(points),
+  };
+}
+
+export function createMultiLineTrendStatisticsCard(
+  title: string,
+  subtitle: string,
+  yAxisLabel: string,
+  lines: StatisticsLine[],
+  options?: {
+    downloadUrl?: string;
+    downloadLabel?: string;
+    downloadDescription?: string;
+    sidePanel?: StatisticsSidePanelData;
+  },
+): StatisticsChartCardData {
+  const yearValues = lines.flatMap((line) => line.points.map((point) => point.year));
+  const latestByLine = lines.map((line) => ({
+    label: line.label,
+    latestPoint: line.points[line.points.length - 1],
+  }));
+  const latestYear = Math.max(...latestByLine.map((item) => item.latestPoint.year));
+
+  return {
+    title,
+    subtitle,
+    primaryChartType: 'trend',
+    xAxisLabel: 'Year',
+    yAxisLabel,
+    downloadUrl: options?.downloadUrl,
+    downloadLabel: options?.downloadLabel,
+    downloadDescription: options?.downloadDescription,
+    sidePanel: options?.sidePanel,
+    periods: createPeriodsFromYears(yearValues),
+    lines,
+    kpis: [
+      ...latestByLine.map((item) => ({
+        label: item.label,
+        value: item.latestPoint.value.toLocaleString(),
+        detail: `${item.latestPoint.year}`,
+      })),
+      {
+        label: 'Period',
+        value: `${Math.min(...yearValues)} - ${Math.max(...yearValues)}`,
+        detail: `${latestYear} latest record`,
+      },
+    ],
+  };
+}
+
+export function createProductionStatisticsCard(
+  barSeries: StatisticsBarSeries[],
+  options?: {
+    downloadUrl?: string;
+  },
+): StatisticsChartCardData {
+  const availableYears = barSeries.flatMap((series) => series.points.map((point) => point.year));
+  const latestYear = Math.max(...availableYears);
+  const bars: StatisticsBarDatum[] = barSeries.map((series) => {
+    const latestPoint = series.points[series.points.length - 1];
+
+    return {
+      label: series.label,
+      value: latestPoint.value,
+      color: series.color,
+    };
+  });
+  const totalProduction = bars.reduce((sum, item) => sum + item.value, 0);
+  const topProduction = bars.reduce((best, current) =>
+    current.value > best.value ? current : best,
+  );
+  const lowestProduction = bars.reduce((lowest, current) =>
+    current.value < lowest.value ? current : lowest,
+  );
+
+  const productionSummary: StatisticsSummaryData = {
+    title: 'Production mix',
+    description: 'Latest recorded share across the six production categories.',
+    centerLabel: 'Latest Total',
+    centerValue: formatCompactValue(totalProduction),
+    ariaLabel: 'Production donut summary by production category',
+    slices: bars.map((bar) => ({
+      label: bar.label,
+      value: bar.value,
+      color: bar.color,
+    })),
+  };
+
+  return {
+    title: 'Latest production comparison',
+    subtitle: 'A bar-first view makes category differences easier to compare at a glance.',
+    primaryChartType: 'bar',
+    xAxisLabel: 'Rubber type',
+    yAxisLabel: 'Production volume',
+    downloadUrl: options?.downloadUrl,
+    downloadLabel: 'Download production data (CSV)',
+    downloadDescription: 'Includes year-by-year production by rubber type.',
+    periods: createPeriodsFromYears(availableYears),
+    contextLabel: 'Snapshot year',
+    contextValue: `${latestYear}`,
+    barSeries,
+    bars,
+    shareSummary: productionSummary,
+    kpis: [
+      {
+        label: 'Latest total',
+        value: formatCompactValue(totalProduction),
+        detail: `Year ${latestYear} across all categories`,
+      },
+      {
+        label: 'Top category',
+        value: topProduction.label,
+        detail: `${topProduction.value.toLocaleString()} in ${latestYear}`,
+      },
+      {
+        label: 'Lowest category',
+        value: lowestProduction.label,
+        detail: `${lowestProduction.value.toLocaleString()} in ${latestYear}`,
+      },
+    ],
+  };
 }
 
 const productionSeries = [
@@ -240,33 +418,7 @@ const productionBarSeries: StatisticsBarSeries[] = productionSeries.map((series,
   color: summaryPalette[index % summaryPalette.length],
   points: buildPoints(series.values),
 }));
-
-const productionBars: StatisticsBarDatum[] = productionBarSeries.map((series) => ({
-  label: series.label,
-  value: series.points[series.points.length - 1].value,
-  color: series.color,
-}));
-
-const totalProduction = productionBars.reduce((sum, item) => sum + item.value, 0);
-const topProduction = productionBars.reduce((best, current) =>
-  current.value > best.value ? current : best,
-);
-const lowestProduction = productionBars.reduce((lowest, current) =>
-  current.value < lowest.value ? current : lowest,
-);
-
-const productionSummary: StatisticsSummaryData = {
-  title: 'Production mix',
-  description: 'Latest recorded share across the six production categories.',
-  centerLabel: 'Latest Total',
-  centerValue: formatCompactValue(totalProduction),
-  ariaLabel: 'Production donut summary by production category',
-  slices: productionBars.map((bar) => ({
-    label: bar.label,
-    value: bar.value,
-    color: bar.color,
-  })),
-};
+export const defaultProductionCard = createProductionStatisticsCard(productionBarSeries);
 
 const exportPoints = buildPoints([
   1200, 7800, 15800, 17600, 24300, 22800,
@@ -296,29 +448,6 @@ const plantationPoints = buildPoints([
   69900, 74100, 79200, 84600, 90100,
 ]);
 
-function createTrendCard(
-  title: string,
-  subtitle: string,
-  lineLabel: string,
-  points: StatisticsPoint[],
-): StatisticsChartCardData {
-  return {
-    title,
-    subtitle,
-    primaryChartType: 'trend',
-    xAxisLabel: 'Year',
-    yAxisLabel: lineLabel,
-    periods: defaultPeriods,
-    line: {
-      label: lineLabel,
-      color: '#2AC669',
-      points,
-    },
-    shareSummary: createRecentYearSummary(points, title),
-    kpis: createTrendKpis(points),
-  };
-}
-
 export const statisticsTabContent: Record<StatisticsTabId, StatisticsTabData> = {
   production: {
     id: 'production',
@@ -327,36 +456,7 @@ export const statisticsTabContent: Record<StatisticsTabId, StatisticsTabData> = 
     heading: 'Production overview by rubber type',
     description:
       'Start with the latest production mix, then scan the strongest and weakest categories without decoding an overloaded pie chart.',
-    primaryCard: {
-      title: 'Latest production comparison',
-      subtitle: 'A bar-first view makes category differences easier to compare at a glance.',
-      primaryChartType: 'bar',
-      xAxisLabel: 'Rubber type',
-      yAxisLabel: 'Production volume',
-      periods: defaultPeriods,
-      contextLabel: 'Snapshot year',
-      contextValue: `${latestRecordedYear}`,
-      barSeries: productionBarSeries,
-      bars: productionBars,
-      shareSummary: productionSummary,
-      kpis: [
-        {
-          label: 'Latest total',
-          value: formatCompactValue(totalProduction),
-          detail: `Year ${latestRecordedYear} across all categories`,
-        },
-        {
-          label: 'Top category',
-          value: topProduction.label,
-          detail: `${topProduction.value.toLocaleString()} in ${latestRecordedYear}`,
-        },
-        {
-          label: 'Lowest category',
-          value: lowestProduction.label,
-          detail: `${lowestProduction.value.toLocaleString()} in ${latestRecordedYear}`,
-        },
-      ],
-    },
+    primaryCard: defaultProductionCard,
   },
   export: {
     id: 'export',
@@ -365,7 +465,7 @@ export const statisticsTabContent: Record<StatisticsTabId, StatisticsTabData> = 
     heading: 'Export performance over time',
     description:
       'Track year-over-year movement with a conventional left-to-right time-series view and a compact summary for the selected period.',
-    primaryCard: createTrendCard(
+    primaryCard: createTrendStatisticsCard(
       'Export trend',
       'Use the period switcher to focus on a decade while keeping the latest direction visible.',
       'Export volume',
@@ -379,7 +479,7 @@ export const statisticsTabContent: Record<StatisticsTabId, StatisticsTabData> = 
     heading: 'Price trend snapshot',
     description:
       'The primary chart prioritizes the current trajectory while keeping the selected range and recent change easy to read.',
-    primaryCard: createTrendCard(
+    primaryCard: createTrendStatisticsCard(
       'Price trend',
       'The summary updates with the selected period so the trend and the key numbers stay aligned.',
       'Price index',
@@ -393,7 +493,7 @@ export const statisticsTabContent: Record<StatisticsTabId, StatisticsTabData> = 
     heading: 'Consumption trend by year',
     description:
       'View the long-term pattern first, then narrow the range to compare shorter periods without losing context.',
-    primaryCard: createTrendCard(
+    primaryCard: createTrendStatisticsCard(
       'Consumption trend',
       'Segmented filters tighten the time window while preserving a stable chart layout.',
       'Consumption volume',
@@ -407,7 +507,7 @@ export const statisticsTabContent: Record<StatisticsTabId, StatisticsTabData> = 
     heading: 'Plantation activity trend',
     description:
       'This tab keeps the chart focused on the selected years and surfaces the latest value and change in a compact summary card.',
-    primaryCard: createTrendCard(
+    primaryCard: createTrendStatisticsCard(
       'Plantation trend',
       'The chart reads from left to right, with summary metrics that mirror the active range.',
       'Plantation area',

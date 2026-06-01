@@ -1,5 +1,6 @@
 import PageHero from '../components/shared/PageHero';
 import ProductionStatisticsSection from '../components/production-statistics/ProductionStatisticsSection';
+import { getStatisticsPageCards } from '../lib/strapi';
 
 interface ProductionStatisticsPageProps {
   searchParams: Promise<{ locale?: string }>;
@@ -10,6 +11,12 @@ export default async function ProductionStatisticsPage({
 }: ProductionStatisticsPageProps) {
   const params = await searchParams;
   const locale = params.locale || 'en';
+  const {
+    productionCard,
+    exportCard,
+    priceCard,
+    consumptionCard,
+  } = await getStatisticsPageCards(locale);
 
   return (
     <div className="min-h-screen bg-[#F6F8F3] mb-64">
@@ -23,7 +30,12 @@ export default async function ProductionStatisticsPage({
         locale={locale}
       />
 
-      <ProductionStatisticsSection />
+      <ProductionStatisticsSection
+        productionCard={productionCard}
+        exportCard={exportCard}
+        priceCard={priceCard}
+        consumptionCard={consumptionCard}
+      />
     </div>
   );
 }

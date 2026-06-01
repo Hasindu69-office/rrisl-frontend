@@ -1,16 +1,17 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { StatisticsLine, StatisticsPoint } from './productionStatisticsData';
+import type { StatisticsLine } from './productionStatisticsData';
 
 interface StatisticsLineChartProps {
-  line: StatisticsLine;
-  points: StatisticsPoint[];
+  lines: StatisticsLine[];
   xAxisLabel: string;
   yAxisLabel: string;
 }
 
-interface ChartPoint extends StatisticsPoint {
+interface ChartPoint {
+  year: number;
+  value: number;
   x: number;
   y: number;
 }
@@ -20,6 +21,21 @@ function formatValue(value: number) {
   if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
   if (value >= 1000) return `${Math.round(value / 1000)}K`;
   return `${value}`;
+}
+
+function getNiceStep(maxValue: number, divisions: number) {
+  if (maxValue <= 0) {
+    return 1;
+  }
+
+  const roughStep = maxValue / Math.max(divisions, 1);
+  const magnitude = 10 ** Math.floor(Math.log10(roughStep));
+  const normalizedStep = roughStep / magnitude;
+
+  if (normalizedStep <= 1) return magnitude;
+  if (normalizedStep <= 2) return 2 * magnitude;
+  if (normalizedStep <= 5) return 5 * magnitude;
+  return 10 * magnitude;
 }
 
 function createSmoothPath(points: ChartPoint[]) {
@@ -39,8 +55,7 @@ function createSmoothPath(points: ChartPoint[]) {
 }
 
 export default function StatisticsLineChart({
-  line,
-  points,
+  lines,
   xAxisLabel,
   yAxisLabel,
 }: StatisticsLineChartProps) {
@@ -80,6 +95,8 @@ export default function StatisticsLineChart({
     return () => observer.disconnect();
   }, []);
 
+  const primaryLine = lines[0] ?? null;
+  const points = primaryLine?.points ?? [];
   const isCompact = containerWidth > 0 && containerWidth < 520;
   const isTablet = containerWidth >= 520 && containerWidth < 900;
 
@@ -93,19 +110,19 @@ export default function StatisticsLineChart({
 
   const innerWidth = chartWidth - margin.left - margin.right;
   const innerHeight = chartHeight - margin.top - margin.bottom;
+  const divisions = isCompact ? 3 : 4;
 
   const maxValue = useMemo(() => {
-    const localMax = Math.max(...points.map((point) => point.value), 0);
-    return Math.ceil(localMax * 1.15 / 10000) * 10000 || 10000;
-  }, [points]);
+    const localMax = Math.max(...lines.flatMap((line) => line.points.map((point) => point.value)), 0);
+    const paddedMax = localMax * 1.15;
+    const step = getNiceStep(paddedMax, divisions);
+    return Math.max(step * divisions, Math.ceil(paddedMax / step) * step);
+  }, [divisions, lines]);
 
-  const yTicks = useMemo(() => {
-    const divisions = isCompact ? 3 : 4;
-    return Array.from(
-      { length: divisions + 1 },
-      (_, index) => Math.round((maxValue / divisions) * index),
-    );
-  }, [isCompact, maxValue]);
+  const yTicks = useMemo(() => Array.from(
+    { length: divisions + 1 },
+    (_, index) => (maxValue / divisions) * index,
+  ), [divisions, maxValue]);
 
   const xTicks = useMemo(() => {
     if (points.length === 0) {
@@ -124,32 +141,48 @@ export default function StatisticsLineChart({
     return sampled;
   }, [isCompact, isTablet, points]);
 
-  const chartPoints = useMemo(() => {
-    const count = Math.max(points.length - 1, 1);
+  const chartLines = useMemo(() => {
+    return lines.map((line) => {
+      const count = Math.max(line.points.length - 1, 1);
 
-    return points.map((point, index) => ({
-      ...point,
-      x: margin.left + ((index / count) * innerWidth),
-      y: margin.top + innerHeight - ((point.value / maxValue) * innerHeight),
-    }));
-  }, [innerHeight, innerWidth, margin.left, margin.top, maxValue, points]);
+      return {
+        ...line,
+        chartPoints: line.points.map((point, index) => ({
+          year: point.year,
+          value: point.value,
+          x: margin.left + ((index / count) * innerWidth),
+          y: margin.top + innerHeight - ((point.value / maxValue) * innerHeight),
+        })),
+      };
+    });
+  }, [innerHeight, innerWidth, lines, margin.left, margin.top, maxValue]);
 
-  const activePoint = hoveredPointIndex !== null ? chartPoints[hoveredPointIndex] : null;
-  const previousPoint =
+  const activePoints = hoveredPointIndex !== null
+    ? chartLines.map((line) => ({
+      label: line.label,
+      color: line.color,
+      point: line.chartPoints[hoveredPointIndex] ?? null,
+    })).filter((entry) => entry.point !== null)
+    : [];
+  const activePrimaryPoint = activePoints[0]?.point ?? null;
+  const previousPrimaryPoint =
     hoveredPointIndex !== null && hoveredPointIndex > 0
-      ? chartPoints[hoveredPointIndex - 1]
+      ? chartLines[0]?.chartPoints[hoveredPointIndex - 1] ?? null
       : null;
-  const tooltipWidth = 112;
-  const tooltipHeight = 44;
+  const tooltipWidth = 188;
+  const tooltipHeaderHeight = 24;
+  const tooltipSeriesRowHeight = 18;
+  const tooltipFooterHeight = previousPrimaryPoint ? 18 : 12;
+  const tooltipHeight = tooltipHeaderHeight + (activePoints.length * tooltipSeriesRowHeight) + tooltipFooterHeight;
 
   const tooltipPosition = useMemo(() => {
-    if (!activePoint) {
+    if (!activePrimaryPoint) {
       return null;
     }
 
-    const preferredX = activePoint.x + 10;
-    const preferredY = activePoint.y - 54;
-    const fallbackY = activePoint.y + 12;
+    const preferredX = activePrimaryPoint.x + 10;
+    const preferredY = activePrimaryPoint.y - (tooltipHeight + 10);
+    const fallbackY = activePrimaryPoint.y + 12;
 
     const x = Math.min(
       Math.max(preferredX, margin.left),
@@ -160,23 +193,36 @@ export default function StatisticsLineChart({
       : preferredY;
 
     return { x, y };
-  }, [activePoint, chartHeight, chartWidth, margin.bottom, margin.left, margin.right, margin.top]);
+  }, [
+    activePrimaryPoint,
+    chartHeight,
+    chartWidth,
+    margin.bottom,
+    margin.left,
+    margin.right,
+    margin.top,
+    tooltipHeight,
+  ]);
 
   return (
     <div ref={containerRef} className="w-full overflow-hidden">
-      <div className="mb-3 flex items-center gap-2 text-[12px] text-[#4A4A4A] sm:mb-4">
-        <span
-          className="h-[9px] w-[9px] rounded-full"
-          style={{ backgroundColor: line.color }}
-        />
-        <span>{line.label}</span>
+      <div className="mb-3 flex flex-wrap items-center gap-3 text-[12px] text-[#4A4A4A] sm:mb-4">
+        {lines.map((line) => (
+          <div key={line.label} className="flex items-center gap-2">
+            <span
+              className="h-[9px] w-[9px] rounded-full"
+              style={{ backgroundColor: line.color }}
+            />
+            <span>{line.label}</span>
+          </div>
+        ))}
       </div>
 
       <svg
         viewBox={`0 0 ${chartWidth} ${chartHeight}`}
         className="h-auto w-full"
         role="img"
-        aria-label={`${line.label} line chart with ${xAxisLabel} on the x-axis and ${yAxisLabel} on the y-axis`}
+        aria-label={`${lines.map((line) => line.label).join(', ')} line chart with ${xAxisLabel} on the x-axis and ${yAxisLabel} on the y-axis`}
       >
         {yTicks.map((tick) => {
           const y = margin.top + innerHeight - ((tick / maxValue) * innerHeight);
@@ -237,41 +283,62 @@ export default function StatisticsLineChart({
           strokeWidth="1"
         />
 
-        <path
-          d={createSmoothPath(chartPoints)}
-          fill="none"
-          stroke={line.color}
-          strokeWidth={isCompact ? '2.5' : '3'}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-
-        {chartPoints.map((point, index) => (
-          <g key={`${point.year}-${point.value}`}>
-            <circle
-              cx={point.x}
-              cy={point.y}
-              r={hoveredPointIndex === index && !isCompact ? 5 : isCompact ? 3.5 : 4}
-              fill="#ffffff"
+        {chartLines.map((line) => (
+          <g key={line.label}>
+            <path
+              d={createSmoothPath(line.chartPoints)}
+              fill="none"
               stroke={line.color}
-              strokeWidth={isCompact ? '2' : '2.5'}
+              strokeWidth={isCompact ? '2.5' : '3'}
+              strokeLinecap="round"
+              strokeLinejoin="round"
             />
-            <circle
-              cx={point.x}
-              cy={point.y}
-              r={isCompact ? '9' : '12'}
+
+            {line.chartPoints.map((point, index) => (
+              <circle
+                key={`${line.label}-${point.year}-${point.value}`}
+                cx={point.x}
+                cy={point.y}
+                r={hoveredPointIndex === index && !isCompact ? 5 : isCompact ? 3.5 : 4}
+                fill="#ffffff"
+                stroke={line.color}
+                strokeWidth={isCompact ? '2' : '2.5'}
+              />
+            ))}
+          </g>
+        ))}
+
+        {points.map((point, index) => {
+          const x = margin.left + ((index / Math.max(points.length - 1, 1)) * innerWidth);
+          const previousX = index > 0
+            ? margin.left + (((index - 1) / Math.max(points.length - 1, 1)) * innerWidth)
+            : x;
+          const nextX = index < points.length - 1
+            ? margin.left + (((index + 1) / Math.max(points.length - 1, 1)) * innerWidth)
+            : x;
+          const zoneWidth = points.length === 1
+            ? innerWidth
+            : Math.max((nextX - previousX) / 2, 18);
+
+          return (
+            <rect
+              key={`focus-${point.year}-${index}`}
+              x={Math.max(margin.left, x - (zoneWidth / 2))}
+              y={margin.top}
+              width={zoneWidth}
+              height={innerHeight}
               fill="transparent"
               tabIndex={0}
-              aria-label={`${point.year}: ${point.value.toLocaleString()}`}
+              aria-label={`${point.year}`}
               onMouseEnter={canHover ? () => setHoveredPointIndex(index) : undefined}
               onMouseLeave={canHover ? () => setHoveredPointIndex(null) : undefined}
               onFocus={() => setHoveredPointIndex(index)}
               onBlur={() => setHoveredPointIndex(null)}
             />
-          </g>
-        ))}
+          );
+        })}
 
-        {canHover && !isCompact && activePoint && tooltipPosition ? (
+        {canHover && !isCompact && activePrimaryPoint && tooltipPosition ? (
           <g transform={`translate(${tooltipPosition.x}, ${tooltipPosition.y})`}>
             <rect
               width={tooltipWidth}
@@ -280,15 +347,32 @@ export default function StatisticsLineChart({
               fill="#16341D"
               opacity="0.96"
             />
-            <text x="12" y="16" className="fill-white text-[10px] font-medium">
-              {activePoint.year}
+            <text x="12" y="17" className="fill-white text-[11px] font-semibold">
+              {activePrimaryPoint.year}
             </text>
-            <text x="12" y="30" className="fill-white text-[11px] font-semibold">
-              {activePoint.value.toLocaleString()}
-            </text>
-            <text x="12" y="40" className="fill-[#C6E7CF] text-[9px]">
-              {previousPoint
-                ? `${activePoint.value - previousPoint.value >= 0 ? '+' : ''}${(activePoint.value - previousPoint.value).toLocaleString()} vs ${previousPoint.year}`
+            {activePoints.map((entry, index) => {
+              const rowY = 32 + (index * tooltipSeriesRowHeight);
+
+              return (
+                <g key={`${entry.label}-${entry.point?.year}`}>
+                  <circle cx="16" cy={rowY - 4} r="3.5" fill={entry.color} />
+                  <text
+                    x="24"
+                    y={rowY}
+                    className="fill-white text-[10px] font-medium"
+                  >
+                    {entry.label}: {entry.point?.value.toLocaleString()}
+                  </text>
+                </g>
+              );
+            })}
+            <text
+              x="12"
+              y={tooltipHeight - 8}
+              className="fill-[#C6E7CF] text-[9px]"
+            >
+              {previousPrimaryPoint
+                ? `${activePrimaryPoint.value - previousPrimaryPoint.value >= 0 ? '+' : ''}${(activePrimaryPoint.value - previousPrimaryPoint.value).toLocaleString()} vs ${previousPrimaryPoint.year}`
                 : 'Start of selected range'}
             </text>
           </g>
