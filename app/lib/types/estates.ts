@@ -80,6 +80,127 @@ export interface EstateSubstationFeatureSectionData {
   featuresectionbackgroundimagealt?: string | null;
 }
 
+export interface EstateSubstationYearData {
+  id: number;
+  year: string;
+  data: number;
+}
+
+export interface EstateSubstationMonthData {
+  id: number;
+  month: string;
+  data: number;
+}
+
+export interface EstateSubstationAnnualRainfallCardData {
+  id: number;
+  title: string;
+  subtitle: string;
+  highestrainfalllabel: string;
+  dataperiodlabel: string;
+  description: string;
+  xaxislabel: string;
+  yaxislabel: string;
+  yearaveragelabel: string;
+  yearlabel: string;
+  lowestrainfalllabel: string;
+  totallabel: string;
+  variationrangelabel: string;
+  footernote: string;
+}
+
+export interface EstateSubstationRainfallDistributionCardData {
+  id: number;
+  title: string;
+  subtitle: string;
+  description: string;
+  summarybadgelabel: string;
+  yaxislabel: string;
+  xaxislabel: string;
+  legendbarlabel: string;
+  legendlinelabel: string;
+  sourcenote: string;
+  dryseasonlabel: string;
+  southwestmonsoonlabel: string;
+  northwestmonsoonlabel: string;
+  peakannotationlabel: string;
+  highestrainfalllabel: string;
+  lowestrainfalllabel: string;
+  annualaveragelabel: string;
+  rainfallpatternlabel: string;
+  rainfallpatternnamelabel: string;
+  dataperiodlabel: string;
+  footernote: string;
+}
+
+export interface EstateSubstationMonitoringSectionData {
+  id: number;
+  sectionheader?: SectionHeader | null;
+  monitoringsectionbackgroundimage?: StrapiImage | null;
+  monitoringsectionbackgroundimagealt?: string | null;
+  rainfalldistribution?: EstateSubstationRainfallDistributionCardData | null;
+  annualrainfalldistribution?: EstateSubstationAnnualRainfallCardData | null;
+}
+
+export interface EstateSubstationProductionTrendCardData {
+  id: number;
+  isvisible: boolean;
+  title: string;
+  metricunits: string;
+  referenceyear: number;
+  description: string;
+}
+
+export interface EstateSubstationYieldPerformanceCardData {
+  id: number;
+  isvisible: boolean;
+  title: string;
+  metricvalueofyear: number;
+  metricunits: string;
+  totalmetrivalueofyear: number;
+  description: string;
+  insight: string;
+}
+
+export interface EstateSubstationQualityGaugeCardData {
+  id: number;
+  isvisible: boolean;
+  title: string;
+  percentagevalue: string;
+  percentagevaluelabel: string;
+  description: string;
+  insights: string;
+}
+
+export interface EstateSubstationBarChartValueData {
+  id: number;
+  label: string;
+  value: number | string;
+}
+
+export interface EstateSubstationTapperProductionCardData {
+  id: number;
+  isvisible: boolean;
+  title: string;
+  metricvalue: string;
+  averagevaluelabel: string;
+  barchartvalues?: EstateSubstationBarChartValueData[] | null;
+  description: string;
+  metatag1: string;
+  metatag2: string;
+}
+
+export interface EstateSubstationPerformanceSectionData {
+  id: number;
+  sectionheader?: SectionHeader | null;
+  description: string;
+  footernote: string;
+  productiontrendcard?: EstateSubstationProductionTrendCardData | null;
+  yieldperformancecard?: EstateSubstationYieldPerformanceCardData | null;
+  qualityguagecard?: EstateSubstationQualityGaugeCardData | null;
+  taperproductioncard?: EstateSubstationTapperProductionCardData | null;
+}
+
 export interface EstateSubstationPageHero {
   id: number;
   PageTitle: string;
@@ -110,9 +231,31 @@ export interface EstateSubstation {
   activitiessectionbgimagealt?: string | null;
   hasfeaturesection?: boolean | null;
   featuressection?: EstateSubstationFeatureSectionData | null;
+  hasmonitoringsection?: boolean | null;
+  monitoringsection?: EstateSubstationMonitoringSectionData | null;
+  hasperformancesection?: boolean | null;
+  performancesection?: EstateSubstationPerformanceSectionData | null;
   contacttitlepart1?: string | null;
   contacttitlepart2?: string | null;
   contactverticaltext?: string | null;
   contactkey?: string | null;
+}
+
+export interface PolgahawelaAnnualRainfallValue {
+  id: number;
+  documentId?: string;
+  yeardata?: EstateSubstationYearData[] | null;
+}
+
+export interface PolgahawelaRainfallMonthValue {
+  id: number;
+  documentId?: string;
+  monthdata?: EstateSubstationMonthData[] | null;
+}
+
+export interface PolgahawelaProductionCard {
+  id: number;
+  documentId?: string;
+  trendpoints?: EstateSubstationYearData[] | null;
 }
 

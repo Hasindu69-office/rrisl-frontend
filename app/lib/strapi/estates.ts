@@ -1,4 +1,10 @@
-import type { EstateAndSubstationsPage, EstateSubstation } from '../types';
+import type {
+  EstateAndSubstationsPage,
+  EstateSubstation,
+  PolgahawelaAnnualRainfallValue,
+  PolgahawelaProductionCard,
+  PolgahawelaRainfallMonthValue,
+} from '../types';
 import { fetchStrapi, unwrapCollection, unwrapSingleEntity, withLocaleFallback } from './client';
 
 function buildEstateAndSubstationsPageQuery(locale: string): string {
@@ -43,7 +49,34 @@ function buildEstateSubstationsQuery(locale: string, slug?: string): string {
   params.set('populate[featuressection][populate][sectionheader]', 'true');
   params.set('populate[featuressection][populate][cards][populate][image]', 'true');
   params.set('populate[featuressection][populate][featuresectionbackgroundimage]', 'true');
+  params.set('populate[monitoringsection][populate][sectionheader]', 'true');
+  params.set('populate[monitoringsection][populate][monitoringsectionbackgroundimage]', 'true');
+  params.set('populate[monitoringsection][populate][rainfalldistribution]', 'true');
+  params.set('populate[monitoringsection][populate][annualrainfalldistribution]', 'true');
+  params.set('populate[performancesection][populate][sectionheader]', 'true');
+  params.set('populate[performancesection][populate][productiontrendcard]', 'true');
+  params.set('populate[performancesection][populate][yieldperformancecard]', 'true');
+  params.set('populate[performancesection][populate][qualityguagecard]', 'true');
+  params.set('populate[performancesection][populate][taperproductioncard][populate][barchartvalues]', 'true');
 
+  return params.toString();
+}
+
+function buildPolgahawelaAnnualRainfallQuery(): string {
+  const params = new URLSearchParams();
+  params.set('populate[yeardata]', 'true');
+  return params.toString();
+}
+
+function buildPolgahawelaRainfallMonthQuery(): string {
+  const params = new URLSearchParams();
+  params.set('populate[monthdata]', 'true');
+  return params.toString();
+}
+
+function buildPolgahawelaProductionCardsQuery(): string {
+  const params = new URLSearchParams();
+  params.set('populate[trendpoints]', 'true');
   return params.toString();
 }
 
@@ -121,8 +154,38 @@ export async function getEstateSubstationBySlug(
   });
 }
 
+export async function getPolgahawelaAnnualRainfallValues(): Promise<PolgahawelaAnnualRainfallValue[]> {
+  const queryString = buildPolgahawelaAnnualRainfallQuery();
+  const response = await fetchStrapi<unknown>(
+    `/api/polgahawela-annual-rainfall-values?${queryString}`
+  );
+
+  return unwrapCollection<PolgahawelaAnnualRainfallValue>(response);
+}
+
+export async function getPolgahawelaRainfallMonthValues(): Promise<PolgahawelaRainfallMonthValue[]> {
+  const queryString = buildPolgahawelaRainfallMonthQuery();
+  const response = await fetchStrapi<unknown>(
+    `/api/polgahawela-rainfall-month-values?${queryString}`
+  );
+
+  return unwrapCollection<PolgahawelaRainfallMonthValue>(response);
+}
+
+export async function getPolgahawelaProductionCards(): Promise<PolgahawelaProductionCard[]> {
+  const queryString = buildPolgahawelaProductionCardsQuery();
+  const response = await fetchStrapi<unknown>(
+    `/api/polgahawela-production-cards?${queryString}`
+  );
+
+  return unwrapCollection<PolgahawelaProductionCard>(response);
+}
+
 export {
   buildEstateAndSubstationsPageQuery,
   buildEstateSubstationsQuery,
+  buildPolgahawelaAnnualRainfallQuery,
+  buildPolgahawelaRainfallMonthQuery,
+  buildPolgahawelaProductionCardsQuery,
 };
 

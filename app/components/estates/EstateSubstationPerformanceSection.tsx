@@ -601,15 +601,6 @@ export default function EstateSubstationPerformanceSection({
                 {content.footerNote}
               </p>
             </div>
-
-            <Link
-              href={content.cta.href}
-              className="inline-flex min-h-14 shrink-0 items-center justify-center gap-3 rounded-[16px] border border-[#2E7D32] px-5 py-3 text-[15px] font-medium text-[#2E7D32] transition-colors hover:bg-[#F3FAF0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2E7D32] focus-visible:ring-offset-2"
-            >
-              <FileText className="h-4 w-4" strokeWidth={2} />
-              <span>{content.cta.label}</span>
-              <ArrowRight className="h-4 w-4" strokeWidth={2} />
-            </Link>
           </div>
         </div>
       </div>

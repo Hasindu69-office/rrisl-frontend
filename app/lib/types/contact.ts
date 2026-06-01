@@ -72,6 +72,7 @@ export interface ContactSubStationCard {
   substationtitle: string;
   postaladdresslabel: string;
   postaladdress: string;
+  gmapembedlink?: string | null;
   emaillabel?: string | null;
   emailaddress?: string | null;
   phonenumbers?: ContactPhoneNumber[] | null;

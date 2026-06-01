@@ -389,12 +389,6 @@ export default function EstateSubstationActivitiesSection({
               customSize="clamp(2rem, 5vw, 3.5rem)"
               className="mt-4 leading-[1.08] tracking-[-0.02em] md:mt-5 md:leading-[1.1]"
             />
-
-            {content.description ? (
-              <p className="mt-5 max-w-[430px] text-[14px] leading-[1.78] text-white/88 md:mt-6 md:text-[16px] md:leading-[1.9]">
-                {content.description}
-              </p>
-            ) : null}
           </div>
 
           {isDesktop ? (

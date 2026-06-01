@@ -453,7 +453,10 @@ export function mapEstateDetailPageData(
       sideLabel: estate.contactverticaltext || ESTATE_DETAIL_FALLBACK.contact.sideLabel,
       orientation: 'details-left',
       mapTitle: `${estate.title} map`,
-      mapSrc: headOfficeCard?.gmapembedlink || ESTATE_DETAIL_FALLBACK.contact.mapSrc,
+      mapSrc:
+        substationContactCard?.gmapembedlink ||
+        headOfficeCard?.gmapembedlink ||
+        ESTATE_DETAIL_FALLBACK.contact.mapSrc,
       details:
         resolvedContactDetails.length > 0
           ? resolvedContactDetails

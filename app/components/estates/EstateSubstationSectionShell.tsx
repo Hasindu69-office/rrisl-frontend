@@ -1,4 +1,8 @@
+'use client';
+
+import { useState } from 'react';
 import Image from 'next/image';
+import { isLocalhostAssetUrl } from '@/app/lib/strapi';
 import type { ReactNode } from 'react';
 import GradientTag from '../ui/GradientTag';
 import GradientTitle from '../ui/GradientTitle';
@@ -25,16 +29,49 @@ export default function EstateSubstationSectionShell({
   containerClassName = 'max-w-[1440px]',
   children,
 }: EstateSubstationSectionShellProps) {
+  const hasLocalhostUrl = isLocalhostAssetUrl(content.backgroundImageSrc);
+  const [useFallbackImage, setUseFallbackImage] = useState(() => {
+    if (typeof window !== 'undefined' && hasLocalhostUrl) {
+      const hostname = window.location.hostname;
+      return hostname !== 'localhost' && hostname !== '127.0.0.1';
+    }
+
+    return false;
+  });
+  const useUnoptimizedImage = isLocalhostAssetUrl(content.backgroundImageSrc);
+
   return (
     <section className={`relative overflow-hidden ${className}`.trim()}>
       <div className="absolute inset-0">
-        <Image
-          src={content.backgroundImageSrc}
-          alt={content.backgroundImageAlt}
-          fill
-          className="object-cover object-center"
-          sizes="100vw"
-        />
+        {useFallbackImage ? (
+          <img
+            src={content.backgroundImageSrc}
+            alt={content.backgroundImageAlt}
+            className="absolute inset-0 h-full w-full object-cover object-center"
+            onError={() => {
+              console.error(
+                'Failed to load estate substation section background image:',
+                content.backgroundImageSrc
+              );
+            }}
+          />
+        ) : (
+          <Image
+            src={content.backgroundImageSrc}
+            alt={content.backgroundImageAlt}
+            fill
+            className="object-cover object-center"
+            sizes="100vw"
+            unoptimized={useUnoptimizedImage}
+            onError={() => {
+              console.error(
+                'Next.js Image failed for estate substation section background, falling back to img:',
+                content.backgroundImageSrc
+              );
+              setUseFallbackImage(true);
+            }}
+          />
+        )}
       </div>
 
       <div
