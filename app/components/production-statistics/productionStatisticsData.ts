@@ -66,10 +66,11 @@ export interface StatisticsSidePanelData {
 
 export interface StatisticsChartCardData {
   title: string;
-  subtitle: string;
+  subtitle?: string;
   primaryChartType: StatisticsChartType;
   xAxisLabel: string;
   yAxisLabel: string;
+  valueDecimals?: number;
   downloadUrl?: string;
   downloadLabel?: string;
   downloadDescription?: string;
@@ -95,12 +96,12 @@ export interface StatisticsTabData {
   primaryCard: StatisticsChartCardData;
 }
 
-export const statisticsTabs: Array<Pick<StatisticsTabData, 'id' | 'label' | 'eyebrow'>> = [
-  { id: 'production', label: 'Production', eyebrow: 'Statistics' },
-  { id: 'export', label: 'Export', eyebrow: 'Statistics' },
-  { id: 'price', label: 'Price', eyebrow: 'Statistics' },
-  { id: 'consumption', label: 'Consumption', eyebrow: 'Statistics' },
-  { id: 'plantation', label: 'Plantation', eyebrow: 'Statistics' },
+export const statisticsTabs: Array<Pick<StatisticsTabData, 'id' | 'label'>> = [
+  { id: 'production', label: 'Production' },
+  { id: 'export', label: 'Export' },
+  { id: 'price', label: 'Price' },
+  { id: 'consumption', label: 'Consumption' },
+  { id: 'plantation', label: 'Plantation' },
 ];
 
 const years = [
@@ -131,9 +132,21 @@ export function formatCompactValue(value: number) {
   return `${value}`;
 }
 
-function formatDeltaValue(delta: number) {
+export function formatDisplayValue(value: number, decimals: number = 1) {
+  if (value >= 1000000) {
+    return `${(value / 1000000).toFixed(decimals)}M`;
+  }
+
+  if (value >= 1000) {
+    return `${(value / 1000).toFixed(decimals)}K`;
+  }
+
+  return value.toFixed(decimals).replace(/\.0+$/, '').replace(/(\.\d*?)0+$/, '$1');
+}
+
+function formatDeltaValue(delta: number, decimals: number = 1) {
   const sign = delta > 0 ? '+' : '';
-  return `${sign}${formatCompactValue(delta)}`;
+  return `${sign}${formatDisplayValue(delta, decimals)}`;
 }
 
 export function createPeriodsFromYears(yearValues: number[]): StatisticsPeriod[] {
@@ -182,7 +195,7 @@ function createRecentYearSummary(
   };
 }
 
-function createTrendKpis(points: StatisticsPoint[]): StatisticsKpi[] {
+function createTrendKpis(points: StatisticsPoint[], decimals: number = 1): StatisticsKpi[] {
   const latest = points[points.length - 1];
   const previous = points[points.length - 2] ?? latest;
   const delta = latest.value - previous.value;
@@ -190,12 +203,12 @@ function createTrendKpis(points: StatisticsPoint[]): StatisticsKpi[] {
   return [
     {
       label: 'Latest value',
-      value: latest.value.toLocaleString(),
+      value: formatDisplayValue(latest.value, decimals),
       detail: `${latest.year}`,
     },
     {
       label: 'Change',
-      value: formatDeltaValue(delta),
+      value: formatDeltaValue(delta, decimals),
       detail: `vs ${previous.year}`,
     },
     {
@@ -208,10 +221,11 @@ function createTrendKpis(points: StatisticsPoint[]): StatisticsKpi[] {
 
 export function createTrendStatisticsCard(
   title: string,
-  subtitle: string,
+  subtitle: string | undefined,
   lineLabel: string,
   points: StatisticsPoint[],
   options?: {
+    valueDecimals?: number;
     downloadUrl?: string;
     downloadLabel?: string;
     downloadDescription?: string;
@@ -223,6 +237,7 @@ export function createTrendStatisticsCard(
     primaryChartType: 'trend',
     xAxisLabel: 'Year',
     yAxisLabel: lineLabel,
+    valueDecimals: options?.valueDecimals ?? 1,
     downloadUrl: options?.downloadUrl,
     downloadLabel: options?.downloadLabel,
     downloadDescription: options?.downloadDescription,
@@ -233,16 +248,17 @@ export function createTrendStatisticsCard(
       points,
     },
     shareSummary: createRecentYearSummary(points, title),
-    kpis: createTrendKpis(points),
+    kpis: createTrendKpis(points, options?.valueDecimals ?? 1),
   };
 }
 
 export function createMultiLineTrendStatisticsCard(
   title: string,
-  subtitle: string,
+  subtitle: string | undefined,
   yAxisLabel: string,
   lines: StatisticsLine[],
   options?: {
+    valueDecimals?: number;
     downloadUrl?: string;
     downloadLabel?: string;
     downloadDescription?: string;
@@ -262,6 +278,7 @@ export function createMultiLineTrendStatisticsCard(
     primaryChartType: 'trend',
     xAxisLabel: 'Year',
     yAxisLabel,
+    valueDecimals: options?.valueDecimals ?? 2,
     downloadUrl: options?.downloadUrl,
     downloadLabel: options?.downloadLabel,
     downloadDescription: options?.downloadDescription,
@@ -323,7 +340,6 @@ export function createProductionStatisticsCard(
 
   return {
     title: 'Latest production comparison',
-    subtitle: 'A bar-first view makes category differences easier to compare at a glance.',
     primaryChartType: 'bar',
     xAxisLabel: 'Rubber type',
     yAxisLabel: 'Production volume',
@@ -467,7 +483,7 @@ export const statisticsTabContent: Record<StatisticsTabId, StatisticsTabData> = 
       'Track year-over-year movement with a conventional left-to-right time-series view and a compact summary for the selected period.',
     primaryCard: createTrendStatisticsCard(
       'Export trend',
-      'Use the period switcher to focus on a decade while keeping the latest direction visible.',
+      undefined,
       'Export volume',
       exportPoints,
     ),
@@ -481,7 +497,7 @@ export const statisticsTabContent: Record<StatisticsTabId, StatisticsTabData> = 
       'The primary chart prioritizes the current trajectory while keeping the selected range and recent change easy to read.',
     primaryCard: createTrendStatisticsCard(
       'Price trend',
-      'The summary updates with the selected period so the trend and the key numbers stay aligned.',
+      undefined,
       'Price index',
       pricePoints,
     ),
@@ -495,7 +511,7 @@ export const statisticsTabContent: Record<StatisticsTabId, StatisticsTabData> = 
       'View the long-term pattern first, then narrow the range to compare shorter periods without losing context.',
     primaryCard: createTrendStatisticsCard(
       'Consumption trend',
-      'Segmented filters tighten the time window while preserving a stable chart layout.',
+      undefined,
       'Consumption volume',
       consumptionPoints,
     ),
@@ -509,7 +525,7 @@ export const statisticsTabContent: Record<StatisticsTabId, StatisticsTabData> = 
       'This tab keeps the chart focused on the selected years and surfaces the latest value and change in a compact summary card.',
     primaryCard: createTrendStatisticsCard(
       'Plantation trend',
-      'The chart reads from left to right, with summary metrics that mirror the active range.',
+      undefined,
       'Plantation area',
       plantationPoints,
     ),

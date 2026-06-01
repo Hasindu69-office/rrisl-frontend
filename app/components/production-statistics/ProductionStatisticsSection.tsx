@@ -135,7 +135,6 @@ export default function ProductionStatisticsSection({
               key={tab.id}
               id={tab.id}
               label={tab.label}
-              eyebrow={tab.eyebrow}
               active={activeTab === tab.id}
               onClick={setActiveTab}
             />

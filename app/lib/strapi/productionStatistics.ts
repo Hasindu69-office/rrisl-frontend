@@ -380,13 +380,14 @@ function buildExportCard(
 ): StatisticsChartCardData {
   return createTrendStatisticsCard(
     'Export trend',
-    'Use the period switcher to focus on a decade while keeping the latest direction visible.',
+    undefined,
     'Export volume',
     rows.map((row) => ({
       year: row.year,
       value: row.exports,
     })),
     {
+      valueDecimals: 1,
       downloadUrl: csvUrl,
       downloadLabel: 'Download export and consumption data (CSV)',
       downloadDescription: 'Includes year-by-year export and domestic consumption data.',
@@ -400,13 +401,14 @@ function buildConsumptionCard(
 ): StatisticsChartCardData {
   return createTrendStatisticsCard(
     'Consumption trend',
-    'Segmented filters tighten the time window while preserving a stable chart layout.',
+    undefined,
     'Consumption volume',
     rows.map((row) => ({
       year: row.year,
       value: row.domesticConsumption,
     })),
     {
+      valueDecimals: 1,
       downloadUrl: csvUrl,
       downloadLabel: 'Download export and consumption data (CSV)',
       downloadDescription: 'Includes year-by-year export and domestic consumption data.',
@@ -423,7 +425,7 @@ function buildPriceCard(rows: ParsedPriceRow[], csvUrl: string): StatisticsChart
 
   return createMultiLineTrendStatisticsCard(
     'Price trend',
-    'Track export and Colombo RSS prices together to compare market movement over time.',
+    undefined,
     'Price (Rs/kg)',
     [
       {
@@ -444,6 +446,7 @@ function buildPriceCard(rows: ParsedPriceRow[], csvUrl: string): StatisticsChart
       },
     ],
     {
+      valueDecimals: 2,
       downloadUrl: csvUrl,
       downloadLabel: 'Download price data (CSV)',
       downloadDescription: 'Includes Exports f.o.b and Colombo RSS yearly price data.',

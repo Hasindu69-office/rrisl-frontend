@@ -2,11 +2,13 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { StatisticsLine } from './productionStatisticsData';
+import { formatDisplayValue } from './productionStatisticsData';
 
 interface StatisticsLineChartProps {
   lines: StatisticsLine[];
   xAxisLabel: string;
   yAxisLabel: string;
+  valueDecimals?: number;
 }
 
 interface ChartPoint {
@@ -58,6 +60,7 @@ export default function StatisticsLineChart({
   lines,
   xAxisLabel,
   yAxisLabel,
+  valueDecimals = 1,
 }: StatisticsLineChartProps) {
   const [hoveredPointIndex, setHoveredPointIndex] = useState<number | null>(null);
   const [containerWidth, setContainerWidth] = useState<number>(0);
@@ -361,7 +364,7 @@ export default function StatisticsLineChart({
                     y={rowY}
                     className="fill-white text-[10px] font-medium"
                   >
-                    {entry.label}: {entry.point?.value.toLocaleString()}
+                    {entry.label}: {entry.point ? formatDisplayValue(entry.point.value, valueDecimals) : ''}
                   </text>
                 </g>
               );
@@ -372,7 +375,7 @@ export default function StatisticsLineChart({
               className="fill-[#C6E7CF] text-[9px]"
             >
               {previousPrimaryPoint
-                ? `${activePrimaryPoint.value - previousPrimaryPoint.value >= 0 ? '+' : ''}${(activePrimaryPoint.value - previousPrimaryPoint.value).toLocaleString()} vs ${previousPrimaryPoint.year}`
+                ? `${activePrimaryPoint.value - previousPrimaryPoint.value >= 0 ? '+' : ''}${formatDisplayValue(activePrimaryPoint.value - previousPrimaryPoint.value, valueDecimals)} vs ${previousPrimaryPoint.year}`
                 : 'Start of selected range'}
             </text>
           </g>

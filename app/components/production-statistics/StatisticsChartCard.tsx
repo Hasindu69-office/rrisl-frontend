@@ -15,6 +15,7 @@ import type {
   StatisticsSidePanelData,
   StatisticsSummaryData,
 } from './productionStatisticsData';
+import { formatDisplayValue } from './productionStatisticsData';
 
 interface StatisticsChartCardProps {
   card: StatisticsChartCardData;
@@ -34,7 +35,7 @@ function formatCompactValue(value: number) {
   return `${value}`;
 }
 
-function createDynamicTrendKpis(points: StatisticsPoint[]): StatisticsKpi[] {
+function createDynamicTrendKpis(points: StatisticsPoint[], decimals: number = 1): StatisticsKpi[] {
   const latest = points[points.length - 1];
   const previous = points[points.length - 2] ?? latest;
   const delta = latest.value - previous.value;
@@ -42,12 +43,12 @@ function createDynamicTrendKpis(points: StatisticsPoint[]): StatisticsKpi[] {
   return [
     {
       label: 'Latest value',
-      value: latest.value.toLocaleString(),
+      value: formatDisplayValue(latest.value, decimals),
       detail: `${latest.year}`,
     },
     {
       label: 'Change',
-      value: `${delta >= 0 ? '+' : ''}${formatCompactValue(delta)}`,
+      value: `${delta >= 0 ? '+' : ''}${formatDisplayValue(delta, decimals)}`,
       detail: `vs ${previous.year}`,
     },
     {
@@ -58,13 +59,13 @@ function createDynamicTrendKpis(points: StatisticsPoint[]): StatisticsKpi[] {
   ];
 }
 
-function createDynamicMultiLineTrendKpis(lines: StatisticsLine[]): StatisticsKpi[] {
+function createDynamicMultiLineTrendKpis(lines: StatisticsLine[], decimals: number = 2): StatisticsKpi[] {
   const lineKpis = lines.map((line) => {
     const latest = line.points[line.points.length - 1];
 
     return {
       label: line.label,
-      value: latest.value.toLocaleString(),
+      value: formatDisplayValue(latest.value, decimals),
       detail: `${latest.year}`,
     };
   });
@@ -252,11 +253,11 @@ export default function StatisticsChartCard({
     }
 
     if (filteredTrendLines.length === 1) {
-      return createDynamicTrendKpis(filteredTrendLines[0].points);
+      return createDynamicTrendKpis(filteredTrendLines[0].points, card.valueDecimals ?? 1);
     }
 
-    return createDynamicMultiLineTrendKpis(filteredTrendLines);
-  }, [activeBarSnapshot, card.kpis, card.primaryChartType, filteredTrendLines]);
+    return createDynamicMultiLineTrendKpis(filteredTrendLines, card.valueDecimals ?? 2);
+  }, [activeBarSnapshot, card.kpis, card.primaryChartType, card.valueDecimals, filteredTrendLines]);
 
   const activeShareSummary = useMemo<StatisticsSummaryData | undefined>(() => {
     if (card.primaryChartType !== 'bar' || !activeBarSnapshot || !card.shareSummary) {
@@ -289,9 +290,11 @@ export default function StatisticsChartCard({
           <h3 className="text-[20px] font-semibold leading-tight text-[#1D2939] sm:text-[22px] lg:text-[26px]">
             {card.title}
           </h3>
-          <p className="mt-2 text-[13px] leading-6 text-[#667085] sm:text-[14px] lg:text-[15px]">
-            {card.subtitle}
-          </p>
+          {card.subtitle ? (
+            <p className="mt-2 text-[13px] leading-6 text-[#667085] sm:text-[14px] lg:text-[15px]">
+              {card.subtitle}
+            </p>
+          ) : null}
         </div>
 
         {card.periods && card.periods.length > 0 ? (
@@ -405,6 +408,7 @@ export default function StatisticsChartCard({
                   lines={filteredTrendLines}
                   xAxisLabel={card.xAxisLabel}
                   yAxisLabel={card.yAxisLabel}
+                  valueDecimals={card.valueDecimals}
                 />
               ) : null}
             </div>
