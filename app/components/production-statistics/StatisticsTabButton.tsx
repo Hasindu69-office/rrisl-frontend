@@ -5,7 +5,6 @@ import type { StatisticsTabId } from './productionStatisticsData';
 interface StatisticsTabButtonProps {
   id: StatisticsTabId;
   label: string;
-  eyebrow: string;
   active: boolean;
   onClick: (tabId: StatisticsTabId) => void;
 }
@@ -41,7 +40,6 @@ function TrendIcon({ active }: { active: boolean }) {
 export default function StatisticsTabButton({
   id,
   label,
-  eyebrow,
   active,
   onClick,
 }: StatisticsTabButtonProps) {
@@ -68,13 +66,8 @@ export default function StatisticsTabButton({
       }
     >
       <div className="flex h-full flex-col justify-between gap-2 md:gap-3 xl:gap-4">
-        <div>
-          <div className={`text-[10px] font-medium leading-none md:text-[11px] lg:text-[12px] xl:text-[13px] ${active ? 'text-white/92' : 'text-[#93CF19]'}`}>
-            {eyebrow}
-          </div>
-          <div className={`mt-1 text-[15px] font-medium leading-tight md:text-[16px] lg:text-[18px] xl:text-[19px] ${active ? 'text-white' : 'text-[#1E6B2F]'}`}>
-            {label}
-          </div>
+        <div className={`text-[15px] font-medium leading-tight md:text-[16px] lg:text-[18px] xl:text-[19px] ${active ? 'text-white' : 'text-[#1E6B2F]'}`}>
+          {label}
         </div>
 
         <div className="flex justify-end">
