@@ -46,7 +46,6 @@ export interface RainfallSeasonBand {
 export interface RainfallSummaryBadge {
   label: string;
   value: string;
-  detail: string;
 }
 
 export interface RainfallPeakAnnotation {
@@ -58,7 +57,6 @@ export interface RainfallPeakAnnotation {
 export interface RainfallMetricCard {
   label: string;
   value: string;
-  detail: string;
   icon: 'highest' | 'lowest' | 'average' | 'pattern' | 'period';
   accent: 'green' | 'blue' | 'mint' | 'purple' | 'amber';
 }
@@ -340,10 +338,10 @@ function MetricCard({ item }: { item: RainfallMetricCard }) {
   const accent = accentStyles[item.accent];
 
   return (
-    <article className="min-h-[122px] rounded-[16px] border border-[#E6EDF6] bg-white/88 px-4 py-3 shadow-[0_10px_24px_rgba(31,62,95,0.05)] backdrop-blur-sm md:px-4 md:py-3.5">
-      <div className="flex items-start gap-3">
+    <article className="min-h-[96px] rounded-[16px] border border-[#E6EDF6] bg-white/88 px-4 py-2.5 shadow-[0_10px_24px_rgba(31,62,95,0.05)] backdrop-blur-sm md:min-h-[104px] md:py-3">
+      <div className="flex items-start gap-2.5">
         <div
-          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${accent.iconBg}`}
+          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full md:h-11 md:w-11 ${accent.iconBg}`}
         >
           <MetricIcon icon={item.icon} className={`h-5 w-5 ${accent.iconColor}`} />
         </div>
@@ -351,11 +349,8 @@ function MetricCard({ item }: { item: RainfallMetricCard }) {
           <div className="text-[11px] font-medium leading-[1.3] text-[#617089]">
             {item.label}
           </div>
-          <div className={`mt-1 text-[15px] font-semibold leading-[1.1] ${accent.valueColor} md:text-[16px]`}>
+          <div className={`mt-0.5 text-[15px] font-semibold leading-[1.1] ${accent.valueColor} md:text-[16px]`}>
             {item.value}
-          </div>
-          <div className="mt-1 text-[11px] leading-[1.35] text-[#6A7A91] md:text-[12px]">
-            {item.detail}
           </div>
         </div>
       </div>
@@ -429,9 +424,6 @@ export default function EstateSubstationRainfallDistributionCard({
               </div>
               <div className="mt-1 text-[15px] font-semibold leading-none text-[#246BDE] md:text-[16px]">
                 {content.summaryBadge.value}
-              </div>
-              <div className="mt-1 text-[10px] leading-[1.3] text-[#607087] md:text-[11px]">
-                {content.summaryBadge.detail}
               </div>
             </div>
           </div>
@@ -596,7 +588,7 @@ export default function EstateSubstationRainfallDistributionCard({
         </div>
       </div>
 
-      <div className="mt-5 grid gap-3 sm:grid-cols-2 min-[960px]:grid-cols-3">
+      <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {content.metricCards.map((item) => (
           <MetricCard key={`${item.label}-${item.value}`} item={item} />
         ))}

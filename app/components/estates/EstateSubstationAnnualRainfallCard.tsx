@@ -337,31 +337,6 @@ function InsightCard({ item }: { item: AnnualRainfallInsightCard }) {
   );
 }
 
-function FeaturedInsightCard({ item }: { item: AnnualRainfallInsightCard }) {
-  const accent = accentStyles[item.accent];
-
-  return (
-    <article className="rounded-[18px] border border-[#CDE6D7] bg-white/86 px-4 py-4 shadow-[0_10px_22px_rgba(31,62,95,0.04)] md:px-5">
-      <div className="flex items-start gap-4">
-        <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full ${accent.iconBg}`}>
-          <InsightIcon icon={item.icon} className={`h-5 w-5 ${accent.iconColor}`} />
-        </div>
-        <div className="min-w-0">
-          <div className="text-[11px] font-medium uppercase tracking-[0.04em] leading-[1.3] text-[#617089]">
-            {item.label}
-          </div>
-          <div className={`mt-2 max-w-[360px] text-[18px] font-semibold leading-[1.25] ${accent.valueColor}`}>
-            {item.value}
-          </div>
-          <div className="mt-2 max-w-[420px] text-[13px] leading-[1.6] text-[#6A7A91] md:text-[14px]">
-            {item.detail}
-          </div>
-        </div>
-      </div>
-    </article>
-  );
-}
-
 export default function EstateSubstationAnnualRainfallCard({
   content,
 }: {
@@ -372,7 +347,9 @@ export default function EstateSubstationAnnualRainfallCard({
   const barGradientId = `${gradientId}-bar`;
   const highestYear = content.highestAnnotation.year;
   const highestValue = content.highestAnnotation.value;
-  const [featuredInsight, ...metricInsights] = content.insightCards;
+  const visibleInsightCards = content.insightCards.filter(
+    (item) => item.icon !== 'insight' && item.label.trim().toLowerCase() !== 'key insight',
+  );
   const isCompact = viewportWidth < 640;
   const isTablet = viewportWidth >= 640 && viewportWidth < 1024;
   const chartHeightClassName = isCompact
@@ -516,14 +493,10 @@ export default function EstateSubstationAnnualRainfallCard({
         </div>
 
         <div className="mt-4 rounded-[18px] border border-[#CDE6D7] bg-[linear-gradient(180deg,#FCFEFD_0%,#F7FBF8_100%)] p-3 md:mt-5 md:p-4">
-          <div className="grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1.8fr)] lg:items-start">
-            {featuredInsight ? <FeaturedInsightCard item={featuredInsight} /> : null}
-
-            <div className="grid gap-3 md:grid-cols-2">
-              {metricInsights.map((item) => (
-                <InsightCard key={`${item.label}-${item.value}`} item={item} />
-              ))}
-            </div>
+          <div className="grid gap-3 md:grid-cols-2">
+            {visibleInsightCards.map((item) => (
+              <InsightCard key={`${item.label}-${item.value}`} item={item} />
+            ))}
           </div>
         </div>
       </div>

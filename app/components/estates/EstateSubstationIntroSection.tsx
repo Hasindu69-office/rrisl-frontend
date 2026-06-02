@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { isLocalhostAssetUrl } from '@/app/lib/strapi';
 import GradientTag from '../ui/GradientTag';
 import GradientTitle from '../ui/GradientTitle';
 
@@ -18,6 +19,8 @@ export interface EstateSubstationIntroSectionProps {
 export default function EstateSubstationIntroSection({
   content,
 }: EstateSubstationIntroSectionProps) {
+  const useUnoptimizedImage = isLocalhostAssetUrl(content.imageSrc);
+
   return (
     <section className="bg-white px-4 py-16 md:px-6 md:py-20 lg:px-36 lg:py-24">
       <div className="mx-auto grid w-full max-w-[1440px] gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(340px,520px)] lg:items-center lg:gap-16 xl:gap-24">
@@ -55,6 +58,7 @@ export default function EstateSubstationIntroSection({
               width={1000}
               height={1000}
               className="h-auto w-full object-contain"
+              unoptimized={useUnoptimizedImage}
             />
           </div>
         </div>

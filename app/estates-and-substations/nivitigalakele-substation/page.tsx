@@ -3,10 +3,8 @@ import EstateSubstationActivitiesSection from '../../components/estates/EstateSu
 import EstateSubstationContactSection from '../../components/estates/EstateSubstationContactSection';
 import EstateSubstationFacilitiesSection from '../../components/estates/EstateSubstationFacilitiesSection';
 import EstateSubstationIntroSection from '../../components/estates/EstateSubstationIntroSection';
-import { nivitigalakeleSubstationActivitiesContent } from './activitiesSectionContent';
-import { nivitigalakeleContactSectionContent } from './contactSectionContent';
-import { nivitigalakeleSubstationFacilitiesContent } from './facilitiesSectionContent';
-import { nivitigalakeleSubstationIntroContent } from './introSectionContent';
+import { getContactPage, getEstateSubstationBySlug } from '../../lib/strapi';
+import { mapEstateDetailPageData } from '../../lib/estates/pageData';
 
 interface NivitigalakeleSubstationPageProps {
   searchParams: Promise<{ locale?: string }>;
@@ -17,36 +15,33 @@ export default async function NivitigalakeleSubstationPage({
 }: NivitigalakeleSubstationPageProps) {
   const params = await searchParams;
   const locale = params.locale || 'en';
+  const [estate, contactPage] = await Promise.all([
+    getEstateSubstationBySlug('nivitigalakele-substation', locale),
+    getContactPage(locale),
+  ]);
+  const pageData = mapEstateDetailPageData(estate, contactPage);
 
   return (
     <div className="min-h-screen bg-[#F6F8F3]">
       <PageHero
-        title="Nivitigalakele Sub-station"
-        breadcrumbItems={[
-          { label: 'Home', href: '/' },
-          { label: 'Estates and substations', href: '/estates-and-substations' },
-          { label: 'Nivitigalakele Sub-station' },
-        ]}
-        backgroundImage="/images/estateandsubstationsbgimage.webp"
-        backgroundImageAlt="Nivitigalakele Sub-station background"
+        title={pageData.hero.title}
+        breadcrumbItems={pageData.hero.breadcrumbItems}
+        backgroundImage={pageData.hero.backgroundImage}
+        backgroundImageAlt={pageData.hero.backgroundImageAlt}
         locale={locale}
       />
 
-      <EstateSubstationIntroSection
-        content={nivitigalakeleSubstationIntroContent}
-      />
+      <EstateSubstationIntroSection content={pageData.intro} />
 
       <EstateSubstationFacilitiesSection
-        content={nivitigalakeleSubstationFacilitiesContent}
+        content={pageData.facilities}
       />
 
       <EstateSubstationActivitiesSection
-        content={nivitigalakeleSubstationActivitiesContent}
+        content={pageData.activities}
       />
 
-      <EstateSubstationContactSection
-        content={nivitigalakeleContactSectionContent}
-      />
+      <EstateSubstationContactSection content={pageData.contact} />
     </div>
   );
 }

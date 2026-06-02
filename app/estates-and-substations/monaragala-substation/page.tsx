@@ -4,11 +4,8 @@ import EstateSubstationContactSection from '../../components/estates/EstateSubst
 import EstateSubstationFacilitiesSection from '../../components/estates/EstateSubstationFacilitiesSection';
 import EstateSubstationFeatureSection from '../../components/estates/EstateSubstationFeatureSection';
 import EstateSubstationIntroSection from '../../components/estates/EstateSubstationIntroSection';
-import { monaragalaSubstationActivitiesContent } from './activitiesSectionContent';
-import { monaragalaContactSectionContent } from './contactSectionContent';
-import { monaragalaSubstationFacilitiesContent } from './facilitiesSectionContent';
-import { monaragalaSubstationIntroContent } from './introSectionContent';
-import { monaragalaIntercroppingSectionContent } from './intercroppingSectionContent';
+import { getContactPage, getEstateSubstationBySlug } from '../../lib/strapi';
+import { mapEstateDetailPageData } from '../../lib/estates/pageData';
 
 interface MonaragalaSubstationPageProps {
   searchParams: Promise<{ locale?: string }>;
@@ -19,40 +16,37 @@ export default async function MonaragalaSubstationPage({
 }: MonaragalaSubstationPageProps) {
   const params = await searchParams;
   const locale = params.locale || 'en';
+  const [estate, contactPage] = await Promise.all([
+    getEstateSubstationBySlug('monaragala-substation', locale),
+    getContactPage(locale),
+  ]);
+  const pageData = mapEstateDetailPageData(estate, contactPage);
 
   return (
     <div className="min-h-screen bg-[#F6F8F3]">
       <PageHero
-        title="Monaragala Sub-Station"
-        breadcrumbItems={[
-          { label: 'Home', href: '/' },
-          { label: 'Estates and substations', href: '/estates-and-substations' },
-          { label: 'Monaragala Sub-Station' },
-        ]}
-        backgroundImage="/images/estateandsubstationsbgimage.webp"
-        backgroundImageAlt="Monaragala Sub-Station background"
+        title={pageData.hero.title}
+        breadcrumbItems={pageData.hero.breadcrumbItems}
+        backgroundImage={pageData.hero.backgroundImage}
+        backgroundImageAlt={pageData.hero.backgroundImageAlt}
         locale={locale}
       />
 
-      <EstateSubstationIntroSection
-        content={monaragalaSubstationIntroContent}
-      />
+      <EstateSubstationIntroSection content={pageData.intro} />
 
       <EstateSubstationFacilitiesSection
-        content={monaragalaSubstationFacilitiesContent}
+        content={pageData.facilities}
       />
 
       <EstateSubstationActivitiesSection
-        content={monaragalaSubstationActivitiesContent}
+        content={pageData.activities}
       />
 
-      <EstateSubstationFeatureSection
-        content={monaragalaIntercroppingSectionContent}
-      />
+      {pageData.feature ? (
+        <EstateSubstationFeatureSection content={pageData.feature} />
+      ) : null}
 
-      <EstateSubstationContactSection
-        content={monaragalaContactSectionContent}
-      />
+      <EstateSubstationContactSection content={pageData.contact} />
     </div>
   );
 }

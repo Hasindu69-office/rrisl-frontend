@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { isLocalhostAssetUrl } from '@/app/lib/strapi';
 import GradientTag from '../ui/GradientTag';
 import GradientTitle from '../ui/GradientTitle';
 
@@ -28,6 +29,8 @@ function FacilityCard({
   iconSrc,
   iconAlt,
 }: EstateSubstationFacilityCard) {
+  const useUnoptimizedIcon = isLocalhostAssetUrl(iconSrc);
+
   return (
     <article className="rounded-[16px] border border-[#E7EED6] bg-white px-5 py-6 shadow-[0_14px_32px_rgba(15,63,29,0.05)] md:rounded-[20px] md:px-7 md:py-8">
       <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#A1DF0A] md:h-[48px] md:w-[48px]">
@@ -37,6 +40,7 @@ function FacilityCard({
           width={16}
           height={24}
           className="h-6 w-4 object-contain"
+          unoptimized={useUnoptimizedIcon}
         />
       </div>
 
@@ -54,6 +58,8 @@ function FacilityCard({
 export default function EstateSubstationFacilitiesSection({
   content,
 }: EstateSubstationFacilitiesSectionProps) {
+  const useUnoptimizedImage = isLocalhostAssetUrl(content.imageSrc);
+
   return (
     <section className="bg-[#F5FCD9] px-4 py-12 md:px-6 md:py-[4.5rem] lg:px-36 lg:py-24">
       <div className="mx-auto grid w-full max-w-[1440px] gap-8 lg:grid-cols-[minmax(360px,0.92fr)_minmax(0,1.08fr)] lg:items-stretch lg:gap-14 xl:gap-[72px]">
@@ -66,6 +72,7 @@ export default function EstateSubstationFacilitiesSection({
               height={740}
               className="h-[240px] w-full object-cover sm:h-[280px] md:h-[360px] lg:h-full"
               sizes="(max-width: 767px) 100vw, (max-width: 1023px) 88vw, 46vw"
+              unoptimized={useUnoptimizedImage}
             />
           </div>
         </div>

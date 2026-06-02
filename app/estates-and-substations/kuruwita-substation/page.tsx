@@ -3,10 +3,8 @@ import EstateSubstationActivitiesSection from '../../components/estates/EstateSu
 import EstateSubstationContactSection from '../../components/estates/EstateSubstationContactSection';
 import EstateSubstationFacilitiesSection from '../../components/estates/EstateSubstationFacilitiesSection';
 import EstateSubstationIntroSection from '../../components/estates/EstateSubstationIntroSection';
-import { kuruwitaSubstationActivitiesContent } from './activitiesSectionContent';
-import { kuruwitaContactSectionContent } from './contactSectionContent';
-import { kuruwitaSubstationFacilitiesContent } from './facilitiesSectionContent';
-import { kuruwitaSubstationIntroContent } from './introSectionContent';
+import { getContactPage, getEstateSubstationBySlug } from '../../lib/strapi';
+import { mapEstateDetailPageData } from '../../lib/estates/pageData';
 
 interface KuruwitaSubstationPageProps {
   searchParams: Promise<{ locale?: string }>;
@@ -17,34 +15,33 @@ export default async function KuruwitaSubstationPage({
 }: KuruwitaSubstationPageProps) {
   const params = await searchParams;
   const locale = params.locale || 'en';
+  const [estate, contactPage] = await Promise.all([
+    getEstateSubstationBySlug('kuruwita-substation', locale),
+    getContactPage(locale),
+  ]);
+  const pageData = mapEstateDetailPageData(estate, contactPage);
 
   return (
     <div className="min-h-screen bg-[#F6F8F3]">
       <PageHero
-        title="Kuruwita Sub-station"
-        breadcrumbItems={[
-          { label: 'Home', href: '/' },
-          { label: 'Estates and substations', href: '/estates-and-substations' },
-          { label: 'Kuruwita Sub-station' },
-        ]}
-        backgroundImage="/images/estateandsubstationsbgimage.webp"
-        backgroundImageAlt="Kuruwita Sub-station background"
+        title={pageData.hero.title}
+        breadcrumbItems={pageData.hero.breadcrumbItems}
+        backgroundImage={pageData.hero.backgroundImage}
+        backgroundImageAlt={pageData.hero.backgroundImageAlt}
         locale={locale}
       />
 
-      <EstateSubstationIntroSection content={kuruwitaSubstationIntroContent} />
+      <EstateSubstationIntroSection content={pageData.intro} />
 
       <EstateSubstationFacilitiesSection
-        content={kuruwitaSubstationFacilitiesContent}
+        content={pageData.facilities}
       />
 
       <EstateSubstationActivitiesSection
-        content={kuruwitaSubstationActivitiesContent}
+        content={pageData.activities}
       />
 
-      <EstateSubstationContactSection
-        content={kuruwitaContactSectionContent}
-      />
+      <EstateSubstationContactSection content={pageData.contact} />
     </div>
   );
 }

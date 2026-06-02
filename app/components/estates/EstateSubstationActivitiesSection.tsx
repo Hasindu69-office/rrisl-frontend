@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { isLocalhostAssetUrl } from '@/app/lib/strapi';
 import {
   startTransition,
   type TouchEvent,
@@ -59,6 +60,7 @@ function ActivityRailCard({
 }) {
   const isDesktop = mode === 'desktop';
   const isTablet = mode === 'tablet';
+  const useUnoptimizedImage = isLocalhostAssetUrl(card.imageSrc);
   const transitionDuration = reduceMotion ? '0ms' : '700ms';
   const cardWidth = isDesktop
     ? expanded
@@ -106,6 +108,7 @@ function ActivityRailCard({
           alt={card.imageAlt}
           fill
           className="object-cover"
+          unoptimized={useUnoptimizedImage}
           sizes={
             isDesktop
               ? '(max-width: 767px) 78vw, (max-width: 1023px) 42vw, 420px'
@@ -178,9 +181,6 @@ function ActivityRailCard({
           </>
         ) : (
           <div className="mt-auto text-white">
-            <div className="inline-flex rounded-full bg-white/14 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-white/88 backdrop-blur-sm">
-              Activity
-            </div>
             <h3 className={`mt-4 font-medium ${headingClassName}`}>{card.title}</h3>
             <p className={descriptionClassName}>{card.description}</p>
           </div>
@@ -223,6 +223,7 @@ export default function EstateSubstationActivitiesSection({
   const [isDragging, setIsDragging] = useState(false);
   const touchStartXRef = useRef<number | null>(null);
   const viewportRef = useRef<HTMLDivElement | null>(null);
+  const useUnoptimizedBackground = isLocalhostAssetUrl(content.backgroundImageSrc);
 
   useEffect(() => {
     const mobileQuery = window.matchMedia('(max-width: 767px)');
@@ -359,6 +360,7 @@ export default function EstateSubstationActivitiesSection({
           fill
           className="object-cover object-center"
           sizes="100vw"
+          unoptimized={useUnoptimizedBackground}
         />
         <div
           className="absolute inset-0"
@@ -387,12 +389,6 @@ export default function EstateSubstationActivitiesSection({
               customSize="clamp(2rem, 5vw, 3.5rem)"
               className="mt-4 leading-[1.08] tracking-[-0.02em] md:mt-5 md:leading-[1.1]"
             />
-
-            {content.description ? (
-              <p className="mt-5 max-w-[430px] text-[14px] leading-[1.78] text-white/88 md:mt-6 md:text-[16px] md:leading-[1.9]">
-                {content.description}
-              </p>
-            ) : null}
           </div>
 
           {isDesktop ? (

@@ -2,6 +2,8 @@ import EstatesResearchSlider from '../components/estates/EstatesResearchSlider';
 import GradientTag from '../components/ui/GradientTag';
 import GradientTitle from '../components/ui/GradientTitle';
 import PageHero from '../components/shared/PageHero';
+import { getEstateAndSubstationsPage, getEstateSubstations } from '../lib/strapi';
+import { mapEstateLandingPageData } from '../lib/estates/pageData';
 
 interface EstatesAndSubstationsPageProps {
   searchParams: Promise<{ locale?: string }>;
@@ -12,16 +14,19 @@ export default async function EstatesAndSubstationsPage({
 }: EstatesAndSubstationsPageProps) {
   const params = await searchParams;
   const locale = params.locale || 'en';
+  const [page, estates] = await Promise.all([
+    getEstateAndSubstationsPage(locale),
+    getEstateSubstations(locale),
+  ]);
+  const pageData = mapEstateLandingPageData(page, estates);
 
   return (
     <div className="min-h-screen bg-[#F6F8F3]">
       <PageHero
-        title="Estates and substations"
-        breadcrumbItems={[
-          { label: 'Home', href: '/' },
-          { label: 'Estates and substations' },
-        ]}
-        backgroundImageAlt="Estates and substations background"
+        title={pageData.hero.title}
+        breadcrumbItems={pageData.hero.breadcrumbItems}
+        backgroundImage={pageData.hero.backgroundImage}
+        backgroundImageAlt={pageData.hero.backgroundImageAlt}
         locale={locale}
       />
 
@@ -42,14 +47,14 @@ export default async function EstatesAndSubstationsPage({
               <div className="w-full lg:ml-[48%] lg:max-w-[620px]">
                 <div className="flex flex-col items-start gap-5">
                   <GradientTag
-                    text="Locations"
+                    text={pageData.section.eyebrow}
                     className="inline-block"
                     padding="px-4 py-1.5"
                   />
 
                   <GradientTitle
-                    part1="Estates & Research "
-                    part2="Stations"
+                    part1={pageData.section.titlePart1}
+                    part2={pageData.section.titlePart2}
                     lineBreak={false}
                     align="left"
                     size="custom"
@@ -60,7 +65,11 @@ export default async function EstatesAndSubstationsPage({
               </div>
 
               <div className="mt-10 w-full lg:w-[80%] lg:ml-[10%]">
-                <EstatesResearchSlider />
+                <EstatesResearchSlider
+                  slides={pageData.slides}
+                  readMoreLabel={pageData.readMoreButtonLabel}
+                  locale={locale}
+                />
               </div>
             </div>
           </div>

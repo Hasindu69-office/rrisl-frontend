@@ -3,10 +3,8 @@ import EstateSubstationActivitiesSection from '../../components/estates/EstateSu
 import EstateSubstationContactSection from '../../components/estates/EstateSubstationContactSection';
 import EstateSubstationFacilitiesSection from '../../components/estates/EstateSubstationFacilitiesSection';
 import EstateSubstationIntroSection from '../../components/estates/EstateSubstationIntroSection';
-import { dartonfieldGroupActivitiesContent } from './activitiesSectionContent';
-import { dartonfieldGroupContactSectionContent } from './contactSectionContent';
-import { dartonfieldGroupFacilitiesContent } from './facilitiesSectionContent';
-import { dartonfieldGroupIntroContent } from './introSectionContent';
+import { getContactPage, getEstateSubstationBySlug } from '../../lib/strapi';
+import { mapEstateDetailPageData } from '../../lib/estates/pageData';
 
 interface DartonfieldGroupPageProps {
   searchParams: Promise<{ locale?: string }>;
@@ -17,33 +15,34 @@ export default async function DartonfieldGroupPage({
 }: DartonfieldGroupPageProps) {
   const params = await searchParams;
   const locale = params.locale || 'en';
+  const [estate, contactPage] = await Promise.all([
+    getEstateSubstationBySlug('dartonfield-group', locale),
+    getContactPage(locale),
+  ]);
+  const pageData = mapEstateDetailPageData(estate, contactPage);
 
   return (
     <div className="min-h-screen bg-[#F6F8F3]">
       <PageHero
-        title="Dartonfield Group"
-        breadcrumbItems={[
-          { label: 'Home', href: '/' },
-          { label: 'Estates and substations', href: '/estates-and-substations' },
-          { label: 'Dartonfield Group' },
-        ]}
-        backgroundImage="/images/estateandsubstationsbgimage.webp"
-        backgroundImageAlt="Dartonfield Group background"
+        title={pageData.hero.title}
+        breadcrumbItems={pageData.hero.breadcrumbItems}
+        backgroundImage={pageData.hero.backgroundImage}
+        backgroundImageAlt={pageData.hero.backgroundImageAlt}
         locale={locale}
       />
 
-      <EstateSubstationIntroSection content={dartonfieldGroupIntroContent} />
+      <EstateSubstationIntroSection content={pageData.intro} />
 
       <EstateSubstationFacilitiesSection
-        content={dartonfieldGroupFacilitiesContent}
+        content={pageData.facilities}
       />
 
       <EstateSubstationActivitiesSection
-        content={dartonfieldGroupActivitiesContent}
+        content={pageData.activities}
       />
 
       <EstateSubstationContactSection
-        content={dartonfieldGroupContactSectionContent}
+        content={pageData.contact}
       />
     </div>
   );
