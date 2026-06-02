@@ -28,6 +28,7 @@ export interface StatisticsPage {
   detaileddatalabel: string;
   datapointslabel: string;
   changelabel: string;
+  periodlabel: string;
 }
 
 export interface StatisticsTabLabels {
@@ -148,6 +149,7 @@ export interface StatisticsPageContent {
   detailedDataLabel: string;
   dataPointsLabel: string;
   changeLabel: string;
+  periodLabel: string;
   productionCard: StatisticsChartCardData | null;
   tabs: Record<StatisticsTabId, StatisticsTabData>;
 }

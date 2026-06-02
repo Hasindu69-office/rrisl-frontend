@@ -16,7 +16,7 @@ import { mapStatisticsHero } from './hero';
 
 type StatisticsPageLabelSet = Pick<
   StatisticsPageContent,
-  'sectionTitle' | 'allYearsLabel' | 'atAGlanceLabel' | 'detailedDataLabel' | 'dataPointsLabel' | 'changeLabel'
+  'sectionTitle' | 'allYearsLabel' | 'atAGlanceLabel' | 'detailedDataLabel' | 'dataPointsLabel' | 'changeLabel' | 'periodLabel'
 >;
 
 const STATISTICS_PAGE_LABEL_FALLBACKS: StatisticsPageLabelSet = {
@@ -26,6 +26,7 @@ const STATISTICS_PAGE_LABEL_FALLBACKS: StatisticsPageLabelSet = {
   detailedDataLabel: 'Detailed data',
   dataPointsLabel: 'data points',
   changeLabel: 'Change',
+  periodLabel: 'Period',
 };
 
 function mapPageLabels(
@@ -41,6 +42,7 @@ function mapPageLabels(
     detailedDataLabel: page?.detaileddatalabel || STATISTICS_PAGE_LABEL_FALLBACKS.detailedDataLabel,
     dataPointsLabel: page?.datapointslabel || STATISTICS_PAGE_LABEL_FALLBACKS.dataPointsLabel,
     changeLabel: page?.changelabel || STATISTICS_PAGE_LABEL_FALLBACKS.changeLabel,
+    periodLabel: page?.periodlabel || STATISTICS_PAGE_LABEL_FALLBACKS.periodLabel,
   };
 }
 
@@ -57,6 +59,7 @@ function applyPageLabelsToCard(
       detailedDataLabel: labels.detailedDataLabel,
       dataPointsLabel: labels.dataPointsLabel,
       changeLabel: labels.changeLabel,
+      periodLabel: labels.periodLabel,
     },
   };
 }
