@@ -1,9 +1,19 @@
-import type { StatisticsContentEntry } from '../types';
+import { buildStatisticsPageContent } from '@/app/lib/statistics/pageData';
+import type {
+  StatConsumptionTab,
+  StatExportTab,
+  StatPriceTab,
+  StatProductionTab,
+  StatisticsContentEntry,
+  StatisticsPage,
+  StatisticsPageContent,
+} from '../types';
 import { getStrapiMediaUrl } from './media';
-import { fetchStrapi, unwrapCollection } from './client';
+import { fetchStrapi, unwrapCollection, unwrapSingleEntity, withLocaleFallback } from './client';
 import type {
   StatisticsBarSeries,
   StatisticsChartCardData,
+  StatisticsCardUiLabels,
   StatisticsPoint,
 } from '@/app/components/production-statistics/productionStatisticsData';
 import {
@@ -20,6 +30,8 @@ const PRODUCTION_SERIES_DEFINITIONS = [
   { label: 'T.S.R.', color: '#FFB648' },
   { label: 'Latex Other', color: '#F27D42' },
 ] as const;
+
+type ProductionSeriesLabel = (typeof PRODUCTION_SERIES_DEFINITIONS)[number]['label'];
 
 type StatisticsContentRecord = Partial<StatisticsContentEntry> & {
   id?: number;
@@ -50,7 +62,7 @@ export interface StatisticsPageCards {
   consumptionCard: StatisticsChartCardData | null;
 }
 
-function buildStatisticsQuery(): string {
+function buildStatisticsDatasetQuery(): string {
   const params = new URLSearchParams();
 
   params.set('populate[productionstatistic]', 'true');
@@ -64,7 +76,7 @@ function buildStatisticsQuery(): string {
 }
 
 async function fetchStatisticsEntries(): Promise<StatisticsContentEntry[]> {
-  const queryString = buildStatisticsQuery();
+  const queryString = buildStatisticsDatasetQuery();
   const response = await fetchStrapi<unknown>(`/api/statistcs?${queryString}`);
   const items = unwrapCollection<StatisticsContentRecord>(response);
 
@@ -83,6 +95,105 @@ async function fetchStatisticsEntries(): Promise<StatisticsContentEntry[]> {
       publishedAt: attributes.publishedAt || item.publishedAt,
     };
   });
+}
+
+function buildStatisticsPageQuery(locale: string): string {
+  const params = new URLSearchParams();
+
+  if (locale && locale !== 'en') {
+    params.set('locale', locale);
+  }
+
+  params.set('populate[pagehero][populate][backgroundImage]', 'true');
+  params.set('populate[pagehero][populate][Breadcrumb]', 'true');
+
+  return params.toString();
+}
+
+async function fetchStatisticsPage(locale: string): Promise<StatisticsPage | null> {
+  const queryString = buildStatisticsPageQuery(locale);
+  const url = queryString ? `/api/statistics-page?${queryString}` : '/api/statistics-page';
+  const response = await fetchStrapi<unknown>(url);
+  return unwrapSingleEntity<StatisticsPage>(response);
+}
+
+function buildStatProductionTabQuery(locale: string): string {
+  const params = new URLSearchParams();
+
+  if (locale && locale !== 'en') {
+    params.set('locale', locale);
+  }
+
+  params.set('populate[productionstatslabel][populate]', '*');
+  params.set('populate[productiondonutchart][populate]', '*');
+
+  return params.toString();
+}
+
+async function fetchStatProductionTab(locale: string): Promise<StatProductionTab | null> {
+  const queryString = buildStatProductionTabQuery(locale);
+  const url = queryString ? `/api/stat-production-tab?${queryString}` : '/api/stat-production-tab';
+  const response = await fetchStrapi<unknown>(url);
+  return unwrapSingleEntity<StatProductionTab>(response);
+}
+
+function buildStatExportTabQuery(locale: string): string {
+  const params = new URLSearchParams();
+
+  if (locale && locale !== 'en') {
+    params.set('locale', locale);
+  }
+
+  params.set('populate[exportstatlabels][populate]', '*');
+  params.set('populate[exportdonutchart][populate]', '*');
+
+  return params.toString();
+}
+
+async function fetchStatExportTab(locale: string): Promise<StatExportTab | null> {
+  const queryString = buildStatExportTabQuery(locale);
+  const url = queryString ? `/api/stat-export-tab?${queryString}` : '/api/stat-export-tab';
+  const response = await fetchStrapi<unknown>(url);
+  return unwrapSingleEntity<StatExportTab>(response);
+}
+
+function buildStatPriceTabQuery(locale: string): string {
+  const params = new URLSearchParams();
+
+  if (locale && locale !== 'en') {
+    params.set('locale', locale);
+  }
+
+  params.set('populate[pricetrendstatlabel][populate]', '*');
+
+  return params.toString();
+}
+
+async function fetchStatPriceTab(locale: string): Promise<StatPriceTab | null> {
+  const queryString = buildStatPriceTabQuery(locale);
+  const url = queryString ? `/api/stat-price-tab?${queryString}` : '/api/stat-price-tab';
+  const response = await fetchStrapi<unknown>(url);
+  return unwrapSingleEntity<StatPriceTab>(response);
+}
+
+function buildStatConsumptionTabQuery(locale: string): string {
+  const params = new URLSearchParams();
+
+  if (locale && locale !== 'en') {
+    params.set('locale', locale);
+  }
+
+  params.set('populate[consumptionstatlabel][populate]', '*');
+  params.set('populate[consumptiondonutchart][populate]', '*');
+
+  return params.toString();
+}
+
+async function fetchStatConsumptionTab(locale: string): Promise<StatConsumptionTab | null> {
+  const queryString = buildStatConsumptionTabQuery(locale);
+  const url = queryString ? `/api/stat-consumption-tab?${queryString}` : '/api/stat-consumption-tab';
+  const response = await fetchStrapi<unknown>(url);
+  return unwrapSingleEntity<StatConsumptionTab>(response);
 }
 
 function normalizeHeaderCell(value: string): string {
@@ -347,7 +458,10 @@ function parsePriceRows(csvContent: string): ParsedPriceRow[] {
   return parsedRows.sort((first, second) => first.year - second.year);
 }
 
-function buildProductionSeries(rows: ParsedProductionRow[]): StatisticsBarSeries[] {
+function buildProductionSeries(
+  rows: ParsedProductionRow[],
+  labelOverrides?: Partial<Record<ProductionSeriesLabel, string>>,
+): StatisticsBarSeries[] {
   return PRODUCTION_SERIES_DEFINITIONS.map(({ label, color }) => {
     const points: StatisticsPoint[] = rows.map((row) => ({
       year: row.year,
@@ -355,7 +469,7 @@ function buildProductionSeries(rows: ParsedProductionRow[]): StatisticsBarSeries
     }));
 
     return {
-      label,
+      label: labelOverrides?.[label] || label,
       color,
       points,
     };
@@ -377,11 +491,17 @@ async function fetchStatisticsCsv(csvUrl: string): Promise<string> {
 function buildExportCard(
   rows: ParsedExportConsumptionRow[],
   csvUrl: string,
+  exportTab?: StatExportTab | null,
+  statisticsPage?: StatisticsPage | null,
 ): StatisticsChartCardData {
+  const exportTabLabels = exportTab?.exportstatlabels;
+  const exportDonutLabels = exportTab?.exportdonutchart;
+  const yAxisLabel = exportTabLabels?.yaxislabel || exportTab?.exportvolumelabel || 'Export volume';
+
   return createTrendStatisticsCard(
-    'Export trend',
+    exportTabLabels?.statisticcharttitle || 'Export trend',
     undefined,
-    'Export volume',
+    yAxisLabel,
     rows.map((row) => ({
       year: row.year,
       value: row.exports,
@@ -389,8 +509,22 @@ function buildExportCard(
     {
       valueDecimals: 1,
       downloadUrl: csvUrl,
-      downloadLabel: 'Download export and consumption data (CSV)',
-      downloadDescription: 'Includes year-by-year export and domestic consumption data.',
+      downloadLabel:
+        exportTabLabels?.statisticdownloadbuttonlabel || 'Download export and consumption data (CSV)',
+      downloadDescription:
+        exportTabLabels?.statisticdownloaddescription ||
+        'Includes year-by-year export and domestic consumption data.',
+      uiLabels: {
+        allYearsLabel: statisticsPage?.allyearslabel,
+        atAGlanceLabel: statisticsPage?.ataglancelabel,
+        detailedDataLabel: statisticsPage?.detaileddatalabel,
+        dataPointsLabel: statisticsPage?.datapointslabel,
+        changeLabel: statisticsPage?.changelabel,
+        latestValueLabel: exportTab?.latestvaluelabel,
+        summaryTitle: exportDonutLabels?.title,
+        summaryDescription: exportDonutLabels?.description,
+        summaryCenterLabel: exportDonutLabels?.middlevalue,
+      },
     },
   );
 }
@@ -398,11 +532,18 @@ function buildExportCard(
 function buildConsumptionCard(
   rows: ParsedExportConsumptionRow[],
   csvUrl: string,
+  consumptionTab?: StatConsumptionTab | null,
+  statisticsPage?: StatisticsPage | null,
 ): StatisticsChartCardData {
+  const consumptionTabLabels = consumptionTab?.consumptionstatlabel;
+  const consumptionDonutLabels = consumptionTab?.consumptiondonutchart;
+  const yAxisLabel =
+    consumptionTabLabels?.yaxislabel || consumptionTab?.consumptionvolumelabel || 'Consumption volume';
+
   return createTrendStatisticsCard(
-    'Consumption trend',
+    consumptionTabLabels?.statisticcharttitle || 'Consumption trend',
     undefined,
-    'Consumption volume',
+    yAxisLabel,
     rows.map((row) => ({
       year: row.year,
       value: row.domesticConsumption,
@@ -410,26 +551,48 @@ function buildConsumptionCard(
     {
       valueDecimals: 1,
       downloadUrl: csvUrl,
-      downloadLabel: 'Download export and consumption data (CSV)',
-      downloadDescription: 'Includes year-by-year export and domestic consumption data.',
+      downloadLabel:
+        consumptionTabLabels?.statisticdownloadbuttonlabel || 'Download export and consumption data (CSV)',
+      downloadDescription:
+        consumptionTabLabels?.statisticdownloaddescription ||
+        'Includes year-by-year export and domestic consumption data.',
+      uiLabels: {
+        allYearsLabel: statisticsPage?.allyearslabel,
+        atAGlanceLabel: statisticsPage?.ataglancelabel,
+        detailedDataLabel: statisticsPage?.detaileddatalabel,
+        dataPointsLabel: statisticsPage?.datapointslabel,
+        changeLabel: statisticsPage?.changelabel,
+        latestValueLabel: consumptionTab?.latestvaluelabel,
+        summaryTitle: consumptionDonutLabels?.title,
+        summaryDescription: consumptionDonutLabels?.description,
+        summaryCenterLabel: consumptionDonutLabels?.middlevalue,
+      },
     },
   );
 }
 
-function buildPriceCard(rows: ParsedPriceRow[], csvUrl: string): StatisticsChartCardData {
+function buildPriceCard(
+  rows: ParsedPriceRow[],
+  csvUrl: string,
+  priceTab?: StatPriceTab | null,
+  statisticsPage?: StatisticsPage | null,
+): StatisticsChartCardData {
+  const priceTabLabels = priceTab?.pricetrendstatlabel;
   const latestRow = rows[rows.length - 1];
   const priceGap = Math.abs(latestRow.exportFob - latestRow.colomboRss);
+  const exportFobLabel = priceTab?.exportfoblabel || 'Exports f.o.b';
+  const colomboRssLabel = priceTab?.colomborsslabel || 'Colombo RSS';
   const higherSeries = latestRow.exportFob >= latestRow.colomboRss
-    ? 'Exports f.o.b'
-    : 'Colombo RSS';
+    ? exportFobLabel
+    : colomboRssLabel;
 
   return createMultiLineTrendStatisticsCard(
-    'Price trend',
+    priceTabLabels?.statisticcharttitle || 'Price trend',
     undefined,
-    'Price (Rs/kg)',
+    priceTabLabels?.yaxislabel || 'Price (Rs/kg)',
     [
       {
-        label: 'Exports f.o.b',
+        label: exportFobLabel,
         color: '#2AC669',
         points: rows.map((row) => ({
           year: row.year,
@@ -437,7 +600,7 @@ function buildPriceCard(rows: ParsedPriceRow[], csvUrl: string): StatisticsChart
         })),
       },
       {
-        label: 'Colombo RSS',
+        label: colomboRssLabel,
         color: '#0F9D58',
         points: rows.map((row) => ({
           year: row.year,
@@ -448,40 +611,183 @@ function buildPriceCard(rows: ParsedPriceRow[], csvUrl: string): StatisticsChart
     {
       valueDecimals: 2,
       downloadUrl: csvUrl,
-      downloadLabel: 'Download price data (CSV)',
-      downloadDescription: 'Includes Exports f.o.b and Colombo RSS yearly price data.',
+      downloadLabel:
+        priceTabLabels?.statisticdownloadbuttonlabel || 'Download price data (CSV)',
+      downloadDescription:
+        priceTabLabels?.statisticdownloaddescription ||
+        'Includes Exports f.o.b and Colombo RSS yearly price data.',
       sidePanel: {
-        title: 'Price summary',
-        description: `Latest market snapshot for ${latestRow.year}.`,
+        title: priceTab?.pricesummarylabel || 'Price summary',
+        description: priceTab?.pricesummarydescription || `Latest market snapshot for ${latestRow.year}.`,
         items: [
           {
-            label: 'Latest Exports f.o.b',
+            label: `${priceTab?.latestlabel || 'Latest'} ${exportFobLabel}`,
             value: latestRow.exportFob.toLocaleString(),
             detail: `${latestRow.year}`,
           },
           {
-            label: 'Latest Colombo RSS',
+            label: `${priceTab?.latestlabel || 'Latest'} ${colomboRssLabel}`,
             value: latestRow.colomboRss.toLocaleString(),
             detail: `${latestRow.year}`,
           },
           {
-            label: 'Price gap',
+            label: priceTab?.pricegaplabel || 'Price gap',
             value: priceGap.toLocaleString(),
-            detail: `${higherSeries} is higher`,
+            detail: `${higherSeries} ${priceTab?.ishigherlabel || 'is higher'}`,
           },
           {
-            label: 'Higher series',
+            label: priceTab?.higherserieslabel || 'Higher series',
             value: higherSeries,
-            detail: `Based on ${latestRow.year} prices`,
+            detail: `${priceTab?.basedonlabel || 'Based on'} ${latestRow.year} ${priceTab?.priceslabel || 'prices'}`,
           },
         ],
+      },
+      uiLabels: {
+        allYearsLabel: statisticsPage?.allyearslabel,
+        atAGlanceLabel: statisticsPage?.ataglancelabel,
+        detailedDataLabel: statisticsPage?.detaileddatalabel,
+        dataPointsLabel: statisticsPage?.datapointslabel,
+        changeLabel: statisticsPage?.changelabel,
       },
     },
   );
 }
 
+function buildProductionSeriesLabelOverrides(
+  productionTab?: StatProductionTab | null,
+): Partial<Record<ProductionSeriesLabel, string>> | undefined {
+  if (!productionTab) {
+    return undefined;
+  }
+
+  return {
+    Sheet: productionTab.sheetlabel,
+    'Sole Crepe': productionTab.solecrepelabel,
+    'Scrap Crepe': productionTab.scrapecrepelabel,
+    'Latex Crepe': productionTab.latexcrepelabel,
+    'T.S.R.': productionTab.tsrlabel,
+    'Latex Other': productionTab.latexotherlabel,
+  };
+}
+
+function buildProductionCardUiLabels(
+  productionTab?: StatProductionTab | null,
+  statisticsPage?: StatisticsPage | null,
+): StatisticsCardUiLabels | undefined {
+  if (!productionTab && !statisticsPage) {
+    return undefined;
+  }
+
+  return {
+    allYearsLabel: statisticsPage?.allyearslabel,
+    atAGlanceLabel: statisticsPage?.ataglancelabel,
+    detailedDataLabel: statisticsPage?.detaileddatalabel,
+    dataPointsLabel: statisticsPage?.datapointslabel,
+    changeLabel: statisticsPage?.changelabel,
+    snapshotYearLabel: productionTab?.snapshotyearlabel,
+    latestTotalLabel: productionTab?.latesttotallabel,
+    latestTotalDescription: productionTab?.latesttotaldescription,
+    topCategoryLabel: productionTab?.topcategorylabel,
+    lowestCategoryLabel: productionTab?.lowestcategorylabel,
+    inLabel: productionTab?.inlabel,
+  };
+}
+
+async function buildProductionCard(
+  latestEntry: StatisticsContentEntry,
+  productionTab?: StatProductionTab | null,
+  statisticsPage?: StatisticsPage | null,
+): Promise<StatisticsChartCardData | null> {
+  const productionUrl = getStrapiMediaUrl(latestEntry.productionstatistic);
+
+  if (!productionUrl) {
+    return null;
+  }
+
+  const csvContent = await fetchStatisticsCsv(productionUrl);
+  const parsedRows = parseProductionRows(csvContent);
+  const productionTabLabels = productionTab?.productionstatslabel;
+  const productionDonutLabels = productionTab?.productiondonutchart;
+
+  return createProductionStatisticsCard(
+    buildProductionSeries(parsedRows, buildProductionSeriesLabelOverrides(productionTab)),
+    {
+      title: productionTabLabels?.statisticcharttitle,
+      xAxisLabel: productionTabLabels?.xaxislabel,
+      yAxisLabel: productionTabLabels?.yaxislabel,
+      contextLabel: productionTab?.snapshotyearlabel,
+      downloadUrl: productionUrl,
+      downloadLabel: productionTabLabels?.statisticdownloadbuttonlabel,
+      downloadDescription: productionTabLabels?.statisticdownloaddescription,
+      summaryTitle: productionDonutLabels?.title,
+      summaryDescription: productionDonutLabels?.description,
+      summaryCenterLabel: productionDonutLabels?.middlevalue,
+      uiLabels: buildProductionCardUiLabels(productionTab, statisticsPage),
+    },
+  );
+}
+
+export async function getStatisticsPage(
+  locale: string = 'en',
+): Promise<StatisticsPage | null> {
+  return withLocaleFallback({
+    locale,
+    label: 'statistics page',
+    fetcher: fetchStatisticsPage,
+    hasValue: (value) => value !== null,
+    emptyValue: null,
+  });
+}
+
+export async function getStatProductionTab(
+  locale: string = 'en',
+): Promise<StatProductionTab | null> {
+  return withLocaleFallback({
+    locale,
+    label: 'statistics production tab',
+    fetcher: fetchStatProductionTab,
+    hasValue: (value) => value !== null,
+    emptyValue: null,
+  });
+}
+
+export async function getStatExportTab(
+  locale: string = 'en',
+): Promise<StatExportTab | null> {
+  return withLocaleFallback({
+    locale,
+    label: 'statistics export tab',
+    fetcher: fetchStatExportTab,
+    hasValue: (value) => value !== null,
+    emptyValue: null,
+  });
+}
+
+export async function getStatPriceTab(
+  locale: string = 'en',
+): Promise<StatPriceTab | null> {
+  return withLocaleFallback({
+    locale,
+    label: 'statistics price tab',
+    fetcher: fetchStatPriceTab,
+    hasValue: (value) => value !== null,
+    emptyValue: null,
+  });
+}
+
+export async function getStatConsumptionTab(
+  locale: string = 'en',
+): Promise<StatConsumptionTab | null> {
+  return withLocaleFallback({
+    locale,
+    label: 'statistics consumption tab',
+    fetcher: fetchStatConsumptionTab,
+    hasValue: (value) => value !== null,
+    emptyValue: null,
+  });
+}
+
 export async function getStatisticsPageCards(
-  _locale: string = 'en',
 ): Promise<StatisticsPageCards> {
   const emptyCards: StatisticsPageCards = {
     productionCard: null,
@@ -498,23 +804,11 @@ export async function getStatisticsPageCards(
       return emptyCards;
     }
 
-    const productionUrl = getStrapiMediaUrl(latestEntry.productionstatistic);
     const exportConsumptionUrl = getStrapiMediaUrl(latestEntry.exportandconsumptionstats);
     const priceTrendUrl = getStrapiMediaUrl(latestEntry.pricetrendstat);
 
     const [productionCard, exportCard, priceCard, consumptionCard] = await Promise.all([
-      (async () => {
-        if (!productionUrl) {
-          return null;
-        }
-
-        const csvContent = await fetchStatisticsCsv(productionUrl);
-        const parsedRows = parseProductionRows(csvContent);
-
-        return createProductionStatisticsCard(buildProductionSeries(parsedRows), {
-          downloadUrl: productionUrl,
-        });
-      })().catch((error) => {
+      buildProductionCard(latestEntry).catch((error) => {
         console.error('Failed to load production statistics from CSV', error);
         return null;
       }),
@@ -571,9 +865,165 @@ export async function getStatisticsPageCards(
   }
 }
 
-export async function getProductionStatisticsCard(
-  locale: string = 'en',
-): Promise<StatisticsChartCardData | null> {
-  const cards = await getStatisticsPageCards(locale);
+export async function getProductionStatisticsCard(): Promise<StatisticsChartCardData | null> {
+  const cards = await getStatisticsPageCards();
   return cards.productionCard;
+}
+
+export async function getStatisticsPageData(
+  locale: string = 'en',
+): Promise<StatisticsPageContent> {
+  const [
+    localizedPage,
+    fallbackPage,
+    localizedProductionTab,
+    fallbackProductionTab,
+    localizedExportTab,
+    fallbackExportTab,
+    localizedPriceTab,
+    fallbackPriceTab,
+    localizedConsumptionTab,
+    fallbackConsumptionTab,
+  ] = await Promise.all([
+    fetchStatisticsPage(locale).catch((error) => {
+      console.error(`Failed to fetch statistics page for locale "${locale}"`, error);
+      return null;
+    }),
+    locale === 'en'
+      ? Promise.resolve(null)
+      : fetchStatisticsPage('en').catch((error) => {
+        console.error('Failed to fetch fallback statistics page', error);
+        return null;
+      }),
+    fetchStatProductionTab(locale).catch((error) => {
+      console.error(`Failed to fetch statistics production tab for locale "${locale}"`, error);
+      return null;
+    }),
+    locale === 'en'
+      ? Promise.resolve(null)
+      : fetchStatProductionTab('en').catch((error) => {
+        console.error('Failed to fetch fallback statistics production tab', error);
+        return null;
+      }),
+    fetchStatExportTab(locale).catch((error) => {
+      console.error(`Failed to fetch statistics export tab for locale "${locale}"`, error);
+      return null;
+    }),
+    locale === 'en'
+      ? Promise.resolve(null)
+      : fetchStatExportTab('en').catch((error) => {
+        console.error('Failed to fetch fallback statistics export tab', error);
+        return null;
+      }),
+    fetchStatPriceTab(locale).catch((error) => {
+      console.error(`Failed to fetch statistics price tab for locale "${locale}"`, error);
+      return null;
+    }),
+    locale === 'en'
+      ? Promise.resolve(null)
+      : fetchStatPriceTab('en').catch((error) => {
+        console.error('Failed to fetch fallback statistics price tab', error);
+        return null;
+      }),
+    fetchStatConsumptionTab(locale).catch((error) => {
+      console.error(`Failed to fetch statistics consumption tab for locale "${locale}"`, error);
+      return null;
+    }),
+    locale === 'en'
+      ? Promise.resolve(null)
+      : fetchStatConsumptionTab('en').catch((error) => {
+        console.error('Failed to fetch fallback statistics consumption tab', error);
+        return null;
+      }),
+  ]);
+
+  let productionCard: StatisticsChartCardData | null = null;
+  let exportCard: StatisticsChartCardData | null = null;
+  let priceCard: StatisticsChartCardData | null = null;
+  let consumptionCard: StatisticsChartCardData | null = null;
+
+  try {
+    const entries = await fetchStatisticsEntries();
+    const latestEntry = entries[0];
+
+    if (latestEntry) {
+      [productionCard, exportCard, priceCard, consumptionCard] = await Promise.all([
+        buildProductionCard(
+          latestEntry,
+          localizedProductionTab || fallbackProductionTab,
+          localizedPage || fallbackPage,
+        ),
+        (async () => {
+          const exportConsumptionUrl = getStrapiMediaUrl(latestEntry.exportandconsumptionstats);
+
+          if (!exportConsumptionUrl) {
+            return null;
+          }
+
+          const csvContent = await fetchStatisticsCsv(exportConsumptionUrl);
+          const parsedRows = parseExportConsumptionRows(csvContent);
+
+          return buildExportCard(
+            parsedRows,
+            exportConsumptionUrl,
+            localizedExportTab || fallbackExportTab,
+            localizedPage || fallbackPage,
+          );
+        })(),
+        (async () => {
+          const priceTrendUrl = getStrapiMediaUrl(latestEntry.pricetrendstat);
+
+          if (!priceTrendUrl) {
+            return null;
+          }
+
+          const csvContent = await fetchStatisticsCsv(priceTrendUrl);
+          const parsedRows = parsePriceRows(csvContent);
+
+          return buildPriceCard(
+            parsedRows,
+            priceTrendUrl,
+            localizedPriceTab || fallbackPriceTab,
+            localizedPage || fallbackPage,
+          );
+        })(),
+        (async () => {
+          const exportConsumptionUrl = getStrapiMediaUrl(latestEntry.exportandconsumptionstats);
+
+          if (!exportConsumptionUrl) {
+            return null;
+          }
+
+          const csvContent = await fetchStatisticsCsv(exportConsumptionUrl);
+          const parsedRows = parseExportConsumptionRows(csvContent);
+
+          return buildConsumptionCard(
+            parsedRows,
+            exportConsumptionUrl,
+            localizedConsumptionTab || fallbackConsumptionTab,
+            localizedPage || fallbackPage,
+          );
+        })(),
+      ]);
+    }
+  } catch (error) {
+    console.error('Failed to build statistics page cards', error);
+  }
+
+  return buildStatisticsPageContent({
+    localizedPage,
+    fallbackPage,
+    localizedProductionTab,
+    fallbackProductionTab,
+    localizedExportTab,
+    fallbackExportTab,
+    localizedPriceTab,
+    fallbackPriceTab,
+    localizedConsumptionTab,
+    fallbackConsumptionTab,
+    productionCard,
+    exportCard,
+    priceCard,
+    consumptionCard,
+  });
 }

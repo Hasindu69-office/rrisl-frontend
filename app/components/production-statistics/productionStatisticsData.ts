@@ -64,6 +64,26 @@ export interface StatisticsSidePanelData {
   items: StatisticsKpi[];
 }
 
+export interface StatisticsCardUiLabels {
+  allYearsLabel?: string;
+  atAGlanceLabel?: string;
+  detailedDataLabel?: string;
+  dataPointsLabel?: string;
+  changeLabel?: string;
+  latestValueLabel?: string;
+  periodLabel?: string;
+  snapshotYearLabel?: string;
+  latestTotalLabel?: string;
+  latestTotalDescription?: string;
+  topCategoryLabel?: string;
+  lowestCategoryLabel?: string;
+  inLabel?: string;
+  summaryTitle?: string;
+  summaryDescription?: string;
+  summaryCenterLabel?: string;
+  summaryAriaLabel?: string;
+}
+
 export interface StatisticsChartCardData {
   title: string;
   subtitle?: string;
@@ -84,13 +104,14 @@ export interface StatisticsChartCardData {
   bars?: StatisticsBarDatum[];
   shareSummary?: StatisticsSummaryData;
   sidePanel?: StatisticsSidePanelData;
+  uiLabels?: StatisticsCardUiLabels;
   kpis: StatisticsKpi[];
 }
 
 export interface StatisticsTabData {
   id: StatisticsTabId;
   label: string;
-  eyebrow: string;
+  insightLabel: string;
   heading: string;
   description: string;
   primaryCard: StatisticsChartCardData;
@@ -177,16 +198,17 @@ export function createPeriodsFromYears(yearValues: number[]): StatisticsPeriod[]
 function createRecentYearSummary(
   points: StatisticsPoint[],
   label: string,
+  uiLabels?: StatisticsCardUiLabels,
 ): StatisticsSummaryData {
   const recentPoints = points.slice(-4);
   const total = recentPoints.reduce((sum, point) => sum + point.value, 0);
 
   return {
-    title: `${label} recent share`,
-    description: 'How the latest recorded years contribute to the recent total.',
-    centerLabel: 'Recent Total',
+    title: uiLabels?.summaryTitle || `${label} recent share`,
+    description: uiLabels?.summaryDescription || 'How the latest recorded years contribute to the recent total.',
+    centerLabel: uiLabels?.summaryCenterLabel || 'Recent Total',
     centerValue: formatCompactValue(total),
-    ariaLabel: `${label} donut summary for the latest recorded years`,
+    ariaLabel: uiLabels?.summaryAriaLabel || `${label} donut summary for the latest recorded years`,
     slices: recentPoints.map((point, index) => ({
       label: `${point.year}`,
       value: point.value,
@@ -229,6 +251,7 @@ export function createTrendStatisticsCard(
     downloadUrl?: string;
     downloadLabel?: string;
     downloadDescription?: string;
+    uiLabels?: StatisticsCardUiLabels;
   },
 ): StatisticsChartCardData {
   return {
@@ -247,7 +270,8 @@ export function createTrendStatisticsCard(
       color: '#2AC669',
       points,
     },
-    shareSummary: createRecentYearSummary(points, title),
+    shareSummary: createRecentYearSummary(points, title, options?.uiLabels),
+    uiLabels: options?.uiLabels,
     kpis: createTrendKpis(points, options?.valueDecimals ?? 1),
   };
 }
@@ -263,6 +287,7 @@ export function createMultiLineTrendStatisticsCard(
     downloadLabel?: string;
     downloadDescription?: string;
     sidePanel?: StatisticsSidePanelData;
+    uiLabels?: StatisticsCardUiLabels;
   },
 ): StatisticsChartCardData {
   const yearValues = lines.flatMap((line) => line.points.map((point) => point.year));
@@ -283,6 +308,7 @@ export function createMultiLineTrendStatisticsCard(
     downloadLabel: options?.downloadLabel,
     downloadDescription: options?.downloadDescription,
     sidePanel: options?.sidePanel,
+    uiLabels: options?.uiLabels,
     periods: createPeriodsFromYears(yearValues),
     lines,
     kpis: [
@@ -304,6 +330,17 @@ export function createProductionStatisticsCard(
   barSeries: StatisticsBarSeries[],
   options?: {
     downloadUrl?: string;
+    title?: string;
+    xAxisLabel?: string;
+    yAxisLabel?: string;
+    contextLabel?: string;
+    downloadLabel?: string;
+    downloadDescription?: string;
+    summaryTitle?: string;
+    summaryDescription?: string;
+    summaryCenterLabel?: string;
+    summaryAriaLabel?: string;
+    uiLabels?: StatisticsCardUiLabels;
   },
 ): StatisticsChartCardData {
   const availableYears = barSeries.flatMap((series) => series.points.map((point) => point.year));
@@ -326,11 +363,11 @@ export function createProductionStatisticsCard(
   );
 
   const productionSummary: StatisticsSummaryData = {
-    title: 'Production mix',
-    description: 'Latest recorded share across the six production categories.',
-    centerLabel: 'Latest Total',
+    title: options?.summaryTitle || 'Production mix',
+    description: options?.summaryDescription || 'Latest recorded share across the six production categories.',
+    centerLabel: options?.summaryCenterLabel || 'Latest Total',
     centerValue: formatCompactValue(totalProduction),
-    ariaLabel: 'Production donut summary by production category',
+    ariaLabel: options?.summaryAriaLabel || 'Production donut summary by production category',
     slices: bars.map((bar) => ({
       label: bar.label,
       value: bar.value,
@@ -339,19 +376,20 @@ export function createProductionStatisticsCard(
   };
 
   return {
-    title: 'Latest production comparison',
+    title: options?.title || 'Latest production comparison',
     primaryChartType: 'bar',
-    xAxisLabel: 'Rubber type',
-    yAxisLabel: 'Production volume',
+    xAxisLabel: options?.xAxisLabel || 'Rubber type',
+    yAxisLabel: options?.yAxisLabel || 'Production volume',
     downloadUrl: options?.downloadUrl,
-    downloadLabel: 'Download production data (CSV)',
-    downloadDescription: 'Includes year-by-year production by rubber type.',
+    downloadLabel: options?.downloadLabel || 'Download production data (CSV)',
+    downloadDescription: options?.downloadDescription || 'Includes year-by-year production by rubber type.',
     periods: createPeriodsFromYears(availableYears),
-    contextLabel: 'Snapshot year',
+    contextLabel: options?.contextLabel || 'Snapshot year',
     contextValue: `${latestYear}`,
     barSeries,
     bars,
     shareSummary: productionSummary,
+    uiLabels: options?.uiLabels,
     kpis: [
       {
         label: 'Latest total',
@@ -468,7 +506,7 @@ export const statisticsTabContent: Record<StatisticsTabId, StatisticsTabData> = 
   production: {
     id: 'production',
     label: 'Production',
-    eyebrow: 'Statistics',
+    insightLabel: 'Production insight',
     heading: 'Production overview by rubber type',
     description:
       'Start with the latest production mix, then scan the strongest and weakest categories without decoding an overloaded pie chart.',
@@ -477,7 +515,7 @@ export const statisticsTabContent: Record<StatisticsTabId, StatisticsTabData> = 
   export: {
     id: 'export',
     label: 'Export',
-    eyebrow: 'Statistics',
+    insightLabel: 'Export insight',
     heading: 'Export performance over time',
     description:
       'Track year-over-year movement with a conventional left-to-right time-series view and a compact summary for the selected period.',
@@ -491,7 +529,7 @@ export const statisticsTabContent: Record<StatisticsTabId, StatisticsTabData> = 
   price: {
     id: 'price',
     label: 'Price',
-    eyebrow: 'Statistics',
+    insightLabel: 'Price insight',
     heading: 'Price trend snapshot',
     description:
       'The primary chart prioritizes the current trajectory while keeping the selected range and recent change easy to read.',
@@ -505,7 +543,7 @@ export const statisticsTabContent: Record<StatisticsTabId, StatisticsTabData> = 
   consumption: {
     id: 'consumption',
     label: 'Consumption',
-    eyebrow: 'Statistics',
+    insightLabel: 'Consumption insight',
     heading: 'Consumption trend by year',
     description:
       'View the long-term pattern first, then narrow the range to compare shorter periods without losing context.',
@@ -519,7 +557,7 @@ export const statisticsTabContent: Record<StatisticsTabId, StatisticsTabData> = 
   plantation: {
     id: 'plantation',
     label: 'Plantation',
-    eyebrow: 'Statistics',
+    insightLabel: 'Plantation insight',
     heading: 'Plantation activity trend',
     description:
       'This tab keeps the chart focused on the selected years and surfaces the latest value and change in a compact summary card.',

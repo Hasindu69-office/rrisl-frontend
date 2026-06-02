@@ -10,10 +10,13 @@ import {
   statisticsTabContent,
   statisticsTabs,
   type StatisticsChartCardData,
+  type StatisticsTabData,
   type StatisticsTabId,
 } from './productionStatisticsData';
 
 interface ProductionStatisticsSectionProps {
+  sectionTitle?: string;
+  tabs?: Partial<Record<StatisticsTabId, StatisticsTabData>>;
   productionCard?: StatisticsChartCardData | null;
   exportCard?: StatisticsChartCardData | null;
   priceCard?: StatisticsChartCardData | null;
@@ -21,6 +24,8 @@ interface ProductionStatisticsSectionProps {
 }
 
 export default function ProductionStatisticsSection({
+  sectionTitle = 'Statistics',
+  tabs,
   productionCard,
   exportCard,
   priceCard,
@@ -29,27 +34,41 @@ export default function ProductionStatisticsSection({
   const [activeTab, setActiveTab] = useState<StatisticsTabId>('production');
   const panelRef = useRef<HTMLDivElement | null>(null);
 
-  const tabContent = {
+  const mergedTabContent = {
     ...statisticsTabContent,
     production: {
       ...statisticsTabContent.production,
-      primaryCard: productionCard ?? defaultProductionCard,
+      ...tabs?.production,
+      primaryCard: productionCard ?? tabs?.production?.primaryCard ?? defaultProductionCard,
     },
     export: {
       ...statisticsTabContent.export,
-      primaryCard: exportCard ?? statisticsTabContent.export.primaryCard,
+      ...tabs?.export,
+      primaryCard: exportCard ?? tabs?.export?.primaryCard ?? statisticsTabContent.export.primaryCard,
     },
     price: {
       ...statisticsTabContent.price,
-      primaryCard: priceCard ?? statisticsTabContent.price.primaryCard,
+      ...tabs?.price,
+      primaryCard: priceCard ?? tabs?.price?.primaryCard ?? statisticsTabContent.price.primaryCard,
     },
     consumption: {
       ...statisticsTabContent.consumption,
-      primaryCard: consumptionCard ?? statisticsTabContent.consumption.primaryCard,
+      ...tabs?.consumption,
+      primaryCard:
+        consumptionCard ?? tabs?.consumption?.primaryCard ?? statisticsTabContent.consumption.primaryCard,
+    },
+    plantation: {
+      ...statisticsTabContent.plantation,
+      ...tabs?.plantation,
+      primaryCard: tabs?.plantation?.primaryCard ?? statisticsTabContent.plantation.primaryCard,
     },
   };
 
-  const activeContent = tabContent[activeTab];
+  const activeContent = mergedTabContent[activeTab];
+  const tabItems = statisticsTabs.map((tab) => ({
+    ...tab,
+    label: mergedTabContent[tab.id].label,
+  }));
 
   useLayoutEffect(() => {
     if (!panelRef.current || typeof window === 'undefined') {
@@ -116,7 +135,7 @@ export default function ProductionStatisticsSection({
       <div className="mx-auto w-full max-w-[80vw] md:max-w-[92vw] xl:max-w-[80vw]">
         <GradientTitle
           part1=""
-          part2="Statistics"
+          part2={sectionTitle}
           part1Color="dark-green"
           lineBreak={false}
           size="custom"
@@ -130,7 +149,7 @@ export default function ProductionStatisticsSection({
           role="tablist"
           aria-label="Statistics categories"
         >
-          {statisticsTabs.map((tab) => (
+          {tabItems.map((tab) => (
             <StatisticsTabButton
               key={tab.id}
               id={tab.id}
@@ -150,7 +169,7 @@ export default function ProductionStatisticsSection({
         >
           <div className="mb-6 max-w-[840px] sm:mb-8">
             <div className="text-[13px] font-medium uppercase tracking-[0.12em] text-[#1E6B2F]">
-              {activeContent.label} insight
+              {activeContent.insightLabel}
             </div>
             <h2 className="mt-3 text-[24px] font-semibold leading-tight text-[#1D2939] sm:text-[28px] lg:text-[34px]">
               {activeContent.heading}

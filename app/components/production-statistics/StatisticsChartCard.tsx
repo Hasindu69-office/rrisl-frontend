@@ -7,6 +7,7 @@ import StatisticsDonutChart from './StatisticsDonutChart';
 import StatisticsLineChart from './StatisticsLineChart';
 import type {
   StatisticsBarDatum,
+  StatisticsCardUiLabels,
   StatisticsChartCardData,
   StatisticsKpi,
   StatisticsLine,
@@ -35,31 +36,39 @@ function formatCompactValue(value: number) {
   return `${value}`;
 }
 
-function createDynamicTrendKpis(points: StatisticsPoint[], decimals: number = 1): StatisticsKpi[] {
+function createDynamicTrendKpis(
+  points: StatisticsPoint[],
+  labels?: StatisticsCardUiLabels,
+  decimals: number = 1,
+): StatisticsKpi[] {
   const latest = points[points.length - 1];
   const previous = points[points.length - 2] ?? latest;
   const delta = latest.value - previous.value;
 
   return [
     {
-      label: 'Latest value',
+      label: labels?.latestValueLabel ?? 'Latest value',
       value: formatDisplayValue(latest.value, decimals),
       detail: `${latest.year}`,
     },
     {
-      label: 'Change',
+      label: labels?.changeLabel ?? 'Change',
       value: `${delta >= 0 ? '+' : ''}${formatDisplayValue(delta, decimals)}`,
       detail: `vs ${previous.year}`,
     },
     {
-      label: 'Period',
+      label: labels?.periodLabel ?? 'Period',
       value: `${points[0].year} - ${latest.year}`,
-      detail: `${points.length} data points`,
+      detail: `${points.length} ${labels?.dataPointsLabel ?? 'data points'}`,
     },
   ];
 }
 
-function createDynamicMultiLineTrendKpis(lines: StatisticsLine[], decimals: number = 2): StatisticsKpi[] {
+function createDynamicMultiLineTrendKpis(
+  lines: StatisticsLine[],
+  labels?: StatisticsCardUiLabels,
+  decimals: number = 2,
+): StatisticsKpi[] {
   const lineKpis = lines.map((line) => {
     const latest = line.points[line.points.length - 1];
 
@@ -75,19 +84,21 @@ function createDynamicMultiLineTrendKpis(lines: StatisticsLine[], decimals: numb
   return [
     ...lineKpis,
     {
-      label: 'Period',
+      label: labels?.periodLabel ?? 'Period',
       value: `${Math.min(...allYears)} - ${Math.max(...allYears)}`,
-      detail: `${allYears.length > 0 ? new Set(allYears).size : 0} data points`,
+      detail: `${allYears.length > 0 ? new Set(allYears).size : 0} ${labels?.dataPointsLabel ?? 'data points'}`,
     },
   ];
 }
 
 function StatisticsDownloadPanel({
   downloadUrl,
+  detailedDataLabel,
   downloadLabel,
   downloadDescription,
 }: {
   downloadUrl: string;
+  detailedDataLabel?: string;
   downloadLabel?: string;
   downloadDescription?: string;
 }) {
@@ -96,7 +107,7 @@ function StatisticsDownloadPanel({
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <div className="text-[13px] font-semibold uppercase tracking-[0.08em] text-[#1E6B2F]">
-            Detailed data
+            {detailedDataLabel ?? 'Detailed data'}
           </div>
           <p className="mt-1 text-[13px] leading-6 text-[#667085] sm:text-[14px]">
             {downloadDescription ?? 'Download the underlying dataset in CSV format.'}
@@ -235,29 +246,31 @@ export default function StatisticsChartCard({
 
       return [
         {
-          label: 'Latest total',
+          label: card.uiLabels?.latestTotalLabel ?? 'Latest total',
           value: `${formatCompactValue(total)}`,
-          detail: `Year ${activeBarSnapshot.snapshotYear} across all categories`,
+          detail: card.uiLabels?.latestTotalDescription
+            ? `${card.uiLabels.latestTotalDescription} (${activeBarSnapshot.snapshotYear})`
+            : `Year ${activeBarSnapshot.snapshotYear} across all categories`,
         },
         {
-          label: 'Top category',
+          label: card.uiLabels?.topCategoryLabel ?? 'Top category',
           value: topCategory.label,
-          detail: `${topCategory.value.toLocaleString()} in ${activeBarSnapshot.snapshotYear}`,
+          detail: `${topCategory.value.toLocaleString()} ${card.uiLabels?.inLabel ?? 'in'} ${activeBarSnapshot.snapshotYear}`,
         },
         {
-          label: 'Lowest category',
+          label: card.uiLabels?.lowestCategoryLabel ?? 'Lowest category',
           value: lowestCategory.label,
-          detail: `${lowestCategory.value.toLocaleString()} in ${activeBarSnapshot.snapshotYear}`,
+          detail: `${lowestCategory.value.toLocaleString()} ${card.uiLabels?.inLabel ?? 'in'} ${activeBarSnapshot.snapshotYear}`,
         },
       ];
     }
 
     if (filteredTrendLines.length === 1) {
-      return createDynamicTrendKpis(filteredTrendLines[0].points, card.valueDecimals ?? 1);
+      return createDynamicTrendKpis(filteredTrendLines[0].points, card.uiLabels, card.valueDecimals ?? 1);
     }
 
-    return createDynamicMultiLineTrendKpis(filteredTrendLines, card.valueDecimals ?? 2);
-  }, [activeBarSnapshot, card.kpis, card.primaryChartType, card.valueDecimals, filteredTrendLines]);
+    return createDynamicMultiLineTrendKpis(filteredTrendLines, card.uiLabels, card.valueDecimals ?? 2);
+  }, [activeBarSnapshot, card.kpis, card.primaryChartType, card.uiLabels, card.valueDecimals, filteredTrendLines]);
 
   const activeShareSummary = useMemo<StatisticsSummaryData | undefined>(() => {
     if (card.primaryChartType !== 'bar' || !activeBarSnapshot || !card.shareSummary) {
@@ -268,7 +281,9 @@ export default function StatisticsChartCard({
 
     return {
       ...card.shareSummary,
-      description: `Share across the six production categories in ${activeBarSnapshot.snapshotYear}.`,
+      description:
+        card.shareSummary.description ||
+        `Share across the six production categories in ${activeBarSnapshot.snapshotYear}.`,
       centerValue: formatCompactValue(total),
       slices: activeBarSnapshot.bars.map((bar) => ({
         label: bar.label,
@@ -308,7 +323,7 @@ export default function StatisticsChartCard({
                   : 'text-[#475467] hover:bg-white'
               }`}
             >
-              All years
+              {card.uiLabels?.allYearsLabel ?? 'All years'}
             </button>
             {periodOptions.map((period) => {
               const active = period.id === selectedPeriodId;
@@ -358,7 +373,7 @@ export default function StatisticsChartCard({
 
             <div className="rounded-[20px] border border-[#E5EEE4] bg-[#FAFCF9] p-3.5 sm:rounded-[22px] sm:p-4 lg:p-5">
               <div className="text-[13px] font-semibold uppercase tracking-[0.08em] text-[#6B7B6F]">
-                At a glance
+                {card.uiLabels?.atAGlanceLabel ?? 'At a glance'}
               </div>
               <div className="mt-3 grid gap-2.5 sm:mt-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-3">
                 {activeKpis.map((kpi) => (
@@ -385,6 +400,7 @@ export default function StatisticsChartCard({
             {card.downloadUrl ? (
               <StatisticsDownloadPanel
                 downloadUrl={card.downloadUrl}
+                detailedDataLabel={card.uiLabels?.detailedDataLabel}
                 downloadLabel={card.downloadLabel}
                 downloadDescription={card.downloadDescription}
               />
@@ -415,7 +431,7 @@ export default function StatisticsChartCard({
 
             <div className="rounded-[20px] border border-[#E5EEE4] bg-[#FAFCF9] p-3.5 sm:rounded-[22px] sm:p-4 lg:p-5">
               <div className="text-[13px] font-semibold uppercase tracking-[0.08em] text-[#6B7B6F]">
-                At a glance
+                {card.uiLabels?.atAGlanceLabel ?? 'At a glance'}
               </div>
               <div className="mt-3 grid gap-2.5 sm:mt-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-3">
                 {activeKpis.map((kpi) => (
@@ -442,6 +458,7 @@ export default function StatisticsChartCard({
             {card.downloadUrl ? (
               <StatisticsDownloadPanel
                 downloadUrl={card.downloadUrl}
+                detailedDataLabel={card.uiLabels?.detailedDataLabel}
                 downloadLabel={card.downloadLabel}
                 downloadDescription={card.downloadDescription}
               />
