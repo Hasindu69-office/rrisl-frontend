@@ -14,7 +14,7 @@ export default async function SeniorManagementPage({
   const locale = normalizeLocale(params.locale);
 
   return (
-    <div className="min-h-screen bg-[#F9FBF6]">
+    <div className="min-h-screen bg-[#FFFFFF] pb-2">
       <PageHero
         title="Senior Management"
         breadcrumbItems={[
@@ -25,7 +25,7 @@ export default async function SeniorManagementPage({
         backgroundImageAlt="Senior management page background"
         locale={locale}
       />
-      <div className="mb-72 lg:mb-72">
+      <div className="mb-64 md:mb-72 lg:mb-72">
         <SeniorManagementShowcaseSection items={seniorManagementShowcaseItems} />
       </div>
     </div>
