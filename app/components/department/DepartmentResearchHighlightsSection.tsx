@@ -687,10 +687,10 @@ export default function DepartmentResearchHighlightsSection({
                     return (
                       <div
                         key={item.id}
-                        className="relative z-[1] grid grid-cols-[44px_minmax(0,1fr)] items-start gap-3 sm:grid-cols-[48px_minmax(0,1fr)] sm:gap-4 md:grid-cols-[52px_minmax(0,1fr)] lg:grid-cols-[64px_minmax(0,1fr)] lg:gap-5 xl:grid-cols-[72px_minmax(0,1fr)]"
+                        className="relative z-[1] grid grid-cols-1 items-start gap-2 sm:grid-cols-[48px_minmax(0,1fr)] sm:gap-4 md:grid-cols-[52px_minmax(0,1fr)] lg:grid-cols-[64px_minmax(0,1fr)] lg:gap-5 xl:grid-cols-[72px_minmax(0,1fr)]"
                       >
                         <div className="relative flex w-full justify-center">
-                          <div className="relative z-[2] mt-[12px] flex h-[38px] w-[38px] items-center justify-center rounded-full border border-[#2E7D32]/15 bg-white text-[16px] font-semibold leading-none text-[#7FCB19] shadow-[0_8px_18px_rgba(18,76,21,0.12)] sm:mt-[13px] sm:h-10 sm:w-10 sm:text-[17px] md:mt-[14px] md:h-[42px] md:w-[42px] md:text-[18px] lg:mt-[21px] lg:h-[40px] lg:w-[40px] xl:mt-[22px] xl:h-[42px] xl:w-[42px]">
+                          <div className="relative z-[2] flex h-[38px] w-[38px] items-center justify-center rounded-full border border-[#2E7D32]/15 bg-white text-[16px] font-semibold leading-none text-[#7FCB19] shadow-[0_8px_18px_rgba(18,76,21,0.12)] sm:mt-[13px] sm:h-10 sm:w-10 sm:text-[17px] md:mt-[14px] md:h-[42px] md:w-[42px] md:text-[18px] lg:mt-[21px] lg:h-[40px] lg:w-[40px] xl:mt-[22px] xl:h-[42px] xl:w-[42px]">
                             {String(index + 1).padStart(2, '0')}
                           </div>
 
