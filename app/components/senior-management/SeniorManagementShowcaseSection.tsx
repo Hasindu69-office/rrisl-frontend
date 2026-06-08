@@ -15,6 +15,7 @@ interface ShowcaseMetrics {
   sectionHeight: number;
   outlineTop: number;
   outlineFontSize: string;
+  outlineWidth: string;
   activeTop: number;
   activeWidth: number;
   activeHeight: number;
@@ -23,11 +24,11 @@ interface ShowcaseMetrics {
   cardTop: number;
   cardWidth: number;
   cardHeight: number;
-  sidePositions: {
-    farLeft: string;
-    left: string;
-    center: string;
-    right: string;
+    sidePositions: {
+      farLeft: string;
+      left: string;
+      center: string;
+      right: string;
     farRight: string;
     hiddenLeft: string;
     hiddenRight: string;
@@ -79,6 +80,7 @@ function getShowcaseMetrics(viewportWidth: number): ShowcaseMetrics {
       sectionHeight: 605,
       outlineTop: 48,
       outlineFontSize: 'clamp(88px, 9vw, 132px)',
+      outlineWidth: '100%',
       activeTop: 58,
       activeWidth: 430,
       activeHeight: 455,
@@ -104,6 +106,7 @@ function getShowcaseMetrics(viewportWidth: number): ShowcaseMetrics {
       sectionHeight: 568,
       outlineTop: 50,
       outlineFontSize: 'clamp(76px, 8.8vw, 116px)',
+      outlineWidth: '108%',
       activeTop: 70,
       activeWidth: 380,
       activeHeight: 420,
@@ -128,8 +131,9 @@ function getShowcaseMetrics(viewportWidth: number): ShowcaseMetrics {
     return {
       sectionHeight: 532,
       outlineTop: 56,
-      outlineFontSize: 'clamp(60px, 9.6vw, 92px)',
-      activeTop: 88,
+      outlineFontSize: 'clamp(78px, 11.8vw, 118px)',
+      outlineWidth: '132%',
+      activeTop: 70,
       activeWidth: 320,
       activeHeight: 360,
       thumbSize: 94,
@@ -150,23 +154,24 @@ function getShowcaseMetrics(viewportWidth: number): ShowcaseMetrics {
   }
 
   return {
-    sectionHeight: 482,
+    sectionHeight: 584,
     outlineTop: 62,
-    outlineFontSize: 'clamp(40px, 12vw, 64px)',
-    activeTop: 92,
+    outlineFontSize: 'clamp(64px, 17vw, 104px)',
+    outlineWidth: '182%',
+    activeTop: 68,
     activeWidth: 255,
     activeHeight: 300,
     thumbSize: 76,
     thumbTop: 295,
-    cardTop: 304,
+    cardTop: 328,
     cardWidth: 310,
-    cardHeight: 232,
+    cardHeight: 250,
     sidePositions: {
-      farLeft: '10%',
-      left: '24%',
+      farLeft: '-18%',
+      left: '15%',
       center: '50%',
-      right: '76%',
-      farRight: '90%',
+      right: '85%',
+      farRight: '118%',
       hiddenLeft: '-22%',
       hiddenRight: '122%',
     },
@@ -176,9 +181,23 @@ function getShowcaseMetrics(viewportWidth: number): ShowcaseMetrics {
 function getImageStyle(
   metrics: ShowcaseMetrics,
   offset: number,
-  direction: NavigationDirection
+  direction: NavigationDirection,
+  mobileOnlyThreeUp: boolean
 ): SlideVisualStyle {
   const { sidePositions } = metrics;
+
+  if (mobileOnlyThreeUp && Math.abs(offset) > 1) {
+    return {
+      left: offset < 0 ? sidePositions.hiddenLeft : sidePositions.hiddenRight,
+      top: metrics.thumbTop,
+      width: metrics.thumbSize,
+      height: metrics.thumbSize,
+      opacity: 0,
+      scale: 0.72,
+      zIndex: 0,
+      grayscale: true,
+    };
+  }
 
   switch (offset) {
     case -2:
@@ -434,6 +453,10 @@ export default function SeniorManagementShowcaseSection({
     moveToIndex(getSafeIndex(activeIndex + 1, items.length), 'next');
   };
 
+  const toggleExpandedItem = (itemId: string) => {
+    setExpandedItemId((current) => (current === itemId ? null : itemId));
+  };
+
   useEffect(() => {
     if (typeof window === 'undefined' || items.length <= 1) {
       return;
@@ -488,6 +511,9 @@ export default function SeniorManagementShowcaseSection({
   }
 
   const metrics = getShowcaseMetrics(viewportWidth);
+  const isMobileViewport = viewportWidth < 768;
+  const expandedMobileSectionHeight =
+    isMobileViewport && expandedItemId ? metrics.sectionHeight + 180 : metrics.sectionHeight;
   const transitionDuration = prefersReducedMotion ? '180ms' : '760ms';
 
   return (
@@ -495,16 +521,18 @@ export default function SeniorManagementShowcaseSection({
       ref={sectionRef}
       className="relative left-1/2 w-screen -translate-x-1/2 overflow-hidden bg-white"
       style={{
-        height: `${metrics.sectionHeight}px`,
+        height: `${expandedMobileSectionHeight}px`,
       }}
     >
       <div className="relative mx-auto h-full w-full max-w-[1920px]">
         {items.map((item, index) => {
           const offset = getWrappedOffset(index, activeIndex, items.length);
+          const mobileOnlyThreeUp = viewportWidth < 768;
           const imageStyle = getImageStyle(
             metrics,
             offset,
-            navigationDirection
+            navigationDirection,
+            mobileOnlyThreeUp
           );
           const outlineStyle = getOutlineStyle(
             metrics,
@@ -512,9 +540,12 @@ export default function SeniorManagementShowcaseSection({
             navigationDirection
           );
           const cardStyle = getCardStyle(metrics, offset, navigationDirection);
-          const isVisible = Math.abs(offset) <= 2;
+          const isVisible = mobileOnlyThreeUp
+            ? Math.abs(offset) <= 1
+            : Math.abs(offset) <= 2;
           const isActive = offset === 0;
           const isExpanded = expandedItemId === item.id;
+          const isMobileExpandedCard = isMobileViewport && isActive && isExpanded;
           const shouldShowReadMore =
             isExpanded || (overflowingItemIds[item.id] ?? false);
 
@@ -525,7 +556,7 @@ export default function SeniorManagementShowcaseSection({
                 style={{
                   left: outlineStyle.left,
                   top: `${metrics.outlineTop}px`,
-                  width: '100%',
+                  width: metrics.outlineWidth,
                   height: '1.1em',
                   opacity: outlineStyle.opacity,
                   zIndex: outlineStyle.zIndex,
@@ -631,7 +662,8 @@ export default function SeniorManagementShowcaseSection({
                 <article
                   className="flex rounded-[12px] bg-[#F5F5F5] px-7 py-5"
                   style={{
-                    height: `${metrics.cardHeight}px`,
+                    minHeight: `${metrics.cardHeight}px`,
+                    height: isMobileExpandedCard ? 'auto' : `${metrics.cardHeight}px`,
                   }}
                 >
                   <div className="flex min-h-0 flex-1 flex-col">
@@ -643,13 +675,21 @@ export default function SeniorManagementShowcaseSection({
                       {item.name}
                     </h2>
 
-                    <div className="mt-5 min-h-0 flex-1">
+                    <div
+                      className={`mt-5 ${
+                        isMobileExpandedCard ? '' : 'min-h-0 flex-1'
+                      }`}
+                    >
                       <p
                         ref={(node) => {
                           descriptionRefs.current[item.id] = node;
                         }}
                         className={`text-[13px] leading-[1.9] text-[#2B2B2B] text-justify ${
-                          isExpanded ? 'h-full overflow-y-auto pr-2' : 'overflow-hidden'
+                          isExpanded
+                            ? isMobileExpandedCard
+                              ? ''
+                              : 'h-full overflow-y-auto pr-2'
+                            : 'overflow-hidden'
                         }`}
                         style={
                           isExpanded
@@ -667,12 +707,17 @@ export default function SeniorManagementShowcaseSection({
                       {shouldShowReadMore ? (
                         <button
                           type="button"
-                          onClick={() =>
-                            setExpandedItemId((current) =>
-                              current === item.id ? null : item.id
-                            )
-                          }
-                          className="mt-2 text-[12px] font-medium text-[#2E7D32] transition hover:text-[#1F5C25]"
+                          onClick={() => toggleExpandedItem(item.id)}
+                          onTouchEnd={(event) => {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            toggleExpandedItem(item.id);
+                          }}
+                          onPointerUp={(event) => {
+                            event.preventDefault();
+                            event.stopPropagation();
+                          }}
+                          className="relative z-10 mt-2 touch-manipulation text-[12px] font-medium text-[#2E7D32] transition hover:text-[#1F5C25]"
                         >
                           {isExpanded ? 'Read less' : 'Read more'}
                         </button>
