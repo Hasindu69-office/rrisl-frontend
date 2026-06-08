@@ -25,7 +25,7 @@ export default async function SeniorManagementPage({
         backgroundImageAlt="Senior management page background"
         locale={locale}
       />
-      <div className="-mt-10 mb-72 md:-mt-14 lg:mt-0 lg:mb-72">
+      <div className="mb-72 lg:mb-72">
         <SeniorManagementShowcaseSection items={seniorManagementShowcaseItems} />
       </div>
     </div>
