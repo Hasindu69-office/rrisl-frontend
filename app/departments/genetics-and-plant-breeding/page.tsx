@@ -71,40 +71,146 @@ export default async function GeneticsPlantBreeding({ searchParams }: Department
     ];
     const researchHighlights = [
         {
-            id: 'released-clones',
-            text: 'Released five interim clones for the estate sector and two interim clones for the smallholder sector.',
-            imageSrc: '/images/aboutusRubber.jpg',
-            imageAlt: 'Rubber tapping trees representing released interim clones',
+            id: 'clone-identification-services',
+            summary: 'Clone Identification Services',
+            sections: [
+                {
+                    id: 'estate-sector-clones',
+                    heading: 'Interim clones for the Estate sector',
+                    body: 'Interim estate-sector selections currently highlighted for field-level validation and recommendation planning.',
+                    items: [
+                        'INT 1 (HP 2002/201)',
+                        'INT 2 (HP 91/58)',
+                        'INT 3 (GPS III)',
+                        'INT 4 (GPS IV)',
+                        'INT 5 (HP 95/55)',
+                    ],
+                    images: [
+                        {
+                            src: '/images/aboutusRubber.jpg',
+                            alt: 'Rubber field view related to interim estate sector clones',
+                            title: 'Estate sector field reference',
+                        },
+                        {
+                            src: '/images/section7_img4.jpg',
+                            alt: 'Additional plantation view for clone identification work',
+                            title: 'Supporting field observation',
+                        },
+                        {
+                            src: '/images/Rubber_Digital_Edit_01-08-2021.jpg',
+                            alt: 'Rubber research plantation imagery for estate sector clone work',
+                            title: 'Estate sector research site',
+                        },
+                    ],
+                },
+                {
+                    id: 'smallholder-sector-clones',
+                    heading: 'Interim clones for the Smallholder sector',
+                    body: 'Selections prioritized for smallholder adoption based on adaptability and field practicality.',
+                    items: ['RRISL 2006', 'RRISL Centennial 4'],
+                },
+            ],
         },
         {
             id: 'germplasm-selections',
-            text: 'Two non-Wickham germplasm selections were successfully used as the female parent for the first time in the local hybridization history and thirty-six new genotypes raised.',
-            imageSrc: '/images/estateandsubstationsbgimage.webp',
-            imageAlt: 'Genetics and plant breeding field research',
+            summary:
+                'Two non-Wickham germplasm selections were successfully used as the female parent for the first time in the local hybridization history and thirty-six new genotypes were raised successfully.',
+            details:
+                'This breeding milestone widened the department’s available parental pool and demonstrated successful local hybridization using non-Wickham material.',
         },
         {
             id: 'selection-criteria',
-            text: 'Utilized strong early selection criteria such as crop physiology, latex physiology, and molecular screening of yield and stress-responsive characters to strengthen and reduce the period of breeding cycle.',
-            imageSrc: '/images/section7_img1.jpg',
-            imageAlt: 'Laboratory and research facilities used for early selection criteria',
+            summary:
+                'Utilized strong early selection criteria such as crop physiology, latex physiology, and molecular screening of yield and stress-responsive characters to strengthen and reduce the period of breeding cycle.',
+            details:
+                'The screening workflow combined physiological indicators and molecular methods to improve early confidence in promising selections and shorten downstream field evaluation cycles.',
+            sections: [
+                {
+                    id: 'physiology-screening',
+                    heading: 'Physiology-based screening',
+                    body: 'Crop and latex physiology indicators were used to flag early-performing selections before longer trial cycles.',
+                    images: [
+                        {
+                            src: '/images/section7_img1.jpg',
+                            alt: 'Research activity connected to physiology-based early selection screening',
+                            title: 'Physiology screening workflow',
+                        },
+                    ],
+                },
+                {
+                    id: 'molecular-screening',
+                    heading: 'Molecular screening',
+                    body: 'Marker-led screening was layered into the workflow to improve confidence in drought and yield responsive selections.',
+                    items: ['Yield-responsive markers', 'Stress-response screening'],
+                },
+            ],
         },
         {
             id: 'clone-trials',
-            text: 'Two genotypes selected from small-scale clone trials were established at the Estate collaborative clone trials (ECT) at Eladuwa estate for further characterization under Group II recommendation.',
-            imageSrc: '/images/section7_img2.jpg',
-            imageAlt: 'Field trial setup for collaborative clone trials',
+            summary:
+                'Two genotypes selected from small-scale clone trials were established at the Estate collaborative clone trials (ECT) at Eladuwa estate for further characterization under Group II recommendation.',
+            details:
+                'Advancing these genotypes into collaborative estate trials created a stronger basis for larger-scale performance validation under production conditions.',
         },
         {
-            id: 'tapping-evaluation',
-            text: 'Tapping commences at the clonal evaluation trial at non-traditional rubber growing areas to evaluate the best-performing clone for water stress conditions.',
-            imageSrc: '/images/section7_img3.png',
-            imageAlt: 'Rubber clone evaluation under tapping conditions',
+            id: 'molecular-screening-drought',
+            summary:
+                'Molecular screening of clones for drought stress identified six promising clones for marginal areas.',
+            sections: [
+                {
+                    id: 'promising-clones',
+                    heading: 'Promising clones for marginal areas',
+                    items: ['RRISL2001', 'RRIC121', 'RRISL2006', 'RRISL2005', 'RRISL C4', 'RRISL C3'],
+                    images: [
+                        {
+                            src: '/images/section7_img2.jpg',
+                            alt: 'Clone screening activity associated with drought-stress selection',
+                            title: 'Drought-stress screening setup',
+                        },
+                        {
+                            src: '/images/section7_img3.png',
+                            alt: 'Rubber clone performance reference image for marginal-area evaluation',
+                            title: 'Marginal-area trial view',
+                        },
+                    ],
+                },
+                {
+                    id: 'selection-application',
+                    heading: 'Selection application',
+                    body: 'Shortlisted materials are intended for future recommendation in non-traditional or water-limited planting areas.',
+                },
+            ],
         },
         {
-            id: 'water-stress-clone',
-            text: 'Tapping commences at the clonal evaluation trial at non-traditional rubber growing areas to evaluate the best-performing clone for water stress conditions.',
-            imageSrc: '/images/aboutusRubber.jpg',
-            imageAlt: 'Rubber plantation image representing water stress clone evaluation',
+            id: 'water-stress-evaluation',
+            summary:
+                'Tapping commences at the clonal evaluation trial at non-traditional rubber growing areas to evaluate the best-performing clone for water stress conditions.',
+            details:
+                'The trial is intended to identify clone performance under low-moisture stress and support future recommendations for non-traditional planting regions.',
+            sections: [
+                {
+                    id: 'trial-establishment',
+                    heading: 'Trial establishment',
+                    body: 'Tapping has commenced in the evaluation plots to observe early yield response under low-moisture stress conditions.',
+                    images: [
+                        {
+                            src: '/images/section7_img3.png',
+                            alt: 'Rubber clone evaluation under tapping conditions',
+                            title: 'Water stress performance trial',
+                        },
+                        {
+                            src: '/images/departments/geneticsplantbreedingsection1.png',
+                            alt: 'Genetics and plant breeding field activity used as supporting trial imagery',
+                            title: 'Supporting field observation',
+                        },
+                    ],
+                },
+                {
+                    id: 'recommendation-outcome',
+                    heading: 'Recommendation outcome',
+                    body: 'Results will guide future clone recommendations for non-traditional growing environments.',
+                },
+            ],
         },
     ];
     const currentProjects = [
@@ -332,7 +438,7 @@ export default async function GeneticsPlantBreeding({ searchParams }: Department
                 tagText="Awards & Achievements"
                 titlePart1="Research "
                 titlePart2="Highlights"
-                backgroundImageSrc="/images/departments/ResearchHightlightBackground.jpg"
+                backgroundImageSrc="/images/departments/researchhighlightsbgnew.jpg"
                 backgroundImageAlt="Research highlights background"
                 highlights={researchHighlights}
                 containerClassName="w-[80%]"
