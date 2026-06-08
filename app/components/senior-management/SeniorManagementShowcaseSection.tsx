@@ -129,7 +129,7 @@ function getShowcaseMetrics(viewportWidth: number): ShowcaseMetrics {
 
   if (viewportWidth >= 768) {
     return {
-      sectionHeight: 532,
+      sectionHeight: 625,
       outlineTop: 56,
       outlineFontSize: 'clamp(78px, 11.8vw, 118px)',
       outlineWidth: '132%',
@@ -138,9 +138,9 @@ function getShowcaseMetrics(viewportWidth: number): ShowcaseMetrics {
       activeHeight: 360,
       thumbSize: 94,
       thumbTop: 315,
-      cardTop: 344,
+      cardTop: 356,
       cardWidth: 345,
-      cardHeight: 246,
+      cardHeight: 262,
       sidePositions: {
         farLeft: '8%',
         left: '24%',
@@ -688,7 +688,7 @@ export default function SeniorManagementShowcaseSection({
                           isExpanded
                             ? isMobileExpandedCard
                               ? ''
-                              : 'h-full overflow-y-auto pr-2'
+                              : 'location-details-scroll h-full overflow-y-auto pr-2'
                             : 'overflow-hidden'
                         }`}
                         style={
