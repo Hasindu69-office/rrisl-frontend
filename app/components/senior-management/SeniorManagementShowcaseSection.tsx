@@ -22,7 +22,7 @@ interface ShowcaseMetrics {
   thumbTop: number;
   cardTop: number;
   cardWidth: number;
-  cardMinHeight: number;
+  cardHeight: number;
   sidePositions: {
     farLeft: string;
     left: string;
@@ -76,17 +76,17 @@ function getWrappedOffset(index: number, activeIndex: number, total: number) {
 function getShowcaseMetrics(viewportWidth: number): ShowcaseMetrics {
   if (viewportWidth >= 1280) {
     return {
-      sectionHeight: 575,
-      outlineTop: 38,
-      outlineFontSize: 'clamp(105px, 10.5vw, 158px)',
+      sectionHeight: 605,
+      outlineTop: 48,
+      outlineFontSize: 'clamp(88px, 9vw, 132px)',
       activeTop: 58,
       activeWidth: 430,
       activeHeight: 455,
       thumbSize: 118,
       thumbTop: 315,
-      cardTop: 312,
+      cardTop: 336,
       cardWidth: 390,
-      cardMinHeight: 188,
+      cardHeight: 264,
       sidePositions: {
         farLeft: '6%',
         left: '27%',
@@ -101,17 +101,17 @@ function getShowcaseMetrics(viewportWidth: number): ShowcaseMetrics {
 
   if (viewportWidth >= 1024) {
     return {
-      sectionHeight: 540,
-      outlineTop: 42,
-      outlineFontSize: 'clamp(88px, 10vw, 132px)',
+      sectionHeight: 568,
+      outlineTop: 50,
+      outlineFontSize: 'clamp(76px, 8.8vw, 116px)',
       activeTop: 70,
       activeWidth: 380,
       activeHeight: 420,
       thumbSize: 108,
       thumbTop: 310,
-      cardTop: 315,
+      cardTop: 336,
       cardWidth: 370,
-      cardMinHeight: 180,
+      cardHeight: 256,
       sidePositions: {
         farLeft: '7%',
         left: '25%',
@@ -126,17 +126,17 @@ function getShowcaseMetrics(viewportWidth: number): ShowcaseMetrics {
 
   if (viewportWidth >= 768) {
     return {
-      sectionHeight: 505,
-      outlineTop: 48,
-      outlineFontSize: 'clamp(70px, 11vw, 108px)',
+      sectionHeight: 532,
+      outlineTop: 56,
+      outlineFontSize: 'clamp(60px, 9.6vw, 92px)',
       activeTop: 88,
       activeWidth: 320,
       activeHeight: 360,
       thumbSize: 94,
       thumbTop: 315,
-      cardTop: 325,
+      cardTop: 344,
       cardWidth: 345,
-      cardMinHeight: 172,
+      cardHeight: 246,
       sidePositions: {
         farLeft: '8%',
         left: '24%',
@@ -150,17 +150,17 @@ function getShowcaseMetrics(viewportWidth: number): ShowcaseMetrics {
   }
 
   return {
-    sectionHeight: 455,
-    outlineTop: 54,
-    outlineFontSize: 'clamp(48px, 15vw, 78px)',
+    sectionHeight: 482,
+    outlineTop: 62,
+    outlineFontSize: 'clamp(40px, 12vw, 64px)',
     activeTop: 92,
     activeWidth: 255,
     activeHeight: 300,
     thumbSize: 76,
     thumbTop: 295,
-    cardTop: 285,
+    cardTop: 304,
     cardWidth: 310,
-    cardMinHeight: 165,
+    cardHeight: 232,
     sidePositions: {
       farLeft: '10%',
       left: '24%',
@@ -349,12 +349,19 @@ export default function SeniorManagementShowcaseSection({
 }: SeniorManagementShowcaseSectionProps) {
   const sectionRef = useRef<HTMLElement | null>(null);
   const autoplayTimeoutRef = useRef<number | null>(null);
+  const descriptionRefs = useRef<
+    Record<string, HTMLParagraphElement | null>
+  >({});
 
   const [viewportWidth, setViewportWidth] = useState(0);
   const [activeIndex, setActiveIndex] = useState(0);
   const [navigationDirection, setNavigationDirection] =
     useState<NavigationDirection>('next');
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const [expandedItemId, setExpandedItemId] = useState<string | null>(null);
+  const [overflowingItemIds, setOverflowingItemIds] = useState<
+    Record<string, boolean>
+  >({});
 
   useEffect(() => {
     const node = sectionRef.current;
@@ -448,6 +455,34 @@ export default function SeniorManagementShowcaseSection({
     };
   }, [activeIndex, items.length]);
 
+  useEffect(() => {
+    setExpandedItemId(null);
+  }, [activeIndex]);
+
+  useEffect(() => {
+    const frameId = window.requestAnimationFrame(() => {
+      const nextOverflowingState: Record<string, boolean> = {};
+
+      items.forEach((item) => {
+        const node = descriptionRefs.current[item.id];
+
+        if (!node) {
+          nextOverflowingState[item.id] = false;
+          return;
+        }
+
+        nextOverflowingState[item.id] =
+          node.scrollHeight - node.clientHeight > 1;
+      });
+
+      setOverflowingItemIds(nextOverflowingState);
+    });
+
+    return () => {
+      window.cancelAnimationFrame(frameId);
+    };
+  }, [items, viewportWidth, activeIndex, expandedItemId]);
+
   if (items.length === 0) {
     return null;
   }
@@ -479,6 +514,9 @@ export default function SeniorManagementShowcaseSection({
           const cardStyle = getCardStyle(metrics, offset, navigationDirection);
           const isVisible = Math.abs(offset) <= 2;
           const isActive = offset === 0;
+          const isExpanded = expandedItemId === item.id;
+          const shouldShowReadMore =
+            isExpanded || (overflowingItemIds[item.id] ?? false);
 
           return (
             <div key={item.id}>
@@ -487,16 +525,53 @@ export default function SeniorManagementShowcaseSection({
                 style={{
                   left: outlineStyle.left,
                   top: `${metrics.outlineTop}px`,
+                  width: '100%',
+                  height: '1.1em',
                   opacity: outlineStyle.opacity,
                   zIndex: outlineStyle.zIndex,
                   fontSize: metrics.outlineFontSize,
                   transform: `translateX(${outlineStyle.translateX}%) scale(${outlineStyle.scale})`,
                   transitionDuration,
-                  WebkitTextStroke: '1px rgba(46, 125, 50, 0.22)',
                 }}
                 aria-hidden="true"
               >
-                {item.role}
+                <svg
+                  width="100%"
+                  height="100%"
+                  viewBox="0 0 1200 220"
+                  preserveAspectRatio="xMidYMid meet"
+                  className="overflow-visible"
+                >
+                  <defs>
+                    <linearGradient
+                      id={`senior-management-outline-${item.id}`}
+                      x1="0%"
+                      y1="0%"
+                      x2="100%"
+                      y2="0%"
+                    >
+                      <stop offset="0%" stopColor="#20C997" />
+                      <stop offset="100%" stopColor="#A1DF0A" />
+                    </linearGradient>
+                  </defs>
+                  <text
+                    x="50%"
+                    y="56%"
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    fill="transparent"
+                    stroke={`url(#senior-management-outline-${item.id})`}
+                    strokeWidth="0.8"
+                    paintOrder="stroke"
+                    style={{
+                      fontSize: 'inherit',
+                      fontWeight: 600,
+                      fontFamily: 'inherit',
+                    }}
+                  >
+                    {item.role}
+                  </text>
+                </svg>
               </div>
 
               <div
@@ -533,7 +608,7 @@ export default function SeniorManagementShowcaseSection({
                       : `${metrics.thumbSize}px`
                   }
                   style={{
-                    transform: isActive ? 'scale(1.08)' : 'scale(1.2)',
+                    transform: isActive ? 'scale(1.01)' : 'scale(1.2)',
                     transformOrigin: isActive ? 'center bottom' : 'center top',
                   }}
                 />
@@ -554,43 +629,77 @@ export default function SeniorManagementShowcaseSection({
                 aria-hidden={!isActive}
               >
                 <article
-                  className="rounded-[12px] bg-white px-7 py-5 shadow-[0_22px_70px_rgba(15,63,29,0.10)]"
+                  className="flex rounded-[12px] bg-[#F5F5F5] px-7 py-5"
                   style={{
-                    minHeight: `${metrics.cardMinHeight}px`,
+                    height: `${metrics.cardHeight}px`,
                   }}
                 >
-                  <p className="text-[15px] font-normal leading-[1.25] text-[#111111]">
-                    {item.role}
-                  </p>
+                  <div className="flex min-h-0 flex-1 flex-col">
+                    <p className="text-[15px] font-normal leading-[1.25] text-[#111111]">
+                      {item.role}
+                    </p>
 
-                  <h2 className="mt-1 text-[14px] font-medium leading-[1.35] text-[#2E7D32]">
-                    {item.name}
-                  </h2>
+                    <h2 className="mt-1 text-[14px] font-medium leading-[1.35] text-[#2E7D32]">
+                      {item.name}
+                    </h2>
 
-                  <p className="mt-5 text-[13px] leading-[1.9] text-[#2B2B2B]">
-                    {item.description}
-                  </p>
+                    <div className="mt-5 min-h-0 flex-1">
+                      <p
+                        ref={(node) => {
+                          descriptionRefs.current[item.id] = node;
+                        }}
+                        className={`text-[13px] leading-[1.9] text-[#2B2B2B] text-justify ${
+                          isExpanded ? 'h-full overflow-y-auto pr-2' : 'overflow-hidden'
+                        }`}
+                        style={
+                          isExpanded
+                            ? undefined
+                            : {
+                                display: '-webkit-box',
+                                WebkitBoxOrient: 'vertical',
+                                WebkitLineClamp: 4,
+                              }
+                        }
+                      >
+                        {item.description}
+                      </p>
 
-                  <div className="mt-5 flex justify-end gap-3">
-                    <button
-                      type="button"
-                      aria-label="Show previous senior management profile"
-                      onClick={goToPrevious}
-                      className="flex h-9 w-9 items-center justify-center rounded-full bg-[#053D1B] text-white transition duration-300 hover:bg-[#0A5729] disabled:cursor-not-allowed disabled:opacity-45"
-                      disabled={items.length <= 1}
-                    >
-                      <ArrowLeft className="h-4 w-4" strokeWidth={2.2} />
-                    </button>
+                      {shouldShowReadMore ? (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setExpandedItemId((current) =>
+                              current === item.id ? null : item.id
+                            )
+                          }
+                          className="mt-2 text-[12px] font-medium text-[#2E7D32] transition hover:text-[#1F5C25]"
+                        >
+                          {isExpanded ? 'Read less' : 'Read more'}
+                        </button>
+                      ) : null}
+                    </div>
 
-                    <button
-                      type="button"
-                      aria-label="Show next senior management profile"
-                      onClick={goToNext}
-                      className="flex h-9 w-9 items-center justify-center rounded-full bg-[#053D1B] text-white transition duration-300 hover:bg-[#0A5729] disabled:cursor-not-allowed disabled:opacity-45"
-                      disabled={items.length <= 1}
-                    >
-                      <ArrowRight className="h-4 w-4" strokeWidth={2.2} />
-                    </button>
+                    <div className="mt-5 flex justify-end gap-3">
+                      <button
+                        type="button"
+                        aria-label="Show previous senior management profile"
+                        onClick={goToPrevious}
+                        className="flex h-9 w-9 items-center justify-center rounded-full bg-[#053D1B] text-white transition duration-300 hover:bg-[#0A5729] disabled:cursor-not-allowed disabled:opacity-45"
+                        disabled={items.length <= 1}
+                      >
+                        <ArrowLeft className="h-4 w-4" strokeWidth={2.2} />
+                      </button>
+
+                      <button
+                        type="button"
+                        aria-label="Show next senior management profile"
+                        onClick={goToNext}
+                        className="flex h-9 w-9 items-center justify-center rounded-full bg-[#053D1B] text-white transition duration-300 hover:bg-[#0A5729] disabled:cursor-not-allowed disabled:opacity-45"
+                        disabled={items.length <= 1}
+                      >
+                        <ArrowRight className="h-4 w-4" strokeWidth={2.2} />
+                      </button>
+                    </div>
                   </div>
                 </article>
               </div>
