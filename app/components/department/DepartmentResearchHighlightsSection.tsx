@@ -1,613 +1,778 @@
 'use client';
 
 import Image from 'next/image';
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import GradientTitle from '../ui/GradientTitle';
+import React, { useEffect, useMemo, useState } from 'react';
+import { ChevronDown, ChevronLeft, ChevronRight, X } from 'lucide-react';
 
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger);
+export interface DepartmentResearchHighlightSectionBlock {
+  id: string;
+  heading?: string;
+  body?: string;
+  items?: string[];
+  images?: DepartmentResearchHighlightImage[];
+}
+
+export interface DepartmentResearchHighlightImage {
+  src: string;
+  alt: string;
+  title?: string;
 }
 
 export interface DepartmentResearchHighlightItem {
   id: string;
-  text: string;
-  imageSrc?: string;
-  imageAlt?: string;
+  summary: string;
+  details?: string;
+  sections?: DepartmentResearchHighlightSectionBlock[];
+  image?: DepartmentResearchHighlightImage;
 }
 
 interface DepartmentResearchHighlightsSectionProps {
   tagText: string;
   titlePart1: string | React.ReactNode;
   titlePart2: string | React.ReactNode;
-  backgroundImageSrc: string;
-  backgroundImageAlt: string;
+  backgroundImageSrc?: string;
+  backgroundImageAlt?: string;
   highlights: DepartmentResearchHighlightItem[];
-  highlightImageSrc?: string;
-  highlightImageAlt?: string;
   containerClassName?: string;
 }
 
-const DESKTOP_MIN_HEIGHT = 760;
-const CIRCLE_SIZE = 600;
-const CIRCLE_LEFT = -280;
-const IMAGE_RADIUS = CIRCLE_SIZE / 2;
-const PATH_CENTER_X = CIRCLE_LEFT + IMAGE_RADIUS;
-const PATH_RADIUS = IMAGE_RADIUS + 80 ;
-const PATH_START_ANGLE = -94;
-const PATH_STEP_ANGLE = 31;
-const FOCUS_SLOT_INDEX = 3;
-const DOT_COLOR = '#A1DF0A';
-const TABLET_MIN_HEIGHT = 640;
-const TABLET_CIRCLE_SIZE = 420;
-const TABLET_CIRCLE_LEFT = -170;
-const TABLET_IMAGE_RADIUS = TABLET_CIRCLE_SIZE / 2;
-const TABLET_PATH_CENTER_X = TABLET_CIRCLE_LEFT + TABLET_IMAGE_RADIUS;
-const TABLET_PATH_RADIUS = TABLET_IMAGE_RADIUS + 54;
+const DEFAULT_BACKGROUND = '/images/departments/researchhighlightsbgnew.jpg';
+const DEFAULT_BACKGROUND_ALT = 'Research highlights background';
+const DESKTOP_SCROLL_HEIGHT = '620px';
+const TABLET_SCROLL_HEIGHT = '680px';
+const MOBILE_SCROLL_HEIGHT = '72dvh';
+const TIMELINE_ICON = '/images/departments/iconresearchhighlight.png';
+const GALLERY_TRANSITION_MS = 260;
+type ResponsiveMode = 'mobile' | 'tablet' | 'desktop';
 
-const clamp = (value: number, min: number, max: number) =>
-  Math.min(Math.max(value, min), max);
+function formatHighlightItem(entry: string) {
+  const index = entry.indexOf('(');
 
-const getWrappedOffset = (index: number, progress: number, total: number) => {
-  if (total <= 1) {
-    return index - progress;
+  if (index === -1) {
+    return <span className="font-semibold text-[#111111]">{entry}</span>;
   }
 
-  let offset = index - progress;
-  const half = total / 2;
+  const prefix = entry.substring(0, index).trim();
+  const suffix = entry.substring(index);
 
-  while (offset <= -half) {
-    offset += total;
-  }
-
-  while (offset > half) {
-    offset -= total;
-  }
-
-  return offset;
-};
-
-const getArcPoint = (
-  slotPosition: number,
-  containerHeight: number,
-  pathCenterX: number,
-  pathRadius: number
-) => {
-  const angle = ((PATH_START_ANGLE + slotPosition * PATH_STEP_ANGLE) * Math.PI) / 180;
-  const pathCenterY = containerHeight / 2;
-
-  return {
-    x: pathCenterX + Math.cos(angle) * pathRadius,
-    y: pathCenterY + Math.sin(angle) * pathRadius,
-  };
-};
-
-interface HighlightImageState {
-  alt: string;
-  key: string;
-  src: string;
+  return (
+    <>
+      <span className="font-semibold text-[#111111]">{prefix}</span>
+      {suffix ? ` ${suffix}` : ''}
+    </>
+  );
 }
 
-const resolveHighlightImage = (
-  item: DepartmentResearchHighlightItem | undefined,
-  fallbackSrc: string,
-  fallbackAlt: string
-): HighlightImageState => {
-  const src = item?.imageSrc ?? fallbackSrc;
-  const alt = item?.imageAlt ?? fallbackAlt;
+function hasSectionImages(section: DepartmentResearchHighlightSectionBlock) {
+  return Boolean(section.images && section.images.length > 0);
+}
 
-  return {
-    src,
-    alt,
-    key: `${item?.id ?? 'fallback'}:${src}`,
-  };
-};
+function HighlightGalleryStack({
+  images,
+  heading,
+  onOpen,
+}: {
+  images: DepartmentResearchHighlightImage[];
+  heading?: string;
+  onOpen: () => void;
+}) {
+  const previewImage = images[0];
+  const extraCount = images.length - 1;
 
-/**
- * Department research highlights section with a pinned desktop scroll animation
- * and a lighter autoplay fallback for smaller screens.
- */
-export default function DepartmentResearchHighlightsSection({
-  titlePart1,
-  titlePart2,
-  backgroundImageSrc,
-  backgroundImageAlt,
-  highlights,
-  highlightImageSrc = '/images/aboutusRubber.jpg',
-  highlightImageAlt = 'Research highlight visual',
-  containerClassName = '',
-}: DepartmentResearchHighlightsSectionProps) {
-  const sectionRef = useRef<HTMLElement | null>(null);
-  const geometryRef = useRef<HTMLDivElement | null>(null);
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const [mobileActiveIndex, setMobileActiveIndex] = useState(0);
-  const [isDesktop, setIsDesktop] = useState(false);
-  const [isTablet, setIsTablet] = useState(false);
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
-  const [mobileAutoplayEnabled, setMobileAutoplayEnabled] = useState(true);
-  const [containerSize, setContainerSize] = useState({
-    width: 1920,
-    height: DESKTOP_MIN_HEIGHT,
-  });
-  const initialImage = resolveHighlightImage(highlights[0], highlightImageSrc, highlightImageAlt);
-  const [currentImage, setCurrentImage] = useState<HighlightImageState>(initialImage);
-  const [previousImage, setPreviousImage] = useState<HighlightImageState | null>(null);
-  const [isImageTransitionActive, setIsImageTransitionActive] = useState(false);
+  if (!previewImage) {
+    return null;
+  }
 
-  useLayoutEffect(() => {
-    if (typeof window === 'undefined' || !geometryRef.current) {
-      return;
-    }
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      className="group mt-4 block w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2E7D32] focus-visible:ring-offset-2"
+      aria-label={`Open image gallery${heading ? ` for ${heading}` : ''}`}
+    >
+      <div className="relative mx-auto w-full max-w-[320px] pt-4 sm:max-w-[340px] md:max-w-[300px] lg:max-w-[360px] lg:pt-6">
+        {images.length > 1 ? (
+          <>
+            <div className="absolute right-2 top-0 h-[80%] w-[84%] rounded-[16px] border border-[#2E7D32]/10 bg-white/80 shadow-[0_10px_22px_rgba(17,17,17,0.04)] transition-transform duration-300 group-hover:-translate-y-0.5 sm:rounded-[18px] md:shadow-[0_12px_26px_rgba(17,17,17,0.05)] lg:group-hover:-translate-y-1" />
+            <div className="absolute right-1 top-2 h-[84%] w-[90%] rounded-[16px] border border-[#2E7D32]/10 bg-white/92 shadow-[0_14px_28px_rgba(17,17,17,0.05)] transition-transform duration-300 group-hover:-translate-y-1 sm:top-3 sm:rounded-[18px] md:shadow-[0_16px_30px_rgba(17,17,17,0.06)] lg:group-hover:-translate-y-1.5" />
+          </>
+        ) : null}
 
-    const element = geometryRef.current;
+        <div className="relative z-[1] overflow-hidden rounded-[16px] border border-[#2E7D32]/10 bg-white shadow-[0_14px_28px_rgba(17,17,17,0.08)] sm:rounded-[18px] sm:shadow-[0_18px_40px_rgba(17,17,17,0.09)]">
+          <div className="relative aspect-[4/3] w-full">
+            <Image
+              src={previewImage.src}
+              alt={previewImage.alt}
+              fill
+              className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+              sizes="(max-width: 767px) 100vw, (max-width: 1279px) 50vw, 30vw"
+            />
+          </div>
 
-    const updateSize = () => {
-      const rect = element.getBoundingClientRect();
+          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,63,29,0)_42%,rgba(15,63,29,0.48)_100%)]" />
 
-      setContainerSize((current) => {
-        const nextWidth = Math.round(rect.width);
-        const nextHeight = Math.round(rect.height);
+          <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 px-3 py-2.5 sm:gap-3 sm:px-4 sm:py-3">
+            <span className="whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.12em] text-white sm:text-[11px] sm:tracking-[0.14em]">
+              View image
+            </span>
+            {extraCount > 0 ? (
+              <span className="inline-flex shrink-0 items-center rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.06em] text-[#0F3F1D] sm:px-3 sm:text-[11px] sm:tracking-[0.08em]">
+                +{extraCount} more
+              </span>
+            ) : null}
+          </div>
+        </div>
+      </div>
+    </button>
+  );
+}
 
-        if (current.width === nextWidth && current.height === nextHeight) {
-          return current;
-        }
+function HighlightContent({
+  item,
+  onOpenGallery,
+}: {
+  item: DepartmentResearchHighlightItem;
+  onOpenGallery: (
+    images: DepartmentResearchHighlightImage[],
+    title?: string,
+    initialIndex?: number
+  ) => void;
+}) {
+  const hasStructuredSections = item.sections && item.sections.length > 0;
+  const hasSectionLevelImages = Boolean(item.sections?.some(hasSectionImages));
+  const hasImage = Boolean(item.image) && !hasSectionLevelImages;
 
-        return {
-          width: nextWidth,
-          height: nextHeight,
-        };
-      });
+  if (!item.details && !hasStructuredSections && !hasImage) {
+    return null;
+  }
+
+  return (
+    <div className="rounded-[10px] bg-[#E2EDE1] px-4 py-5 sm:px-5 md:px-6 md:py-6 lg:px-7">
+      {item.details ? (
+        <p className="text-[14px] leading-[1.8] text-[#2D5E2F] md:text-[15px]">
+          {item.details}
+        </p>
+      ) : null}
+
+      {hasStructuredSections ? (
+        hasSectionLevelImages ? (
+          <div
+            className={`grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2 xl:grid-cols-3 ${
+              item.details ? 'mt-5' : ''
+            }`}
+          >
+            {item.sections?.map((section) => {
+              const sectionHasImages = hasSectionImages(section);
+
+              return (
+                <div
+                  key={section.id}
+                  className={`rounded-[14px] border px-4 py-4 sm:px-5 ${
+                    sectionHasImages
+                      ? 'border-[#D4E5D2] bg-white shadow-[0_14px_34px_rgba(17,17,17,0.05)]'
+                      : 'border-[#DCE8DB] bg-[#F4F8F2]'
+                  }`}
+                >
+                  {section.heading ? (
+                    <h4 className="text-[15px] font-medium leading-[1.4] text-[#2E7D32] md:text-[16px]">
+                      {section.heading}
+                    </h4>
+                  ) : null}
+
+                  {section.body ? (
+                    <p className="mt-3 text-[14px] leading-[1.8] text-[#2D5E2F] md:text-[15px]">
+                      {section.body}
+                    </p>
+                  ) : null}
+
+                  {section.items && section.items.length > 0 ? (
+                    <ul className="mt-3 list-disc space-y-1.5 pl-5 text-[14px] leading-[1.45] text-[#111111] md:text-[15px]">
+                      {section.items.map((entry) => (
+                        <li key={entry} className="marker:text-[#111111]">
+                          {formatHighlightItem(entry)}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
+
+                  {sectionHasImages ? (
+                    <HighlightGalleryStack
+                      images={section.images ?? []}
+                      heading={section.heading}
+                      onOpen={() =>
+                        onOpenGallery(section.images ?? [], section.heading, 0)
+                      }
+                    />
+                  ) : null}
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div
+            className={`grid gap-6 ${
+              item.sections && item.sections.length > 1 ? 'xl:grid-cols-2' : 'grid-cols-1'
+            } ${item.details ? 'mt-5' : ''}`}
+          >
+            {item.sections?.map((section) => (
+              <div key={section.id}>
+                {section.heading ? (
+                  <h4 className="text-[15px] font-medium leading-[1.4] text-[#2E7D32] md:text-[16px]">
+                    {section.heading}
+                  </h4>
+                ) : null}
+
+                {section.body ? (
+                  <p className="mt-3 text-[14px] leading-[1.8] text-[#2D5E2F] md:text-[15px]">
+                    {section.body}
+                  </p>
+                ) : null}
+
+                {section.items && section.items.length > 0 ? (
+                  <ul className="mt-3 list-disc space-y-1.5 pl-5 text-[14px] leading-[1.45] text-[#111111] md:text-[15px]">
+                    {section.items.map((entry) => (
+                      <li key={entry} className="marker:text-[#111111]">
+                        {formatHighlightItem(entry)}
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+              </div>
+            ))}
+          </div>
+        )
+      ) : null}
+
+      {item.image ? (
+        <div className={item.details || hasStructuredSections ? 'mt-6' : ''}>
+          <div className="overflow-hidden rounded-[14px] bg-white shadow-[0_12px_28px_rgba(17,17,17,0.08)]">
+            <div className="relative aspect-[16/9] w-full">
+              <Image
+                src={item.image.src}
+                alt={item.image.alt}
+                fill
+                className="object-cover"
+                sizes="(max-width: 767px) 100vw, (max-width: 1279px) 70vw, 42vw"
+              />
+            </div>
+
+            {item.image.title ? (
+              <div className="border-t border-[#2E7D32]/12 px-4 py-3 md:px-5">
+                <p className="text-[13px] font-medium uppercase tracking-[0.16em] text-[#2E7D32] md:text-[14px]">
+                  {item.image.title}
+                </p>
+              </div>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function HighlightGalleryModal({
+  images,
+  activeIndex,
+  title,
+  isVisible,
+  onClose,
+  onNavigate,
+  onSelectIndex,
+}: {
+  images: DepartmentResearchHighlightImage[];
+  activeIndex: number;
+  title?: string;
+  isVisible: boolean;
+  onClose: () => void;
+  onNavigate: (direction: 'previous' | 'next') => void;
+  onSelectIndex: (index: number) => void;
+}) {
+  const activeImage = images[activeIndex];
+
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+
+      if (images.length > 1 && event.key === 'ArrowLeft') {
+        onNavigate('previous');
+      }
+
+      if (images.length > 1 && event.key === 'ArrowRight') {
+        onNavigate('next');
+      }
     };
 
-    updateSize();
-
-    const observer = new ResizeObserver(() => {
-      updateSize();
-    });
-
-    observer.observe(element);
+    document.addEventListener('keydown', handleKeyDown);
 
     return () => {
-      observer.disconnect();
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', handleKeyDown);
     };
-  }, []);
+  }, [images.length, onClose, onNavigate]);
+
+  if (!activeImage) {
+    return null;
+  }
+
+  return (
+    <div
+      className={`fixed inset-0 z-[130] flex min-h-dvh items-end justify-center bg-[#03100A]/88 px-0 py-0 backdrop-blur-[8px] transition-[opacity,backdrop-filter] duration-300 ease-out md:items-center md:px-4 md:py-4 lg:px-6 ${
+        isVisible ? 'opacity-100' : 'opacity-0'
+      }`}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="research-highlight-gallery-title"
+      onClick={onClose}
+    >
+      <div
+        className={`relative flex h-[100dvh] w-full max-w-[1240px] flex-col overflow-hidden rounded-none border-0 bg-[#F8FBF6] shadow-[0_40px_120px_rgba(0,0,0,0.34)] transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] md:h-auto md:max-h-[94dvh] md:rounded-[24px] md:border md:border-white/12 md:shadow-[0_30px_90px_rgba(0,0,0,0.30)] lg:max-h-[94dvh] lg:rounded-[30px] ${
+          isVisible
+            ? 'translate-y-0 scale-100 opacity-100'
+            : 'translate-y-8 scale-[0.995] opacity-0 md:translate-y-4 md:scale-[0.985]'
+        }`}
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="sticky top-0 z-20 border-b border-[#E0E9DC] bg-[radial-gradient(circle_at_top_right,_rgba(161,223,10,0.18),_transparent_26%),linear-gradient(135deg,#F7FBF4_0%,#EEF6EA_100%)] px-4 py-3.5 backdrop-blur sm:px-5 sm:py-4 md:px-6 md:py-4 lg:px-7 lg:py-6">
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0 pr-2 md:pr-4">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#2E7D32]">
+                Research highlight image
+              </p>
+              <h3
+                id="research-highlight-gallery-title"
+                className="mt-2 text-[18px] font-semibold leading-tight text-[#10341B] sm:text-[20px] md:text-[22px] lg:text-[26px]"
+              >
+                {title || activeImage.title || 'Image preview'}
+              </h3>
+            </div>
+
+            <button
+              type="button"
+              onClick={onClose}
+              className="inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[#D7E3D3] bg-white text-[#15341F] transition hover:border-[#BFD4B8] hover:bg-[#F4FAF0] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2E7D32] focus-visible:ring-offset-2"
+              aria-label="Close image viewer"
+            >
+              <X className="h-5 w-5" strokeWidth={2.1} aria-hidden="true" />
+            </button>
+          </div>
+
+          {images.length > 1 ? (
+            <div className="mt-4 inline-flex items-center rounded-full border border-[#D6E5CF] bg-white/85 px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-[#1E6B2F]">
+              Image {activeIndex + 1} of {images.length}
+            </div>
+          ) : null}
+        </div>
+
+        <div className="min-h-0 flex-1 overflow-y-auto bg-[linear-gradient(180deg,#F6F9F3_0%,#FFFFFF_100%)] p-3 sm:p-4 md:p-4 lg:p-7">
+          <div className="grid gap-4 lg:gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
+            <div className="rounded-[22px] border border-[#E1EBDD] bg-white p-2.5 shadow-[0_18px_40px_rgba(15,63,29,0.08)] sm:rounded-[24px] sm:p-3 md:rounded-[26px] md:p-4 lg:rounded-[28px] lg:p-5">
+              <div className="rounded-[18px] border border-dashed border-[#D7E4D1] bg-[#FAFCF8] p-2.5 sm:rounded-[20px] sm:p-3 md:rounded-[22px] md:p-4">
+                <div className="relative mx-auto h-[clamp(260px,38dvh,360px)] w-full overflow-hidden rounded-[16px] bg-white shadow-[0_18px_40px_rgba(15,63,29,0.08)] sm:h-[min(50dvh,460px)] sm:rounded-[18px] md:h-[min(52dvh,500px)] lg:h-[min(58dvh,620px)]">
+                  <Image
+                    src={activeImage.src}
+                    alt={activeImage.alt}
+                    fill
+                    className="object-contain"
+                    sizes="(max-width: 1279px) 100vw, 880px"
+                    priority
+                  />
+                </div>
+              </div>
+            </div>
+
+            <aside className="rounded-[24px] border border-[#E1EBDD] bg-white p-4 shadow-[0_18px_40px_rgba(15,63,29,0.06)] sm:p-5">
+              <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#7A8C82]">
+                Gallery
+              </p>
+              <p className="mt-2 text-[20px] font-semibold text-[#10341B] sm:text-[22px]">
+                {title || 'Research highlight'}
+              </p>
+
+              {activeImage.title ? (
+                <p className="mt-3 text-[14px] leading-7 text-[#5A6B61]">
+                  {activeImage.title}
+                </p>
+              ) : null}
+
+              {images.length > 1 ? (
+                <>
+                  <div className="mt-6 grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => onNavigate('previous')}
+                      className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-[18px] border border-[#D7E3D3] bg-[#F8FBF6] px-4 py-3 text-sm font-semibold text-[#16311F] transition hover:border-[#BFD4B8] hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2E7D32] focus-visible:ring-offset-2"
+                    >
+                      <ChevronLeft className="h-4 w-4" strokeWidth={2.1} aria-hidden="true" />
+                      <span>Previous</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onNavigate('next')}
+                      className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-[18px] border border-[#D7E3D3] bg-[#F8FBF6] px-4 py-3 text-sm font-semibold text-[#16311F] transition hover:border-[#BFD4B8] hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2E7D32] focus-visible:ring-offset-2"
+                    >
+                      <span>Next</span>
+                      <ChevronRight className="h-4 w-4" strokeWidth={2.1} aria-hidden="true" />
+                    </button>
+                  </div>
+
+                  <div className="mt-6 border-t border-[#E8EFE3] pt-6">
+                    <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#7A8C82]">
+                      Quick switch
+                    </p>
+                    <div className="mt-4 grid grid-cols-2 gap-3">
+                      {images.map((image, index) => (
+                        <button
+                          key={`${image.src}-${index}`}
+                          type="button"
+                          onClick={() => onSelectIndex(index)}
+                          className={`overflow-hidden rounded-[18px] border transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2E7D32] focus-visible:ring-offset-2 ${
+                            index === activeIndex
+                              ? 'border-[#2E7D32] shadow-[0_10px_24px_rgba(46,125,50,0.16)]'
+                              : 'border-[#D7E3D3] hover:border-[#BFD4B8]'
+                          }`}
+                          aria-label={`Show image ${index + 1}`}
+                        >
+                          <div className="relative aspect-[4/3] w-full bg-[#F3F8EF]">
+                            <Image
+                              src={image.src}
+                              alt={image.alt}
+                              fill
+                              className="object-cover"
+                              sizes="160px"
+                            />
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              ) : null}
+            </aside>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function DepartmentResearchHighlightsSection({
+  tagText,
+  titlePart1,
+  titlePart2,
+  backgroundImageSrc = DEFAULT_BACKGROUND,
+  backgroundImageAlt = DEFAULT_BACKGROUND_ALT,
+  highlights,
+  containerClassName = '',
+}: DepartmentResearchHighlightsSectionProps) {
+  const [openItemId, setOpenItemId] = useState(highlights[0]?.id ?? '');
+  const [responsiveMode, setResponsiveMode] = useState<ResponsiveMode>('desktop');
+  const [galleryState, setGalleryState] = useState<{
+    images: DepartmentResearchHighlightImage[];
+    activeIndex: number;
+    title?: string;
+  } | null>(null);
+  const [isGalleryVisible, setIsGalleryVisible] = useState(false);
+
+  useEffect(() => {
+    setOpenItemId((current) => {
+      if (highlights.length === 0) {
+        return '';
+      }
+
+      const currentStillExists = highlights.some((item) => item.id === current);
+
+      return currentStillExists ? current : highlights[0].id;
+    });
+  }, [highlights]);
 
   useEffect(() => {
     if (typeof window === 'undefined') {
       return;
     }
 
-    const desktopQuery = window.matchMedia('(min-width: 1024px)');
-    const tabletQuery = window.matchMedia('(min-width: 768px) and (max-width: 1023px)');
-    const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-
-    const syncMediaState = () => {
-      const desktopMatches = desktopQuery.matches;
-      const tabletMatches = tabletQuery.matches;
-
-      setIsDesktop(desktopMatches);
-      setIsTablet(tabletMatches);
-      setPrefersReducedMotion(reducedMotionQuery.matches);
-
-      if (desktopMatches || tabletMatches) {
-        setMobileAutoplayEnabled(true);
-      }
-    };
-
-    syncMediaState();
-    desktopQuery.addEventListener('change', syncMediaState);
-    tabletQuery.addEventListener('change', syncMediaState);
-    reducedMotionQuery.addEventListener('change', syncMediaState);
-
-    return () => {
-      desktopQuery.removeEventListener('change', syncMediaState);
-      tabletQuery.removeEventListener('change', syncMediaState);
-      reducedMotionQuery.removeEventListener('change', syncMediaState);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (typeof window === 'undefined' || !sectionRef.current) {
-      return;
-    }
-
-    const maxProgress = Math.max(highlights.length - 1, 1);
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    if (reducedMotion) {
-      return;
-    }
-
-    const media = gsap.matchMedia();
-    const state = { progress: 0 };
-
-    media.add(
-      {
-        isDesktop: '(min-width: 1024px)',
-        isTablet: '(min-width: 768px) and (max-width: 1023px)',
-      },
-      (context) => {
-        const desktopMode = context.conditions?.isDesktop ?? false;
-        const tabletMode = context.conditions?.isTablet ?? false;
-
-        if (!desktopMode && !tabletMode) {
-          return undefined;
-        }
-
-        const tween = gsap.to(state, {
-          progress: maxProgress,
-          ease: 'none',
-          onUpdate: () => {
-            setScrollProgress(state.progress);
-          },
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top top',
-            end: `+=${desktopMode ? Math.max(highlights.length * 700, 2800) : Math.max(highlights.length * 480, 2200)}`,
-            scrub: 1.15,
-            snap:
-              highlights.length > 1
-                ? {
-                    snapTo: (value: number) =>
-                      Math.round(value * maxProgress) / maxProgress,
-                    duration: { min: 0.14, max: 0.24 },
-                    delay: 0,
-                    ease: 'power1.inOut',
-                  }
-                : undefined,
-            pin: true,
-            anticipatePin: 1,
-            invalidateOnRefresh: true,
-          },
-        });
-
-        return () => {
-          tween.kill();
-        };
-      }
+    const mobileQuery = window.matchMedia('(max-width: 767px)');
+    const tabletQuery = window.matchMedia(
+      '(min-width: 768px) and (max-width: 1023px)'
     );
 
-    return () => {
-      media.revert();
-    };
-  }, [highlights.length]);
-
-  useEffect(() => {
-    if (typeof window === 'undefined' || highlights.length <= 1) {
-      return;
-    }
-
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const mobileOnly = window.matchMedia('(max-width: 767px)');
-    let intervalId: ReturnType<typeof setInterval> | null = null;
-
-    const syncPlayback = () => {
-      if (intervalId) {
-        clearInterval(intervalId);
-        intervalId = null;
-      }
-
-      if (reducedMotion.matches || !mobileOnly.matches || !mobileAutoplayEnabled) {
+    const syncResponsiveMode = () => {
+      if (mobileQuery.matches) {
+        setResponsiveMode('mobile');
         return;
       }
 
-      intervalId = setInterval(() => {
-        setMobileActiveIndex((current) => (current + 1) % highlights.length);
-      }, 3200);
-    };
-
-    syncPlayback();
-    mobileOnly.addEventListener('change', syncPlayback);
-    reducedMotion.addEventListener('change', syncPlayback);
-
-    return () => {
-      if (intervalId) {
-        clearInterval(intervalId);
+      if (tabletQuery.matches) {
+        setResponsiveMode('tablet');
+        return;
       }
 
-      mobileOnly.removeEventListener('change', syncPlayback);
-      reducedMotion.removeEventListener('change', syncPlayback);
+      setResponsiveMode('desktop');
     };
-  }, [highlights, mobileAutoplayEnabled]);
 
-  const mobileHighlight = highlights[mobileActiveIndex] ?? highlights[0];
-  const desktopActiveIndex =
-    highlights.length > 0 ? clamp(Math.round(scrollProgress), 0, highlights.length - 1) : 0;
-  const usesArcLayout = isDesktop || isTablet;
-  const activeHighlightIndex = usesArcLayout ? desktopActiveIndex : mobileActiveIndex;
-  const layoutHeight = containerSize.height || (isTablet ? TABLET_MIN_HEIGHT : DESKTOP_MIN_HEIGHT);
-  const circleSize = isTablet ? TABLET_CIRCLE_SIZE : CIRCLE_SIZE;
-  const circleLeft = isTablet ? TABLET_CIRCLE_LEFT : CIRCLE_LEFT;
-  const pathCenterX = isTablet ? TABLET_PATH_CENTER_X : PATH_CENTER_X;
-  const pathRadius = isTablet ? TABLET_PATH_RADIUS : PATH_RADIUS;
-  const textBaseX = isTablet ? 30 : 44;
-  const textStepX = isTablet ? 4 : 8;
-  const textWidth = isTablet ? 420 : 740;
-  const titleRight = isTablet ? 28 : 80;
-  const titleSize = isTablet ? 54 : 72;
+    syncResponsiveMode();
+    mobileQuery.addEventListener('change', syncResponsiveMode);
+    tabletQuery.addEventListener('change', syncResponsiveMode);
 
-  useEffect(() => {
-    const nextImage = resolveHighlightImage(
-      highlights[activeHighlightIndex],
-      highlightImageSrc,
-      highlightImageAlt
-    );
+    return () => {
+      mobileQuery.removeEventListener('change', syncResponsiveMode);
+      tabletQuery.removeEventListener('change', syncResponsiveMode);
+    };
+  }, []);
 
-    if (nextImage.key === currentImage.key) {
+  const sectionHeight = useMemo(() => {
+    if (responsiveMode === 'desktop') {
+      return highlights.length > 4 ? DESKTOP_SCROLL_HEIGHT : undefined;
+    }
+
+    if (responsiveMode === 'tablet') {
+      return highlights.length > 5 ? TABLET_SCROLL_HEIGHT : undefined;
+    }
+
+    return highlights.length > 4 ? MOBILE_SCROLL_HEIGHT : undefined;
+  }, [highlights.length, responsiveMode]);
+
+  const openGallery = (
+    images: DepartmentResearchHighlightImage[],
+    title?: string,
+    initialIndex = 0
+  ) => {
+    if (!images.length) {
       return;
     }
 
-    if (prefersReducedMotion) {
-      const reducedMotionFrameId = window.requestAnimationFrame(() => {
-        setPreviousImage(null);
-        setCurrentImage(nextImage);
-        setIsImageTransitionActive(false);
-      });
-
-      return () => {
-        window.cancelAnimationFrame(reducedMotionFrameId);
-      };
-    }
-
-    const swapFrameId = window.requestAnimationFrame(() => {
-      setIsImageTransitionActive(false);
-      setPreviousImage(currentImage);
-      setCurrentImage(nextImage);
+    setGalleryState({
+      images,
+      activeIndex: initialIndex,
+      title,
     });
-
-    const transitionFrameId = window.requestAnimationFrame(() => {
+    window.requestAnimationFrame(() => {
       window.requestAnimationFrame(() => {
-        setIsImageTransitionActive(true);
+        setIsGalleryVisible(true);
       });
     });
+  };
 
-    const timeoutId = window.setTimeout(() => {
-      setPreviousImage(null);
-      setIsImageTransitionActive(false);
-    }, 700);
+  const closeGallery = () => {
+    setIsGalleryVisible(false);
+    window.setTimeout(() => {
+      setGalleryState(null);
+    }, GALLERY_TRANSITION_MS);
+  };
 
-    return () => {
-      window.cancelAnimationFrame(swapFrameId);
-      window.cancelAnimationFrame(transitionFrameId);
-      window.clearTimeout(timeoutId);
-    };
-  }, [
-    activeHighlightIndex,
-    currentImage,
-    highlightImageAlt,
-    highlightImageSrc,
-    highlights,
-    prefersReducedMotion,
-  ]);
+  const navigateGallery = (direction: 'previous' | 'next') => {
+    setGalleryState((current) => {
+      if (!current || current.images.length <= 1) {
+        return current;
+      }
+
+      const nextIndex =
+        direction === 'previous'
+          ? (current.activeIndex - 1 + current.images.length) % current.images.length
+          : (current.activeIndex + 1) % current.images.length;
+
+      return {
+        ...current,
+        activeIndex: nextIndex,
+      };
+    });
+  };
+
+  const selectGalleryIndex = (index: number) => {
+    setGalleryState((current) => {
+      if (!current || index < 0 || index >= current.images.length) {
+        return current;
+      }
+
+      return {
+        ...current,
+        activeIndex: index,
+      };
+    });
+  };
 
   return (
-    <section
-      ref={sectionRef}
-      className="relative overflow-hidden bg-[#0C5A1D] py-0 md:h-screen md:min-h-[640px] md:py-0 lg:min-h-[760px]"
-      style={{
-        width: '100vw',
-        maxWidth: '100vw',
-        marginLeft: 'calc(50% - 50vw)',
-        marginRight: 'calc(50% - 50vw)',
-      }}
-    >
-      <div
-        ref={geometryRef}
-        className="relative min-h-[420px] overflow-hidden md:h-screen md:min-h-[640px] lg:min-h-[760px]"
+    <>
+      <section
+        className="relative overflow-hidden py-14 md:py-16 lg:py-24"
+        style={{
+          width: '100vw',
+          maxWidth: '100vw',
+          marginLeft: 'calc(50% - 50vw)',
+          marginRight: 'calc(50% - 50vw)',
+        }}
       >
-          <div className="absolute inset-0">
-            <Image
-              src={backgroundImageSrc}
-              alt={backgroundImageAlt}
-              fill
-              className="object-cover object-center"
-              priority={false}
-              sizes="100vw"
-            />
-          </div>
+        <div className="absolute inset-0">
+          <Image
+            src={backgroundImageSrc}
+            alt={backgroundImageAlt}
+            fill
+            className="object-cover object-center"
+            sizes="100vw"
+          />
+        </div>
 
-          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(7,98,26,0.12)_0%,rgba(7,98,26,0.02)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(37,93,9,0.88)_0%,rgba(110,181,10,0.74)_22%,rgba(154,213,36,0.3)_50%,rgba(58,113,14,0.78)_100%)]" />
 
-          <div
-            className="absolute top-1/2 hidden -translate-y-1/2 overflow-hidden rounded-full md:block"
-            style={{
-              left: circleLeft,
-              width: circleSize,
-              height: circleSize,
-            }}
-          >
-            {previousImage ? (
-              <Image
-                key={`desktop-previous-${previousImage.key}`}
-                src={previousImage.src}
-                alt={previousImage.alt}
-                fill
-                className="object-cover transition-opacity duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
-                sizes={isTablet ? '420px' : '600px'}
-                style={{ opacity: isImageTransitionActive ? 0 : 1 }}
-              />
-            ) : null}
-            <Image
-              key={`desktop-current-${currentImage.key}`}
-              src={currentImage.src}
-              alt={currentImage.alt}
-              fill
-              className="object-cover transition-opacity duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
-              sizes={isTablet ? '420px' : '600px'}
-              style={{ opacity: previousImage ? (isImageTransitionActive ? 1 : 0) : 1 }}
-            />
-          </div>
+        <div className="absolute inset-y-0 right-0 w-[42%] bg-[radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.22),transparent_55%)]" />
 
-          <div className="absolute inset-0 hidden md:block" aria-hidden="true">
-            <div
-              className="absolute rounded-full border-2 border-white/90"
-              style={{
-                left: pathCenterX - pathRadius,
-                top: layoutHeight / 2 - pathRadius,
-                width: pathRadius * 2,
-                height: pathRadius * 2,
-              }}
-            />
+        <div className={`relative z-10 mx-auto max-w-[1600px] px-4 md:px-6 lg:px-8 ${containerClassName}`}>
+          <div className="flex flex-col gap-6 md:gap-7 lg:grid lg:grid-cols-[86px_minmax(0,1fr)] lg:gap-8 xl:grid-cols-[96px_minmax(0,1fr)] xl:gap-9">
+            <div className="flex flex-col items-start">
+              <span className="sr-only">{tagText}</span>
 
-            {highlights.map((item, index) => {
-              const slotPosition =
-                FOCUS_SLOT_INDEX +
-                getWrappedOffset(index, scrollProgress, highlights.length);
-              const point = getArcPoint(slotPosition, layoutHeight, pathCenterX, pathRadius);
-              const focusDistance = Math.abs(slotPosition - FOCUS_SLOT_INDEX);
-              const emphasis = clamp(1 - focusDistance / 1.35, 0, 1);
-              const visibility = slotPosition > -0.75 && slotPosition < 6.85 ? 1 : 0;
-              const textX = point.x + textBaseX + clamp(slotPosition, 0, 6) * textStepX;
-              const fontSize = isTablet ? 14 : 16;
-              const lineHeight = 1.5 - emphasis * 0.08;
-              const dotSize = (isTablet ? 10 : 12) + emphasis * (isTablet ? 8 : 10);
-              const ringSize = dotSize + (isTablet ? 10 : 14);
-              const dotOffset = ringSize / 2;
-
-              return (
-                <React.Fragment key={item.id}>
-                  <div
-                    className="absolute rounded-full border-[3px] border-transparent"
-                    style={{
-                      left: point.x - dotOffset,
-                      top: point.y - dotOffset,
-                      width: ringSize,
-                      height: ringSize,
-                      opacity: visibility,
-                      backgroundColor: emphasis > 0.72 ? DOT_COLOR : 'transparent',
-                      borderColor: emphasis > 0.72 ? DOT_COLOR : 'transparent',
-                      transform: emphasis > 0.72 ? 'scale(1)' : 'scale(0.92)',
-                    }}
-                  >
-                    {emphasis > 0.72 ? (
-                      <div className="absolute inset-[4px] rounded-full bg-white" />
-                    ) : (
-                      <div className="absolute inset-0 rounded-full" style={{ backgroundColor: DOT_COLOR }} />
-                    )}
-                  </div>
-
-                  <div
-                    className="absolute max-w-none py-3 text-white"
-                    style={{
-                      left: textX,
-                      top: point.y,
-                      width: textWidth,
-                      opacity: clamp(0.5 + emphasis * 0.75, 0, 1) * visibility,
-                      fontSize,
-                      lineHeight,
-                      fontWeight: emphasis > 0.72 ? 600 : 500,
-                      transform: `translateY(calc(-50% - ${emphasis * 2}px)) scale(${1 + emphasis * 0.04})`,
-                      transformOrigin: 'left center',
-                    }}
-                  >
-                    {item.text}
-                  </div>
-                </React.Fragment>
-              );
-            })}
-          </div>
-
-          <div className={`relative z-10 mx-auto w-full max-w-[1920px] px-4 md:px-6 lg:px-8 ${containerClassName}`}>
-            <div className="flex min-h-[420px] flex-col p-6 md:h-screen md:min-h-[640px] md:justify-between md:p-10 lg:min-h-[760px] lg:p-12">
-              <div className="flex justify-start md:hidden">
-                <div className="flex flex-col items-start gap-4">
-                  <GradientTitle
-                    part1={titlePart1}
-                    part2={titlePart2}
-                    lineBreak={false}
-                    part1Color="white"
-                    size="custom"
-                    customSize="clamp(28px, 4vw, 44px)"
-                    align="left"
-                    className="font-bold leading-[1.05] text-white"
-                  />
+              <div className="w-full lg:hidden">
+                <div className="max-w-[780px]">
+                  <span className="text-[30px] font-bold leading-[1.02] text-white sm:text-[34px] md:text-[42px]">
+                    {titlePart1}
+                    {titlePart2}
+                  </span>
                 </div>
               </div>
 
-              <div className="mt-8 md:hidden">
-                <div className="relative flex h-[520px] flex-col overflow-hidden rounded-[28px] border border-white/15 bg-[rgba(6,58,18,0.18)] shadow-[0_18px_54px_rgba(0,0,0,0.12)]">
-                  <div className="relative h-[248px] overflow-hidden">
-                    {previousImage ? (
-                      <Image
-                        key={`mobile-previous-${previousImage.key}`}
-                        src={previousImage.src}
-                        alt={previousImage.alt}
-                        fill
-                        className="object-cover transition-opacity duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
-                        sizes="(max-width: 767px) 100vw"
-                        style={{ opacity: isImageTransitionActive ? 0 : 1 }}
-                      />
-                    ) : null}
-                    <Image
-                      key={`mobile-current-${currentImage.key}`}
-                      src={currentImage.src}
-                      alt={currentImage.alt}
-                      fill
-                      className="object-cover transition-opacity duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
-                      sizes="(max-width: 767px) 100vw"
-                      style={{ opacity: previousImage ? (isImageTransitionActive ? 1 : 0) : 1 }}
-                    />
-                    <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(12,90,29,0.04)_0%,rgba(12,90,29,0.28)_100%)]" />
-                  </div>
-
-                  <div className="flex flex-1 flex-col px-5 pb-5 pt-5">
-                    <div className="text-[12px] font-medium uppercase tracking-[0.22em] text-white/65">
-                      Highlight {mobileActiveIndex + 1}
-                    </div>
-                    <p className="mt-3 line-clamp-7 text-[17px] font-semibold leading-[1.6] text-white">
-                      {mobileHighlight?.text}
-                    </p>
-
-                    <div className="mt-auto flex flex-wrap items-center gap-2 pt-6">
-                      {highlights.map((item, index) => (
-                        <button
-                          key={item.id}
-                          type="button"
-                          aria-label={`Show highlight ${index + 1}`}
-                          onClick={() => {
-                            setMobileAutoplayEnabled(false);
-                            setMobileActiveIndex(index);
-                          }}
-                          className="h-3 w-3 rounded-full transition-transform"
-                          style={{
-                            backgroundColor: DOT_COLOR,
-                            opacity: index === mobileActiveIndex ? 1 : 0.35,
-                            transform: index === mobileActiveIndex ? 'scale(1.35)' : 'scale(1)',
-                          }}
-                        />
-                      ))}
-                    </div>
-                  </div>
+              <div className="hidden lg:-ml-6 lg:flex lg:min-h-[620px] lg:items-center xl:-ml-8">
+                <div className="whitespace-nowrap text-left lg:rotate-180 lg:[writing-mode:vertical-rl]">
+                  <span className="text-[56px] font-bold leading-none text-white xl:text-[64px]">
+                    {titlePart1}
+                    {titlePart2}
+                  </span>
                 </div>
               </div>
+            </div>
 
+            <div className="min-w-0 md:pt-1 lg:pt-4 xl:pt-5">
               <div
-                className="hidden md:absolute md:top-[47%] md:flex md:-translate-y-1/2 md:items-center md:gap-2"
-                style={{ right: titleRight }}
+                className={`relative ${
+                  sectionHeight
+                    ? 'location-details-scroll overflow-y-auto overscroll-contain pr-1 sm:pr-2 md:pr-3'
+                    : 'space-y-4'
+                }`}
+                style={
+                  sectionHeight
+                    ? {
+                        height: sectionHeight,
+                        maxHeight: sectionHeight,
+                      }
+                    : undefined
+                }
               >
-                <div className="pointer-events-none flex items-center gap-2">
-                  <div className="overflow-visible py-3 rotate-180 whitespace-nowrap [writing-mode:vertical-rl]">
-                    <span className="font-bold leading-[1] text-white" style={{ fontSize: titleSize }}>
-                      {titlePart1}{' '}
-                    </span>
-                    <span
-                      className="font-bold leading-[1] text-transparent"
-                      style={{
-                        fontSize: titleSize,
-                        backgroundImage: 'linear-gradient(180deg, #20C997 0%, #A1DF0A 100%)',
-                        WebkitBackgroundClip: 'text',
-                        backgroundClip: 'text',
-                      }}
-                    >
-                      {titlePart2}
-                    </span>
-                  </div>
+                <div
+                  className={`relative w-full ${
+                    responsiveMode === 'desktop'
+                      ? 'space-y-6 xl:space-y-7'
+                      : 'space-y-4 md:space-y-5'
+                  }`}
+                >
+                  {responsiveMode === 'desktop' && highlights.length > 1 ? (
+                    <div
+                      className="pointer-events-none absolute left-[32px] top-[42px] bottom-[42px] z-0 w-px border-l border-dotted border-white/90 xl:left-[36px]"
+                      aria-hidden="true"
+                    />
+                  ) : null}
+
+                  {highlights.map((item, index) => {
+                    const isOpen = item.id === openItemId;
+                    const panelId = `research-highlight-panel-${item.id}`;
+
+                    const isExpandable = Boolean(
+                      item.details ||
+                        item.image ||
+                        (item.sections && item.sections.length > 0)
+                    );
+
+                    return (
+                      <div
+                        key={item.id}
+                        className="relative z-[1] grid grid-cols-1 items-start gap-2 sm:grid-cols-[48px_minmax(0,1fr)] sm:gap-4 md:grid-cols-[52px_minmax(0,1fr)] lg:grid-cols-[64px_minmax(0,1fr)] lg:gap-5 xl:grid-cols-[72px_minmax(0,1fr)]"
+                      >
+                        <div className="relative flex w-full justify-center">
+                          <div className="relative z-[2] flex h-[38px] w-[38px] items-center justify-center rounded-full border border-[#2E7D32]/15 bg-white text-[16px] font-semibold leading-none text-[#7FCB19] shadow-[0_8px_18px_rgba(18,76,21,0.12)] sm:mt-[13px] sm:h-10 sm:w-10 sm:text-[17px] md:mt-[14px] md:h-[42px] md:w-[42px] md:text-[18px] lg:mt-[21px] lg:h-[40px] lg:w-[40px] xl:mt-[22px] xl:h-[42px] xl:w-[42px]">
+                            {String(index + 1).padStart(2, '0')}
+                          </div>
+
+                          <div className="absolute right-0 top-[14px] hidden h-10 w-px border-l border-dotted border-white/55 md:block lg:hidden" />
+                        </div>
+
+                        <article className="rounded-[18px] bg-white px-3.5 py-4 shadow-[0_16px_36px_rgba(17,17,17,0.08)] transition-all duration-300 ease-out hover:translate-x-1 hover:shadow-[0_20px_42px_rgba(17,17,17,0.12)] sm:px-4 md:px-5 lg:rounded-[16px] lg:px-6 xl:px-7 xl:py-4">
+                          <button
+                            type="button"
+                            aria-expanded={isOpen}
+                            aria-controls={panelId}
+                            onClick={() => {
+                              if (isExpandable) {
+                                setOpenItemId((current) => (current === item.id ? '' : item.id));
+                              }
+                            }}
+                            className="flex min-h-11 w-full items-start gap-3 text-left sm:gap-4 md:gap-4 lg:gap-5"
+                          >
+                            <div className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-full bg-[#EFF4EC] sm:h-[46px] sm:w-[46px] md:h-[50px] md:w-[50px] lg:h-[54px] lg:w-[54px]">
+                              <Image
+                                src={TIMELINE_ICON}
+                                alt=""
+                                width={26}
+                                height={26}
+                                className="h-5 w-5 object-contain sm:h-[22px] sm:w-[22px] md:h-6 md:w-6 lg:h-[26px] lg:w-[26px]"
+                                aria-hidden="true"
+                              />
+                            </div>
+
+                            <div className="min-w-0 flex-1 pt-0.5 sm:pt-1">
+                              <h3 className="text-[14px] font-medium leading-[1.7] text-[#2E7D32] sm:text-[15px] md:text-[16px] md:leading-[1.65] lg:text-[15px] lg:leading-[1.55] xl:text-[16px] [text-wrap:pretty]">
+                                {item.summary}
+                              </h3>
+                            </div>
+
+                            {isExpandable ? (
+                              <div
+                                className={`flex min-h-11 shrink-0 items-start justify-end pt-1 text-[#6FC109] transition-transform duration-300 lg:min-h-0 ${
+                                  isOpen ? 'rotate-180' : 'rotate-0'
+                                }`}
+                              >
+                                <ChevronDown className="h-5 w-5" strokeWidth={2.15} />
+                              </div>
+                            ) : null}
+                          </button>
+
+                          {isExpandable ? (
+                            <div
+                              id={panelId}
+                              className={`grid transition-[grid-template-rows,opacity,margin] duration-300 ease-out ${
+                                isOpen
+                                  ? 'mt-4 grid-rows-[1fr] opacity-100'
+                                  : 'grid-rows-[0fr] opacity-0'
+                              }`}
+                            >
+                              <div className="overflow-hidden">
+                                <HighlightContent item={item} onOpenGallery={openGallery} />
+                              </div>
+                            </div>
+                          ) : null}
+                        </article>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>
           </div>
-      </div>
-    </section>
+        </div>
+      </section>
+
+      {galleryState ? (
+        <HighlightGalleryModal
+          images={galleryState.images}
+          activeIndex={galleryState.activeIndex}
+          title={galleryState.title}
+          isVisible={isGalleryVisible}
+          onClose={closeGallery}
+          onNavigate={navigateGallery}
+          onSelectIndex={selectGalleryIndex}
+        />
+      ) : null}
+    </>
   );
 }
