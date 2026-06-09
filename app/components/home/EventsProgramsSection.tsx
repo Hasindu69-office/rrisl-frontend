@@ -288,7 +288,7 @@ export default function EventsProgramsSection() {
   };
 
   return (
-    <section className="overflow-x-clip bg-white py-12 md:py-16 lg:py-24">
+    <section className="overflow-x-clip bg-white py-8 md:py-4 lg:py-8">
       <div className="mx-auto w-full max-w-[1600px] overflow-x-hidden px-4 md:px-6 xl:w-[80%] xl:px-0">
         <div className="rounded-[28px] px-0 py-0 md:px-0 md:py-0">
           <div className="mb-8 text-center md:mb-10 xl:hidden">
