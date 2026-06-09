@@ -14,6 +14,7 @@ import DataInsightsSection from './components/home/DataInsightsSection';
 import NewsBlogSection from './components/home/NewsBlogSection';
 import ResearchNetworkSection from './components/home/ResearchNetworkSection';
 import EventsProgramsSection from './components/home/EventsProgramsSection';
+import HomeQuickLinksSection from './components/home/HomeQuickLinksSection';
 import RubberAnnouncement from './components/home/RubberAnnouncement';
 
 interface HomeProps {
@@ -149,8 +150,13 @@ export default async function Home({ searchParams }: HomeProps) {
       </div>
 
       {/* Events & Programs Section */}
-      <div className="mt-8 md:mt-16 mb-48 lg:mb-[250px]">
+      <div className="mt-8 md:mt-16">
         <EventsProgramsSection />
+      </div>
+
+      {/* Home Quick Links Section */}
+      <div className="mb-48 md:mb-62 lg:mb-[275px]">
+        <HomeQuickLinksSection />
       </div>
 
     </div>
