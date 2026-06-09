@@ -1,70 +1,11 @@
 import Image from 'next/image';
 import GradientTag from '@/app/components/ui/GradientTag';
 import GradientTitle from '@/app/components/ui/GradientTitle';
-
-type TrainingProgramCardData = {
-  title: string;
-  items: string[];
-  imageSrc: string;
-  imageAlt: string;
-  variant: 'light' | 'green';
-  imageWrapClassName: string;
-  imageClassName: string;
-  contentClassName?: string;
-  titleWrapClassName?: string;
-  listClassName?: string;
-  imageWidth: number;
-  imageHeight: number;
-};
-
-const SECTION_COPY = {
-  tag: 'FAQ',
-  title: {
-    part1: 'Training & Capacity',
-    part2: 'Building for Farmers',
-  },
-  description:
-    'Two types of training programs are conducted by the ASD for rubber growers',
-} as const;
-
-const trainingProgramCards: TrainingProgramCardData[] = [
-  {
-    title: 'Centralized farmer Training programs',
-    items: [
-      'Nursery management and bud grafting training for selected nursery owners and bud grafters',
-      'Advance training on rubber cultivation and plantation management for medium scale rubber growers',
-      'Advance training on rubber cultivation and processing for rubber growers in non traditional areas',
-    ],
-    imageSrc: '/images/farmerleft.png',
-    imageAlt: 'Farmer standing with folded arms',
-    variant: 'light',
-    imageWrapClassName: 'right-[-4px] md:right-[-10px] lg:right-[-200px]',
-    imageClassName: 'w-[140px] md:w-[190px] lg:w-[750px]',
-    contentClassName: 'px-5 py-5 md:px-6 md:py-6 lg:pt-8 lg:pb-30 lg:px-10',
-    titleWrapClassName: 'max-w-full pr-0',
-    listClassName: 'mt-5 space-y-4 pr-0 md:mt-6 md:space-y-5 md:pr-24 lg:mt-10 lg:space-y-9 lg:pr-24',
-    imageWidth: 800,
-    imageHeight: 382,
-  },
-  {
-    title: 'Decentralized Training Programs',
-    items: [
-      'Nursery management and bud grafting training for selected nursery owners and bud grafters',
-      'Advance training on rubber cultivation and plantation management for medium scale rubber growers',
-      'Advance training on rubber cultivation and processing for rubber growers in non traditional areas',
-    ],
-    imageSrc: '/images/farmerright.png',
-    imageAlt: 'Farmer using a laptop',
-    variant: 'green',
-    imageWrapClassName: 'right-[-8px] md:right-[-14px] lg:right-[-130px]',
-    imageClassName: 'w-[165px] md:w-[220px] lg:w-[650px]',
-    contentClassName: 'px-5 py-5 md:px-6 md:py-6 lg:pt-8 lg:pb-30 lg:px-10',
-    titleWrapClassName: 'max-w-full pr-0',
-    listClassName: 'mt-5 space-y-4 pr-0 md:mt-6 md:space-y-5 md:pr-24 lg:mt-10 lg:space-y-9 lg:pr-24',
-    imageWidth: 425,
-    imageHeight: 328,
-  },
-] as const;
+import { isLocalhostAssetUrl } from '@/app/lib/strapi';
+import type {
+  TrainingProgramCardViewModel,
+  TrainingProgramPageViewModel,
+} from '@/app/lib/training-program/pageData';
 
 function TrainingProgramCard({
   title,
@@ -79,8 +20,9 @@ function TrainingProgramCard({
   listClassName,
   imageWidth,
   imageHeight,
-}: TrainingProgramCardData) {
+}: TrainingProgramCardViewModel) {
   const isGreen = variant === 'green';
+  const useUnoptimizedImage = isLocalhostAssetUrl(imageSrc);
 
   return (
     <article
@@ -113,8 +55,8 @@ function TrainingProgramCard({
         </div>
 
         <ul className={listClassName}>
-          {items.map((item) => (
-            <li key={item} className="flex items-start gap-3">
+          {items.map((item, index) => (
+            <li key={`${item}-${index}`} className="flex items-start gap-3">
               <Image
                 src="/images/Checkboxicon.png"
                 alt=""
@@ -138,6 +80,7 @@ function TrainingProgramCard({
           width={imageWidth}
           height={imageHeight}
           className={`h-auto object-contain ${imageClassName}`}
+          unoptimized={useUnoptimizedImage}
         />
       </div>
     </article>
@@ -149,16 +92,23 @@ function TrainingProgramCard({
  * The background and spacing are established first so the content grid
  * can be layered in incrementally without changing the section shell.
  */
-export default function TrainingProgramsOverviewSection() {
+export default function TrainingProgramsOverviewSection({
+  pageData,
+}: {
+  pageData: Pick<TrainingProgramPageViewModel, 'section' | 'cards'>;
+}) {
+  const useUnoptimizedBackground = isLocalhostAssetUrl(pageData.section.backgroundImage);
+
   return (
     <section className="relative overflow-hidden bg-white">
       <div className="absolute inset-0 z-0">
         <Image
-          src="/images/datainsightsbackground.png"
-          alt="Training programs background"
+          src={pageData.section.backgroundImage}
+          alt={pageData.section.backgroundImageAlt}
           fill
           priority
           className="object-cover object-bottom"
+          unoptimized={useUnoptimizedBackground}
         />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,250,244,0.96)_0%,rgba(255,249,241,0.88)_24%,rgba(247,251,239,0.62)_55%,rgba(239,246,227,0.48)_100%)]" />
       </div>
@@ -168,21 +118,21 @@ export default function TrainingProgramsOverviewSection() {
           <div className="grid grid-cols-1 gap-6 md:gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(320px,0.95fr)] lg:items-start lg:gap-16">
             <div className="max-w-[620px]">
               <GradientTag
-                text={SECTION_COPY.tag}
+                text={pageData.section.tag}
                 backgroundColor="white"
                 textColor="#2E7D32"
                 padding="px-8 py-1.5"
               />
 
               <GradientTitle
-                part1={SECTION_COPY.title.part1}
-                part2={SECTION_COPY.title.part2}
+                part1={pageData.section.title.part1}
+                part2={pageData.section.title.part2}
                 lineBreak
                 size="custom"
                 customSize="clamp(2.25rem, 5vw, 3.75rem)"
                 className="mt-5 font-bold"
                 style={{ lineHeight: '130%' }}
-                align="left"
+                align={pageData.section.title.align}
                 gradientFrom="#20C997"
                 gradientTo="#9BDE10"
               />
@@ -190,13 +140,13 @@ export default function TrainingProgramsOverviewSection() {
 
             <div className="max-w-[520px] lg:justify-self-end lg:pt-14">
               <p className="text-[15px] font-normal leading-[1.7] text-[#111111] md:text-[16px] lg:text-lg">
-                {SECTION_COPY.description}
+                {pageData.section.description}
               </p>
             </div>
           </div>
 
           <div className="mt-10 grid grid-cols-1 gap-6 md:mt-12 md:gap-7 lg:mt-16 lg:grid-cols-2 lg:gap-8">
-            {trainingProgramCards.map((card) => (
+            {pageData.cards.map((card) => (
               <TrainingProgramCard key={card.title} {...card} />
             ))}
           </div>
