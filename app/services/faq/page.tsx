@@ -1,5 +1,5 @@
-import PageHero from '../components/shared/PageHero';
-import FaqIntroSection from '../components/faq/FaqIntroSection';
+import PageHero from '../../components/shared/PageHero';
+import FaqIntroSection from '../../components/faq/FaqIntroSection';
 
 interface FaqPageProps {
   searchParams: Promise<{ locale?: string }>;
