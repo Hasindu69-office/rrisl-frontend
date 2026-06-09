@@ -19,6 +19,7 @@ export * from './types/shared';
 export * from './types/services';
 export * from './types/statistics';
 export * from './types/strapi';
+export * from './types/training-program';
 export * from './types/video-gallery';
 export * from './types/vacancy';
 
