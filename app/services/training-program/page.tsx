@@ -1,5 +1,5 @@
-import PageHero from '../components/shared/PageHero';
-import TrainingProgramsOverviewSection from '../components/training-program/TrainingProgramsOverviewSection';
+import PageHero from '../../components/shared/PageHero';
+import TrainingProgramsOverviewSection from '../../components/training-program/TrainingProgramsOverviewSection';
 
 interface TrainingProgramPageProps {
   searchParams: Promise<{ locale?: string }>;
