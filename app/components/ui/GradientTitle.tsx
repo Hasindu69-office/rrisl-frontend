@@ -58,6 +58,7 @@ export default function GradientTitle({
     center: 'text-center',
     right: 'text-right',
   }[align];
+  const hasPart2 = part2 !== null && part2 !== undefined && part2 !== '';
 
   return (
     <h2
@@ -72,17 +73,19 @@ export default function GradientTitle({
           >
             {part1}
           </span>
-          {lineBreak && <br />}
+          {lineBreak && hasPart2 && <br />}
         </>
       )}
-      <span
-        className="bg-gradient-to-r bg-clip-text text-transparent"
-        style={{
-          backgroundImage: `linear-gradient(to right, ${gradientFrom}, ${gradientTo})`,
-        }}
-      >
-        {part2}
-      </span>
+      {hasPart2 ? (
+        <span
+          className="bg-gradient-to-r bg-clip-text text-transparent"
+          style={{
+            backgroundImage: `linear-gradient(to right, ${gradientFrom}, ${gradientTo})`,
+          }}
+        >
+          {part2}
+        </span>
+      ) : null}
     </h2>
   );
 }
