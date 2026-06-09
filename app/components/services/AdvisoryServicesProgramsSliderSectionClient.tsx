@@ -28,25 +28,25 @@ function AdvisoryProgramCard({ card }: { card: AdvisoryTrainingCard }) {
 
       <div className="absolute inset-0 opacity-70 [background:repeating-conic-gradient(from_0deg_at_18%_50%,rgba(15,63,29,0.035)_0deg,rgba(15,63,29,0)_15deg,rgba(15,63,29,0.02)_24deg,rgba(15,63,29,0)_38deg)]" />
 
-      <div className="relative z-10 flex h-full items-center gap-5 py-5 pl-8 pr-5 md:gap-6 md:pl-10 md:pr-5 lg:gap-7 lg:py-5 lg:pl-12 lg:pr-5">
+      <div className="relative z-10 flex h-full flex-col gap-4 p-4 sm:flex-row sm:items-center sm:gap-5 sm:py-5 sm:pl-8 sm:pr-5 md:gap-6 md:pl-10 md:pr-5 lg:gap-7 lg:py-5 lg:pl-12 lg:pr-5">
         <div className="flex min-w-0 flex-1 flex-col justify-center">
-          <h3 className="max-w-[270px] text-[18px] font-medium leading-[1.35] text-[#237B2D] md:text-[19px] lg:text-[21px]">
+          <h3 className="max-w-[270px] text-[17px] font-medium leading-[1.35] text-[#237B2D] sm:text-[18px] md:text-[19px] lg:text-[21px]">
             {card.title}
           </h3>
 
-          <p className="mt-7 max-w-[300px] text-[13px] font-normal leading-[1.85] text-[#1E281E] md:text-[14px] lg:text-[15px]">
+          <p className="mt-4 max-w-[300px] text-[13px] font-normal leading-[1.75] text-[#1E281E] sm:mt-7 sm:leading-[1.85] md:text-[14px] lg:text-[15px]">
             {card.description}
           </p>
         </div>
 
-        <div className="relative h-full w-[40%] min-w-[165px] overflow-hidden rounded-[14px] md:min-w-[190px] lg:min-w-[225px] xl:min-w-[245px]">
+        <div className="relative h-[156px] w-full overflow-hidden rounded-[14px] sm:h-full sm:w-[40%] sm:min-w-[165px] md:min-w-[190px] lg:min-w-[225px] xl:min-w-[245px]">
           <Image
             src={card.imageSrc}
             alt={card.imageAlt}
             fill
             draggable={false}
             className="pointer-events-none select-none object-cover"
-            sizes="(max-width: 767px) 38vw, (max-width: 1279px) 200px, 250px"
+            sizes="(max-width: 639px) 100vw, (max-width: 767px) 38vw, (max-width: 1279px) 240px, 250px"
           />
         </div>
       </div>
@@ -65,7 +65,6 @@ export default function AdvisoryServicesProgramsSliderSectionClient({
   const [activeIndex, setActiveIndex] = useState(0);
   const [mode, setMode] = useState<ResponsiveMode>('desktop');
   const [windowWidth, setWindowWidth] = useState(0);
-  const [viewportWidth, setViewportWidth] = useState(0);
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
@@ -73,7 +72,6 @@ export default function AdvisoryServicesProgramsSliderSectionClient({
   const [categoryAnimationKey, setCategoryAnimationKey] = useState(0);
 
   const sectionRef = useRef<HTMLElement | null>(null);
-  const viewportRef = useRef<HTMLDivElement | null>(null);
   const dragStartXRef = useRef<number | null>(null);
   const pointerIdRef = useRef<number | null>(null);
   const tabContainerRef = useRef<HTMLDivElement | null>(null);
@@ -240,25 +238,6 @@ export default function AdvisoryServicesProgramsSliderSectionClient({
   }, [categories, windowWidth, mode]);
 
   useEffect(() => {
-    const node = viewportRef.current;
-
-    if (!node) {
-      return;
-    }
-
-    const updateWidth = () => {
-      setViewportWidth(node.clientWidth);
-    };
-
-    updateWidth();
-
-    const observer = new ResizeObserver(updateWidth);
-    observer.observe(node);
-
-    return () => observer.disconnect();
-  }, [mode]);
-
-  useEffect(() => {
     setActiveIndex(0);
     setDragOffset(0);
     setIsDragging(false);
@@ -289,23 +268,27 @@ export default function AdvisoryServicesProgramsSliderSectionClient({
     return () => window.clearInterval(interval);
   }, [cards.length, prefersReducedMotion, isDragging, activeCategoryId]);
 
-  const gap = mode === 'mobile' ? 16 : mode === 'tablet' ? 20 : 42;
+  const tabletVisibleCount = windowWidth >= 1024 ? 2 : 1;
+  const visibleCount =
+    mode === 'desktop' ? 3 : mode === 'tablet' ? tabletVisibleCount : 1;
+
+  const gap = mode === 'mobile' ? 16 : mode === 'tablet' ? 24 : 42;
 
   const cardWidth =
     mode === 'desktop'
       ? Math.min(740, Math.max(620, (windowWidth + 310 - gap * 2) / 3))
       : mode === 'tablet'
-        ? Math.min(390, Math.max(320, (windowWidth - 72 - gap * 2) / 3))
-        : Math.min(360, Math.max(286, viewportWidth - 28));
-
-  const visibleCount = mode === 'mobile' ? 1 : 3;
+        ? visibleCount === 2
+          ? Math.min(500, Math.max(430, (windowWidth - 72 - gap) / 2))
+          : Math.min(680, Math.max(560, windowWidth - 96))
+        : Math.min(360, Math.max(286, windowWidth - 32));
 
   const viewportMaxWidth =
     mode === 'desktop'
       ? '100vw'
       : visibleCount === 1
         ? `${cardWidth}px`
-        : `${cardWidth * 3 + gap * 2}px`;
+        : `${cardWidth * visibleCount + gap * (visibleCount - 1)}px`;
 
   const trackCards = [...cards, ...cards, ...cards];
   const baseIndex = cards.length > 0 ? cards.length + activeIndex : 0;
@@ -474,7 +457,7 @@ export default function AdvisoryServicesProgramsSliderSectionClient({
   return (
     <section
       ref={sectionRef}
-      className="relative overflow-hidden bg-[#F3FBDF] px-4 pb-72 pt-14 select-none md:px-6 md:pb-80 md:pt-18 lg:px-10 lg:pb-[22rem] lg:pt-20 xl:px-0"
+      className="relative overflow-hidden bg-[#F3FBDF] px-4 pb-56 pt-12 select-none md:px-6 md:pb-64 md:pt-16 lg:px-10 lg:pb-72 lg:pt-20 xl:px-0 xl:pb-[22rem]"
       aria-labelledby={
         activeCategoryId ? `${tabListId}-${activeCategoryId}` : undefined
       }
@@ -495,71 +478,73 @@ export default function AdvisoryServicesProgramsSliderSectionClient({
       <div className="relative z-10 mx-auto w-full max-w-[1600px]">
         <div className="mx-auto max-w-[1180px]">
           {categories.length > 0 ? (
-            <div
-              ref={tabContainerRef}
-              className="relative mx-auto flex w-full max-w-[1080px] items-start justify-between gap-10 pb-12 md:pb-14 lg:pb-16"
-              role="tablist"
-              aria-label="Advisory services program categories"
-              style={headerMotionStyle}
-            >
+            <div className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:mx-auto md:overflow-visible md:px-0">
               <div
-                className="absolute top-[15px] z-0 h-[2px] bg-[#237B2D]"
-                style={{
-                  left: `${lineStyle.left}px`,
-                  width: `${lineStyle.width}px`,
-                  ...lineMotionStyle,
-                }}
-              />
+                ref={tabContainerRef}
+                className="relative mx-auto flex w-max min-w-[640px] items-start justify-between gap-6 pb-10 sm:min-w-[700px] md:w-full md:min-w-0 md:max-w-[1080px] md:gap-8 md:pb-14 lg:gap-10 lg:pb-16"
+                role="tablist"
+                aria-label="Advisory services program categories"
+                style={headerMotionStyle}
+              >
+                <div
+                  className="absolute top-[13px] z-0 h-[2px] bg-[#237B2D] md:top-[15px]"
+                  style={{
+                    left: `${lineStyle.left}px`,
+                    width: `${lineStyle.width}px`,
+                    ...lineMotionStyle,
+                  }}
+                />
 
-              {categories.map((category, categoryIndex) => {
-                const isActive = category.id === activeCategoryId;
+                {categories.map((category, categoryIndex) => {
+                  const isActive = category.id === activeCategoryId;
 
-                return (
-                  <button
-                    key={category.id}
-                    id={`${tabListId}-${category.id}`}
-                    type="button"
-                    role="tab"
-                    aria-selected={isActive}
-                    aria-controls={`${tabListId}-${category.id}-panel`}
-                    onClick={() => handleCategoryChange(category.id)}
-                    className="relative z-10 flex max-w-[470px] flex-1 cursor-pointer flex-col items-center text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[#237B2D] focus-visible:ring-offset-4 focus-visible:ring-offset-[#F3FBDF]"
-                    style={
-                      prefersReducedMotion
-                        ? undefined
-                        : {
-                            opacity: hasEnteredView ? 1 : 0,
-                            transform: hasEnteredView
-                              ? 'translateY(0)'
-                              : 'translateY(18px)',
-                            transition: `opacity 440ms ${MOTION_EASE} ${
-                              categoryIndex * 70
-                            }ms, transform 440ms ${MOTION_EASE} ${categoryIndex * 70}ms`,
-                          }
-                    }
-                  >
-                    <span
-                      ref={(node) => {
-                        circleRefs.current[category.id] = node;
-                      }}
-                      className={`relative z-10 h-[32px] w-[32px] rounded-full border-[3px] transition-colors duration-300 ${
-                        isActive
-                          ? 'border-[#237B2D] bg-[#A1DF0A]'
-                          : 'border-[#A1DF0A] bg-[#A1DF0A]'
-                      }`}
-                      aria-hidden="true"
-                    />
-
-                    <span
-                      className={`mt-8 text-[17px] font-medium leading-[1.28] transition-colors duration-300 md:text-[19px] lg:text-[21px] xl:text-[22px] ${
-                        isActive ? 'text-[#237B2D]' : 'text-[#050505]'
-                      }`}
+                  return (
+                    <button
+                      key={category.id}
+                      id={`${tabListId}-${category.id}`}
+                      type="button"
+                      role="tab"
+                      aria-selected={isActive}
+                      aria-controls={`${tabListId}-${category.id}-panel`}
+                      onClick={() => handleCategoryChange(category.id)}
+                      className="relative z-10 flex w-[190px] shrink-0 cursor-pointer flex-col items-center text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-[#237B2D] focus-visible:ring-offset-4 focus-visible:ring-offset-[#F3FBDF] sm:w-[210px] md:w-auto md:max-w-[470px] md:flex-1"
+                      style={
+                        prefersReducedMotion
+                          ? undefined
+                          : {
+                              opacity: hasEnteredView ? 1 : 0,
+                              transform: hasEnteredView
+                                ? 'translateY(0)'
+                                : 'translateY(18px)',
+                              transition: `opacity 440ms ${MOTION_EASE} ${
+                                categoryIndex * 70
+                              }ms, transform 440ms ${MOTION_EASE} ${categoryIndex * 70}ms`,
+                            }
+                      }
                     >
-                      {category.label}
-                    </span>
-                  </button>
-                );
-              })}
+                      <span
+                        ref={(node) => {
+                          circleRefs.current[category.id] = node;
+                        }}
+                        className={`relative z-10 h-[28px] w-[28px] rounded-full border-[3px] transition-colors duration-300 md:h-[32px] md:w-[32px] ${
+                          isActive
+                            ? 'border-[#237B2D] bg-[#A1DF0A]'
+                            : 'border-[#A1DF0A] bg-[#A1DF0A]'
+                        }`}
+                        aria-hidden="true"
+                      />
+
+                      <span
+                        className={`mt-5 text-[14px] font-medium leading-[1.28] transition-colors duration-300 sm:text-[15px] md:mt-8 md:text-[19px] lg:text-[21px] xl:text-[22px] ${
+                          isActive ? 'text-[#237B2D]' : 'text-[#050505]'
+                        }`}
+                      >
+                        {category.label}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           ) : null}
         </div>
@@ -574,7 +559,6 @@ export default function AdvisoryServicesProgramsSliderSectionClient({
         >
           <div className="relative left-1/2 w-screen -translate-x-1/2 overflow-hidden">
             <div
-              ref={viewportRef}
               className={`mx-auto overflow-hidden touch-pan-y ${
                 isDragging ? 'cursor-grabbing' : 'cursor-grab'
               }`}
