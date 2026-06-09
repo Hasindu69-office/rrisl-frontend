@@ -36,9 +36,7 @@ export default async function AdvisoryServicesPage({
       />
 
       <AdvisoryServicesOverviewSection />
-      <div className="mb-62">
       <AdvisoryServicesProgramsSliderSection />
-      </div>
     </div>
   );
 }
