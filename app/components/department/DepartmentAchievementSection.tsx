@@ -4,6 +4,7 @@ import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import GradientTag from '../ui/GradientTag';
+import GradientTitle from '../ui/GradientTitle';
 
 export interface DepartmentAchievementCardItem {
   id: string;
@@ -12,6 +13,8 @@ export interface DepartmentAchievementCardItem {
 
 interface DepartmentAchievementSectionProps {
   tagText: string;
+  titlePart1?: string | React.ReactNode;
+  titlePart2?: string | React.ReactNode;
   illustrationSrc: string;
   illustrationAlt: string;
   items?: DepartmentAchievementCardItem[];
@@ -28,6 +31,8 @@ const AUTO_SLIDE_INTERVAL_MS = 4500;
  */
 export default function DepartmentAchievementSection({
   tagText,
+  titlePart1 = 'Our ',
+  titlePart2 = 'Achievements',
   illustrationSrc,
   illustrationAlt,
   items = [],
@@ -106,12 +111,25 @@ export default function DepartmentAchievementSection({
     <section className={`py-16 md:py-20 lg:py-24 px-4 md:px-6 lg:px-0 ${containerClassName}`}>
       <div className="mx-auto w-full max-w-[1920px]">
         <div className="flex justify-center" data-department-reveal>
-          <GradientTag
-            text={tagText}
-            backgroundColor="white"
-            padding="px-5 py-1.5"
-            className="inline-block"
-          />
+          <div className="flex flex-col items-center text-center">
+            <GradientTag
+              text={tagText}
+              backgroundColor="white"
+              padding="px-5 py-1.5"
+              className="inline-block"
+            />
+
+            <GradientTitle
+              part1={titlePart1}
+              part2={titlePart2}
+              lineBreak={false}
+              part1Color="dark-green"
+              size="custom"
+              customSize="clamp(30px, 4vw, 52px)"
+              align="center"
+              className="mt-5 font-bold leading-[1.12]"
+            />
+          </div>
         </div>
 
         <div className="relative mt-10 md:mt-12">
