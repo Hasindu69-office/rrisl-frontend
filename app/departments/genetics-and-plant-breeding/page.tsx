@@ -52,22 +52,43 @@ export default async function GeneticsPlantBreeding({ searchParams }: Department
     ];
     const researchStaff = [
         {
+            id: 'k-k-liyanage',
             name: 'K K Liyanage',
             role: 'Acting Head / Principal Research Officer',
             imageSrc: '/images/departments/GeneticPerson3.png',
             imageAlt: 'K K Liyanage',
+            credentials: 'BSc Agric (SL) MPhil (SL), PhD (China)',
+            emails: ['kapila@rrisl.gov.lk', 'lkapila@ymail.com', 'kapilakliyanage@gmail.com'],
+            biography:
+                'Obtained his PhD from Kunming Institute of Botany, Kunming, China, affiliated with Mae Fah Luang University, Thailand. He has published research papers in international and national journals, bulletins and conference proceedings.',
+            currentWork:
+                'Currently involved in research on the development of improved genetic materials, conservation of germplasm collection, and selection of superior genotypes and clone identification based on morphological and molecular characters.',
         },
         {
+            id: 'nelomie-n-galagedara',
             name: 'Nelomie N Galagedara',
             role: 'Senior Research Officer',
             imageSrc: '/images/departments/GeneticPerson2.png',
             imageAlt: 'Nelomie N Galagedara',
+            credentials: 'BSc Agric, MSc',
+            emails: ['nelomie@rrisl.gov.lk', 'nelomie.research@example.com'],
+            biography:
+                'Contributes to genetics and plant breeding research activities with a focus on field evaluation, clonal performance assessment, and applied research support for the rubber industry.',
+            currentWork:
+                'Currently involved in evaluating promising rubber clones, supporting breeding trials, and strengthening data collection for future recommendation programmes.',
         },
         {
+            id: 'thanuja-d-waduge',
             name: 'Thanuja D Waduge',
             role: 'Research Officer',
             imageSrc: '/images/departments/GeneticPerson1.png',
             imageAlt: 'Thanuja D Waduge',
+            credentials: 'BSc Agric',
+            emails: ['thanuja@rrisl.gov.lk', 'thanuja.research@example.com'],
+            biography:
+                'Supports departmental research programmes in rubber breeding, clone identification, and field-level evaluation work connected to improved planting material development.',
+            currentWork:
+                'Currently involved in research assistance, trial monitoring, and the assessment of selected genotypes for productivity, adaptation, and recommendation planning.',
         },
     ];
     const researchHighlights = [
