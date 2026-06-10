@@ -65,6 +65,42 @@ export interface DepartmentResearchStaffSection {
   staff?: DepartmentStaffCard[] | null;
 }
 
+export interface DepartmentHighlightParagraph {
+  id: number;
+  paragraph?: string | null;
+}
+
+export interface DepartmentHighlightPoint {
+  id: number;
+  label?: string | null;
+}
+
+export interface DepartmentHighlightSubcard {
+  id: number;
+  subtitle?: string | null;
+  paragraph?: DepartmentHighlightParagraph[] | null;
+  points?: DepartmentHighlightPoint[] | null;
+  needimages?: boolean | null;
+  galleryimages?: StrapiImage[] | null;
+  sortorder?: number | null;
+}
+
+export interface DepartmentResearchHighlightCard {
+  id: number;
+  title?: string | null;
+  description?: string | null;
+  icon?: StrapiImage | null;
+  subtopicpresent?: boolean | null;
+  cards?: DepartmentHighlightSubcard[] | null;
+  sortorder?: number | null;
+}
+
+export interface DepartmentResearchHighlightsSection {
+  id: number;
+  verticaltext?: string | null;
+  researchhighlightcards?: DepartmentResearchHighlightCard[] | null;
+}
+
 export interface DepartmentSingleTypePage {
   id: number;
   documentId?: string;
@@ -73,8 +109,10 @@ export interface DepartmentSingleTypePage {
   locale?: string;
   servicesectionpresent?: boolean | null;
   researchstaffpresent?: boolean | null;
+  researchhighlightspresent?: boolean | null;
   pagehero?: DepartmentPageHero | null;
   introductionsection?: DepartmentIntroductionSection | null;
   servicesection?: DepartmentServiceSection | null;
   researchstaffsection?: DepartmentResearchStaffSection | null;
+  researchhighlightssection?: DepartmentResearchHighlightsSection | null;
 }

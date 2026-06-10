@@ -4,11 +4,13 @@ import DepartmentAnimatedSection from '../../components/department/DepartmentAni
 import DepartmentSection from '../../components/department/DepartmentSection';
 import DepartmentServicesSection from '../../components/department/DepartmentServicesSection';
 import DepartmentStaffSection from '../../components/department/DepartmentStaffSection';
+import DepartmentResearchHighlightsSection from '../../components/department/DepartmentResearchHighlightsSection';
 import { normalizeLocale } from '../../lib/locale';
 import { getDepartmentPage } from '../../lib/strapi';
 import {
   mapDepartmentHero,
   mapDepartmentIntroduction,
+  mapDepartmentResearchHighlights,
   mapDepartmentResearchStaff,
   mapDepartmentServices,
 } from '../../lib/departments/pageData';
@@ -40,6 +42,10 @@ export default async function DepartmentPage({
   );
   const services = mapDepartmentServices(departmentPage, fallbackDepartmentPage);
   const researchStaff = mapDepartmentResearchStaff(departmentPage, fallbackDepartmentPage);
+  const researchHighlights = mapDepartmentResearchHighlights(
+    departmentPage,
+    fallbackDepartmentPage
+  );
 
   return (
     <div className="min-h-screen">
@@ -86,6 +92,18 @@ export default async function DepartmentPage({
             titlePart1={researchStaff.titlePart1}
             titlePart2={researchStaff.titlePart2}
             staff={researchStaff.staff}
+            containerClassName="w-[80%]"
+          />
+        </DepartmentAnimatedSection>
+      ) : null}
+
+      {researchHighlights ? (
+        <DepartmentAnimatedSection y={28} duration={0.9}>
+          <DepartmentResearchHighlightsSection
+            tagText={researchHighlights.tagText}
+            titlePart1={researchHighlights.titlePart1}
+            titlePart2={researchHighlights.titlePart2}
+            highlights={researchHighlights.highlights}
             containerClassName="w-[80%]"
           />
         </DepartmentAnimatedSection>

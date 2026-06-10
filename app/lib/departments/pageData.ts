@@ -1,11 +1,18 @@
 import type { BreadcrumbItem } from '@/app/components/shared/Breadcrumb';
+import type {
+  DepartmentResearchHighlightImage,
+  DepartmentResearchHighlightItem,
+} from '@/app/components/department/DepartmentResearchHighlightsSection';
 import type { DepartmentServiceItem } from '@/app/components/department/DepartmentServicesSection';
 import type { DepartmentStaffMember } from '@/app/components/department/DepartmentStaffSection';
 import type { DepartmentSectionPoint } from '@/app/components/department/DepartmentSection';
 import type {
+  DepartmentHighlightSubcard,
   DepartmentIntroductionSection,
   DepartmentPoint,
   DepartmentPageHero,
+  DepartmentResearchHighlightCard,
+  DepartmentResearchHighlightsSection,
   DepartmentResearchStaffSection,
   DepartmentServiceCard,
   DepartmentServiceSection,
@@ -43,6 +50,13 @@ export interface DepartmentResearchStaffViewModel {
   titlePart1: string;
   titlePart2: string;
   staff: DepartmentStaffMember[];
+}
+
+export interface DepartmentResearchHighlightsViewModel {
+  tagText: string;
+  titlePart1: string;
+  titlePart2: string;
+  highlights: DepartmentResearchHighlightItem[];
 }
 
 const DEPARTMENT_HERO_FALLBACK: DepartmentHeroViewModel = {
@@ -113,6 +127,14 @@ function splitTitle(title: string, highlightedText: string): Pick<
 function formatServiceNumber(sortOrder: number, index: number): string {
   const number = Number.isFinite(sortOrder) ? sortOrder : index + 1;
   return String(number).padStart(2, '0');
+}
+
+function sortBySortOrder<T extends { sortorder?: number | null }>(items: T[]): T[] {
+  return [...items].sort((left, right) => {
+    const leftOrder = left.sortorder ?? Number.MAX_SAFE_INTEGER;
+    const rightOrder = right.sortorder ?? Number.MAX_SAFE_INTEGER;
+    return leftOrder - rightOrder;
+  });
 }
 
 function mapDepartmentPoints(
@@ -192,6 +214,41 @@ function slugify(value: string): string {
     .replace(/^-+|-+$/g, '');
 }
 
+function splitVerticalTextTitle(verticalText: string): Pick<
+  DepartmentResearchHighlightsViewModel,
+  'titlePart1' | 'titlePart2'
+> {
+  const title = verticalText.trim();
+
+  if (!title) {
+    return {
+      titlePart1: 'Research ',
+      titlePart2: 'Highlights',
+    };
+  }
+
+  if (title.toLowerCase() === 'research highlights') {
+    return {
+      titlePart1: 'Research ',
+      titlePart2: 'Highlights',
+    };
+  }
+
+  const lastSpaceIndex = title.lastIndexOf(' ');
+
+  if (lastSpaceIndex === -1) {
+    return {
+      titlePart1: '',
+      titlePart2: title,
+    };
+  }
+
+  return {
+    titlePart1: title.slice(0, lastSpaceIndex + 1),
+    titlePart2: title.slice(lastSpaceIndex + 1),
+  };
+}
+
 function mapStaffCards(
   localizedStaff: DepartmentStaffCard[] | null | undefined,
   fallbackStaff: DepartmentStaffCard[] | null | undefined
@@ -232,6 +289,103 @@ function mapStaffCards(
       };
     })
     .filter((member): member is DepartmentStaffMember => Boolean(member));
+}
+
+function mapHighlightImages(
+  images: DepartmentHighlightSubcard['galleryimages'],
+  title: string
+): DepartmentResearchHighlightImage[] {
+  return (images || [])
+    .map((image, index): DepartmentResearchHighlightImage | null => {
+      const src =
+        getOptimizedImageUrl(image, 'large') ||
+        getOptimizedImageUrl(image, 'medium') ||
+        getStrapiImageUrl(image);
+
+      if (!src) {
+        return null;
+      }
+
+      return {
+        src,
+        alt: image.alternativeText || title,
+        title: image.caption || image.alternativeText || `${title} image ${index + 1}`,
+      };
+    })
+    .filter((image): image is DepartmentResearchHighlightImage => Boolean(image));
+}
+
+function mapHighlightSubcards(
+  localizedCards: DepartmentHighlightSubcard[] | null | undefined,
+  fallbackCards: DepartmentHighlightSubcard[] | null | undefined
+): DepartmentResearchHighlightItem['sections'] {
+  const cards = localizedCards?.length ? localizedCards : fallbackCards || [];
+
+  return sortBySortOrder(cards)
+    .map((card): NonNullable<DepartmentResearchHighlightItem['sections']>[number] | null => {
+      const heading = card.subtitle?.trim();
+      const paragraphs =
+        card.paragraph
+          ?.map((item) => item?.paragraph?.trim())
+          .filter((paragraph): paragraph is string => Boolean(paragraph)) || [];
+      const items =
+        card.points
+          ?.map((item) => item?.label?.trim())
+          .filter((label): label is string => Boolean(label)) || [];
+      const images =
+        card.needimages === true ? mapHighlightImages(card.galleryimages, heading || 'Research highlight') : [];
+
+      if (!heading && paragraphs.length === 0 && items.length === 0 && images.length === 0) {
+        return null;
+      }
+
+      return {
+        id: card.id ? String(card.id) : slugify(heading || paragraphs[0] || 'highlight-subcard'),
+        heading,
+        body: paragraphs.join(' '),
+        items,
+        images,
+      };
+    })
+    .filter((section): section is NonNullable<DepartmentResearchHighlightItem['sections']>[number] =>
+      Boolean(section)
+    );
+}
+
+function mapHighlightCards(
+  localizedCards: DepartmentResearchHighlightCard[] | null | undefined,
+  fallbackCards: DepartmentResearchHighlightCard[] | null | undefined
+): DepartmentResearchHighlightItem[] {
+  const cards = localizedCards?.length ? localizedCards : fallbackCards || [];
+
+  return sortBySortOrder(cards)
+    .map((card): DepartmentResearchHighlightItem | null => {
+      const summary = card.title?.trim();
+
+      if (!summary) {
+        return null;
+      }
+
+      const iconSrc =
+        getOptimizedImageUrl(card.icon, 'thumbnail') ||
+        getOptimizedImageUrl(card.icon, 'small') ||
+        getStrapiImageUrl(card.icon) ||
+        undefined;
+      const sections =
+        card.subtopicpresent === true
+          ? mapHighlightSubcards(card.cards, fallbackCards?.find((item) => item.id === card.id)?.cards)
+          : [];
+
+      return {
+        id: card.id ? String(card.id) : slugify(summary),
+        summary,
+        details: card.description?.trim() || undefined,
+        sections,
+        iconSrc,
+        iconAlt: card.icon?.alternativeText || summary,
+      };
+    })
+    .filter((highlight): highlight is DepartmentResearchHighlightItem => Boolean(highlight));
 }
 
 export function mapDepartmentHero(
@@ -360,5 +514,43 @@ export function mapDepartmentResearchStaff(
     tagText: header?.eyebrow?.trim() || 'Research Staff',
     ...titleParts,
     staff,
+  };
+}
+
+export function mapDepartmentResearchHighlights(
+  localizedPage: DepartmentSingleTypePage | null | undefined,
+  fallbackPage?: DepartmentSingleTypePage | null
+): DepartmentResearchHighlightsViewModel | null {
+  const isPresent =
+    localizedPage?.researchhighlightspresent ?? fallbackPage?.researchhighlightspresent;
+
+  if (isPresent !== true) {
+    return null;
+  }
+
+  const section: DepartmentResearchHighlightsSection | null | undefined =
+    localizedPage?.researchhighlightssection || fallbackPage?.researchhighlightssection;
+
+  if (!section) {
+    return null;
+  }
+
+  const highlights = mapHighlightCards(
+    section.researchhighlightcards,
+    fallbackPage?.researchhighlightssection?.researchhighlightcards
+  );
+
+  if (highlights.length === 0) {
+    return null;
+  }
+
+  const verticalText =
+    section.verticaltext || fallbackPage?.researchhighlightssection?.verticaltext || 'Research Highlights';
+  const titleParts = splitVerticalTextTitle(verticalText);
+
+  return {
+    tagText: verticalText,
+    ...titleParts,
+    highlights,
   };
 }

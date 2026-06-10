@@ -19,6 +19,19 @@ function buildDepartmentQuery(locale: string): string {
   params.set('populate[researchstaffsection][populate][staff][populate][email]', 'true');
   params.set('populate[researchstaffsection][populate][staff][populate][paragraph]', 'true');
   params.set('populate[researchstaffsection][populate][staff][populate][portrait]', 'true');
+  params.set('populate[researchhighlightssection][populate][researchhighlightcards][populate][icon]', 'true');
+  params.set(
+    'populate[researchhighlightssection][populate][researchhighlightcards][populate][cards][populate][paragraph]',
+    'true'
+  );
+  params.set(
+    'populate[researchhighlightssection][populate][researchhighlightcards][populate][cards][populate][points]',
+    'true'
+  );
+  params.set(
+    'populate[researchhighlightssection][populate][researchhighlightcards][populate][cards][populate][galleryimages]',
+    'true'
+  );
 
   return params.toString();
 }
