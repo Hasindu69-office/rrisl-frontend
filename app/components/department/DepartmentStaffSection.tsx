@@ -5,8 +5,9 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { X } from 'lucide-react';
 import GradientTag from '../ui/GradientTag';
 import GradientTitle from '../ui/GradientTitle';
+import { isLocalhostAssetUrl } from '@/app/lib/strapi';
 
-interface DepartmentStaffMember {
+export interface DepartmentStaffMember {
   id?: string;
   name: string;
   role: string;
@@ -33,6 +34,8 @@ function DepartmentStaffCard({
   member: DepartmentStaffMember;
   onOpen: () => void;
 }) {
+  const useUnoptimizedImage = isLocalhostAssetUrl(member.imageSrc);
+
   return (
     <button
       type="button"
@@ -57,6 +60,7 @@ function DepartmentStaffCard({
           fill
           className="object-contain object-bottom scale-[1.12] translate-y-3 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.16] group-focus-visible:scale-[1.16] md:scale-[1.12] md:translate-y-4"
           sizes="(max-width: 767px) 100vw, (max-width: 1279px) 50vw, 33vw"
+          unoptimized={useUnoptimizedImage}
         />
       </div>
     </button>
@@ -72,6 +76,8 @@ function DepartmentStaffProfileModal({
   isVisible: boolean;
   onClose: () => void;
 }) {
+  const useUnoptimizedImage = isLocalhostAssetUrl(member.imageSrc);
+
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -126,6 +132,7 @@ function DepartmentStaffProfileModal({
               className="object-contain object-top"
               sizes="168px"
               priority
+              unoptimized={useUnoptimizedImage}
             />
           </div>
         </aside>

@@ -2,6 +2,13 @@ import React from 'react';
 import Image from 'next/image';
 import GradientTag from '../ui/GradientTag';
 import GradientTitle from '../ui/GradientTitle';
+import { isLocalhostAssetUrl } from '@/app/lib/strapi';
+
+export interface DepartmentSectionPoint {
+    text: string;
+    iconSrc?: string;
+    iconAlt?: string;
+}
 
 interface DepartmentSectionProps {
     tagText: string;
@@ -9,7 +16,7 @@ interface DepartmentSectionProps {
     titlePart2: string | React.ReactNode;
     titleLineBreak?: boolean;
     description: string;
-    points: string[];
+    points: Array<string | DepartmentSectionPoint>;
     imageSrc?: string;
     imageAlt?: string;
     videoUrl?: string;
@@ -23,6 +30,10 @@ const LeafIcon = () => (
         <path d="M12 12.07V20M12 11.93C12 7.577 15.538 4.043 19.919 4C19.9723 4.37067 19.9993 4.748 20 5.132C20 9.485 16.462 13.018 12.081 13.062C12.0271 12.6864 12.0001 12.3074 12 11.928M12 11.928C12 7.576 8.462 4.042 4.081 4C4.02767 4.37067 4.00067 4.748 4 5.132C4 9.485 7.538 13.018 11.919 13.062C11.9729 12.6864 11.9999 12.3074 12 11.928Z" stroke="#2E7D32" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
 );
+
+function normalizePoint(point: string | DepartmentSectionPoint): DepartmentSectionPoint {
+    return typeof point === 'string' ? { text: point } : point;
+}
 
 function normalizeYouTubeEmbedUrl(url: string) {
     try {
@@ -92,14 +103,36 @@ export default function DepartmentSection({
                         </p>
 
                         <ul className="space-y-4 md:space-y-5">
-                            {points.map((point, index) => (
+                            {points.map((point, index) => {
+                                const normalizedPoint = normalizePoint(point);
+                                const useUnoptimizedIcon = isLocalhostAssetUrl(normalizedPoint.iconSrc);
+
+                                return (
                                 <li key={index} className="flex items-start gap-3 md:gap-4">
-                                    <LeafIcon />
+                                    {normalizedPoint.iconSrc ? (
+                                        <span className="relative mt-1 h-6 w-6 flex-shrink-0">
+                                            <Image
+                                                src={normalizedPoint.iconSrc}
+                                                alt={normalizedPoint.iconAlt || ''}
+                                                fill
+                                                sizes="24px"
+                                                className="object-contain"
+                                                unoptimized={useUnoptimizedIcon}
+                                                style={{
+                                                    filter:
+                                                        'brightness(0) saturate(100%) invert(39%) sepia(18%) saturate(1744%) hue-rotate(75deg) brightness(91%) contrast(87%)',
+                                                }}
+                                            />
+                                        </span>
+                                    ) : (
+                                        <LeafIcon />
+                                    )}
                                     <span className="text-justify text-[16px] leading-[1.7] text-gray-800 md:text-[17px] md:leading-[1.8] lg:text-[18px] lg:leading-[1.9]">
-                                        {point}
+                                        {normalizedPoint.text}
                                     </span>
                                 </li>
-                            ))}
+                                );
+                            })}
                         </ul>
                     </div>
 

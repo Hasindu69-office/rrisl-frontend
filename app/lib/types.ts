@@ -3,6 +3,7 @@ export * from './types/advisory-services';
 export * from './types/board-of-management';
 export * from './types/bid-notice';
 export * from './types/contact';
+export * from './types/departments';
 export * from './types/downloads';
 export * from './types/estates';
 export * from './types/e-publications';

@@ -4,8 +4,9 @@ import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
 import GradientTag from '../ui/GradientTag';
 import GradientTitle from '../ui/GradientTitle';
+import { isLocalhostAssetUrl } from '@/app/lib/strapi';
 
-interface DepartmentServiceItem {
+export interface DepartmentServiceItem {
   number: string;
   title: string;
   description: string;
@@ -61,6 +62,8 @@ function DepartmentServiceCard({
   isFlipped: boolean;
   onToggle: () => void;
 }) {
+  const useUnoptimizedIcon = isLocalhostAssetUrl(item.iconSrc);
+  const useUnoptimizedImage = isLocalhostAssetUrl(item.imageSrc);
   const interactiveProps = isDesktop
     ? {}
     : {
@@ -97,6 +100,7 @@ function DepartmentServiceCard({
                 width={56}
                 height={56}
                 className="h-full w-full object-contain"
+                unoptimized={useUnoptimizedIcon}
                 style={{
                   filter:
                     'brightness(0) saturate(100%) invert(16%) sepia(35%) saturate(921%) hue-rotate(88deg) brightness(95%) contrast(98%)',
@@ -121,6 +125,7 @@ function DepartmentServiceCard({
             fill
             className="object-cover"
             sizes="(max-width: 767px) 100vw, (max-width: 1279px) 50vw, 33vw"
+            unoptimized={useUnoptimizedImage}
           />
           <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,75,36,0.3)_0%,rgba(8,40,18,0.82)_58%,rgba(8,40,18,0.92)_100%)]" />
 
@@ -134,6 +139,7 @@ function DepartmentServiceCard({
                 width={56}
                 height={56}
                 className="h-full w-full object-contain brightness-0 invert"
+                unoptimized={useUnoptimizedIcon}
               />
             </div>
 
