@@ -478,17 +478,10 @@ export default function DepartmentResearchHighlightsSection({
   } | null>(null);
   const [isGalleryVisible, setIsGalleryVisible] = useState(false);
 
-  useEffect(() => {
-    setOpenItemId((current) => {
-      if (highlights.length === 0) {
-        return '';
-      }
-
-      const currentStillExists = highlights.some((item) => item.id === current);
-
-      return currentStillExists ? current : highlights[0].id;
-    });
-  }, [highlights]);
+  const effectiveOpenItemId =
+    openItemId === '' || highlights.some((item) => item.id === openItemId)
+      ? openItemId
+      : highlights[0]?.id ?? '';
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -622,7 +615,7 @@ export default function DepartmentResearchHighlightsSection({
 
         <div className={`relative z-10 mx-auto max-w-[1600px] px-4 md:px-6 lg:px-8 ${containerClassName}`}>
           <div className="flex flex-col gap-6 md:gap-7 lg:grid lg:grid-cols-[86px_minmax(0,1fr)] lg:gap-8 xl:grid-cols-[96px_minmax(0,1fr)] xl:gap-9">
-            <div className="flex flex-col items-start">
+            <div className="flex flex-col items-start" data-department-reveal>
               <span className="sr-only">{tagText}</span>
 
               <div className="w-full lg:hidden">
@@ -644,7 +637,7 @@ export default function DepartmentResearchHighlightsSection({
               </div>
             </div>
 
-            <div className="min-w-0 md:pt-1 lg:pt-4 xl:pt-5">
+            <div className="min-w-0 md:pt-1 lg:pt-4 xl:pt-5" data-department-reveal>
               <div
                 className={`relative ${
                   sectionHeight
@@ -675,7 +668,7 @@ export default function DepartmentResearchHighlightsSection({
                   ) : null}
 
                   {highlights.map((item, index) => {
-                    const isOpen = item.id === openItemId;
+                    const isOpen = item.id === effectiveOpenItemId;
                     const panelId = `research-highlight-panel-${item.id}`;
 
                     const isExpandable = Boolean(
@@ -687,6 +680,7 @@ export default function DepartmentResearchHighlightsSection({
                     return (
                       <div
                         key={item.id}
+                        data-department-reveal
                         className="relative z-[1] grid grid-cols-1 items-start gap-2 sm:grid-cols-[48px_minmax(0,1fr)] sm:gap-4 md:grid-cols-[52px_minmax(0,1fr)] lg:grid-cols-[64px_minmax(0,1fr)] lg:gap-5 xl:grid-cols-[72px_minmax(0,1fr)]"
                       >
                         <div className="relative flex w-full justify-center">

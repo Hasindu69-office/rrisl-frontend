@@ -71,7 +71,7 @@ export default function DepartmentSection({
             <div className={`container mx-auto max-w-[1920px] px-0 md:px-6 lg:px-8 ${containerClassName}`}>
                 <div className={`flex flex-col gap-10 md:gap-14 lg:flex-row lg:items-center lg:gap-24 ${reverse ? 'lg:flex-row-reverse' : ''}`}>
                     {/* Content Side */}
-                    <div className="w-full space-y-6 md:space-y-8 lg:w-1/2">
+                    <div className="w-full space-y-6 md:space-y-8 lg:w-1/2" data-department-reveal>
                         <div className="flex justify-start">
                             <GradientTag text={tagText} backgroundColor="transparent" className="inline-block" />
                         </div>
@@ -104,7 +104,7 @@ export default function DepartmentSection({
                     </div>
 
                     {/* Media Side */}
-                    <div className="w-full lg:w-1/2">
+                    <div className="w-full lg:w-1/2" data-department-reveal>
                         {embedUrl ? (
                             <div className="relative mx-auto aspect-video w-full max-w-[560px] overflow-hidden rounded-[24px] border border-[#DDE6D7] bg-[#07170E] shadow-[0_18px_50px_rgba(15,63,29,0.14)] md:max-w-[720px] md:rounded-[30px] lg:max-w-none">
                                 <iframe

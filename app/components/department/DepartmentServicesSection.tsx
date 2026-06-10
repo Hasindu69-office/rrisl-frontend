@@ -78,6 +78,7 @@ function DepartmentServiceCard({
 
   return (
     <article
+      data-department-reveal
       className="group mx-auto w-full max-w-[360px] cursor-pointer [perspective:1600px] md:max-w-none xl:cursor-default"
       {...interactiveProps}
     >
@@ -189,7 +190,7 @@ export default function DepartmentServicesSection({
   return (
     <section className="bg-[rgba(161,223,10,0.13)] py-16 md:py-20 lg:py-24">
       <div className={`mx-auto max-w-[1440px] px-4 md:px-6 lg:px-8 ${containerClassName}`}>
-        <div className="flex flex-col items-center text-center xl:items-end xl:text-right">
+        <div className="flex flex-col items-center text-center xl:items-end xl:text-right" data-department-reveal>
           <GradientTag
             text={tagText}
             backgroundColor="transparent"

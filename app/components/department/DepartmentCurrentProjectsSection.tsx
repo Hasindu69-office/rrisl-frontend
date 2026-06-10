@@ -173,7 +173,7 @@ export default function DepartmentCurrentProjectsSection({
     <section className="bg-white py-16 md:py-20 lg:py-24">
       <div className={`mx-auto max-w-[1600px] px-4 md:px-6 xl:w-[80%] xl:px-0 ${containerClassName}`}>
         <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
-          <div className="max-w-[760px]">
+          <div className="max-w-[760px]" data-department-reveal>
             <GradientTag
               text={tagText}
               backgroundColor="transparent"
@@ -193,7 +193,7 @@ export default function DepartmentCurrentProjectsSection({
             />
           </div>
 
-          <div className="hidden items-center gap-3 self-end lg:flex lg:self-start">
+          <div className="hidden items-center gap-3 self-end lg:flex lg:self-start" data-department-reveal>
             <button
               type="button"
               aria-label="Previous projects"
@@ -217,6 +217,7 @@ export default function DepartmentCurrentProjectsSection({
 
         <div
           ref={viewportRef}
+          data-department-reveal
           className="mt-12 overflow-x-hidden overflow-y-visible pt-2 pb-16 lg:pt-2 lg:pb-20"
         >
           <div

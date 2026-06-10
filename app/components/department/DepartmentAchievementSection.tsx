@@ -105,7 +105,7 @@ export default function DepartmentAchievementSection({
   return (
     <section className={`py-16 md:py-20 lg:py-24 px-4 md:px-6 lg:px-0 ${containerClassName}`}>
       <div className="mx-auto w-full max-w-[1920px]">
-        <div className="flex justify-center">
+        <div className="flex justify-center" data-department-reveal>
           <GradientTag
             text={tagText}
             backgroundColor="white"
@@ -115,7 +115,7 @@ export default function DepartmentAchievementSection({
         </div>
 
         <div className="relative mt-10 md:mt-12">
-          <div className="pointer-events-none absolute bottom-[72px] left-[-56px] z-[2] h-[300px] w-[220px] md:bottom-[56px] md:left-[-72px] md:h-[380px] md:w-[280px] lg:bottom-[72px] lg:left-[calc(9%-200px)] lg:h-[540px] lg:w-[400px]">
+          <div data-department-reveal className="pointer-events-none absolute bottom-[72px] left-[-56px] z-[2] h-[300px] w-[220px] md:bottom-[56px] md:left-[-72px] md:h-[380px] md:w-[280px] lg:bottom-[72px] lg:left-[calc(9%-200px)] lg:h-[540px] lg:w-[400px]">
             <Image
               src={illustrationSrc}
               alt={illustrationAlt}
@@ -126,7 +126,7 @@ export default function DepartmentAchievementSection({
             />
           </div>
 
-          <div className="mx-auto w-full md:w-[80%]">
+          <div className="mx-auto w-full md:w-[80%]" data-department-reveal>
             <div
               className="relative rounded-[40px] px-4 pb-8 pt-8 md:min-h-[420px] md:px-5 md:pb-10 md:pt-10 lg:min-h-[520px] lg:px-6 lg:pb-12 lg:pt-12"
               style={{

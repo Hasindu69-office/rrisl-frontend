@@ -73,7 +73,7 @@ export default function DepartmentRecommendationsSection({
 
             <div className="relative z-10 mx-auto flex w-full max-w-[1920px] justify-center px-4 py-10 md:px-6 md:py-12 lg:px-8 lg:py-8">
                 <div className="grid w-full max-w-[1184px] grid-cols-1 items-center gap-10 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] md:gap-8 lg:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)] lg:gap-10">
-                    <div className="order-2 flex justify-center md:order-none md:justify-start lg:justify-end">
+                    <div className="order-2 flex justify-center md:order-none md:justify-start lg:justify-end" data-department-reveal>
                         <div className="w-full max-w-[290px] md:max-w-[300px] lg:max-w-[390px] lg:translate-x-[4.5rem]">
                             <div className="flex aspect-square flex-col justify-between rounded-[28px] bg-white px-4 pb-4 pt-4 shadow-[0_14px_36px_rgba(0,0,0,0.08)] md:rounded-[32px] md:px-5 md:pb-5 md:pt-5 lg:rounded-[40px] lg:px-5 lg:pb-5 lg:pt-5 lg:shadow-[0_14px_36px_rgba(0,0,0,0.08)]">
                                 <div className="relative mx-auto h-full w-full max-w-[250px] flex-1 md:max-w-[260px] lg:max-w-[344px]">
@@ -96,7 +96,7 @@ export default function DepartmentRecommendationsSection({
                         </div>
                     </div>
 
-                    <div className="order-1 flex justify-center md:order-none md:justify-center lg:justify-end">
+                    <div className="order-1 flex justify-center md:order-none md:justify-center lg:justify-end" data-department-reveal>
                         <div className="flex w-full max-w-[360px] flex-col items-center text-center md:max-w-[380px] lg:max-w-[560px] lg:items-end lg:text-right">
                             <GradientTag
                                 text={tagText}

@@ -12,6 +12,7 @@ import DepartmentAchievementSection, {
     DepartmentAchievementCardItem,
 } from '../../components/department/DepartmentAchievementSection';
 import DepartmentRecommendationsSection from '../../components/department/DepartmentRecommendationsSection';
+import DepartmentAnimatedSection from '../../components/department/DepartmentAnimatedSection';
 
 interface DepartmentProps {
     searchParams: Promise<{ locale?: string }>;
@@ -399,119 +400,136 @@ export default async function GeneticsPlantBreeding({ searchParams }: Department
             />
 
             {/* Main Objective Section */}
-            <DepartmentSection
-                tagText="Main objective"
-                titlePart1={
-                    <>
-                        Development of
-                        <br />
-                        genetically{' '}
-                    </>
-                }
-                titlePart2={
-                    <>
-                        improved
-                        <br />
-                        clones for the industry
-                    </>
-                }
-                titleLineBreak={false}
-                description="To Ensure the availability of raw materials necessary for the rubber industry by encouraging the development of cultivation of small and medium-scale rubber estate owners."
-                points={[
-                    "Production of new clones with high yield and vigour.",
-                    "Expansion of the genetic diversity of the existing Hevea breeding pool.",
-                    "Incorporate more genes into the existing breeding pool from non-Wickham germplasm materials and foreign clones for biotic/abiotic stresses.",
-                ]}
-                videoUrl="https://www.youtube.com/watch?v=LOD3iDKE4Bw"
-                videoTitle="Genetics and Plant Breeding Department video"
-                containerClassName="w-[80%]"
-            />
-
-            <DepartmentServicesSection
-                tagText="Main objective"
-                titlePart1="Our Primary "
-                titlePart2="Services"
-                items={primaryServices}
-                containerClassName="w-[80%]"
-            />
-
-            <DepartmentStaffSection
-                tagText="Recent Project"
-                titlePart1="Research"
-                titlePart2="Staff"
-                staff={researchStaff}
-                containerClassName="w-[80%]"
-            />
-
-            <DepartmentResearchHighlightsSection
-                tagText="Awards & Achievements"
-                titlePart1="Research "
-                titlePart2="Highlights"
-                backgroundImageSrc="/images/departments/researchhighlightsbgnew.jpg"
-                backgroundImageAlt="Research highlights background"
-                highlights={researchHighlights}
-                containerClassName="w-[80%]"
-            />
-
-            
-            <DepartmentCurrentProjectsSection
-                tagText="Recent Project"
-                titlePart1="Current Research "
-                titlePart2="Projects"
-                projects={currentProjects}
-            />
-
-            <DepartmentAwardsTimelineSection
-                tagText="Awards & Achievements"
-                titlePart1="Awards "
-                titlePart2="Timeline"
-                items={awardsTimelineItems}
-            />
-
-            <DepartmentPublicationsSection
-                title="Our Publications"
-                leftBackgroundImageSrc="/images/departments/bgdotsourpublications.png"
-                leftBackgroundImageAlt="Decorative dotted background for publications"
-                rightBackgroundImageSrc="/images/departments/bgimgourpulications.jpg"
-                rightBackgroundImageAlt="Publications section background"
-                sections={publicationSections}
-            />
-
-            <DepartmentAchievementSection
-                tagText="Main objective"
-                illustrationSrc="/images/departments/Handwireframesection.png"
-                illustrationAlt="Illustrated hand holding an achievement medal"
-                items={achievementItems}
-            />
-
-            <div className="relative">
-                <DepartmentRecommendationsSection
-                    tagText="Our Recommendation"
-                    titlePart1="Recommendations &"
-                    titlePart2="Suggestions"
-                    description="Discover our key recommendations and the way forward to strengthen future progress and success."
-                    leftBackgroundImageSrc="/images/departments/recommendationsSuggestions.webp"
-                    leftBackgroundImageAlt="Recommendations and suggestions background"
-                    rightBackgroundColor="#0F3F1D"
-                    splitPosition="44.5%"
-                    bookImageSrc="/images/departments/recommendationBook.webp"
-                    bookImageAlt="Clone recommendation publication cover"
-                    bookLabel="Clone Recommendation"
+            <DepartmentAnimatedSection>
+                <DepartmentSection
+                    tagText="Main objective"
+                    titlePart1={
+                        <>
+                            Development of
+                            <br />
+                            genetically{' '}
+                        </>
+                    }
+                    titlePart2={
+                        <>
+                            improved
+                            <br />
+                            clones for the industry
+                        </>
+                    }
+                    titleLineBreak={false}
+                    description="To Ensure the availability of raw materials necessary for the rubber industry by encouraging the development of cultivation of small and medium-scale rubber estate owners."
+                    points={[
+                        "Production of new clones with high yield and vigour.",
+                        "Expansion of the genetic diversity of the existing Hevea breeding pool.",
+                        "Incorporate more genes into the existing breeding pool from non-Wickham germplasm materials and foreign clones for biotic/abiotic stresses.",
+                    ]}
+                    videoUrl="https://www.youtube.com/watch?v=LOD3iDKE4Bw"
+                    videoTitle="Genetics and Plant Breeding Department video"
+                    containerClassName="w-[80%]"
                 />
-                <div className="relative h-56 overflow-hidden bg-[#0F3F1D]" aria-hidden="true">
-                    <div
-                        className="absolute inset-y-0 left-0 hidden bg-cover bg-center lg:block"
-                        style={{
-                            width: '44.5%',
-                            backgroundImage: "url('/images/departments/recommendationsSuggestions.webp')",
-                        }}
+            </DepartmentAnimatedSection>
+
+            <DepartmentAnimatedSection>
+                <DepartmentServicesSection
+                    tagText="Main objective"
+                    titlePart1="Our Primary "
+                    titlePart2="Services"
+                    items={primaryServices}
+                    containerClassName="w-[80%]"
+                />
+            </DepartmentAnimatedSection>
+
+            <DepartmentAnimatedSection>
+                <DepartmentStaffSection
+                    tagText="Recent Project"
+                    titlePart1="Research "
+                    titlePart2="Staff"
+                    staff={researchStaff}
+                    containerClassName="w-[80%]"
+                />
+            </DepartmentAnimatedSection>
+
+            <DepartmentAnimatedSection y={28} duration={0.9}>
+                <DepartmentResearchHighlightsSection
+                    tagText="Awards & Achievements"
+                    titlePart1="Research "
+                    titlePart2="Highlights"
+                    backgroundImageSrc="/images/departments/researchhighlightsbgnew.jpg"
+                    backgroundImageAlt="Research highlights background"
+                    highlights={researchHighlights}
+                    containerClassName="w-[80%]"
+                />
+            </DepartmentAnimatedSection>
+
+            <DepartmentAnimatedSection>
+                <DepartmentCurrentProjectsSection
+                    tagText="Recent Project"
+                    titlePart1="Current Research "
+                    titlePart2="Projects"
+                    projects={currentProjects}
+                />
+            </DepartmentAnimatedSection>
+
+            <DepartmentAnimatedSection y={30} duration={0.9}>
+                <DepartmentAwardsTimelineSection
+                    tagText="Awards & Achievements"
+                    titlePart1="Awards "
+                    titlePart2="Timeline"
+                    items={awardsTimelineItems}
+                />
+            </DepartmentAnimatedSection>
+
+            <DepartmentAnimatedSection y={30} duration={0.9}>
+                <DepartmentPublicationsSection
+                    title="Our Publications"
+                    leftBackgroundImageSrc="/images/departments/bgdotsourpublications.png"
+                    leftBackgroundImageAlt="Decorative dotted background for publications"
+                    rightBackgroundImageSrc="/images/departments/bgimgourpulications.jpg"
+                    rightBackgroundImageAlt="Publications section background"
+                    sections={publicationSections}
+                />
+            </DepartmentAnimatedSection>
+
+            <DepartmentAnimatedSection>
+                <DepartmentAchievementSection
+                    tagText="Main objective"
+                    illustrationSrc="/images/departments/Handwireframesection.png"
+                    illustrationAlt="Illustrated hand holding an achievement medal"
+                    items={achievementItems}
+                />
+            </DepartmentAnimatedSection>
+
+            <DepartmentAnimatedSection y={28} duration={0.9}>
+                <div className="relative">
+                    <DepartmentRecommendationsSection
+                        tagText="Our Recommendation"
+                        titlePart1="Recommendations &"
+                        titlePart2="Suggestions"
+                        description="Discover our key recommendations and the way forward to strengthen future progress and success."
+                        leftBackgroundImageSrc="/images/departments/recommendationsSuggestions.webp"
+                        leftBackgroundImageAlt="Recommendations and suggestions background"
+                        rightBackgroundColor="#0F3F1D"
+                        splitPosition="44.5%"
+                        bookImageSrc="/images/departments/recommendationBook.webp"
+                        bookImageAlt="Clone recommendation publication cover"
+                        bookLabel="Clone Recommendation"
                     />
-                    <div
-                        className="absolute inset-y-0 right-0 hidden bg-[#0F3F1D] lg:block"
-                        style={{ left: '44.5%' }}
-                    />
+                    <div className="relative h-56 overflow-hidden bg-[#0F3F1D]" aria-hidden="true">
+                        <div
+                            className="absolute inset-y-0 left-0 hidden bg-cover bg-center lg:block"
+                            style={{
+                                width: '44.5%',
+                                backgroundImage: "url('/images/departments/recommendationsSuggestions.webp')",
+                            }}
+                        />
+                        <div
+                            className="absolute inset-y-0 right-0 hidden bg-[#0F3F1D] lg:block"
+                            style={{ left: '44.5%' }}
+                        />
+                    </div>
                 </div>
-            </div>
+            </DepartmentAnimatedSection>
         </div>
     );
 }

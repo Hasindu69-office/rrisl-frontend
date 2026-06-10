@@ -407,7 +407,7 @@ export default function DepartmentAwardsTimelineSection({
     >
       <div className={`${isDesktop && desktopMaxStartIndex > 0 ? 'sticky top-0 flex min-h-screen items-center py-5 xl:py-6' : ''}`}>
         <div className={`mx-auto w-full max-w-none px-4 md:px-8 xl:px-12 ${containerClassName}`}>
-          <div className="flex flex-col items-center text-center">
+          <div className="flex flex-col items-center text-center" data-department-reveal>
             <GradientTag
               text={tagText}
               backgroundColor="transparent"
@@ -429,6 +429,7 @@ export default function DepartmentAwardsTimelineSection({
 
           <div
             ref={timelineViewportRef}
+            data-department-reveal
             className={`relative mt-10 ${isDesktop ? 'overflow-hidden px-0 md:mt-12 lg:px-24 xl:px-28' : 'px-0 md:mt-12'}`}
           >
             {items.length > visibleItemCount ? (
