@@ -1,10 +1,22 @@
 import AdvisoryServicesProgramsSliderSectionClient from './AdvisoryServicesProgramsSliderSectionClient';
-import { ADVISORY_TRAINING_CATEGORIES } from './AdvisoryServicesProgramsSliderSection.data';
+import type { AdvisoryTrainingCategory } from './AdvisoryServicesProgramsSliderSection.data';
 
-export default function AdvisoryServicesProgramsSliderSection() {
+interface AdvisoryServicesProgramsSliderSectionProps {
+  categories: AdvisoryTrainingCategory[];
+  backgroundImage: string;
+  backgroundImageAlt: string;
+}
+
+export default function AdvisoryServicesProgramsSliderSection({
+  categories,
+  backgroundImage,
+  backgroundImageAlt,
+}: AdvisoryServicesProgramsSliderSectionProps) {
   return (
     <AdvisoryServicesProgramsSliderSectionClient
-      categories={ADVISORY_TRAINING_CATEGORIES}
+      categories={categories}
+      backgroundImage={backgroundImage}
+      backgroundImageAlt={backgroundImageAlt}
     />
   );
 }

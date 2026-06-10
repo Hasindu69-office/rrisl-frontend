@@ -1,5 +1,7 @@
 'use client';
 
+/* eslint-disable react-hooks/set-state-in-effect */
+
 import Image from 'next/image';
 import {
   startTransition,
@@ -10,11 +12,11 @@ import {
   useState,
 } from 'react';
 import {
-  ADVISORY_TRAINING_CATEGORIES,
   type AdvisoryTrainingCard,
   type AdvisoryTrainingCategory,
   type AdvisoryTrainingCategoryId,
 } from './AdvisoryServicesProgramsSliderSection.data';
+import { isLocalhostAssetUrl } from '@/app/lib/strapi';
 
 type ResponsiveMode = 'desktop' | 'tablet' | 'mobile';
 
@@ -22,6 +24,8 @@ const AUTOPLAY_DELAY_MS = 4200;
 const MOTION_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
 
 function AdvisoryProgramCard({ card }: { card: AdvisoryTrainingCard }) {
+  const useUnoptimizedImage = isLocalhostAssetUrl(card.imageSrc);
+
   return (
     <article className="relative h-full overflow-hidden rounded-[24px] bg-white shadow-[0_18px_46px_rgba(15,63,29,0.06)]">
       <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,1)_0%,rgba(250,252,248,0.98)_100%)]" />
@@ -47,6 +51,7 @@ function AdvisoryProgramCard({ card }: { card: AdvisoryTrainingCard }) {
             draggable={false}
             className="pointer-events-none select-none object-cover"
             sizes="(max-width: 639px) 100vw, (max-width: 767px) 38vw, (max-width: 1279px) 240px, 250px"
+            unoptimized={useUnoptimizedImage}
           />
         </div>
       </div>
@@ -56,9 +61,14 @@ function AdvisoryProgramCard({ card }: { card: AdvisoryTrainingCard }) {
 
 export default function AdvisoryServicesProgramsSliderSectionClient({
   categories,
+  backgroundImage,
+  backgroundImageAlt,
 }: {
   categories: AdvisoryTrainingCategory[];
+  backgroundImage: string;
+  backgroundImageAlt: string;
 }) {
+  const useUnoptimizedBackground = isLocalhostAssetUrl(backgroundImage);
   const initialCategoryId = categories[0]?.id ?? '';
   const [activeCategoryId, setActiveCategoryId] =
     useState<AdvisoryTrainingCategoryId>(initialCategoryId);
@@ -464,12 +474,13 @@ export default function AdvisoryServicesProgramsSliderSectionClient({
     >
       <div className="pointer-events-none absolute inset-0">
         <Image
-          src="/images/services/advisoryservices/section2backgroundservices.png"
-          alt=""
+          src={backgroundImage}
+          alt={backgroundImageAlt}
           fill
           draggable={false}
           className="select-none object-cover object-center opacity-40"
           sizes="100vw"
+          unoptimized={useUnoptimizedBackground}
         />
 
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.58)_0%,rgba(243,251,223,0.78)_38%,rgba(243,251,223,0.94)_100%)]" />
