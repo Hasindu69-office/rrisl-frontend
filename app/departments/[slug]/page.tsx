@@ -5,9 +5,11 @@ import DepartmentSection from '../../components/department/DepartmentSection';
 import DepartmentServicesSection from '../../components/department/DepartmentServicesSection';
 import DepartmentStaffSection from '../../components/department/DepartmentStaffSection';
 import DepartmentResearchHighlightsSection from '../../components/department/DepartmentResearchHighlightsSection';
+import DepartmentCurrentProjectsSection from '../../components/department/DepartmentCurrentProjectsSection';
 import { normalizeLocale } from '../../lib/locale';
 import { getDepartmentPage } from '../../lib/strapi';
 import {
+  mapDepartmentCurrentProjects,
   mapDepartmentHero,
   mapDepartmentIntroduction,
   mapDepartmentResearchHighlights,
@@ -45,6 +47,11 @@ export default async function DepartmentPage({
   const researchHighlights = mapDepartmentResearchHighlights(
     departmentPage,
     fallbackDepartmentPage
+  );
+  const currentProjects = mapDepartmentCurrentProjects(
+    departmentPage,
+    fallbackDepartmentPage,
+    slug
   );
 
   return (
@@ -105,6 +112,17 @@ export default async function DepartmentPage({
             titlePart2={researchHighlights.titlePart2}
             highlights={researchHighlights.highlights}
             containerClassName="w-[80%]"
+          />
+        </DepartmentAnimatedSection>
+      ) : null}
+
+      {currentProjects ? (
+        <DepartmentAnimatedSection>
+          <DepartmentCurrentProjectsSection
+            tagText={currentProjects.tagText}
+            titlePart1={currentProjects.titlePart1}
+            titlePart2={currentProjects.titlePart2}
+            projects={currentProjects.projects}
           />
         </DepartmentAnimatedSection>
       ) : null}

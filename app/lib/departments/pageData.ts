@@ -3,11 +3,14 @@ import type {
   DepartmentResearchHighlightImage,
   DepartmentResearchHighlightItem,
 } from '@/app/components/department/DepartmentResearchHighlightsSection';
+import type { DepartmentCurrentProjectItem } from '@/app/components/department/DepartmentCurrentProjectsSection';
 import type { DepartmentServiceItem } from '@/app/components/department/DepartmentServicesSection';
 import type { DepartmentStaffMember } from '@/app/components/department/DepartmentStaffSection';
 import type { DepartmentSectionPoint } from '@/app/components/department/DepartmentSection';
 import type {
   DepartmentHighlightSubcard,
+  DepartmentCurrentResearchProjectCard,
+  DepartmentCurrentResearchProjectSection,
   DepartmentIntroductionSection,
   DepartmentPoint,
   DepartmentPageHero,
@@ -57,6 +60,13 @@ export interface DepartmentResearchHighlightsViewModel {
   titlePart1: string;
   titlePart2: string;
   highlights: DepartmentResearchHighlightItem[];
+}
+
+export interface DepartmentCurrentProjectsViewModel {
+  tagText: string;
+  titlePart1: string;
+  titlePart2: string;
+  projects: DepartmentCurrentProjectItem[];
 }
 
 const DEPARTMENT_HERO_FALLBACK: DepartmentHeroViewModel = {
@@ -388,6 +398,37 @@ function mapHighlightCards(
     .filter((highlight): highlight is DepartmentResearchHighlightItem => Boolean(highlight));
 }
 
+function mapCurrentProjectCards(
+  localizedProjects: DepartmentCurrentResearchProjectCard[] | null | undefined,
+  fallbackProjects: DepartmentCurrentResearchProjectCard[] | null | undefined,
+  departmentName: string,
+  slug: string
+): DepartmentCurrentProjectItem[] {
+  const projects = localizedProjects?.length ? localizedProjects : fallbackProjects || [];
+
+  return sortBySortOrder(projects)
+    .map((project): DepartmentCurrentProjectItem | null => {
+      const title = project.title?.trim();
+      const imageSrc =
+        getOptimizedImageUrl(project.image, 'large') ||
+        getOptimizedImageUrl(project.image, 'medium') ||
+        getStrapiImageUrl(project.image);
+
+      if (!title || !imageSrc) {
+        return null;
+      }
+
+      return {
+        id: project.id ? String(project.id) : slugify(title),
+        title,
+        imageSrc,
+        imageAlt: project.image?.alternativeText || title,
+        departmentName,
+      };
+    })
+    .filter((project): project is DepartmentCurrentProjectItem => Boolean(project));
+}
+
 export function mapDepartmentHero(
   localizedPage: DepartmentSingleTypePage | null | undefined,
   fallbackPage: DepartmentSingleTypePage | null | undefined,
@@ -552,5 +593,50 @@ export function mapDepartmentResearchHighlights(
     tagText: verticalText,
     ...titleParts,
     highlights,
+  };
+}
+
+export function mapDepartmentCurrentProjects(
+  localizedPage: DepartmentSingleTypePage | null | undefined,
+  fallbackPage: DepartmentSingleTypePage | null | undefined,
+  slug: string
+): DepartmentCurrentProjectsViewModel | null {
+  const isPresent = localizedPage?.currentprojectpresent ?? fallbackPage?.currentprojectpresent;
+
+  if (isPresent !== true) {
+    return null;
+  }
+
+  const section: DepartmentCurrentResearchProjectSection | null | undefined =
+    localizedPage?.currentresearchprojectsection ||
+    fallbackPage?.currentresearchprojectsection;
+
+  if (!section) {
+    return null;
+  }
+
+  const header = section.sectionheader || fallbackPage?.currentresearchprojectsection?.sectionheader;
+  const title = header?.title || '';
+  const highlightedText = header?.hightlightedtext || '';
+  const titleParts = splitTitle(title, highlightedText);
+  const departmentName =
+    localizedPage?.departmenttitle?.trim() ||
+    fallbackPage?.departmenttitle?.trim() ||
+    humanizeSlug(slug);
+  const projects = mapCurrentProjectCards(
+    section.researchprojects,
+    fallbackPage?.currentresearchprojectsection?.researchprojects,
+    departmentName,
+    slug
+  );
+
+  if (projects.length === 0) {
+    return null;
+  }
+
+  return {
+    tagText: header?.eyebrow?.trim() || 'Recent Project',
+    ...titleParts,
+    projects,
   };
 }
