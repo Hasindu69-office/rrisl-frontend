@@ -7,10 +7,13 @@ interface DepartmentSectionProps {
     tagText: string;
     titlePart1: string | React.ReactNode;
     titlePart2: string | React.ReactNode;
+    titleLineBreak?: boolean;
     description: string;
     points: string[];
-    imageSrc: string;
-    imageAlt: string;
+    imageSrc?: string;
+    imageAlt?: string;
+    videoUrl?: string;
+    videoTitle?: string;
     reverse?: boolean;
     containerClassName?: string;
 }
@@ -21,17 +24,48 @@ const LeafIcon = () => (
     </svg>
 );
 
+function normalizeYouTubeEmbedUrl(url: string) {
+    try {
+        const parsed = new URL(url);
+        const host = parsed.hostname.replace(/^www\./, '');
+
+        if (host === 'youtu.be') {
+            const videoId = parsed.pathname.replace(/^\/+/, '').split('/')[0];
+            return videoId ? `https://www.youtube.com/embed/${videoId}?rel=0` : null;
+        }
+
+        if (host === 'youtube.com' || host === 'm.youtube.com') {
+            if (parsed.pathname.startsWith('/embed/')) {
+                const videoId = parsed.pathname.replace('/embed/', '').split('/')[0];
+                return videoId ? `https://www.youtube.com/embed/${videoId}?rel=0` : null;
+            }
+
+            const videoId = parsed.searchParams.get('v');
+            return videoId ? `https://www.youtube.com/embed/${videoId}?rel=0` : null;
+        }
+    } catch {
+        return null;
+    }
+
+    return null;
+}
+
 export default function DepartmentSection({
     tagText,
     titlePart1,
     titlePart2,
+    titleLineBreak = true,
     description,
     points,
     imageSrc,
     imageAlt,
+    videoUrl,
+    videoTitle = 'Department video',
     reverse = false,
     containerClassName = '',
 }: DepartmentSectionProps) {
+    const embedUrl = videoUrl ? normalizeYouTubeEmbedUrl(videoUrl) : null;
+
     return (
         <section className="py-16 md:py-24">
             <div className={`container mx-auto max-w-[1920px] px-0 md:px-6 lg:px-8 ${containerClassName}`}>
@@ -47,8 +81,9 @@ export default function DepartmentSection({
                             part2={titlePart2}
                             part1Color="dark-green"
                             size="custom"
-                            customSize="clamp(28px, 4vw, 50px)"
+                            customSize="clamp(28px, 4vw, 40px)"
                             align="left"
+                            lineBreak={titleLineBreak}
                             className="font-bold leading-[1.2]"
                         />
 
@@ -68,17 +103,30 @@ export default function DepartmentSection({
                         </ul>
                     </div>
 
-                    {/* Image Side */}
+                    {/* Media Side */}
                     <div className="w-full lg:w-1/2">
-                        <div className="relative mx-auto aspect-[4/3] w-full max-w-[560px] md:max-w-[720px] lg:max-w-none">
-                            <Image
-                                src={imageSrc}
-                                alt={imageAlt}
-                                fill
-                                className="object-contain"
-                                priority
-                            />
-                        </div>
+                        {embedUrl ? (
+                            <div className="relative mx-auto aspect-video w-full max-w-[560px] overflow-hidden rounded-[24px] border border-[#DDE6D7] bg-[#07170E] shadow-[0_18px_50px_rgba(15,63,29,0.14)] md:max-w-[720px] md:rounded-[30px] lg:max-w-none">
+                                <iframe
+                                    src={embedUrl}
+                                    title={videoTitle}
+                                    className="h-full w-full"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                    allowFullScreen
+                                    loading="lazy"
+                                />
+                            </div>
+                        ) : imageSrc ? (
+                            <div className="relative mx-auto aspect-[4/3] w-full max-w-[560px] md:max-w-[720px] lg:max-w-none">
+                                <Image
+                                    src={imageSrc}
+                                    alt={imageAlt || ''}
+                                    fill
+                                    className="object-contain"
+                                    priority
+                                />
+                            </div>
+                        ) : null}
                     </div>
                 </div>
             </div>

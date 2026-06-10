@@ -384,7 +384,7 @@ export default async function GeneticsPlantBreeding({ searchParams }: Department
     ];
 
     return (
-        <div className="min-h-screen mb-56">
+        <div className="min-h-screen">
             {/* Page Hero Section */}
             <PageHero
                 title="Genetics & Plant Breeding Department"
@@ -401,20 +401,29 @@ export default async function GeneticsPlantBreeding({ searchParams }: Department
             {/* Main Objective Section */}
             <DepartmentSection
                 tagText="Main objective"
-                titlePart1="Development of"
-                titlePart2={
+                titlePart1={
                     <>
-                        genetically improved <br /> clones for the industry
+                        Development of
+                        <br />
+                        genetically{' '}
                     </>
                 }
+                titlePart2={
+                    <>
+                        improved
+                        <br />
+                        clones for the industry
+                    </>
+                }
+                titleLineBreak={false}
                 description="To Ensure the availability of raw materials necessary for the rubber industry by encouraging the development of cultivation of small and medium-scale rubber estate owners."
                 points={[
                     "Production of new clones with high yield and vigour.",
                     "Expansion of the genetic diversity of the existing Hevea breeding pool.",
                     "Incorporate more genes into the existing breeding pool from non-Wickham germplasm materials and foreign clones for biotic/abiotic stresses.",
                 ]}
-                imageSrc="/images/departments/geneticsplantbreedingsection1.png"
-                imageAlt="Genetics and Plant Breeding Section 1 Collage"
+                videoUrl="https://www.youtube.com/watch?v=LOD3iDKE4Bw"
+                videoTitle="Genetics and Plant Breeding Department video"
                 containerClassName="w-[80%]"
             />
 
@@ -475,19 +484,34 @@ export default async function GeneticsPlantBreeding({ searchParams }: Department
                 items={achievementItems}
             />
 
-            <DepartmentRecommendationsSection
-                tagText="Our Recommendation"
-                titlePart1="Recommendations &"
-                titlePart2="Suggestions"
-                description="Discover our key recommendations and the way forward to strengthen future progress and success."
-                leftBackgroundImageSrc="/images/departments/recommendationsSuggestions.webp"
-                leftBackgroundImageAlt="Recommendations and suggestions background"
-                rightBackgroundColor="#0F3F1D"
-                splitPosition="44.5%"
-                bookImageSrc="/images/departments/recommendationBook.webp"
-                bookImageAlt="Clone recommendation publication cover"
-                bookLabel="Clone Recommendation"
-            />
+            <div className="relative">
+                <DepartmentRecommendationsSection
+                    tagText="Our Recommendation"
+                    titlePart1="Recommendations &"
+                    titlePart2="Suggestions"
+                    description="Discover our key recommendations and the way forward to strengthen future progress and success."
+                    leftBackgroundImageSrc="/images/departments/recommendationsSuggestions.webp"
+                    leftBackgroundImageAlt="Recommendations and suggestions background"
+                    rightBackgroundColor="#0F3F1D"
+                    splitPosition="44.5%"
+                    bookImageSrc="/images/departments/recommendationBook.webp"
+                    bookImageAlt="Clone recommendation publication cover"
+                    bookLabel="Clone Recommendation"
+                />
+                <div className="relative h-56 overflow-hidden bg-[#0F3F1D]" aria-hidden="true">
+                    <div
+                        className="absolute inset-y-0 left-0 hidden bg-cover bg-center lg:block"
+                        style={{
+                            width: '44.5%',
+                            backgroundImage: "url('/images/departments/recommendationsSuggestions.webp')",
+                        }}
+                    />
+                    <div
+                        className="absolute inset-y-0 right-0 hidden bg-[#0F3F1D] lg:block"
+                        style={{ left: '44.5%' }}
+                    />
+                </div>
+            </div>
         </div>
     );
 }
