@@ -123,7 +123,7 @@ function mapProjectCard(
   return {
     id: `${departmentSlug}-${card.id || title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
     title,
-    href: `/departments/${departmentSlug}`,
+    href: `/departments/${departmentSlug}#current-projects`,
     imageSrc,
     imageAlt: card.image?.alternativeText || title,
     departmentName,

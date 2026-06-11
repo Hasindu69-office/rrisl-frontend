@@ -22,6 +22,7 @@ interface DepartmentCurrentProjectsSectionProps {
   titlePart2: string | React.ReactNode;
   projects: DepartmentCurrentProjectItem[];
   containerClassName?: string;
+  sectionId?: string;
 }
 
 const MOBILE_GAP = 20;
@@ -60,43 +61,56 @@ function ProjectCard({
   staggered: boolean;
 }) {
   const useUnoptimizedImage = isLocalhostAssetUrl(project.imageSrc);
+  const cardContent = (
+    <div className="relative h-full w-full">
+      <Image
+        src={project.imageSrc}
+        alt={project.imageAlt}
+        fill
+        className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+        sizes="(max-width: 767px) 78vw, (max-width: 1279px) 44vw, 24vw"
+        unoptimized={useUnoptimizedImage}
+      />
+
+      <div
+        className="absolute inset-0 transition-opacity duration-500 ease-out group-hover:opacity-20"
+        style={{
+          background:
+            'linear-gradient(180deg, rgba(161, 223, 10, 0) 0%, #093714 100%)',
+        }}
+      />
+
+      <div className="absolute inset-0 flex items-end p-5 md:p-6">
+        <div className="flex max-w-[18ch] flex-col gap-2">
+          {project.departmentName ? (
+            <span className="text-[12px] font-medium uppercase tracking-[0.16em] text-[#D5F08B]">
+              {project.departmentName}
+            </span>
+          ) : null}
+          <h3 className="text-[16px] font-medium leading-[1.35] text-white">
+            {project.title}
+          </h3>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <article
       className={`group relative shrink-0 overflow-hidden rounded-[28px] shadow-[0_18px_46px_rgba(15,63,29,0.12)] transition-shadow duration-500 ease-out hover:shadow-[0_24px_54px_rgba(15,63,29,0.16)] ${staggered ? 'lg:translate-y-14' : 'lg:translate-y-0'}`}
       style={{ height: 'min(64vw, 446px)' }}
     >
-      <div className="relative h-full w-full">
-        <Image
-          src={project.imageSrc}
-          alt={project.imageAlt}
-          fill
-          className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-          sizes="(max-width: 767px) 78vw, (max-width: 1279px) 44vw, 24vw"
-          unoptimized={useUnoptimizedImage}
-        />
-
-        <div
-          className="absolute inset-0 transition-opacity duration-500 ease-out group-hover:opacity-20"
-          style={{
-            background:
-              'linear-gradient(180deg, rgba(161, 223, 10, 0) 0%, #093714 100%)',
-          }}
-        />
-
-        <div className="absolute inset-0 flex items-end p-5 md:p-6">
-          <div className="flex max-w-[18ch] flex-col gap-2">
-            {project.departmentName ? (
-              <span className="text-[12px] font-medium uppercase tracking-[0.16em] text-[#D5F08B]">
-                {project.departmentName}
-              </span>
-            ) : null}
-            <h3 className="text-[16px] font-medium leading-[1.35] text-white">
-              {project.title}
-            </h3>
-          </div>
-        </div>
-      </div>
+      {project.href ? (
+        <a
+          href={project.href}
+          aria-label={`View ${project.title}`}
+          className="block h-full w-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A1DF0A] focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+        >
+          {cardContent}
+        </a>
+      ) : (
+        cardContent
+      )}
     </article>
   );
 }
@@ -111,6 +125,7 @@ export default function DepartmentCurrentProjectsSection({
   titlePart2,
   projects,
   containerClassName = '',
+  sectionId,
 }: DepartmentCurrentProjectsSectionProps) {
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -163,7 +178,7 @@ export default function DepartmentCurrentProjectsSection({
   };
 
   return (
-    <section className="bg-white py-16 md:py-20 lg:py-24">
+    <section id={sectionId} className="scroll-mt-28 bg-white py-16 md:py-20 lg:py-24">
       <div className={`mx-auto max-w-[1600px] px-4 md:px-6 xl:w-[80%] xl:px-0 ${containerClassName}`}>
         <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
           <div className="max-w-[760px]" data-department-reveal>
