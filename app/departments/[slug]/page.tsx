@@ -23,7 +23,7 @@ import {
   mapDepartmentResearchStaff,
   mapDepartmentServices,
 } from '../../lib/departments/pageData';
-import { getDepartmentRecommendations } from '../../lib/departments/recommendationsData';
+import { mapDepartmentRecommendations } from '../../lib/departments/recommendationsData';
 
 interface DepartmentPageProps {
   params: Promise<{ slug: string }>;
@@ -64,7 +64,7 @@ export default async function DepartmentPage({
   const awardsTimeline = mapDepartmentAwardsTimeline(departmentPage, fallbackDepartmentPage);
   const publications = mapDepartmentPublications(departmentPage, fallbackDepartmentPage);
   const achievements = mapDepartmentAchievements(departmentPage, fallbackDepartmentPage);
-  const recommendations = getDepartmentRecommendations(slug);
+  const recommendations = await mapDepartmentRecommendations(departmentPage, fallbackDepartmentPage);
 
   return (
     <div className="min-h-screen bg-white pb-56 md:pb-64 lg:pb-72">

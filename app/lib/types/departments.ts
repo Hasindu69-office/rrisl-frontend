@@ -155,6 +155,31 @@ export interface DepartmentAchievementSection {
   achievements?: DepartmentAchievementCard[] | null;
 }
 
+export interface DepartmentRecommendationImageCard {
+  id: number;
+  title?: string | null;
+  subtitle?: string | null;
+  image?: StrapiImage | null;
+}
+
+export interface DepartmentRecommendationTableCard {
+  id: number;
+  title?: string | null;
+  description?: string | null;
+  csvfile?: StrapiImage | null;
+}
+
+export interface DepartmentRecommendationSection {
+  id: number;
+  sectionheader?: SectionHeader | null;
+  applyimagecard?: boolean | null;
+  imagecard?: DepartmentRecommendationImageCard[] | null;
+  includepoints?: boolean | null;
+  points?: DepartmentPublicationCard[] | null;
+  includetable?: boolean | null;
+  tablecards?: DepartmentRecommendationTableCard[] | null;
+}
+
 export interface DepartmentSingleTypePage {
   id: number;
   documentId?: string;
@@ -168,6 +193,7 @@ export interface DepartmentSingleTypePage {
   awardtimelinepresent?: boolean | null;
   publicationspresent?: boolean | null;
   achievementspresent?: boolean | null;
+  recommendationsectionpresent?: boolean | null;
   pagehero?: DepartmentPageHero | null;
   introductionsection?: DepartmentIntroductionSection | null;
   servicesection?: DepartmentServiceSection | null;
@@ -177,4 +203,5 @@ export interface DepartmentSingleTypePage {
   awardssection?: DepartmentAwardsSection | null;
   publicationssection?: DepartmentPublicationsSection | null;
   achievementssection?: DepartmentAchievementSection | null;
+  recommendationsection?: DepartmentRecommendationSection | null;
 }

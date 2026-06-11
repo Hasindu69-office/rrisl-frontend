@@ -66,6 +66,10 @@ function buildDepartmentQuery(locale: string, availableFields?: DepartmentFieldS
   setPopulate('publicationssection', 'populate[publicationssection][populate][publications][populate][points]');
   setPopulate('achievementssection', 'populate[achievementssection][populate][sectionheader]');
   setPopulate('achievementssection', 'populate[achievementssection][populate][achievements]');
+  setPopulate('recommendationsection', 'populate[recommendationsection][populate][sectionheader]');
+  setPopulate('recommendationsection', 'populate[recommendationsection][populate][imagecard][populate][image]');
+  setPopulate('recommendationsection', 'populate[recommendationsection][populate][points][populate][points]');
+  setPopulate('recommendationsection', 'populate[recommendationsection][populate][tablecards][populate][csvfile]');
 
   return params.toString();
 }

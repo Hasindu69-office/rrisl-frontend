@@ -6,6 +6,7 @@ import { useState } from 'react';
 import GradientTag from '../ui/GradientTag';
 import GradientTitle from '../ui/GradientTitle';
 import type { DepartmentRecommendationsContent } from '@/app/lib/departments/recommendationsData';
+import { isLocalhostAssetUrl } from '@/app/lib/strapi';
 
 interface DepartmentRecommendationsSectionProps {
   content: DepartmentRecommendationsContent;
@@ -36,6 +37,8 @@ function RecommendationImage({
   imageAlt,
   caption,
 }: Extract<DepartmentRecommendationsContent['blocks'][number], { type: 'image' }>) {
+  const useUnoptimizedImage = isLocalhostAssetUrl(imageSrc);
+
   return (
     <>
       {caption ? (
@@ -50,6 +53,7 @@ function RecommendationImage({
             fill
             className="object-contain"
             sizes="(max-width: 767px) 100vw, (max-width: 1279px) 80vw, 960px"
+            unoptimized={useUnoptimizedImage}
           />
         </div>
       </div>
@@ -145,7 +149,7 @@ export default function DepartmentRecommendationsSection({
 
           <GradientTitle
             part1={content.title}
-            part2=""
+            part2={content.highlightedText}
             lineBreak={false}
             part1Color="dark-green"
             size="custom"
