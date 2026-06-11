@@ -141,6 +141,19 @@ export interface DepartmentPublicationsSection {
   publications?: DepartmentPublicationCard[] | null;
 }
 
+export interface DepartmentAchievementCard {
+  id: number;
+  achievement?: string | null;
+  sortorder?: number | null;
+}
+
+export interface DepartmentAchievementSection {
+  id: number;
+  sectionheader?: SectionHeader | null;
+  outlinetext?: string | null;
+  achievements?: DepartmentAchievementCard[] | null;
+}
+
 export interface DepartmentSingleTypePage {
   id: number;
   documentId?: string;
@@ -153,6 +166,7 @@ export interface DepartmentSingleTypePage {
   currentprojectpresent?: boolean | null;
   awardtimelinepresent?: boolean | null;
   publicationspresent?: boolean | null;
+  achievementspresent?: boolean | null;
   pagehero?: DepartmentPageHero | null;
   introductionsection?: DepartmentIntroductionSection | null;
   servicesection?: DepartmentServiceSection | null;
@@ -161,4 +175,5 @@ export interface DepartmentSingleTypePage {
   currentresearchprojectsection?: DepartmentCurrentResearchProjectSection | null;
   awardssection?: DepartmentAwardsSection | null;
   publicationssection?: DepartmentPublicationsSection | null;
+  achievementssection?: DepartmentAchievementSection | null;
 }

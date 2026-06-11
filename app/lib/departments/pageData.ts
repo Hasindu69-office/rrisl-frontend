@@ -4,12 +4,15 @@ import type {
   DepartmentResearchHighlightItem,
 } from '@/app/components/department/DepartmentResearchHighlightsSection';
 import type { DepartmentAwardsTimelineItem } from '@/app/components/department/DepartmentAwardsTimelineSection';
+import type { DepartmentAchievementCardItem } from '@/app/components/department/DepartmentAchievementSection';
 import type { DepartmentCurrentProjectItem } from '@/app/components/department/DepartmentCurrentProjectsSection';
 import type { DepartmentPublicationSectionItem } from '@/app/components/department/DepartmentPublicationsSection';
 import type { DepartmentServiceItem } from '@/app/components/department/DepartmentServicesSection';
 import type { DepartmentStaffMember } from '@/app/components/department/DepartmentStaffSection';
 import type { DepartmentSectionPoint } from '@/app/components/department/DepartmentSection';
 import type {
+  DepartmentAchievementCard,
+  DepartmentAchievementSection,
   DepartmentAwardsSection,
   DepartmentAwardsTimelineCard,
   DepartmentHighlightSubcard,
@@ -89,6 +92,16 @@ export interface DepartmentPublicationsViewModel {
   rightBackgroundImageSrc: string;
   rightBackgroundImageAlt: string;
   sections: DepartmentPublicationSectionItem[];
+}
+
+export interface DepartmentAchievementsViewModel {
+  tagText: string;
+  titlePart1: string;
+  titlePart2: string;
+  outlineText: string;
+  illustrationSrc: string;
+  illustrationAlt: string;
+  items: DepartmentAchievementCardItem[];
 }
 
 const DEPARTMENT_PUBLICATIONS_FALLBACK = {
@@ -545,6 +558,28 @@ function mapPublicationCards(
     .filter((section): section is DepartmentPublicationSectionItem => Boolean(section));
 }
 
+function mapAchievementCards(
+  localizedCards: DepartmentAchievementCard[] | null | undefined,
+  fallbackCards: DepartmentAchievementCard[] | null | undefined
+): DepartmentAchievementCardItem[] {
+  const cards = localizedCards?.length ? localizedCards : fallbackCards || [];
+
+  return sortBySortOrder(cards)
+    .map((card): DepartmentAchievementCardItem | null => {
+      const text = card.achievement?.trim();
+
+      if (!text) {
+        return null;
+      }
+
+      return {
+        id: card.id ? String(card.id) : slugify(text),
+        text,
+      };
+    })
+    .filter((item): item is DepartmentAchievementCardItem => Boolean(item));
+}
+
 export function mapDepartmentHero(
   localizedPage: DepartmentSingleTypePage | null | undefined,
   fallbackPage: DepartmentSingleTypePage | null | undefined,
@@ -837,5 +872,48 @@ export function mapDepartmentPublications(
       fallbackPage?.publicationssection?.rightimage?.alternativeText ||
       DEPARTMENT_PUBLICATIONS_FALLBACK.rightBackgroundImageAlt,
     sections,
+  };
+}
+
+export function mapDepartmentAchievements(
+  localizedPage: DepartmentSingleTypePage | null | undefined,
+  fallbackPage?: DepartmentSingleTypePage | null
+): DepartmentAchievementsViewModel | null {
+  const isPresent = localizedPage?.achievementspresent ?? fallbackPage?.achievementspresent;
+
+  if (isPresent !== true) {
+    return null;
+  }
+
+  const section: DepartmentAchievementSection | null | undefined =
+    localizedPage?.achievementssection || fallbackPage?.achievementssection;
+
+  if (!section) {
+    return null;
+  }
+
+  const header = section.sectionheader || fallbackPage?.achievementssection?.sectionheader;
+  const title = header?.title || '';
+  const highlightedText = header?.hightlightedtext || '';
+  const titleParts = splitTitle(title, highlightedText);
+  const items = mapAchievementCards(
+    section.achievements,
+    fallbackPage?.achievementssection?.achievements
+  );
+
+  if (items.length === 0) {
+    return null;
+  }
+
+  return {
+    tagText: header?.eyebrow?.trim() || 'Achievements',
+    ...titleParts,
+    outlineText:
+      section.outlinetext?.trim() ||
+      fallbackPage?.achievementssection?.outlinetext?.trim() ||
+      'Our Achievements',
+    illustrationSrc: '/images/departments/Handwireframesection.png',
+    illustrationAlt: 'Illustrated hand holding an achievement medal',
+    items,
   };
 }

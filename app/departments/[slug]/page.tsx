@@ -8,9 +8,11 @@ import DepartmentResearchHighlightsSection from '../../components/department/Dep
 import DepartmentCurrentProjectsSection from '../../components/department/DepartmentCurrentProjectsSection';
 import DepartmentAwardsTimelineSection from '../../components/department/DepartmentAwardsTimelineSection';
 import DepartmentPublicationsSection from '../../components/department/DepartmentPublicationsSection';
+import DepartmentAchievementSection from '../../components/department/DepartmentAchievementSection';
 import { normalizeLocale } from '../../lib/locale';
 import { getDepartmentPage } from '../../lib/strapi';
 import {
+  mapDepartmentAchievements,
   mapDepartmentAwardsTimeline,
   mapDepartmentCurrentProjects,
   mapDepartmentHero,
@@ -59,6 +61,7 @@ export default async function DepartmentPage({
   );
   const awardsTimeline = mapDepartmentAwardsTimeline(departmentPage, fallbackDepartmentPage);
   const publications = mapDepartmentPublications(departmentPage, fallbackDepartmentPage);
+  const achievements = mapDepartmentAchievements(departmentPage, fallbackDepartmentPage);
 
   return (
     <div className="min-h-screen">
@@ -153,6 +156,20 @@ export default async function DepartmentPage({
             rightBackgroundImageSrc={publications.rightBackgroundImageSrc}
             rightBackgroundImageAlt={publications.rightBackgroundImageAlt}
             sections={publications.sections}
+          />
+        </DepartmentAnimatedSection>
+      ) : null}
+
+      {achievements ? (
+        <DepartmentAnimatedSection>
+          <DepartmentAchievementSection
+            tagText={achievements.tagText}
+            titlePart1={achievements.titlePart1}
+            titlePart2={achievements.titlePart2}
+            outlineText={achievements.outlineText}
+            illustrationSrc={achievements.illustrationSrc}
+            illustrationAlt={achievements.illustrationAlt}
+            items={achievements.items}
           />
         </DepartmentAnimatedSection>
       ) : null}

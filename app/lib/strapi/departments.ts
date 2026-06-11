@@ -1,46 +1,71 @@
 import type { DepartmentSingleTypePage } from '../types';
 import { fetchStrapi, unwrapSingleEntity, withLocaleFallback } from './client';
 
-function buildDepartmentQuery(locale: string): string {
+type DepartmentFieldSet = Set<string>;
+
+function buildDepartmentBaseQuery(locale: string): string {
   const params = new URLSearchParams();
 
   if (locale && locale !== 'en') {
     params.set('locale', locale);
   }
 
-  params.set('populate[pagehero][populate][backgroundImage]', 'true');
-  params.set('populate[pagehero][populate][Breadcrumb]', 'true');
-  params.set('populate[introductionsection][populate][sectionheader]', 'true');
-  params.set('populate[introductionsection][populate][points][populate][icon]', 'true');
-  params.set('populate[servicesection][populate][sectionheader]', 'true');
-  params.set('populate[servicesection][populate][servicecards][populate][icon]', 'true');
-  params.set('populate[servicesection][populate][servicecards][populate][image]', 'true');
-  params.set('populate[researchstaffsection][populate][sectionheader]', 'true');
-  params.set('populate[researchstaffsection][populate][staff][populate][email]', 'true');
-  params.set('populate[researchstaffsection][populate][staff][populate][paragraph]', 'true');
-  params.set('populate[researchstaffsection][populate][staff][populate][portrait]', 'true');
-  params.set('populate[researchhighlightssection][populate][researchhighlightcards][populate][icon]', 'true');
-  params.set(
-    'populate[researchhighlightssection][populate][researchhighlightcards][populate][cards][populate][paragraph]',
-    'true'
+  params.set('populate', '*');
+
+  return params.toString();
+}
+
+function buildDepartmentQuery(locale: string, availableFields?: DepartmentFieldSet): string {
+  const params = new URLSearchParams();
+  const hasField = (field: string) => !availableFields || availableFields.has(field);
+  const setPopulate = (field: string, key: string, value: string = 'true') => {
+    if (hasField(field)) {
+      params.set(key, value);
+    }
+  };
+
+  if (locale && locale !== 'en') {
+    params.set('locale', locale);
+  }
+
+  setPopulate('pagehero', 'populate[pagehero][populate][backgroundImage]');
+  setPopulate('pagehero', 'populate[pagehero][populate][Breadcrumb]');
+  setPopulate('introductionsection', 'populate[introductionsection][populate][sectionheader]');
+  setPopulate('introductionsection', 'populate[introductionsection][populate][points][populate][icon]');
+  setPopulate('servicesection', 'populate[servicesection][populate][sectionheader]');
+  setPopulate('servicesection', 'populate[servicesection][populate][servicecards][populate][icon]');
+  setPopulate('servicesection', 'populate[servicesection][populate][servicecards][populate][image]');
+  setPopulate('researchstaffsection', 'populate[researchstaffsection][populate][sectionheader]');
+  setPopulate('researchstaffsection', 'populate[researchstaffsection][populate][staff][populate][email]');
+  setPopulate('researchstaffsection', 'populate[researchstaffsection][populate][staff][populate][paragraph]');
+  setPopulate('researchstaffsection', 'populate[researchstaffsection][populate][staff][populate][portrait]');
+  setPopulate(
+    'researchhighlightssection',
+    'populate[researchhighlightssection][populate][researchhighlightcards][populate][icon]'
   );
-  params.set(
-    'populate[researchhighlightssection][populate][researchhighlightcards][populate][cards][populate][points]',
-    'true'
+  setPopulate(
+    'researchhighlightssection',
+    'populate[researchhighlightssection][populate][researchhighlightcards][populate][cards][populate][paragraph]'
   );
-  params.set(
-    'populate[researchhighlightssection][populate][researchhighlightcards][populate][cards][populate][galleryimages]',
-    'true'
+  setPopulate(
+    'researchhighlightssection',
+    'populate[researchhighlightssection][populate][researchhighlightcards][populate][cards][populate][points]'
   );
-  params.set('populate[currentresearchprojectsection][populate][sectionheader]', 'true');
-  params.set(
-    'populate[currentresearchprojectsection][populate][researchprojects][populate][image]',
-    'true'
+  setPopulate(
+    'researchhighlightssection',
+    'populate[researchhighlightssection][populate][researchhighlightcards][populate][cards][populate][galleryimages]'
   );
-  params.set('populate[awardssection][populate][sectionheader]', 'true');
-  params.set('populate[awardssection][populate][cards]', 'true');
-  params.set('populate[publicationssection][populate][rightimage]', 'true');
-  params.set('populate[publicationssection][populate][publications][populate][points]', 'true');
+  setPopulate('currentresearchprojectsection', 'populate[currentresearchprojectsection][populate][sectionheader]');
+  setPopulate(
+    'currentresearchprojectsection',
+    'populate[currentresearchprojectsection][populate][researchprojects][populate][image]'
+  );
+  setPopulate('awardssection', 'populate[awardssection][populate][sectionheader]');
+  setPopulate('awardssection', 'populate[awardssection][populate][cards]');
+  setPopulate('publicationssection', 'populate[publicationssection][populate][rightimage]');
+  setPopulate('publicationssection', 'populate[publicationssection][populate][publications][populate][points]');
+  setPopulate('achievementssection', 'populate[achievementssection][populate][sectionheader]');
+  setPopulate('achievementssection', 'populate[achievementssection][populate][achievements]');
 
   return params.toString();
 }
@@ -54,10 +79,24 @@ async function fetchDepartmentPage(
   locale: string
 ): Promise<DepartmentSingleTypePage | null> {
   const apiSlug = getDepartmentApiSlug(slug);
-  const queryString = buildDepartmentQuery(locale);
+  const baseQueryString = buildDepartmentBaseQuery(locale);
+  const baseUrl = baseQueryString ? `/api/${apiSlug}?${baseQueryString}` : `/api/${apiSlug}`;
+  const baseResponse = await fetchStrapi<any>(baseUrl);
+  const basePage = unwrapSingleEntity<DepartmentSingleTypePage>(baseResponse);
+
+  if (basePage?.slug && basePage.slug !== slug && basePage.slug !== apiSlug) {
+    return null;
+  }
+
+  if (!basePage) {
+    return null;
+  }
+
+  const availableFields = new Set(Object.keys(basePage));
+  const queryString = buildDepartmentQuery(locale, availableFields);
   const url = queryString ? `/api/${apiSlug}?${queryString}` : `/api/${apiSlug}`;
   const response = await fetchStrapi<any>(url);
-  const page = unwrapSingleEntity<DepartmentSingleTypePage>(response);
+  const page = unwrapSingleEntity<DepartmentSingleTypePage>(response) ?? basePage;
 
   if (page?.slug && page.slug !== slug && page.slug !== apiSlug) {
     return null;
@@ -79,4 +118,4 @@ export async function getDepartmentPage(
   });
 }
 
-export { buildDepartmentQuery, getDepartmentApiSlug };
+export { buildDepartmentBaseQuery, buildDepartmentQuery, getDepartmentApiSlug };

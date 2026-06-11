@@ -17,6 +17,7 @@ interface DepartmentAchievementSectionProps {
   titlePart2?: string | React.ReactNode;
   illustrationSrc: string;
   illustrationAlt: string;
+  outlineText?: string;
   items?: DepartmentAchievementCardItem[];
   children?: React.ReactNode;
   containerClassName?: string;
@@ -35,6 +36,7 @@ export default function DepartmentAchievementSection({
   titlePart2 = 'Achievements',
   illustrationSrc,
   illustrationAlt,
+  outlineText = 'Our Achievements',
   items = [],
   children,
   containerClassName = '',
@@ -159,7 +161,7 @@ export default function DepartmentAchievementSection({
                     WebkitTextStroke: '1px #2E7D32',
                   }}
                 >
-                  Our Achievements
+                  {outlineText}
                 </span>
               </div>
 
