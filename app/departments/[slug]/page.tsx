@@ -9,6 +9,7 @@ import DepartmentCurrentProjectsSection from '../../components/department/Depart
 import DepartmentAwardsTimelineSection from '../../components/department/DepartmentAwardsTimelineSection';
 import DepartmentPublicationsSection from '../../components/department/DepartmentPublicationsSection';
 import DepartmentAchievementSection from '../../components/department/DepartmentAchievementSection';
+import DepartmentRecommendationsSection from '../../components/department/DepartmentRecommendationsSection';
 import { normalizeLocale } from '../../lib/locale';
 import { getDepartmentPage } from '../../lib/strapi';
 import {
@@ -22,6 +23,7 @@ import {
   mapDepartmentResearchStaff,
   mapDepartmentServices,
 } from '../../lib/departments/pageData';
+import { getDepartmentRecommendations } from '../../lib/departments/recommendationsData';
 
 interface DepartmentPageProps {
   params: Promise<{ slug: string }>;
@@ -62,6 +64,7 @@ export default async function DepartmentPage({
   const awardsTimeline = mapDepartmentAwardsTimeline(departmentPage, fallbackDepartmentPage);
   const publications = mapDepartmentPublications(departmentPage, fallbackDepartmentPage);
   const achievements = mapDepartmentAchievements(departmentPage, fallbackDepartmentPage);
+  const recommendations = getDepartmentRecommendations(slug);
 
   return (
     <div className="min-h-screen bg-white pb-56 md:pb-64 lg:pb-72">
@@ -171,6 +174,12 @@ export default async function DepartmentPage({
             illustrationAlt={achievements.illustrationAlt}
             items={achievements.items}
           />
+        </DepartmentAnimatedSection>
+      ) : null}
+
+      {recommendations ? (
+        <DepartmentAnimatedSection>
+          <DepartmentRecommendationsSection content={recommendations} />
         </DepartmentAnimatedSection>
       ) : null}
     </div>
