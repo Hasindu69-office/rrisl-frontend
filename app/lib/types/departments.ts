@@ -106,6 +106,7 @@ export interface DepartmentCurrentResearchProjectCard {
   title?: string | null;
   image?: StrapiImage | null;
   sortorder?: number | null;
+  includeinhomepage?: boolean | null;
 }
 
 export interface DepartmentCurrentResearchProjectSection {

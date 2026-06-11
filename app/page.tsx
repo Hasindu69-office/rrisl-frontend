@@ -1,6 +1,17 @@
 import { Suspense } from 'react';
-import { getHomePage, getGlobalLayout, getMenuBySlug, getAllAnnouncements, getHomepageStatistics } from '@/app/lib/strapi';
+import {
+  getAllAnnouncements,
+  getDepartmentHomepageCurrentProjects,
+  getGlobalLayout,
+  getHomePage,
+  getHomepageStatistics,
+  getMenuBySlug,
+} from '@/app/lib/strapi';
 import { mapAboutSection } from '@/app/lib/home/aboutSection';
+import {
+  extractDepartmentSlugsFromMenuItems,
+  mapHomeResearchSection,
+} from '@/app/lib/home/currentResearchSection';
 import { mapDataInsightsSection } from '@/app/lib/home/dataInsightsSection';
 import { resolveHeroSlides } from '@/app/lib/home/hero';
 import { mapIndustrySupportSection } from '@/app/lib/home/industrySupportSection';
@@ -66,6 +77,10 @@ export default async function Home({ searchParams }: HomeProps) {
 
   // Extract menu items
   const leftMenuItems = leftMenu?.items || [];
+  const departmentSlugs = extractDepartmentSlugsFromMenuItems(leftMenuItems);
+  const departmentCurrentProjectPages = await Promise.all(
+    departmentSlugs.map((slug) => getDepartmentHomepageCurrentProjects(slug, locale))
+  );
 
   // Always fetch English version as fallback for non-English locales
   const aboutSection = mapAboutSection(
@@ -77,6 +92,13 @@ export default async function Home({ searchParams }: HomeProps) {
   const dataInsightsSection = mapDataInsightsSection(
     homePage?.datainsightssection || fallbackHomePage?.datainsightssection,
     homePageStatistics.length > 0 ? homePageStatistics : fallbackHomePageStatistics
+  );
+  const researchSection = mapHomeResearchSection(
+    homePage?.currentresearchsection || fallbackHomePage?.currentresearchsection,
+    departmentSlugs.map((slug, index) => ({
+      slug,
+      page: departmentCurrentProjectPages[index],
+    }))
   );
   const announcementSection = homePage?.Announcement || fallbackHomePage?.Announcement || null;
   const showAnnouncementCard = announcementSection?.showAnnoucementCard ?? true;
@@ -134,7 +156,7 @@ export default async function Home({ searchParams }: HomeProps) {
       <IndustrySupportSection section={industrySupportSection} />
 
       {/* Research Section */}
-      <ResearchSection />
+      {researchSection ? <ResearchSection section={researchSection} /> : null}
 
       {/* Data Insights Section */}
       <DataInsightsSection section={dataInsightsSection} />

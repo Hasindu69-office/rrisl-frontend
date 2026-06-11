@@ -70,6 +70,22 @@ function buildDepartmentQuery(locale: string, availableFields?: DepartmentFieldS
   return params.toString();
 }
 
+function buildDepartmentHomepageProjectsQuery(locale: string): string {
+  const params = new URLSearchParams();
+
+  if (locale && locale !== 'en') {
+    params.set('locale', locale);
+  }
+
+  params.set('populate[currentresearchprojectsection][populate][sectionheader]', 'true');
+  params.set(
+    'populate[currentresearchprojectsection][populate][researchprojects][populate][image]',
+    'true'
+  );
+
+  return params.toString();
+}
+
 function getDepartmentApiSlug(slug: string): string {
   return `${slug}-department`;
 }
@@ -118,4 +134,56 @@ export async function getDepartmentPage(
   });
 }
 
-export { buildDepartmentBaseQuery, buildDepartmentQuery, getDepartmentApiSlug };
+async function fetchDepartmentHomepageCurrentProjects(
+  slug: string,
+  locale: string
+): Promise<DepartmentSingleTypePage | null> {
+  const apiSlug = getDepartmentApiSlug(slug);
+  const baseQueryString = buildDepartmentBaseQuery(locale);
+  const baseUrl = baseQueryString ? `/api/${apiSlug}?${baseQueryString}` : `/api/${apiSlug}`;
+  const baseResponse = await fetchStrapi<any>(baseUrl);
+  const basePage = unwrapSingleEntity<DepartmentSingleTypePage>(baseResponse);
+
+  if (!basePage) {
+    return null;
+  }
+
+  if (basePage.slug && basePage.slug !== slug && basePage.slug !== apiSlug) {
+    return null;
+  }
+
+  if (!Object.prototype.hasOwnProperty.call(basePage, 'currentresearchprojectsection')) {
+    return basePage;
+  }
+
+  const queryString = buildDepartmentHomepageProjectsQuery(locale);
+  const url = queryString ? `/api/${apiSlug}?${queryString}` : `/api/${apiSlug}`;
+  const response = await fetchStrapi<any>(url);
+  const page = unwrapSingleEntity<DepartmentSingleTypePage>(response) ?? basePage;
+
+  if (page.slug && page.slug !== slug && page.slug !== apiSlug) {
+    return null;
+  }
+
+  return page;
+}
+
+export async function getDepartmentHomepageCurrentProjects(
+  slug: string,
+  locale: string = 'en'
+): Promise<DepartmentSingleTypePage | null> {
+  return withLocaleFallback({
+    locale,
+    label: `${slug} department homepage current projects`,
+    fetcher: (currentLocale) => fetchDepartmentHomepageCurrentProjects(slug, currentLocale),
+    hasValue: (value) => value !== null,
+    emptyValue: null,
+  });
+}
+
+export {
+  buildDepartmentBaseQuery,
+  buildDepartmentHomepageProjectsQuery,
+  buildDepartmentQuery,
+  getDepartmentApiSlug,
+};
