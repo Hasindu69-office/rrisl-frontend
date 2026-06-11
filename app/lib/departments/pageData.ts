@@ -3,11 +3,15 @@ import type {
   DepartmentResearchHighlightImage,
   DepartmentResearchHighlightItem,
 } from '@/app/components/department/DepartmentResearchHighlightsSection';
+import type { DepartmentAwardsTimelineItem } from '@/app/components/department/DepartmentAwardsTimelineSection';
 import type { DepartmentCurrentProjectItem } from '@/app/components/department/DepartmentCurrentProjectsSection';
+import type { DepartmentPublicationSectionItem } from '@/app/components/department/DepartmentPublicationsSection';
 import type { DepartmentServiceItem } from '@/app/components/department/DepartmentServicesSection';
 import type { DepartmentStaffMember } from '@/app/components/department/DepartmentStaffSection';
 import type { DepartmentSectionPoint } from '@/app/components/department/DepartmentSection';
 import type {
+  DepartmentAwardsSection,
+  DepartmentAwardsTimelineCard,
   DepartmentHighlightSubcard,
   DepartmentCurrentResearchProjectCard,
   DepartmentCurrentResearchProjectSection,
@@ -17,6 +21,8 @@ import type {
   DepartmentResearchHighlightCard,
   DepartmentResearchHighlightsSection,
   DepartmentResearchStaffSection,
+  DepartmentPublicationCard,
+  DepartmentPublicationsSection,
   DepartmentServiceCard,
   DepartmentServiceSection,
   DepartmentStaffCard,
@@ -68,6 +74,29 @@ export interface DepartmentCurrentProjectsViewModel {
   titlePart2: string;
   projects: DepartmentCurrentProjectItem[];
 }
+
+export interface DepartmentAwardsTimelineViewModel {
+  tagText: string;
+  titlePart1: string;
+  titlePart2: string;
+  items: DepartmentAwardsTimelineItem[];
+}
+
+export interface DepartmentPublicationsViewModel {
+  title: string;
+  leftBackgroundImageSrc: string;
+  leftBackgroundImageAlt: string;
+  rightBackgroundImageSrc: string;
+  rightBackgroundImageAlt: string;
+  sections: DepartmentPublicationSectionItem[];
+}
+
+const DEPARTMENT_PUBLICATIONS_FALLBACK = {
+  leftBackgroundImageSrc: '/images/departments/bgdotsourpublications.png',
+  leftBackgroundImageAlt: 'Decorative dotted background for publications',
+  rightBackgroundImageSrc: '/images/departments/bgimgourpulications.jpg',
+  rightBackgroundImageAlt: 'Publications section background',
+};
 
 const DEPARTMENT_HERO_FALLBACK: DepartmentHeroViewModel = {
   title: 'Department',
@@ -429,6 +458,93 @@ function mapCurrentProjectCards(
     .filter((project): project is DepartmentCurrentProjectItem => Boolean(project));
 }
 
+function getYearFromDate(date: string): string {
+  const year = date.slice(0, 4);
+  return /^\d{4}$/.test(year) ? year : date;
+}
+
+function mapAwardsTimelineCards(
+  localizedCards: DepartmentAwardsTimelineCard[] | null | undefined,
+  fallbackCards: DepartmentAwardsTimelineCard[] | null | undefined
+): DepartmentAwardsTimelineItem[] {
+  const cards = localizedCards?.length ? localizedCards : fallbackCards || [];
+
+  return [...cards]
+    .map((card): (DepartmentAwardsTimelineCard & {
+      title: string;
+      date: string;
+      description: string;
+    }) | null => {
+      const title = card.title?.trim();
+      const date = card.date?.trim();
+      const description = card.description?.trim();
+
+      if (!title || !date || !description) {
+        return null;
+      }
+
+      return {
+        ...card,
+        title,
+        date,
+        description,
+      };
+    })
+    .filter(
+      (
+        card
+      ): card is DepartmentAwardsTimelineCard & {
+        title: string;
+        date: string;
+        description: string;
+      } => Boolean(card)
+    )
+    .sort((left, right) => left.date.localeCompare(right.date))
+    .map((card, index) => {
+      const textBlock = {
+        variant: 'text' as const,
+        lines: [getYearFromDate(card.date), card.title],
+      };
+      const cardBlock = {
+        variant: 'card' as const,
+        content: card.description,
+      };
+
+      return {
+        id: card.id ? String(card.id) : slugify(`${card.date}-${card.title}`),
+        top: index % 2 === 0 ? textBlock : cardBlock,
+        bottom: index % 2 === 0 ? cardBlock : textBlock,
+      };
+    });
+}
+
+function mapPublicationCards(
+  localizedCards: DepartmentPublicationCard[] | null | undefined,
+  fallbackCards: DepartmentPublicationCard[] | null | undefined
+): DepartmentPublicationSectionItem[] {
+  const cards = localizedCards?.length ? localizedCards : fallbackCards || [];
+
+  return sortBySortOrder(cards)
+    .map((card): DepartmentPublicationSectionItem | null => {
+      const label = card.title?.trim();
+      const entries =
+        card.points
+          ?.map((item) => item?.paragraph?.trim())
+          .filter((entry): entry is string => Boolean(entry)) || [];
+
+      if (!label || entries.length === 0) {
+        return null;
+      }
+
+      return {
+        id: card.id ? String(card.id) : slugify(label),
+        label,
+        entries,
+      };
+    })
+    .filter((section): section is DepartmentPublicationSectionItem => Boolean(section));
+}
+
 export function mapDepartmentHero(
   localizedPage: DepartmentSingleTypePage | null | undefined,
   fallbackPage: DepartmentSingleTypePage | null | undefined,
@@ -638,5 +754,88 @@ export function mapDepartmentCurrentProjects(
     tagText: header?.eyebrow?.trim() || 'Recent Project',
     ...titleParts,
     projects,
+  };
+}
+
+export function mapDepartmentAwardsTimeline(
+  localizedPage: DepartmentSingleTypePage | null | undefined,
+  fallbackPage?: DepartmentSingleTypePage | null
+): DepartmentAwardsTimelineViewModel | null {
+  const isPresent = localizedPage?.awardtimelinepresent ?? fallbackPage?.awardtimelinepresent;
+
+  if (isPresent !== true) {
+    return null;
+  }
+
+  const section: DepartmentAwardsSection | null | undefined =
+    localizedPage?.awardssection || fallbackPage?.awardssection;
+
+  if (!section) {
+    return null;
+  }
+
+  const header = section.sectionheader || fallbackPage?.awardssection?.sectionheader;
+  const title = header?.title || '';
+  const highlightedText = header?.hightlightedtext || '';
+  const titleParts = splitTitle(title, highlightedText);
+  const items = mapAwardsTimelineCards(section.cards, fallbackPage?.awardssection?.cards);
+
+  if (items.length === 0) {
+    return null;
+  }
+
+  return {
+    tagText: header?.eyebrow?.trim() || 'Awards & Achievements',
+    ...titleParts,
+    items,
+  };
+}
+
+export function mapDepartmentPublications(
+  localizedPage: DepartmentSingleTypePage | null | undefined,
+  fallbackPage?: DepartmentSingleTypePage | null
+): DepartmentPublicationsViewModel | null {
+  const isPresent = localizedPage?.publicationspresent ?? fallbackPage?.publicationspresent;
+
+  if (isPresent !== true) {
+    return null;
+  }
+
+  const section: DepartmentPublicationsSection | null | undefined =
+    localizedPage?.publicationssection || fallbackPage?.publicationssection;
+
+  if (!section) {
+    return null;
+  }
+
+  const sections = mapPublicationCards(
+    section.publications,
+    fallbackPage?.publicationssection?.publications
+  );
+
+  if (sections.length === 0) {
+    return null;
+  }
+
+  const rightImage = section.rightimage || fallbackPage?.publicationssection?.rightimage || null;
+  const rightBackgroundImageSrc =
+    getOptimizedImageUrl(rightImage, 'large') ||
+    getOptimizedImageUrl(rightImage, 'medium') ||
+    getStrapiImageUrl(rightImage) ||
+    DEPARTMENT_PUBLICATIONS_FALLBACK.rightBackgroundImageSrc;
+
+  return {
+    title:
+      section.sectiontitle?.trim() ||
+      fallbackPage?.publicationssection?.sectiontitle?.trim() ||
+      'Our Publications',
+    leftBackgroundImageSrc: DEPARTMENT_PUBLICATIONS_FALLBACK.leftBackgroundImageSrc,
+    leftBackgroundImageAlt: DEPARTMENT_PUBLICATIONS_FALLBACK.leftBackgroundImageAlt,
+    rightBackgroundImageSrc,
+    rightBackgroundImageAlt:
+      section.rightimage?.alternativeText ||
+      fallbackPage?.publicationssection?.rightimage?.alternativeText ||
+      DEPARTMENT_PUBLICATIONS_FALLBACK.rightBackgroundImageAlt,
+    sections,
   };
 }

@@ -114,6 +114,33 @@ export interface DepartmentCurrentResearchProjectSection {
   researchprojects?: DepartmentCurrentResearchProjectCard[] | null;
 }
 
+export interface DepartmentAwardsTimelineCard {
+  id: number;
+  title?: string | null;
+  date?: string | null;
+  description?: string | null;
+}
+
+export interface DepartmentAwardsSection {
+  id: number;
+  sectionheader?: SectionHeader | null;
+  cards?: DepartmentAwardsTimelineCard[] | null;
+}
+
+export interface DepartmentPublicationCard {
+  id: number;
+  title?: string | null;
+  points?: DepartmentStaffParagraph[] | null;
+  sortorder?: number | null;
+}
+
+export interface DepartmentPublicationsSection {
+  id: number;
+  sectiontitle?: string | null;
+  rightimage?: StrapiImage | null;
+  publications?: DepartmentPublicationCard[] | null;
+}
+
 export interface DepartmentSingleTypePage {
   id: number;
   documentId?: string;
@@ -124,10 +151,14 @@ export interface DepartmentSingleTypePage {
   researchstaffpresent?: boolean | null;
   researchhighlightspresent?: boolean | null;
   currentprojectpresent?: boolean | null;
+  awardtimelinepresent?: boolean | null;
+  publicationspresent?: boolean | null;
   pagehero?: DepartmentPageHero | null;
   introductionsection?: DepartmentIntroductionSection | null;
   servicesection?: DepartmentServiceSection | null;
   researchstaffsection?: DepartmentResearchStaffSection | null;
   researchhighlightssection?: DepartmentResearchHighlightsSection | null;
   currentresearchprojectsection?: DepartmentCurrentResearchProjectSection | null;
+  awardssection?: DepartmentAwardsSection | null;
+  publicationssection?: DepartmentPublicationsSection | null;
 }

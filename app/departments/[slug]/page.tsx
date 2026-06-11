@@ -6,12 +6,16 @@ import DepartmentServicesSection from '../../components/department/DepartmentSer
 import DepartmentStaffSection from '../../components/department/DepartmentStaffSection';
 import DepartmentResearchHighlightsSection from '../../components/department/DepartmentResearchHighlightsSection';
 import DepartmentCurrentProjectsSection from '../../components/department/DepartmentCurrentProjectsSection';
+import DepartmentAwardsTimelineSection from '../../components/department/DepartmentAwardsTimelineSection';
+import DepartmentPublicationsSection from '../../components/department/DepartmentPublicationsSection';
 import { normalizeLocale } from '../../lib/locale';
 import { getDepartmentPage } from '../../lib/strapi';
 import {
+  mapDepartmentAwardsTimeline,
   mapDepartmentCurrentProjects,
   mapDepartmentHero,
   mapDepartmentIntroduction,
+  mapDepartmentPublications,
   mapDepartmentResearchHighlights,
   mapDepartmentResearchStaff,
   mapDepartmentServices,
@@ -53,6 +57,8 @@ export default async function DepartmentPage({
     fallbackDepartmentPage,
     slug
   );
+  const awardsTimeline = mapDepartmentAwardsTimeline(departmentPage, fallbackDepartmentPage);
+  const publications = mapDepartmentPublications(departmentPage, fallbackDepartmentPage);
 
   return (
     <div className="min-h-screen">
@@ -123,6 +129,30 @@ export default async function DepartmentPage({
             titlePart1={currentProjects.titlePart1}
             titlePart2={currentProjects.titlePart2}
             projects={currentProjects.projects}
+          />
+        </DepartmentAnimatedSection>
+      ) : null}
+
+      {awardsTimeline ? (
+        <DepartmentAnimatedSection y={30} duration={0.9}>
+          <DepartmentAwardsTimelineSection
+            tagText={awardsTimeline.tagText}
+            titlePart1={awardsTimeline.titlePart1}
+            titlePart2={awardsTimeline.titlePart2}
+            items={awardsTimeline.items}
+          />
+        </DepartmentAnimatedSection>
+      ) : null}
+
+      {publications ? (
+        <DepartmentAnimatedSection y={30} duration={0.9}>
+          <DepartmentPublicationsSection
+            title={publications.title}
+            leftBackgroundImageSrc={publications.leftBackgroundImageSrc}
+            leftBackgroundImageAlt={publications.leftBackgroundImageAlt}
+            rightBackgroundImageSrc={publications.rightBackgroundImageSrc}
+            rightBackgroundImageAlt={publications.rightBackgroundImageAlt}
+            sections={publications.sections}
           />
         </DepartmentAnimatedSection>
       ) : null}

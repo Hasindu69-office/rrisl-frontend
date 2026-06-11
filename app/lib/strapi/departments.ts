@@ -37,6 +37,10 @@ function buildDepartmentQuery(locale: string): string {
     'populate[currentresearchprojectsection][populate][researchprojects][populate][image]',
     'true'
   );
+  params.set('populate[awardssection][populate][sectionheader]', 'true');
+  params.set('populate[awardssection][populate][cards]', 'true');
+  params.set('populate[publicationssection][populate][rightimage]', 'true');
+  params.set('populate[publicationssection][populate][publications][populate][points]', 'true');
 
   return params.toString();
 }

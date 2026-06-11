@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import React, { useEffect, useRef, useState } from 'react';
 import { Minus, Plus } from 'lucide-react';
+import { isLocalhostAssetUrl } from '@/app/lib/strapi';
 
 export interface DepartmentPublicationSectionItem {
   id: string;
@@ -36,6 +37,8 @@ export default function DepartmentPublicationsSection({
   const [windowWidth, setWindowWidth] = useState(1440);
   const accordionViewportRef = useRef<HTMLDivElement | null>(null);
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
+  const useUnoptimizedLeftImage = isLocalhostAssetUrl(leftBackgroundImageSrc);
+  const useUnoptimizedRightImage = isLocalhostAssetUrl(rightBackgroundImageSrc);
 
   const handleToggle = (sectionId: string) => {
     setActiveSectionId((currentId) => (currentId === sectionId ? null : sectionId));
@@ -118,6 +121,7 @@ export default function DepartmentPublicationsSection({
             className="object-cover opacity-25 mix-blend-screen"
             sizes="(max-width: 1023px) 100vw, 50vw"
             priority={false}
+            unoptimized={useUnoptimizedLeftImage}
           />
 
           <div className="relative z-[1] flex h-full w-full items-center justify-center px-4 py-8 md:px-6 md:py-10 lg:p-10">
@@ -218,6 +222,7 @@ export default function DepartmentPublicationsSection({
             fill
             className="object-cover"
             sizes="(max-width: 1023px) 100vw, 50vw"
+            unoptimized={useUnoptimizedRightImage}
           />
 
           <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.04)_0%,rgba(0,0,0,0.34)_100%)]" />
