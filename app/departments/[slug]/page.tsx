@@ -64,7 +64,7 @@ export default async function DepartmentPage({
   const achievements = mapDepartmentAchievements(departmentPage, fallbackDepartmentPage);
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-white pb-56 md:pb-64 lg:pb-72">
       <PageHero
         title={hero.title}
         breadcrumbItems={hero.breadcrumbItems}
