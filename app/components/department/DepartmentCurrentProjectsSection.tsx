@@ -156,26 +156,46 @@ export default function DepartmentCurrentProjectsSection({
   }, []);
 
   const visibleCardCount = getVisibleCardCount(viewportWidth);
+  const effectiveVisibleCardCount = Math.max(
+    1,
+    Math.min(visibleCardCount, projects.length)
+  );
   const trackGap = getTrackGap(viewportWidth);
-  const maxIndex = Math.max(0, projects.length - visibleCardCount);
+  const maxIndex = Math.max(0, projects.length - effectiveVisibleCardCount);
   const boundedActiveIndex = Math.min(activeIndex, maxIndex);
+  const canSlide = maxIndex > 0;
   const cardWidth =
     viewportWidth > 0
-      ? (viewportWidth - trackGap * Math.max(visibleCardCount - 1, 0)) / visibleCardCount
+      ? (viewportWidth - trackGap * Math.max(effectiveVisibleCardCount - 1, 0)) /
+        effectiveVisibleCardCount
       : 0;
-  const translateX = boundedActiveIndex * (cardWidth + trackGap);
+  const translateX = canSlide ? boundedActiveIndex * (cardWidth + trackGap) : 0;
 
   const handlePrevious = () => {
+    if (!canSlide) {
+      return;
+    }
+
     startTransition(() => {
       setActiveIndex(Math.max(boundedActiveIndex - 1, 0));
     });
   };
 
   const handleNext = () => {
+    if (!canSlide) {
+      return;
+    }
+
     startTransition(() => {
       setActiveIndex(Math.min(boundedActiveIndex + 1, maxIndex));
     });
   };
+
+  useEffect(() => {
+    if (activeIndex > maxIndex) {
+      setActiveIndex(maxIndex);
+    }
+  }, [activeIndex, maxIndex]);
 
   return (
     <section id={sectionId} className="scroll-mt-28 bg-white py-16 md:py-20 lg:py-24">
@@ -201,7 +221,12 @@ export default function DepartmentCurrentProjectsSection({
             />
           </div>
 
-          <div className="hidden items-center gap-3 self-end lg:flex lg:self-start" data-department-reveal>
+          <div
+            className={`hidden items-center gap-3 self-end lg:self-start ${
+              canSlide ? 'lg:flex' : 'lg:hidden'
+            }`}
+            data-department-reveal
+          >
             <button
               type="button"
               aria-label="Previous projects"
@@ -250,7 +275,11 @@ export default function DepartmentCurrentProjectsSection({
           </div>
         </div>
 
-        <div className="mt-2 flex items-center justify-center gap-3 lg:hidden">
+        <div
+          className={`mt-2 items-center justify-center gap-3 lg:hidden ${
+            canSlide ? 'flex' : 'hidden'
+          }`}
+        >
           <button
             type="button"
             aria-label="Previous projects"
