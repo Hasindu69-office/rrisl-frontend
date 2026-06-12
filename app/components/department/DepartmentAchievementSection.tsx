@@ -4,6 +4,7 @@ import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import GradientTag from '../ui/GradientTag';
+import GradientTitle from '../ui/GradientTitle';
 
 export interface DepartmentAchievementCardItem {
   id: string;
@@ -12,8 +13,11 @@ export interface DepartmentAchievementCardItem {
 
 interface DepartmentAchievementSectionProps {
   tagText: string;
+  titlePart1?: string | React.ReactNode;
+  titlePart2?: string | React.ReactNode;
   illustrationSrc: string;
   illustrationAlt: string;
+  outlineText?: string;
   items?: DepartmentAchievementCardItem[];
   children?: React.ReactNode;
   containerClassName?: string;
@@ -28,8 +32,11 @@ const AUTO_SLIDE_INTERVAL_MS = 4500;
  */
 export default function DepartmentAchievementSection({
   tagText,
+  titlePart1 = 'Our ',
+  titlePart2 = 'Achievements',
   illustrationSrc,
   illustrationAlt,
+  outlineText = 'Our Achievements',
   items = [],
   children,
   containerClassName = '',
@@ -105,17 +112,30 @@ export default function DepartmentAchievementSection({
   return (
     <section className={`py-16 md:py-20 lg:py-24 px-4 md:px-6 lg:px-0 ${containerClassName}`}>
       <div className="mx-auto w-full max-w-[1920px]">
-        <div className="flex justify-center">
-          <GradientTag
-            text={tagText}
-            backgroundColor="white"
-            padding="px-5 py-1.5"
-            className="inline-block"
-          />
+        <div className="flex justify-center" data-department-reveal>
+          <div className="flex flex-col items-center text-center">
+            <GradientTag
+              text={tagText}
+              backgroundColor="white"
+              padding="px-5 py-1.5"
+              className="inline-block"
+            />
+
+            <GradientTitle
+              part1={titlePart1}
+              part2={titlePart2}
+              lineBreak={false}
+              part1Color="dark-green"
+              size="custom"
+              customSize="clamp(30px, 4vw, 52px)"
+              align="center"
+              className="mt-5 font-bold leading-[1.12]"
+            />
+          </div>
         </div>
 
         <div className="relative mt-10 md:mt-12">
-          <div className="pointer-events-none absolute bottom-[72px] left-[-56px] z-[2] h-[300px] w-[220px] md:bottom-[56px] md:left-[-72px] md:h-[380px] md:w-[280px] lg:bottom-[72px] lg:left-[calc(9%-200px)] lg:h-[540px] lg:w-[400px]">
+          <div data-department-reveal className="pointer-events-none absolute bottom-[72px] left-[-56px] z-[2] h-[300px] w-[220px] md:bottom-[56px] md:left-[-72px] md:h-[380px] md:w-[280px] lg:bottom-[72px] lg:left-[calc(9%-200px)] lg:h-[540px] lg:w-[400px]">
             <Image
               src={illustrationSrc}
               alt={illustrationAlt}
@@ -126,7 +146,7 @@ export default function DepartmentAchievementSection({
             />
           </div>
 
-          <div className="mx-auto w-full md:w-[80%]">
+          <div className="mx-auto w-full md:w-[80%]" data-department-reveal>
             <div
               className="relative rounded-[40px] px-4 pb-8 pt-8 md:min-h-[420px] md:px-5 md:pb-10 md:pt-10 lg:min-h-[520px] lg:px-6 lg:pb-12 lg:pt-12"
               style={{
@@ -141,7 +161,7 @@ export default function DepartmentAchievementSection({
                     WebkitTextStroke: '1px #2E7D32',
                   }}
                 >
-                  Our Achievements
+                  {outlineText}
                 </span>
               </div>
 

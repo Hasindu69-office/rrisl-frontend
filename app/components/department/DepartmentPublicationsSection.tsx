@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import React, { useEffect, useRef, useState } from 'react';
 import { Minus, Plus } from 'lucide-react';
+import { isLocalhostAssetUrl } from '@/app/lib/strapi';
 
 export interface DepartmentPublicationSectionItem {
   id: string;
@@ -36,6 +37,8 @@ export default function DepartmentPublicationsSection({
   const [windowWidth, setWindowWidth] = useState(1440);
   const accordionViewportRef = useRef<HTMLDivElement | null>(null);
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
+  const useUnoptimizedLeftImage = isLocalhostAssetUrl(leftBackgroundImageSrc);
+  const useUnoptimizedRightImage = isLocalhostAssetUrl(rightBackgroundImageSrc);
 
   const handleToggle = (sectionId: string) => {
     setActiveSectionId((currentId) => (currentId === sectionId ? null : sectionId));
@@ -118,10 +121,11 @@ export default function DepartmentPublicationsSection({
             className="object-cover opacity-25 mix-blend-screen"
             sizes="(max-width: 1023px) 100vw, 50vw"
             priority={false}
+            unoptimized={useUnoptimizedLeftImage}
           />
 
           <div className="relative z-[1] flex h-full w-full items-center justify-center px-4 py-8 md:px-6 md:py-10 lg:p-10">
-            <div className="w-full max-w-[640px] lg:max-w-[500px]">
+            <div className="w-full max-w-[640px] lg:max-w-[500px]" data-department-reveal>
               <div
                 ref={accordionViewportRef}
                 className={`overflow-y-auto pr-2 [scrollbar-color:#A1DF0A_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar]:w-[5px] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#A1DF0A] [&::-webkit-scrollbar-track]:bg-transparent ${
@@ -137,6 +141,7 @@ export default function DepartmentPublicationsSection({
                   return (
                     <article
                       key={section.id}
+                      data-department-reveal
                       ref={(node) => {
                         sectionRefs.current[section.id] = node;
                       }}
@@ -217,11 +222,12 @@ export default function DepartmentPublicationsSection({
             fill
             className="object-cover"
             sizes="(max-width: 1023px) 100vw, 50vw"
+            unoptimized={useUnoptimizedRightImage}
           />
 
           <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.04)_0%,rgba(0,0,0,0.34)_100%)]" />
 
-          <div className="relative z-[1] flex h-full items-end px-4 pb-5 md:px-6 md:pb-7 lg:px-7 lg:pb-7">
+          <div className="relative z-[1] flex h-full items-end px-4 pb-5 md:px-6 md:pb-7 lg:px-7 lg:pb-7" data-department-reveal>
             <h2 className="mb-0 max-w-[14ch] text-[30px] font-bold leading-[1.02] text-white md:text-[38px] lg:mb-[80px] lg:text-[50px]">
               {title}
             </h2>

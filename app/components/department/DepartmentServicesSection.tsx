@@ -4,8 +4,9 @@ import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
 import GradientTag from '../ui/GradientTag';
 import GradientTitle from '../ui/GradientTitle';
+import { isLocalhostAssetUrl } from '@/app/lib/strapi';
 
-interface DepartmentServiceItem {
+export interface DepartmentServiceItem {
   number: string;
   title: string;
   description: string;
@@ -61,6 +62,8 @@ function DepartmentServiceCard({
   isFlipped: boolean;
   onToggle: () => void;
 }) {
+  const useUnoptimizedIcon = isLocalhostAssetUrl(item.iconSrc);
+  const useUnoptimizedImage = isLocalhostAssetUrl(item.imageSrc);
   const interactiveProps = isDesktop
     ? {}
     : {
@@ -78,6 +81,7 @@ function DepartmentServiceCard({
 
   return (
     <article
+      data-department-reveal
       className="group mx-auto w-full max-w-[360px] cursor-pointer [perspective:1600px] md:max-w-none xl:cursor-default"
       {...interactiveProps}
     >
@@ -96,6 +100,7 @@ function DepartmentServiceCard({
                 width={56}
                 height={56}
                 className="h-full w-full object-contain"
+                unoptimized={useUnoptimizedIcon}
                 style={{
                   filter:
                     'brightness(0) saturate(100%) invert(16%) sepia(35%) saturate(921%) hue-rotate(88deg) brightness(95%) contrast(98%)',
@@ -120,6 +125,7 @@ function DepartmentServiceCard({
             fill
             className="object-cover"
             sizes="(max-width: 767px) 100vw, (max-width: 1279px) 50vw, 33vw"
+            unoptimized={useUnoptimizedImage}
           />
           <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,75,36,0.3)_0%,rgba(8,40,18,0.82)_58%,rgba(8,40,18,0.92)_100%)]" />
 
@@ -133,6 +139,7 @@ function DepartmentServiceCard({
                 width={56}
                 height={56}
                 className="h-full w-full object-contain brightness-0 invert"
+                unoptimized={useUnoptimizedIcon}
               />
             </div>
 
@@ -189,7 +196,7 @@ export default function DepartmentServicesSection({
   return (
     <section className="bg-[rgba(161,223,10,0.13)] py-16 md:py-20 lg:py-24">
       <div className={`mx-auto max-w-[1440px] px-4 md:px-6 lg:px-8 ${containerClassName}`}>
-        <div className="flex flex-col items-center text-center xl:items-end xl:text-right">
+        <div className="flex flex-col items-center text-center xl:items-end xl:text-right" data-department-reveal>
           <GradientTag
             text={tagText}
             backgroundColor="transparent"

@@ -120,6 +120,11 @@ export interface DataInsightsSection {
   backgroundimage: StrapiImage | null;
 }
 
+export interface CurrentResearchSection {
+  id: number;
+  sectionheader?: SectionHeader | null;
+}
+
 export interface HomePage {
   id: number;
   documentId: string;
@@ -131,6 +136,7 @@ export interface HomePage {
   stats?: HomePageStat[] | null;
   aboutSection?: AboutSection | null;
   industrysupportsection?: IndustrySupportSection | null;
+  currentresearchsection?: CurrentResearchSection | null;
   datainsightssection?: DataInsightsSection | null;
   Announcement?: AnnouncementSection | null;
 }

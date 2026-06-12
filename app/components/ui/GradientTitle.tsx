@@ -59,6 +59,12 @@ export default function GradientTitle({
     right: 'text-right',
   }[align];
   const hasPart2 = part2 !== null && part2 !== undefined && part2 !== '';
+  const shouldPreservePartSpacing =
+    !lineBreak && hasPart2 && typeof part1 === 'string' && /\s$/.test(part1);
+  const renderedPart1 =
+    typeof part1 === 'string' && shouldPreservePartSpacing
+      ? part1.replace(/\s+$/, '')
+      : part1;
 
   return (
     <h2
@@ -71,8 +77,9 @@ export default function GradientTitle({
             className={part1ColorClass}
             style={part1ColorStyle}
           >
-            {part1}
+            {renderedPart1}
           </span>
+          {shouldPreservePartSpacing && ' '}
           {lineBreak && hasPart2 && <br />}
         </>
       )}

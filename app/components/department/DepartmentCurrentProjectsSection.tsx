@@ -1,16 +1,16 @@
 'use client';
 
 import Image from 'next/image';
-import Link from 'next/link';
 import React, { startTransition, useEffect, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import GradientTag from '../ui/GradientTag';
 import GradientTitle from '../ui/GradientTitle';
+import { isLocalhostAssetUrl } from '@/app/lib/strapi';
 
 export interface DepartmentCurrentProjectItem {
   id: string;
   title: string;
-  href: string;
+  href?: string;
   imageSrc: string;
   imageAlt: string;
   departmentName?: string;
@@ -22,6 +22,7 @@ interface DepartmentCurrentProjectsSectionProps {
   titlePart2: string | React.ReactNode;
   projects: DepartmentCurrentProjectItem[];
   containerClassName?: string;
+  sectionId?: string;
 }
 
 const MOBILE_GAP = 20;
@@ -59,6 +60,7 @@ function ProjectCard({
   project: DepartmentCurrentProjectItem;
   staggered: boolean;
 }) {
+  const useUnoptimizedImage = isLocalhostAssetUrl(project.imageSrc);
   const cardContent = (
     <div className="relative h-full w-full">
       <Image
@@ -67,6 +69,7 @@ function ProjectCard({
         fill
         className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
         sizes="(max-width: 767px) 78vw, (max-width: 1279px) 44vw, 24vw"
+        unoptimized={useUnoptimizedImage}
       />
 
       <div
@@ -97,13 +100,17 @@ function ProjectCard({
       className={`group relative shrink-0 overflow-hidden rounded-[28px] shadow-[0_18px_46px_rgba(15,63,29,0.12)] transition-shadow duration-500 ease-out hover:shadow-[0_24px_54px_rgba(15,63,29,0.16)] ${staggered ? 'lg:translate-y-14' : 'lg:translate-y-0'}`}
       style={{ height: 'min(64vw, 446px)' }}
     >
-      <Link
-        href={project.href}
-        className="block h-full w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#20C997] focus-visible:ring-offset-4 focus-visible:ring-offset-white"
-        aria-label={project.title}
-      >
-        {cardContent}
-      </Link>
+      {project.href ? (
+        <a
+          href={project.href}
+          aria-label={`View ${project.title}`}
+          className="block h-full w-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A1DF0A] focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+        >
+          {cardContent}
+        </a>
+      ) : (
+        cardContent
+      )}
     </article>
   );
 }
@@ -118,6 +125,7 @@ export default function DepartmentCurrentProjectsSection({
   titlePart2,
   projects,
   containerClassName = '',
+  sectionId,
 }: DepartmentCurrentProjectsSectionProps) {
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -148,32 +156,52 @@ export default function DepartmentCurrentProjectsSection({
   }, []);
 
   const visibleCardCount = getVisibleCardCount(viewportWidth);
+  const effectiveVisibleCardCount = Math.max(
+    1,
+    Math.min(visibleCardCount, projects.length)
+  );
   const trackGap = getTrackGap(viewportWidth);
-  const maxIndex = Math.max(0, projects.length - visibleCardCount);
+  const maxIndex = Math.max(0, projects.length - effectiveVisibleCardCount);
   const boundedActiveIndex = Math.min(activeIndex, maxIndex);
+  const canSlide = maxIndex > 0;
   const cardWidth =
     viewportWidth > 0
-      ? (viewportWidth - trackGap * Math.max(visibleCardCount - 1, 0)) / visibleCardCount
+      ? (viewportWidth - trackGap * Math.max(effectiveVisibleCardCount - 1, 0)) /
+        effectiveVisibleCardCount
       : 0;
-  const translateX = boundedActiveIndex * (cardWidth + trackGap);
+  const translateX = canSlide ? boundedActiveIndex * (cardWidth + trackGap) : 0;
 
   const handlePrevious = () => {
+    if (!canSlide) {
+      return;
+    }
+
     startTransition(() => {
       setActiveIndex(Math.max(boundedActiveIndex - 1, 0));
     });
   };
 
   const handleNext = () => {
+    if (!canSlide) {
+      return;
+    }
+
     startTransition(() => {
       setActiveIndex(Math.min(boundedActiveIndex + 1, maxIndex));
     });
   };
 
+  useEffect(() => {
+    if (activeIndex > maxIndex) {
+      setActiveIndex(maxIndex);
+    }
+  }, [activeIndex, maxIndex]);
+
   return (
-    <section className="bg-white py-16 md:py-20 lg:py-24">
+    <section id={sectionId} className="scroll-mt-28 bg-white py-16 md:py-20 lg:py-24">
       <div className={`mx-auto max-w-[1600px] px-4 md:px-6 xl:w-[80%] xl:px-0 ${containerClassName}`}>
         <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
-          <div className="max-w-[760px]">
+          <div className="max-w-[760px]" data-department-reveal>
             <GradientTag
               text={tagText}
               backgroundColor="transparent"
@@ -193,7 +221,12 @@ export default function DepartmentCurrentProjectsSection({
             />
           </div>
 
-          <div className="hidden items-center gap-3 self-end lg:flex lg:self-start">
+          <div
+            className={`hidden items-center gap-3 self-end lg:self-start ${
+              canSlide ? 'lg:flex' : 'lg:hidden'
+            }`}
+            data-department-reveal
+          >
             <button
               type="button"
               aria-label="Previous projects"
@@ -217,6 +250,7 @@ export default function DepartmentCurrentProjectsSection({
 
         <div
           ref={viewportRef}
+          data-department-reveal
           className="mt-12 overflow-x-hidden overflow-y-visible pt-2 pb-16 lg:pt-2 lg:pb-20"
         >
           <div
@@ -241,7 +275,11 @@ export default function DepartmentCurrentProjectsSection({
           </div>
         </div>
 
-        <div className="mt-2 flex items-center justify-center gap-3 lg:hidden">
+        <div
+          className={`mt-2 items-center justify-center gap-3 lg:hidden ${
+            canSlide ? 'flex' : 'hidden'
+          }`}
+        >
           <button
             type="button"
             aria-label="Previous projects"

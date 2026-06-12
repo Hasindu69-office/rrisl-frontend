@@ -1,11 +1,13 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import Image from 'next/image';
+import { useSearchParams } from 'next/navigation';
 import GradientTag from '@/app/components/ui/GradientTag';
 import GradientTitle from '@/app/components/ui/GradientTitle';
 import FeaturedArticleCard from './FeaturedArticleCard';
 import SmallArticleCard from './SmallArticleCard';
+import { addLocaleToUrl } from '@/app/lib/locale';
+import { formatArticleDate, getFeaturedArticle, newsArticles, type NewsArticle } from '@/app/lib/news/pageData';
 
 interface Article {
   imageSrc: string;
@@ -31,43 +33,24 @@ export default function NewsBlogSection({
   featuredArticle,
   smallArticles = [],
 }: NewsBlogSectionProps) {
-  // Default data if not provided
-  const defaultFeaturedArticle: Article = {
-    imageSrc: '/images/section6_img1.png',
-    imageAlt: 'Rooftop garden with city skyline',
-    title: 'New Chemical Cocktail for Circular Leaf Spot Disease (Pestalotiopsis) in Rubber Plantations',
-    description: 'Our researchers are developing advanced planting materials, disease-resistant clones, and modern agronomic techniques to increase field productivity while minimizing environmental impact.',
-    author: 'Graphics.lk',
-    date: 'August 23, 2025',
-    link: '#',
-  };
+  const searchParams = useSearchParams();
+  const currentLocale = searchParams.get('locale') || 'en';
 
-  const defaultSmallArticles: Article[] = [
-    {
-      imageSrc: '/images/section6_img2.png',
-      imageAlt: 'Team members in front of greenhouse',
-      title: 'Latex harvesting begins in the North-Central Province',
-      author: 'Graphics.lk',
-      date: 'August 23, 2025',
-      link: '#',
-    },
-    {
-      imageSrc: '/images/section6_img1.png',
-      imageAlt: 'Rooftop garden with city skyline',
-      title: 'Latex harvesting begins in the North-Central Province',
-      author: 'Graphics.lk',
-      date: 'August 23, 2025',
-      link: '#',
-    },
-    {
-      imageSrc: '/images/section6_img3.png',
-      imageAlt: 'Beautiful landscaped garden with pond',
-      title: 'Latex harvesting begins in the North-Central Province',
-      author: 'Graphics.lk',
-      date: 'August 23, 2025',
-      link: '#',
-    },
-  ];
+  const mapNewsArticle = (article: NewsArticle): Article => ({
+    imageSrc: article.featuredImage,
+    imageAlt: article.featuredImageAlt,
+    title: article.title,
+    description: article.summary,
+    author: article.author,
+    date: formatArticleDate(article.publishedDate),
+    link: addLocaleToUrl(`/news/${article.slug}`, currentLocale),
+  });
+
+  const defaultFeaturedArticle = mapNewsArticle(getFeaturedArticle());
+  const defaultSmallArticles = newsArticles
+    .filter((article) => article.slug !== getFeaturedArticle().slug)
+    .slice(0, 3)
+    .map(mapNewsArticle);
 
   const featured = featuredArticle || defaultFeaturedArticle;
   const articles = smallArticles.length > 0 ? smallArticles : defaultSmallArticles;

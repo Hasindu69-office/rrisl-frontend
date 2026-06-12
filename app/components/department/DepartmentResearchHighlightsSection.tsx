@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import React, { useEffect, useMemo, useState } from 'react';
 import { ChevronDown, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { isLocalhostAssetUrl } from '@/app/lib/strapi';
 
 export interface DepartmentResearchHighlightSectionBlock {
   id: string;
@@ -24,6 +25,8 @@ export interface DepartmentResearchHighlightItem {
   details?: string;
   sections?: DepartmentResearchHighlightSectionBlock[];
   image?: DepartmentResearchHighlightImage;
+  iconSrc?: string;
+  iconAlt?: string;
 }
 
 interface DepartmentResearchHighlightsSectionProps {
@@ -83,6 +86,8 @@ function HighlightGalleryStack({
     return null;
   }
 
+  const useUnoptimizedImage = isLocalhostAssetUrl(previewImage.src);
+
   return (
     <button
       type="button"
@@ -106,6 +111,7 @@ function HighlightGalleryStack({
               fill
               className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
               sizes="(max-width: 767px) 100vw, (max-width: 1279px) 50vw, 30vw"
+              unoptimized={useUnoptimizedImage}
             />
           </div>
 
@@ -253,6 +259,7 @@ function HighlightContent({
                 fill
                 className="object-cover"
                 sizes="(max-width: 767px) 100vw, (max-width: 1279px) 70vw, 42vw"
+                unoptimized={isLocalhostAssetUrl(item.image.src)}
               />
             </div>
 
@@ -319,6 +326,8 @@ function HighlightGalleryModal({
     return null;
   }
 
+  const useUnoptimizedActiveImage = isLocalhostAssetUrl(activeImage.src);
+
   return (
     <div
       className={`fixed inset-0 z-[130] flex min-h-dvh items-end justify-center bg-[#03100A]/88 px-0 py-0 backdrop-blur-[8px] transition-[opacity,backdrop-filter] duration-300 ease-out md:items-center md:px-4 md:py-4 lg:px-6 ${
@@ -380,6 +389,7 @@ function HighlightGalleryModal({
                     className="object-contain"
                     sizes="(max-width: 1279px) 100vw, 880px"
                     priority
+                    unoptimized={useUnoptimizedActiveImage}
                   />
                 </div>
               </div>
@@ -444,6 +454,7 @@ function HighlightGalleryModal({
                               fill
                               className="object-cover"
                               sizes="160px"
+                              unoptimized={isLocalhostAssetUrl(image.src)}
                             />
                           </div>
                         </button>
@@ -477,18 +488,12 @@ export default function DepartmentResearchHighlightsSection({
     title?: string;
   } | null>(null);
   const [isGalleryVisible, setIsGalleryVisible] = useState(false);
+  const useUnoptimizedBackground = isLocalhostAssetUrl(backgroundImageSrc);
 
-  useEffect(() => {
-    setOpenItemId((current) => {
-      if (highlights.length === 0) {
-        return '';
-      }
-
-      const currentStillExists = highlights.some((item) => item.id === current);
-
-      return currentStillExists ? current : highlights[0].id;
-    });
-  }, [highlights]);
+  const effectiveOpenItemId =
+    openItemId === '' || highlights.some((item) => item.id === openItemId)
+      ? openItemId
+      : highlights[0]?.id ?? '';
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -613,6 +618,7 @@ export default function DepartmentResearchHighlightsSection({
             fill
             className="object-cover object-center"
             sizes="100vw"
+            unoptimized={useUnoptimizedBackground}
           />
         </div>
 
@@ -622,7 +628,7 @@ export default function DepartmentResearchHighlightsSection({
 
         <div className={`relative z-10 mx-auto max-w-[1600px] px-4 md:px-6 lg:px-8 ${containerClassName}`}>
           <div className="flex flex-col gap-6 md:gap-7 lg:grid lg:grid-cols-[86px_minmax(0,1fr)] lg:gap-8 xl:grid-cols-[96px_minmax(0,1fr)] xl:gap-9">
-            <div className="flex flex-col items-start">
+            <div className="flex flex-col items-start" data-department-reveal>
               <span className="sr-only">{tagText}</span>
 
               <div className="w-full lg:hidden">
@@ -644,7 +650,7 @@ export default function DepartmentResearchHighlightsSection({
               </div>
             </div>
 
-            <div className="min-w-0 md:pt-1 lg:pt-4 xl:pt-5">
+            <div className="min-w-0 md:pt-1 lg:pt-4 xl:pt-5" data-department-reveal>
               <div
                 className={`relative ${
                   sectionHeight
@@ -675,8 +681,10 @@ export default function DepartmentResearchHighlightsSection({
                   ) : null}
 
                   {highlights.map((item, index) => {
-                    const isOpen = item.id === openItemId;
+                    const isOpen = item.id === effectiveOpenItemId;
                     const panelId = `research-highlight-panel-${item.id}`;
+                    const iconSrc = item.iconSrc || TIMELINE_ICON;
+                    const iconAlt = item.iconAlt || '';
 
                     const isExpandable = Boolean(
                       item.details ||
@@ -687,6 +695,7 @@ export default function DepartmentResearchHighlightsSection({
                     return (
                       <div
                         key={item.id}
+                        data-department-reveal
                         className="relative z-[1] grid grid-cols-1 items-start gap-2 sm:grid-cols-[48px_minmax(0,1fr)] sm:gap-4 md:grid-cols-[52px_minmax(0,1fr)] lg:grid-cols-[64px_minmax(0,1fr)] lg:gap-5 xl:grid-cols-[72px_minmax(0,1fr)]"
                       >
                         <div className="relative flex w-full justify-center">
@@ -711,12 +720,17 @@ export default function DepartmentResearchHighlightsSection({
                           >
                             <div className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-full bg-[#EFF4EC] sm:h-[46px] sm:w-[46px] md:h-[50px] md:w-[50px] lg:h-[54px] lg:w-[54px]">
                               <Image
-                                src={TIMELINE_ICON}
-                                alt=""
+                                src={iconSrc}
+                                alt={iconAlt}
                                 width={26}
                                 height={26}
                                 className="h-5 w-5 object-contain sm:h-[22px] sm:w-[22px] md:h-6 md:w-6 lg:h-[26px] lg:w-[26px]"
                                 aria-hidden="true"
+                                unoptimized={isLocalhostAssetUrl(iconSrc)}
+                                style={{
+                                  filter:
+                                    'brightness(0) saturate(100%) invert(39%) sepia(18%) saturate(1744%) hue-rotate(75deg) brightness(91%) contrast(87%)',
+                                }}
                               />
                             </div>
 

@@ -1,6 +1,17 @@
 import { Suspense } from 'react';
-import { getHomePage, getGlobalLayout, getMenuBySlug, getAllAnnouncements, getHomepageStatistics } from '@/app/lib/strapi';
+import {
+  getAllAnnouncements,
+  getDepartmentHomepageCurrentProjects,
+  getGlobalLayout,
+  getHomePage,
+  getHomepageStatistics,
+  getMenuBySlug,
+} from '@/app/lib/strapi';
 import { mapAboutSection } from '@/app/lib/home/aboutSection';
+import {
+  extractDepartmentSlugsFromMenuItems,
+  mapHomeResearchSection,
+} from '@/app/lib/home/currentResearchSection';
 import { mapDataInsightsSection } from '@/app/lib/home/dataInsightsSection';
 import { resolveHeroSlides } from '@/app/lib/home/hero';
 import { mapIndustrySupportSection } from '@/app/lib/home/industrySupportSection';
@@ -27,12 +38,21 @@ export default async function Home({ searchParams }: HomeProps) {
   // Get locale from URL search params, default to 'en'
   const locale = normalizeLocale(params.locale);
 
-  const [homePage, fallbackHomePage, homePageStatistics, fallbackHomePageStatistics, globalLayout, allAnnouncements] = await Promise.all([
+  const [
+    homePage,
+    fallbackHomePage,
+    homePageStatistics,
+    fallbackHomePageStatistics,
+    globalLayout,
+    fallbackGlobalLayout,
+    allAnnouncements,
+  ] = await Promise.all([
     getHomePage(locale),
     locale !== 'en' ? getHomePage('en') : Promise.resolve(null),
     getHomepageStatistics(locale),
     locale !== 'en' ? getHomepageStatistics('en') : Promise.resolve([]),
     getGlobalLayout(locale),
+    locale !== 'en' ? getGlobalLayout('en') : Promise.resolve(null),
     getAllAnnouncements(locale),
   ]);
 
@@ -57,15 +77,37 @@ export default async function Home({ searchParams }: HomeProps) {
     );
   }
 
+  const effectiveGlobalLayout = globalLayout || fallbackGlobalLayout;
+
   // Fetch menus in parallel using slugs from global layout
-  const [leftMenu] = await Promise.all([
-    globalLayout?.headerLeftMenuSlug
-      ? getMenuBySlug(globalLayout.headerLeftMenuSlug, locale)
+  const [leftMenu, fallbackLeftMenu] = await Promise.all([
+    effectiveGlobalLayout?.headerLeftMenuSlug
+      ? getMenuBySlug(effectiveGlobalLayout.headerLeftMenuSlug, locale)
+      : Promise.resolve(null),
+    locale !== 'en' && fallbackGlobalLayout?.headerLeftMenuSlug
+      ? getMenuBySlug(fallbackGlobalLayout.headerLeftMenuSlug, 'en')
       : Promise.resolve(null),
   ]);
 
   // Extract menu items
-  const leftMenuItems = leftMenu?.items || [];
+  const leftMenuItems =
+    leftMenu?.items && leftMenu.items.length > 0
+      ? leftMenu.items
+      : fallbackLeftMenu?.items || [];
+  const departmentSlugs = extractDepartmentSlugsFromMenuItems(leftMenuItems);
+  const [departmentCurrentProjectPages, fallbackDepartmentCurrentProjectPages] = await Promise.all([
+    Promise.all(
+      departmentSlugs.map((slug) => getDepartmentHomepageCurrentProjects(slug, locale))
+    ),
+    locale !== 'en'
+      ? Promise.all(
+          departmentSlugs.map((slug) => getDepartmentHomepageCurrentProjects(slug, 'en'))
+        )
+      : Promise.resolve(Array(departmentSlugs.length).fill(null)),
+  ]);
+
+  const localizedAnnouncement = homePage?.Announcement;
+  const fallbackAnnouncement = fallbackHomePage?.Announcement;
 
   // Always fetch English version as fallback for non-English locales
   const aboutSection = mapAboutSection(
@@ -78,7 +120,15 @@ export default async function Home({ searchParams }: HomeProps) {
     homePage?.datainsightssection || fallbackHomePage?.datainsightssection,
     homePageStatistics.length > 0 ? homePageStatistics : fallbackHomePageStatistics
   );
-  const announcementSection = homePage?.Announcement || fallbackHomePage?.Announcement || null;
+  const researchSection = mapHomeResearchSection(
+    homePage?.currentresearchsection || fallbackHomePage?.currentresearchsection,
+    departmentSlugs.map((slug, index) => ({
+      slug,
+      page: departmentCurrentProjectPages[index],
+      fallbackPage: fallbackDepartmentCurrentProjectPages[index],
+    }))
+  );
+  const announcementSection = localizedAnnouncement || fallbackAnnouncement || null;
   const showAnnouncementCard = announcementSection?.showAnnoucementCard ?? true;
   const announcementLabel = announcementSection?.annoucementlabel || 'Research & Institute Updates';
 
@@ -134,7 +184,7 @@ export default async function Home({ searchParams }: HomeProps) {
       <IndustrySupportSection section={industrySupportSection} />
 
       {/* Research Section */}
-      <ResearchSection />
+      {researchSection ? <ResearchSection section={researchSection} /> : null}
 
       {/* Data Insights Section */}
       <DataInsightsSection section={dataInsightsSection} />
