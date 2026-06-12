@@ -2,6 +2,7 @@ import type { DepartmentCurrentProjectItem } from '@/app/components/department/D
 import type {
   CurrentResearchSection,
   DepartmentCurrentResearchProjectCard,
+  DepartmentCurrentResearchProjectSection,
   DepartmentSingleTypePage,
   MenuItem,
   SectionHeader,
@@ -18,6 +19,7 @@ export interface HomeResearchSectionViewModel {
 export interface HomeDepartmentProjectSource {
   slug: string;
   page: DepartmentSingleTypePage | null | undefined;
+  fallbackPage?: DepartmentSingleTypePage | null | undefined;
 }
 
 type SortableHomeProject = DepartmentCurrentProjectItem & {
@@ -157,14 +159,31 @@ export function mapHomeResearchSection(
   departmentSources: HomeDepartmentProjectSource[]
 ): HomeResearchSectionViewModel | null {
   const projects = departmentSources.flatMap((source, departmentIndex) => {
-    const page = source.page;
+    const localizedPage = source.page;
+    const fallbackPage = source.fallbackPage;
+    const isPresent =
+      localizedPage?.currentprojectpresent ?? fallbackPage?.currentprojectpresent;
 
-    if (!page || page.currentprojectpresent !== true) {
+    if (isPresent !== true) {
       return [];
     }
 
-    const departmentName = page.departmenttitle?.trim() || humanizeSlug(source.slug);
-    const cards = page.currentresearchprojectsection?.researchprojects || [];
+    const effectiveSection: DepartmentCurrentResearchProjectSection | null | undefined =
+      localizedPage?.currentresearchprojectsection ||
+      fallbackPage?.currentresearchprojectsection;
+
+    if (!effectiveSection) {
+      return [];
+    }
+
+    const departmentName =
+      localizedPage?.departmenttitle?.trim() ||
+      fallbackPage?.departmenttitle?.trim() ||
+      humanizeSlug(source.slug);
+    const localizedCards = effectiveSection.researchprojects || [];
+    const fallbackCards =
+      fallbackPage?.currentresearchprojectsection?.researchprojects || [];
+    const cards = localizedCards.length > 0 ? localizedCards : fallbackCards;
 
     return cards
       .map((card, cardIndex) => {

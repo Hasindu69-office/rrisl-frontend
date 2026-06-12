@@ -38,12 +38,21 @@ export default async function Home({ searchParams }: HomeProps) {
   // Get locale from URL search params, default to 'en'
   const locale = normalizeLocale(params.locale);
 
-  const [homePage, fallbackHomePage, homePageStatistics, fallbackHomePageStatistics, globalLayout, allAnnouncements] = await Promise.all([
+  const [
+    homePage,
+    fallbackHomePage,
+    homePageStatistics,
+    fallbackHomePageStatistics,
+    globalLayout,
+    fallbackGlobalLayout,
+    allAnnouncements,
+  ] = await Promise.all([
     getHomePage(locale),
     locale !== 'en' ? getHomePage('en') : Promise.resolve(null),
     getHomepageStatistics(locale),
     locale !== 'en' ? getHomepageStatistics('en') : Promise.resolve([]),
     getGlobalLayout(locale),
+    locale !== 'en' ? getGlobalLayout('en') : Promise.resolve(null),
     getAllAnnouncements(locale),
   ]);
 
@@ -68,19 +77,37 @@ export default async function Home({ searchParams }: HomeProps) {
     );
   }
 
+  const effectiveGlobalLayout = globalLayout || fallbackGlobalLayout;
+
   // Fetch menus in parallel using slugs from global layout
-  const [leftMenu] = await Promise.all([
-    globalLayout?.headerLeftMenuSlug
-      ? getMenuBySlug(globalLayout.headerLeftMenuSlug, locale)
+  const [leftMenu, fallbackLeftMenu] = await Promise.all([
+    effectiveGlobalLayout?.headerLeftMenuSlug
+      ? getMenuBySlug(effectiveGlobalLayout.headerLeftMenuSlug, locale)
+      : Promise.resolve(null),
+    locale !== 'en' && fallbackGlobalLayout?.headerLeftMenuSlug
+      ? getMenuBySlug(fallbackGlobalLayout.headerLeftMenuSlug, 'en')
       : Promise.resolve(null),
   ]);
 
   // Extract menu items
-  const leftMenuItems = leftMenu?.items || [];
+  const leftMenuItems =
+    leftMenu?.items && leftMenu.items.length > 0
+      ? leftMenu.items
+      : fallbackLeftMenu?.items || [];
   const departmentSlugs = extractDepartmentSlugsFromMenuItems(leftMenuItems);
-  const departmentCurrentProjectPages = await Promise.all(
-    departmentSlugs.map((slug) => getDepartmentHomepageCurrentProjects(slug, locale))
-  );
+  const [departmentCurrentProjectPages, fallbackDepartmentCurrentProjectPages] = await Promise.all([
+    Promise.all(
+      departmentSlugs.map((slug) => getDepartmentHomepageCurrentProjects(slug, locale))
+    ),
+    locale !== 'en'
+      ? Promise.all(
+          departmentSlugs.map((slug) => getDepartmentHomepageCurrentProjects(slug, 'en'))
+        )
+      : Promise.resolve(Array(departmentSlugs.length).fill(null)),
+  ]);
+
+  const localizedAnnouncement = homePage?.Announcement;
+  const fallbackAnnouncement = fallbackHomePage?.Announcement;
 
   // Always fetch English version as fallback for non-English locales
   const aboutSection = mapAboutSection(
@@ -98,9 +125,10 @@ export default async function Home({ searchParams }: HomeProps) {
     departmentSlugs.map((slug, index) => ({
       slug,
       page: departmentCurrentProjectPages[index],
+      fallbackPage: fallbackDepartmentCurrentProjectPages[index],
     }))
   );
-  const announcementSection = homePage?.Announcement || fallbackHomePage?.Announcement || null;
+  const announcementSection = localizedAnnouncement || fallbackAnnouncement || null;
   const showAnnouncementCard = announcementSection?.showAnnoucementCard ?? true;
   const announcementLabel = announcementSection?.annoucementlabel || 'Research & Institute Updates';
 
