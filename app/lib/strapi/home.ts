@@ -25,6 +25,8 @@ function buildHomePageQuery(locale: string): string {
   params.set('populate[datainsightssection][populate][viewdatabutton]', 'true');
   params.set('populate[datainsightssection][populate][backgroundimage]', 'true');
   params.set('populate[newssectionheader]', 'true');
+  params.set('populate[researchnetworksection][populate][sectionheader]', 'true');
+  params.set('populate[researchnetworksection][populate][backgroundimage]', 'true');
 
   return params.toString();
 }

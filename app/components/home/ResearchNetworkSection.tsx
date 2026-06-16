@@ -2,9 +2,10 @@
 
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
+import { isLocalhostAssetUrl } from '@/app/lib/strapi';
 import ResearchStationCard from './ResearchStationCard';
 import ResearchNetworkMap from './ResearchNetworkMap';
-import { researchNetworkStations } from './researchNetworkData';
+import type { ResearchNetworkSectionViewModel } from '@/app/lib/home/researchNetworkSection';
 
 type ViewportKind = 'mobile' | 'tablet' | 'desktop';
 
@@ -13,7 +14,14 @@ type ViewportKind = 'mobile' | 'tablet' | 'desktop';
  * Interactive section with research station details on left and map on right
  * Hovering over map markers changes the left panel content
  */
-export default function ResearchNetworkSection() {
+interface ResearchNetworkSectionProps {
+  section: ResearchNetworkSectionViewModel;
+}
+
+export default function ResearchNetworkSection({
+  section,
+}: ResearchNetworkSectionProps) {
+  const hasLocalhostBackground = isLocalhostAssetUrl(section.backgroundImage);
   const getViewportKind = (): ViewportKind => {
     if (typeof window === 'undefined') {
       return 'desktop';
@@ -31,6 +39,14 @@ export default function ResearchNetworkSection() {
   };
 
   const [viewportKind, setViewportKind] = useState<ViewportKind>(getViewportKind);
+  const [useFallbackBackground, setUseFallbackBackground] = useState(() => {
+    if (typeof window !== 'undefined' && hasLocalhostBackground) {
+      const hostname = window.location.hostname;
+      return hostname !== 'localhost' && hostname !== '127.0.0.1';
+    }
+
+    return false;
+  });
 
   useEffect(() => {
     const handleResize = () => {
@@ -45,7 +61,7 @@ export default function ResearchNetworkSection() {
     };
   }, []);
 
-  const locations = researchNetworkStations.map((station) => ({
+  const locations = section.locations.map((station) => ({
     id: station.id,
     label: station.label,
     position:
@@ -63,8 +79,12 @@ export default function ResearchNetworkSection() {
 
   // Find active station data
   const activeStation =
-    researchNetworkStations.find((station) => station.id === activeStationId) ||
-    researchNetworkStations[0];
+    section.locations.find((station) => station.id === activeStationId) ||
+    section.locations[0];
+
+  if (!activeStation) {
+    return null;
+  }
 
   const handleLocationHover = (id: string) => {
     setActiveStationId(id);
@@ -79,14 +99,36 @@ export default function ResearchNetworkSection() {
     <section className="relative w-full overflow-hidden py-12 md:py-24 bg-white">
       {/* Background Image - Behind content with overlay */}
       <div className="absolute inset-0 z-0">
-        <Image
-          src="/images/section7_bg.png"
-          alt="Forest background"
-          fill
-          className="object-cover"
-          priority
-          quality={90}
-        />
+        {useFallbackBackground ? (
+          <img
+            src={section.backgroundImage}
+            alt={section.backgroundImageAlt}
+            className="absolute inset-0 h-full w-full object-cover object-center"
+            onError={() => {
+              console.error(
+                'Failed to load research network section background image:',
+                section.backgroundImage
+              );
+            }}
+          />
+        ) : (
+          <Image
+            src={section.backgroundImage}
+            alt={section.backgroundImageAlt}
+            fill
+            className="object-cover object-center"
+            priority
+            quality={90}
+            unoptimized={hasLocalhostBackground}
+            onError={() => {
+              console.error(
+                'Next.js Image failed for research network section background, falling back to img:',
+                section.backgroundImage
+              );
+              setUseFallbackBackground(true);
+            }}
+          />
+        )}
         {/* Dark green -> black vertical gradient overlay (using RGBA) */}
         <div
           className="absolute inset-0"
@@ -110,10 +152,10 @@ export default function ResearchNetworkSection() {
           {/* Right Side - Map */}
           <div className="w-full flex justify-center xl:justify-start order-1 xl:order-2">
             <ResearchNetworkMap
-              buttonText="Our Research"
-              titlePart1="Explore Our"
-              titlePart2="Research Network"
-              mapImage="/images/section7_SLmap.png"
+              buttonText={section.buttonText}
+              titlePart1={section.titlePart1}
+              titlePart2={section.titlePart2}
+              mapImage={section.mapImage}
               locations={locations}
               activeLocationId={activeStationId}
               onLocationHover={handleLocationHover}

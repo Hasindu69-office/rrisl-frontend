@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
+import { isLocalhostAssetUrl } from '@/app/lib/strapi';
 import StatBox from './StatBox';
 
 // Gradient-stroke MapPinCheck icon (provided SVG)
@@ -62,6 +63,10 @@ export default function ResearchStationCard({
   className = '',
 }: ResearchStationCardProps) {
   const stats = stationData.stats || [];
+  const useUnoptimizedLeftImage = isLocalhostAssetUrl(stationData.images.leftVertical);
+  const useUnoptimizedTopImage = isLocalhostAssetUrl(stationData.images.topRight);
+  const useUnoptimizedBottomImage = isLocalhostAssetUrl(stationData.images.bottomRight);
+  const useUnoptimizedRightImage = isLocalhostAssetUrl(stationData.images.rightVertical);
 
   return (
     <div
@@ -107,6 +112,7 @@ export default function ResearchStationCard({
               width={206}
               height={310}
               className="object-cover w-full h-full"
+              unoptimized={useUnoptimizedLeftImage}
             />
           </div>
 
@@ -122,6 +128,7 @@ export default function ResearchStationCard({
                 width={281}
                 height={139}
                 className="object-cover w-full h-full"
+                unoptimized={useUnoptimizedTopImage}
               />
             </div>
             <div
@@ -134,6 +141,7 @@ export default function ResearchStationCard({
                 width={281}
                 height={139}
                 className="object-cover w-full h-full"
+                unoptimized={useUnoptimizedBottomImage}
               />
             </div>
           </div>
@@ -156,6 +164,7 @@ export default function ResearchStationCard({
               width={206}
               height={310}
               className="object-cover w-full h-full"
+              unoptimized={useUnoptimizedRightImage}
             />
           </div>
         </div>
@@ -163,18 +172,42 @@ export default function ResearchStationCard({
         {/* Mobile/Tablet Grid Layout (non-lg) */}
         <div className="lg:hidden grid grid-cols-2 gap-3 md:gap-4 p-2">
           <div className="relative aspect-[3/4] rounded-[20px] overflow-hidden">
-            <Image src={stationData.images.leftVertical} alt="" fill className="object-cover" />
+            <Image
+              src={stationData.images.leftVertical}
+              alt=""
+              fill
+              className="object-cover"
+              unoptimized={useUnoptimizedLeftImage}
+            />
           </div>
           <div className="grid grid-rows-2 gap-3 md:gap-4">
             <div className="relative rounded-[20px] overflow-hidden">
-              <Image src={stationData.images.topRight} alt="" fill className="object-cover" />
+              <Image
+                src={stationData.images.topRight}
+                alt=""
+                fill
+                className="object-cover"
+                unoptimized={useUnoptimizedTopImage}
+              />
             </div>
             <div className="relative rounded-[20px] overflow-hidden">
-              <Image src={stationData.images.bottomRight} alt="" fill className="object-cover" />
+              <Image
+                src={stationData.images.bottomRight}
+                alt=""
+                fill
+                className="object-cover"
+                unoptimized={useUnoptimizedBottomImage}
+              />
             </div>
           </div>
           <div className="relative aspect-[3/4] rounded-[20px] overflow-hidden col-span-2 md:col-span-1">
-            <Image src={stationData.images.rightVertical} alt="" fill className="object-cover" />
+            <Image
+              src={stationData.images.rightVertical}
+              alt=""
+              fill
+              className="object-cover"
+              unoptimized={useUnoptimizedRightImage}
+            />
           </div>
         </div>
       </div>
