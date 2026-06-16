@@ -1,11 +1,13 @@
 import { Suspense } from 'react';
 import {
   getAllAnnouncements,
+  getAllNewsArticles,
   getDepartmentHomepageCurrentProjects,
   getGlobalLayout,
   getHomePage,
   getHomepageStatistics,
   getMenuBySlug,
+  getNewsAndBlogPage,
 } from '@/app/lib/strapi';
 import { mapAboutSection } from '@/app/lib/home/aboutSection';
 import {
@@ -16,7 +18,15 @@ import { mapDataInsightsSection } from '@/app/lib/home/dataInsightsSection';
 import { resolveHeroSlides } from '@/app/lib/home/hero';
 import { mapIndustrySupportSection } from '@/app/lib/home/industrySupportSection';
 import { resolveHomePageStats } from '@/app/lib/home/stats';
-import { normalizeLocale } from '@/app/lib/locale';
+import { addLocaleToUrl, normalizeLocale } from '@/app/lib/locale';
+import {
+  formatArticleDate,
+  getFeaturedArticle,
+  getPrimaryCategory,
+  mapNewsArticles,
+  mapNewsPageData,
+  NEWS_AND_BLOGS_ROUTE,
+} from '@/app/lib/news/pageData';
 import HomeHeroWithHeader from './components/home/HomeHeroWithHeader';
 import ContentSection from './components/home/ContentSection';
 import IndustrySupportSection from './components/home/IndustrySupportSection';
@@ -46,6 +56,10 @@ export default async function Home({ searchParams }: HomeProps) {
     globalLayout,
     fallbackGlobalLayout,
     allAnnouncements,
+    localizedNewsPage,
+    fallbackNewsPage,
+    localizedNewsArticles,
+    fallbackNewsArticles,
   ] = await Promise.all([
     getHomePage(locale),
     locale !== 'en' ? getHomePage('en') : Promise.resolve(null),
@@ -54,6 +68,10 @@ export default async function Home({ searchParams }: HomeProps) {
     getGlobalLayout(locale),
     locale !== 'en' ? getGlobalLayout('en') : Promise.resolve(null),
     getAllAnnouncements(locale),
+    getNewsAndBlogPage(locale),
+    locale !== 'en' ? getNewsAndBlogPage('en') : Promise.resolve(null),
+    getAllNewsArticles(locale),
+    locale !== 'en' ? getAllNewsArticles('en') : Promise.resolve([]),
   ]);
 
   const effectiveHomePage = homePage?.hero
@@ -131,6 +149,36 @@ export default async function Home({ searchParams }: HomeProps) {
   const announcementSection = localizedAnnouncement || fallbackAnnouncement || null;
   const showAnnouncementCard = announcementSection?.showAnnoucementCard ?? true;
   const announcementLabel = announcementSection?.annoucementlabel || 'Research & Institute Updates';
+  const newsPageData = mapNewsPageData(localizedNewsPage, fallbackNewsPage, [], []);
+  const newsSectionHeader =
+    homePage?.newssectionheader || fallbackHomePage?.newssectionheader || null;
+  const newsArticles = mapNewsArticles(
+    localizedNewsArticles.length > 0 ? localizedNewsArticles : fallbackNewsArticles
+  );
+  const featuredNewsArticle = getFeaturedArticle(newsArticles);
+  const homepageNewsArticles = newsArticles
+    .filter((article) => article.slug !== featuredNewsArticle?.slug)
+    .slice(0, 3)
+    .map((article) => ({
+      imageSrc: article.featuredImage,
+      imageAlt: article.featuredImageAlt,
+      title: article.title,
+      categoryLabel: getPrimaryCategory(article)?.label || newsPageData.labels.article,
+      date: formatArticleDate(article.publishedDate),
+      link: addLocaleToUrl(`${NEWS_AND_BLOGS_ROUTE}/${article.slug}`, locale),
+    }));
+  const homepageFeaturedArticle = featuredNewsArticle
+    ? {
+        imageSrc: featuredNewsArticle.featuredImage,
+        imageAlt: featuredNewsArticle.featuredImageAlt,
+        title: featuredNewsArticle.title,
+        description: featuredNewsArticle.summary,
+        categoryLabel:
+          getPrimaryCategory(featuredNewsArticle)?.label || newsPageData.labels.article,
+        date: formatArticleDate(featuredNewsArticle.publishedDate),
+        link: addLocaleToUrl(`${NEWS_AND_BLOGS_ROUTE}/${featuredNewsArticle.slug}`, locale),
+      }
+    : null;
 
   return (
     <div className="min-h-screen">
@@ -191,7 +239,14 @@ export default async function Home({ searchParams }: HomeProps) {
 
       {/* News & Blog Section */}
       <div className="mt-8 md:mt-16 lg:mt-[150px]">
-        <NewsBlogSection />
+        <NewsBlogSection
+          featuredArticle={homepageFeaturedArticle}
+          smallArticles={homepageNewsArticles}
+          tagText={newsSectionHeader?.eyebrow?.trim() || newsPageData.labels.title}
+          titlePart1={newsSectionHeader?.title?.trim() || 'Tips, Stories, and Updates from'}
+          titlePart2={newsSectionHeader?.hightlightedtext?.trim() || 'Our Research Institute'}
+          readMoreLabel={newsPageData.labels.readArticle}
+        />
       </div>
 
       {/* Research Network Section */}

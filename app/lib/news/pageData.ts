@@ -1,125 +1,146 @@
+import type { BreadcrumbItem } from '@/app/components/shared/Breadcrumb';
+import { getOptimizedImageUrl, getStrapiImageUrl } from '@/app/lib/strapi';
+import type { NewsAndBlogPage, NewsArticleEntity, NewsCategory } from '@/app/lib/types';
+
+export const NEWS_AND_BLOGS_ROUTE = '/news-and-blogs';
+
+export interface NewsCategoryViewModel {
+  label: string;
+  slug: string;
+}
+
 export interface NewsArticle {
   slug: string;
   title: string;
   summary: string;
   content: string[];
   publishedDate: string;
-  author: string;
-  category: 'News' | 'Blog' | 'Research';
+  categories: NewsCategoryViewModel[];
   featuredImage: string;
   featuredImageAlt: string;
-  galleryImages?: Array<{
+  galleryImages: Array<{
     src: string;
     alt: string;
   }>;
-  isFeatured?: boolean;
+  isFeatured: boolean;
 }
 
-export const newsArticles: NewsArticle[] = [
-  {
-    slug: 'new-chemical-cocktail-for-circular-leaf-spot-disease',
-    title: 'New Chemical Cocktail for Circular Leaf Spot Disease in Rubber Plantations',
-    summary:
-      'RRISL researchers continue to refine disease management practices for healthier rubber plantations and more resilient field performance.',
-    content: [
-      'Circular leaf spot disease remains one of the recurring challenges for rubber growers, especially in periods where humidity and field conditions support rapid disease spread.',
-      'The latest research effort focuses on practical field-level protection, combining disease observation, laboratory evaluation, and plantation feedback to identify treatments that can be adopted with confidence.',
-      'This work supports the institute mission of improving productivity while protecting long-term plantation health through science-led recommendations.',
-    ],
-    publishedDate: '2025-08-23',
-    author: 'RRISL Research Team',
-    category: 'Research',
-    featuredImage: '/images/section6_img1.png',
-    featuredImageAlt: 'Rubber plantation research environment',
-    galleryImages: [
-      {
-        src: '/images/section6_img2.png',
-        alt: 'Researchers reviewing plantation field samples',
-      },
-      {
-        src: '/images/section6_img3.png',
-        alt: 'Green field landscape at a rubber research site',
-      },
-    ],
-    isFeatured: true,
-  },
-  {
-    slug: 'latex-harvesting-begins-in-the-north-central-province',
-    title: 'Latex Harvesting Begins in the North-Central Province',
-    summary:
-      'A new harvesting cycle highlights continued extension support for growers expanding rubber cultivation beyond traditional zones.',
-    content: [
-      'Latex harvesting in the North-Central Province marks an important stage for growers who have adopted rubber cultivation with technical support from the institute.',
-      'Field officers are working with communities to monitor tapping practices, tree health, and early yield performance so growers can maintain consistent quality across the season.',
-      'The programme also strengthens knowledge sharing between researchers, extension teams, and smallholders who are adapting rubber cultivation to local conditions.',
-    ],
-    publishedDate: '2025-08-18',
-    author: 'Extension Services Unit',
-    category: 'News',
-    featuredImage: '/images/section6_img2.png',
-    featuredImageAlt: 'Team members at a rubber cultivation site',
-    galleryImages: [
-      {
-        src: '/images/section7_img1.jpg',
-        alt: 'Rubber estate field visit',
-      },
-      {
-        src: '/images/section7_img2.jpg',
-        alt: 'Plantation pathway and rubber trees',
-      },
-    ],
-  },
-  {
-    slug: 'modern-nursery-practices-for-healthy-planting-materials',
-    title: 'Modern Nursery Practices for Healthy Planting Materials',
-    summary:
-      'Careful nursery management helps growers establish uniform, vigorous plants before field planting begins.',
-    content: [
-      'High-quality planting material is one of the strongest foundations for a productive rubber estate, and nursery management plays a direct role in that outcome.',
-      'Current guidance focuses on healthy root development, careful watering, pest observation, and timely selection so weak plants are removed before field establishment.',
-      'These practices reduce early field losses and help growers build stronger plantations from the first stage of cultivation.',
-    ],
-    publishedDate: '2025-07-30',
-    author: 'Plant Science Department',
-    category: 'Blog',
-    featuredImage: '/images/section6_img3.png',
-    featuredImageAlt: 'Green nursery and landscaped research garden',
-  },
-  {
-    slug: 'field-training-strengthens-grower-advisory-services',
-    title: 'Field Training Strengthens Grower Advisory Services',
-    summary:
-      'Hands-on advisory programmes continue to connect institute research with daily decisions made by plantation teams.',
-    content: [
-      'RRISL field training sessions are designed to make technical recommendations easier to apply in real plantation settings.',
-      'Participants review tapping discipline, disease observation, soil and nutrient management, and record keeping with practical demonstrations led by subject specialists.',
-      'The result is a stronger advisory network that can respond quickly to grower needs and support productivity across different rubber-growing regions.',
-    ],
-    publishedDate: '2025-07-12',
-    author: 'Advisory Services Team',
-    category: 'Blog',
-    featuredImage: '/images/section7_img4.jpg',
-    featuredImageAlt: 'Field advisory training session',
-  },
-  {
-    slug: 'rubber-research-symposium-shares-current-findings',
-    title: 'Rubber Research Symposium Shares Current Findings',
-    summary:
-      'Researchers, managers, and industry stakeholders gathered to exchange updates from ongoing rubber science programmes.',
-    content: [
-      'The annual research symposium creates a focused space for sharing findings from plant breeding, crop protection, agronomy, processing, and industry support programmes.',
-      'Presentations emphasized practical value for growers and processors, with attention to technologies that can move from research trials into field and factory use.',
-      'The event also encouraged collaboration between departments, estates, private sector partners, and policy stakeholders.',
-    ],
-    publishedDate: '2025-06-26',
-    author: 'Communications Unit',
-    category: 'News',
-    featuredImage: '/images/homeBannerimg2.jpg',
-    featuredImageAlt: 'Rubber research and stakeholder event',
-  },
-];
+export interface NewsPageLabels {
+  title: string;
+  topic: string;
+  all: string;
+  articleGallery: string;
+  latestFromRrisl: string;
+  featured: string;
+  readFeaturedArticle: string;
+  readArticle: string;
+  backToAllArticles: string;
+  relatedArticles: string;
+  read: string;
+  article: string;
+}
 
-export const newsCategories = ['All', ...Array.from(new Set(newsArticles.map((article) => article.category)))] as const;
+export interface NewsPageHeroViewModel {
+  title: string;
+  breadcrumbItems: BreadcrumbItem[];
+  backgroundImage?: string;
+  backgroundImageAlt: string;
+}
+
+export interface NewsPageViewModel {
+  hero: NewsPageHeroViewModel;
+  labels: NewsPageLabels;
+  categories: NewsCategoryViewModel[];
+}
+
+const NEWS_PAGE_FALLBACK: NewsPageViewModel = {
+  hero: {
+    title: 'News and Blogs',
+    breadcrumbItems: [
+      { label: 'Home', href: '/' },
+      { label: 'News and Blogs' },
+    ],
+    backgroundImage: '/images/section6_bg.jpg',
+    backgroundImageAlt: 'RRISL news and research updates',
+  },
+  labels: {
+    title: 'News and Blogs',
+    topic: 'Research updates, field stories, and industry insights.',
+    all: 'All',
+    articleGallery: 'Article Gallery',
+    latestFromRrisl: 'Latest from RRISL',
+    featured: 'Featured',
+    readFeaturedArticle: 'Read Featured Article',
+    readArticle: 'Read Article',
+    backToAllArticles: 'Back to all articles',
+    relatedArticles: 'Related Articles',
+    read: 'Read',
+    article: 'Article',
+  },
+  categories: [{ label: 'All', slug: 'all' }],
+};
+
+const NEWS_ARTICLE_FALLBACK_IMAGE = '/images/section6_img1.png';
+
+function toCategorySlug(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+function sortByPublishedDateDesc<T extends { publishedAt?: string; publishedDate?: string }>(items: T[]): T[] {
+  return [...items].sort((left, right) => {
+    const leftTime = new Date(left.publishedAt || left.publishedDate || 0).getTime();
+    const rightTime = new Date(right.publishedAt || right.publishedDate || 0).getTime();
+    return rightTime - leftTime;
+  });
+}
+
+function mapBreadcrumbItems(page: NewsAndBlogPage | null | undefined): BreadcrumbItem[] {
+  const breadcrumbItems =
+    page?.pagehero?.Breadcrumb
+      ?.filter((item) => item?.label)
+      .map((item) => ({
+        label: item.label,
+        ...(item.href
+          ? {
+              href: item.href === '/news' ? NEWS_AND_BLOGS_ROUTE : item.href,
+            }
+          : {}),
+      })) || [];
+
+  return breadcrumbItems.length > 0
+    ? breadcrumbItems
+    : NEWS_PAGE_FALLBACK.hero.breadcrumbItems;
+}
+
+function mapCategory(category: NewsCategory | null | undefined): NewsCategoryViewModel | null {
+  const label = category?.name?.trim();
+
+  if (!label) {
+    return null;
+  }
+
+  return {
+    label,
+    slug: category?.slug?.trim() || toCategorySlug(label),
+  };
+}
+
+function uniqueCategories(categories: NewsCategoryViewModel[]): NewsCategoryViewModel[] {
+  const seen = new Set<string>();
+
+  return categories.filter((category) => {
+    const key = category.slug;
+    if (seen.has(key)) {
+      return false;
+    }
+    seen.add(key);
+    return true;
+  });
+}
 
 export function formatArticleDate(date: string): string {
   return new Intl.DateTimeFormat('en-US', {
@@ -129,21 +150,190 @@ export function formatArticleDate(date: string): string {
   }).format(new Date(date));
 }
 
-export function getFeaturedArticle(): NewsArticle {
-  return newsArticles.find((article) => article.isFeatured) || newsArticles[0];
+export function mapNewsArticle(article: NewsArticleEntity | null | undefined): NewsArticle | null {
+  const slug = article?.slug?.trim();
+  const title = article?.title?.trim();
+
+  if (!slug || !title) {
+    return null;
+  }
+
+  const summary = article?.summary?.trim() || '';
+  const content =
+    article?.paragraph
+      ?.map((item) => item?.paragraph?.trim())
+      .filter((paragraph): paragraph is string => Boolean(paragraph)) || [];
+  const featuredImage =
+    getOptimizedImageUrl(article?.featuredImage, 'large') ||
+    getOptimizedImageUrl(article?.featuredImage, 'medium') ||
+    getStrapiImageUrl(article?.featuredImage) ||
+    NEWS_ARTICLE_FALLBACK_IMAGE;
+  const featuredImageAlt =
+    article?.featuredImage?.alternativeText ||
+    title;
+  const galleryImages =
+    article?.gallelryImages
+      ?.map((image, index) => {
+        const src =
+          getOptimizedImageUrl(image, 'large') ||
+          getOptimizedImageUrl(image, 'medium') ||
+          getStrapiImageUrl(image);
+
+        if (!src) {
+          return null;
+        }
+
+        return {
+          src,
+          alt: image?.alternativeText || `${title} gallery image ${index + 1}`,
+        };
+      })
+      .filter((image): image is { src: string; alt: string } => Boolean(image)) || [];
+  const categories = uniqueCategories(
+    (article?.news_categories || [])
+      .map(mapCategory)
+      .filter((category): category is NewsCategoryViewModel => Boolean(category))
+  );
+
+  return {
+    slug,
+    title,
+    summary,
+    content,
+    publishedDate: article?.publishedAt || article?.createdAt || new Date(0).toISOString(),
+    categories,
+    featuredImage,
+    featuredImageAlt,
+    galleryImages,
+    isFeatured: article?.isFeatured === true,
+  };
 }
 
-export function getArticleBySlug(slug: string): NewsArticle | null {
-  return newsArticles.find((article) => article.slug === slug) || null;
+export function mapNewsArticles(articles: NewsArticleEntity[]): NewsArticle[] {
+  return sortByPublishedDateDesc(articles)
+    .map(mapNewsArticle)
+    .filter((article): article is NewsArticle => Boolean(article));
 }
 
-export function getRelatedArticles(article: NewsArticle, limit = 3): NewsArticle[] {
-  const categoryMatches = newsArticles.filter(
-    (item) => item.slug !== article.slug && item.category === article.category
-  );
-  const remaining = newsArticles.filter(
-    (item) => item.slug !== article.slug && item.category !== article.category
+export function mapNewsPageData(
+  localizedPage: NewsAndBlogPage | null | undefined,
+  fallbackPage: NewsAndBlogPage | null | undefined,
+  localizedCategories: NewsCategory[],
+  fallbackCategories: NewsCategory[]
+): NewsPageViewModel {
+  const page = localizedPage || fallbackPage;
+  const hero = page?.pagehero || fallbackPage?.pagehero;
+  const heroImage = hero?.backgroundImage || null;
+  const activeCategoriesSource =
+    (localizedCategories.length > 0 ? localizedCategories : fallbackCategories)
+      .filter((category) => category?.isActive !== false);
+  const mappedCategories = uniqueCategories(
+    activeCategoriesSource
+      .map(mapCategory)
+      .filter((category): category is NewsCategoryViewModel => Boolean(category))
   );
 
-  return [...categoryMatches, ...remaining].slice(0, limit);
+  return {
+    hero: {
+      title: hero?.PageTitle?.trim() || NEWS_PAGE_FALLBACK.hero.title,
+      breadcrumbItems: mapBreadcrumbItems(page),
+      backgroundImage:
+        getOptimizedImageUrl(heroImage, 'large') ||
+        getOptimizedImageUrl(heroImage, 'medium') ||
+        getStrapiImageUrl(heroImage) ||
+        NEWS_PAGE_FALLBACK.hero.backgroundImage,
+      backgroundImageAlt:
+        hero?.backgroundImageAlt?.trim() ||
+        heroImage?.alternativeText ||
+        NEWS_PAGE_FALLBACK.hero.backgroundImageAlt,
+    },
+    labels: {
+      title: hero?.PageTitle?.trim() || NEWS_PAGE_FALLBACK.labels.title,
+      topic: page?.topic?.trim() || NEWS_PAGE_FALLBACK.labels.topic,
+      all: page?.alllabel?.trim() || NEWS_PAGE_FALLBACK.labels.all,
+      articleGallery:
+        page?.articlegallerylabel?.trim() || NEWS_PAGE_FALLBACK.labels.articleGallery,
+      latestFromRrisl: page?.latestfromrrisllabel?.trim() || NEWS_PAGE_FALLBACK.labels.latestFromRrisl,
+      featured: page?.featuredlabel?.trim() || NEWS_PAGE_FALLBACK.labels.featured,
+      readFeaturedArticle:
+        page?.readfeaturedarticlebuttonlabel?.trim() || NEWS_PAGE_FALLBACK.labels.readFeaturedArticle,
+      readArticle: page?.readarticlelabel?.trim() || NEWS_PAGE_FALLBACK.labels.readArticle,
+      backToAllArticles:
+        page?.Backtoallarticleslabel?.trim() || NEWS_PAGE_FALLBACK.labels.backToAllArticles,
+      relatedArticles:
+        page?.relatedarticleslabel?.trim() || NEWS_PAGE_FALLBACK.labels.relatedArticles,
+      read: page?.readlabel?.trim() || NEWS_PAGE_FALLBACK.labels.read,
+      article: page?.articlelabel?.trim() || NEWS_PAGE_FALLBACK.labels.article,
+    },
+    categories: [
+      { label: page?.alllabel?.trim() || NEWS_PAGE_FALLBACK.labels.all, slug: 'all' },
+      ...mappedCategories,
+    ],
+  };
+}
+
+export function getFeaturedArticle(articles: NewsArticle[]): NewsArticle | null {
+  if (articles.length === 0) {
+    return null;
+  }
+
+  return articles.find((article) => article.isFeatured) || articles[0];
+}
+
+export function filterArticlesByCategory(
+  articles: NewsArticle[],
+  selectedCategorySlug: string
+): NewsArticle[] {
+  if (!selectedCategorySlug || selectedCategorySlug === 'all') {
+    return articles;
+  }
+
+  return articles.filter((article) =>
+    article.categories.some((category) => category.slug === selectedCategorySlug)
+  );
+}
+
+export function getArticleBySlug(articles: NewsArticle[], slug: string): NewsArticle | null {
+  return articles.find((article) => article.slug === slug) || null;
+}
+
+export function getPrimaryCategory(article: NewsArticle): NewsCategoryViewModel | null {
+  return article.categories[0] || null;
+}
+
+export function getRelatedArticles(
+  article: NewsArticle,
+  articles: NewsArticle[],
+  limit = 3
+): NewsArticle[] {
+  const articleCategorySlugs = new Set(article.categories.map((category) => category.slug));
+  const remaining = articles.filter((item) => item.slug !== article.slug);
+
+  const matching = remaining.filter((item) =>
+    item.categories.some((category) => articleCategorySlugs.has(category.slug))
+  );
+  const nonMatching = remaining.filter((item) =>
+    item.categories.every((category) => !articleCategorySlugs.has(category.slug))
+  );
+
+  return [...matching, ...nonMatching].slice(0, limit);
+}
+
+export function getNewsEmptyState(page: NewsAndBlogPage | null | undefined): {
+  title: string;
+  description: string;
+} {
+  const fallbackTitle = 'No articles found';
+  const fallbackDescription = 'Try another category to explore more updates.';
+
+  return {
+    title:
+      page?.ErrorMessage?.title?.trim() ||
+      page?.ErrorMessage?.Title?.trim() ||
+      fallbackTitle,
+    description:
+      page?.ErrorMessage?.description?.trim() ||
+      page?.ErrorMessage?.Description?.trim() ||
+      fallbackDescription,
+  };
 }

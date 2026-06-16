@@ -4,15 +4,17 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import Button from '@/app/components/ui/Button';
+import { isLocalhostAssetUrl } from '@/app/lib/strapi';
 
 interface FeaturedArticleCardProps {
   imageSrc: string;
   imageAlt: string;
   title: string;
   description: string;
-  author: string;
+  categoryLabel: string;
   date: string;
   link: string;
+  readMoreLabel?: string;
 }
 
 /**
@@ -25,9 +27,10 @@ export default function FeaturedArticleCard({
   imageAlt,
   title,
   description,
-  author,
+  categoryLabel,
   date,
   link,
+  readMoreLabel = 'Read more',
 }: FeaturedArticleCardProps) {
   return (
     <div
@@ -44,6 +47,7 @@ export default function FeaturedArticleCard({
             alt={imageAlt}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-300 rounded-[20px] xl:rounded-[30px]"
+            unoptimized={isLocalhostAssetUrl(imageSrc)}
           />
         </div>
 
@@ -68,25 +72,7 @@ export default function FeaturedArticleCard({
                   strokeLinejoin="round"
                 />
               </svg>
-              <span>Blog</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-              <span>By {author}</span>
+              <span>{categoryLabel}</span>
             </div>
             <div className="flex items-center gap-2">
               <svg
@@ -152,7 +138,7 @@ export default function FeaturedArticleCard({
           <div className="ml-auto">
             <Link href={link}>
               <Button variant="outline" size="sm" className="md:!text-base">
-                Read more
+                {readMoreLabel}
               </Button>
             </Link>
           </div>

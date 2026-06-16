@@ -6,19 +6,38 @@ import Link from 'next/link';
 import { CalendarDays, ChevronRight } from 'lucide-react';
 import gsap from 'gsap';
 import { addLocaleToUrl } from '@/app/lib/locale';
-import { formatArticleDate, type NewsArticle } from '@/app/lib/news/pageData';
+import { isLocalhostAssetUrl } from '@/app/lib/strapi';
+import {
+  formatArticleDate,
+  getPrimaryCategory,
+  NEWS_AND_BLOGS_ROUTE,
+  type NewsArticle,
+} from '@/app/lib/news/pageData';
 
 interface NewsArticleGridProps {
   articles: NewsArticle[];
   locale: string;
   selectedCategory: string;
+  readArticleLabel: string;
+  emptyTitle?: string;
+  emptyDescription?: string;
 }
 
 function articleHref(slug: string, locale: string) {
-  return addLocaleToUrl(`/news/${slug}`, locale);
+  return addLocaleToUrl(`${NEWS_AND_BLOGS_ROUTE}/${slug}`, locale);
 }
 
-function ArticleCard({ article, locale }: { article: NewsArticle; locale: string }) {
+function ArticleCard({
+  article,
+  locale,
+  readArticleLabel,
+}: {
+  article: NewsArticle;
+  locale: string;
+  readArticleLabel: string;
+}) {
+  const primaryCategory = getPrimaryCategory(article);
+
   return (
     <Link
       href={articleHref(article.slug, locale)}
@@ -32,10 +51,13 @@ function ArticleCard({ article, locale }: { article: NewsArticle; locale: string
           fill
           className="object-cover transition duration-500 group-hover:scale-105"
           sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+          unoptimized={isLocalhostAssetUrl(article.featuredImage)}
         />
-        <span className="absolute left-5 top-5 rounded-full bg-white/90 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.14em] text-[#2E7D32]">
-          {article.category}
-        </span>
+        {primaryCategory ? (
+          <span className="absolute left-5 top-5 rounded-full bg-white/90 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.14em] text-[#2E7D32]">
+            {primaryCategory.label}
+          </span>
+        ) : null}
       </div>
       <div className="flex flex-1 flex-col p-6">
         <div className="mb-4 flex items-center gap-2 text-sm font-medium text-[#557062]">
@@ -47,7 +69,7 @@ function ArticleCard({ article, locale }: { article: NewsArticle; locale: string
         </h2>
         <p className="mt-3 line-clamp-3 text-sm leading-7 text-[#557062]">{article.summary}</p>
         <div className="mt-6 flex items-center justify-between border-t border-dashed border-[#A1DF0A]/70 pt-5 text-sm font-bold text-[#2E7D32]">
-          <span>Read article</span>
+          <span>{readArticleLabel}</span>
           <ChevronRight className="h-5 w-5 transition group-hover:translate-x-1" />
         </div>
       </div>
@@ -59,6 +81,9 @@ export default function NewsArticleGrid({
   articles,
   locale,
   selectedCategory,
+  readArticleLabel,
+  emptyTitle = 'No articles found',
+  emptyDescription = 'Try another category to explore more updates.',
 }: NewsArticleGridProps) {
   const panelRef = useRef<HTMLDivElement | null>(null);
   const articleKey = useMemo(
@@ -105,7 +130,12 @@ export default function NewsArticleGrid({
       {articles.length > 0 ? (
         <div className="mt-9 grid gap-7 md:grid-cols-2 xl:grid-cols-3">
           {articles.map((article) => (
-            <ArticleCard key={article.slug} article={article} locale={locale} />
+            <ArticleCard
+              key={article.slug}
+              article={article}
+              locale={locale}
+              readArticleLabel={readArticleLabel}
+            />
           ))}
         </div>
       ) : (
@@ -113,8 +143,8 @@ export default function NewsArticleGrid({
           className="mt-9 rounded-[26px] border border-dashed border-[#A1DF0A] bg-white p-10 text-center"
           data-news-filter-item
         >
-          <h2 className="text-2xl font-bold text-[#0F3F1D]">No articles found</h2>
-          <p className="mt-3 text-[#557062]">Try another category to explore more updates.</p>
+          <h2 className="text-2xl font-bold text-[#0F3F1D]">{emptyTitle}</h2>
+          <p className="mt-3 text-[#557062]">{emptyDescription}</p>
         </div>
       )}
     </div>

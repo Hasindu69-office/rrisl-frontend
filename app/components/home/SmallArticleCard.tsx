@@ -3,12 +3,13 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { isLocalhostAssetUrl } from '@/app/lib/strapi';
 
 interface SmallArticleCardProps {
   imageSrc: string;
   imageAlt: string;
   title: string;
-  author: string;
+  categoryLabel: string;
   date: string;
   link: string;
 }
@@ -16,13 +17,13 @@ interface SmallArticleCardProps {
 /**
  * Small Article Card Component
  * Used for displaying smaller article previews in the News & Blog section
- * Features: date above image, image, title, and metadata bar with blog icon and author
+ * Features: date above image, image, title, and metadata bar with category label
  */
 export default function SmallArticleCard({
   imageSrc,
   imageAlt,
   title,
-  author,
+  categoryLabel,
   date,
   link,
 }: SmallArticleCardProps) {
@@ -42,6 +43,7 @@ export default function SmallArticleCard({
             alt={imageAlt}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-300"
+            unoptimized={isLocalhostAssetUrl(imageSrc)}
             style={{
               borderTopLeftRadius: '30px',
               borderTopRightRadius: '30px',
@@ -57,6 +59,7 @@ export default function SmallArticleCard({
                 alt={imageAlt}
                 fill
                 className="object-cover group-hover:scale-105 transition-transform duration-300"
+                unoptimized={isLocalhostAssetUrl(imageSrc)}
                 style={{
                   borderTopLeftRadius: '30px',
                   borderBottomLeftRadius: '30px',
@@ -136,25 +139,7 @@ export default function SmallArticleCard({
                   strokeLinejoin="round"
                 />
               </svg>
-              <span className="font-bold text-[12px] xl:text-[18px]">Blog</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-              <span className="font-bold text-[12px] xl:text-[18px]">By {author}</span>
+              <span className="font-bold text-[12px] xl:text-[18px]">{categoryLabel}</span>
             </div>
           </div>
         </div>
