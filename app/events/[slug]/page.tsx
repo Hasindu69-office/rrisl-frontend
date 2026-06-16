@@ -70,7 +70,11 @@ export default async function EventDetailPage({
     localizedCategories,
     fallbackCategories
   );
-  const event = mapEvent(eventEntity || fallbackEventEntity);
+  const event = mapEvent(eventEntity || fallbackEventEntity, {
+    fallbackEvent: fallbackEventEntity,
+    localizedCategories,
+    fallbackCategories,
+  });
 
   if (!event) {
     notFound();
@@ -87,6 +91,8 @@ export default async function EventDetailPage({
   );
   const backHref = addLocaleToUrl(EVENTS_ROUTE, locale);
   const status = getEventStatus(event.date);
+  const categoryLabel = event.categories[0]?.label || event.kind;
+  const statusLabel = status === 'upcoming' ? pageData.labels.upcoming : pageData.labels.past;
   const kindIcon = event.kind === 'Program' ? GraduationCap : CalendarDays;
   const KindIcon = kindIcon;
 
@@ -138,7 +144,7 @@ export default async function EventDetailPage({
                     )}
                     <div className="absolute left-4 top-4 flex flex-wrap gap-2 sm:left-6 sm:top-6">
                       <div className="rounded-full bg-[#A1DF0A] px-4 py-2 text-xs font-bold uppercase tracking-[0.12em] text-[#0F3F1D] sm:tracking-[0.16em]">
-                        {event.kind}
+                        {categoryLabel}
                       </div>
                       <div
                         className={`rounded-full px-4 py-2 text-xs font-bold uppercase tracking-[0.12em] sm:tracking-[0.16em] ${
@@ -147,7 +153,7 @@ export default async function EventDetailPage({
                             : 'bg-[#E5E7EB] text-[#344054]'
                         }`}
                       >
-                        {status}
+                        {statusLabel}
                       </div>
                     </div>
                   </div>
