@@ -1,20 +1,19 @@
 'use client';
 
+import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { ArrowLeft, ArrowRight, CalendarDays, MapPin } from 'lucide-react';
 import GradientTag from '@/app/components/ui/GradientTag';
 import GradientTitle from '@/app/components/ui/GradientTitle';
-
-type EventKind = 'Event' | 'Program';
-
-interface CalendarEvent {
-  id: string;
-  title: string;
-  location: string;
-  time: string;
-  date: string;
-  kind: EventKind;
-}
+import { addLocaleToUrl, normalizeLocale } from '@/app/lib/locale';
+import {
+  EVENTS_ROUTE,
+  getEventDateParts,
+  getEventStatus,
+  type EventItem,
+} from '@/app/lib/events/pageData';
+import type { HomeEventsProgramsSectionViewModel } from '@/app/lib/home/eventsProgramsSection';
 
 const MONTHS = [
   'January',
@@ -33,65 +32,6 @@ const MONTHS = [
 
 const WEEKDAY_LABELS = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
 
-const CALENDAR_EVENTS: CalendarEvent[] = [
-  {
-    id: 'scientific-affairs',
-    title: '1st committee meeting of Scientific Affairs and R&D (Technology)',
-    location: 'Rubber Research Institute, Sri Lanka.',
-    time: '10.00 am',
-    date: '2026-03-21',
-    kind: 'Event',
-  },
-  {
-    id: 'latex-quality-program',
-    title: 'Latex Quality Improvement Program for Field Officers',
-    location: 'Technology Transfer Division, Ratmalana.',
-    time: '2.30 pm',
-    date: '2026-03-24',
-    kind: 'Program',
-  },
-  {
-    id: 'smallholders-workshop',
-    title: 'Smallholders Sustainability Workshop',
-    location: 'RRISL Outreach Center, Kalutara.',
-    time: '9.30 am',
-    date: '2026-03-29',
-    kind: 'Program',
-  },
-  {
-    id: 'crop-management-review',
-    title: 'Crop management review meeting',
-    location: 'Research Administration Board Room.',
-    time: '11.00 am',
-    date: '2026-03-05',
-    kind: 'Event',
-  },
-  {
-    id: 'lab-safety-session',
-    title: 'Laboratory safety orientation for new trainees',
-    location: 'Central Laboratory Complex.',
-    time: '1.00 pm',
-    date: '2026-03-11',
-    kind: 'Program',
-  },
-  {
-    id: 'plant-breeding-clinic',
-    title: 'Plant breeding clinic for extension officers',
-    location: 'Genetics and Plant Breeding Unit.',
-    time: '9.00 am',
-    date: '2026-02-06',
-    kind: 'Program',
-  },
-  {
-    id: 'advisory-panel',
-    title: 'Quarterly advisory panel discussion on field innovation',
-    location: 'Main Auditorium, RRISL.',
-    time: '3.00 pm',
-    date: '2025-12-19',
-    kind: 'Event',
-  },
-];
-
 const LIST_PAGE_SIZE = 5;
 const TODAY = new Date();
 const INITIAL_MONTH = TODAY.getMonth();
@@ -101,28 +41,12 @@ function formatMonthYear(year: number, month: number) {
   return `${MONTHS[month]} ${year}`;
 }
 
-function formatDayMonth(dateString: string) {
-  const date = new Date(`${dateString}T00:00:00`);
-
-  return {
-    day: date.getDate(),
-    month: MONTHS[date.getMonth()].slice(0, 3),
-  };
-}
-
 function toLocalDateKey(date: Date) {
   const year = date.getFullYear();
   const month = `${date.getMonth() + 1}`.padStart(2, '0');
   const day = `${date.getDate()}`.padStart(2, '0');
 
   return `${year}-${month}-${day}`;
-}
-
-function getEventStatus(dateString: string) {
-  const eventDate = new Date(`${dateString}T00:00:00`);
-  const today = new Date(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate());
-
-  return eventDate < today ? 'past' : 'upcoming';
 }
 
 function buildCalendarDays(year: number, month: number) {
@@ -160,7 +84,18 @@ function buildCalendarDays(year: number, month: number) {
   return days;
 }
 
-export default function EventsProgramsSection() {
+interface EventsProgramsSectionProps {
+  section: HomeEventsProgramsSectionViewModel;
+}
+
+function getEventCategoryLabel(event: EventItem) {
+  return event.categories[0]?.label || event.kind;
+}
+
+export default function EventsProgramsSection({
+  section,
+}: EventsProgramsSectionProps) {
+  const searchParams = useSearchParams();
   const [displayMonth, setDisplayMonth] = useState(INITIAL_MONTH);
   const [displayYear, setDisplayYear] = useState(INITIAL_YEAR);
   const [currentPage, setCurrentPage] = useState(1);
@@ -169,6 +104,8 @@ export default function EventsProgramsSection() {
   const [isPaused, setIsPaused] = useState(false);
   const [selectedEventDate, setSelectedEventDate] = useState<string | null>(null);
   const [isDesktopCalendar, setIsDesktopCalendar] = useState(false);
+  const locale = normalizeLocale(searchParams.get('locale'));
+  const calendarEvents = section.events;
 
   useEffect(() => {
     const updateCardsPerSlide = () => {
@@ -206,7 +143,7 @@ export default function EventsProgramsSection() {
     };
   }, []);
 
-  const visibleEvents = CALENDAR_EVENTS.filter((event) => {
+  const visibleEvents = calendarEvents.filter((event: EventItem) => {
     const eventDate = new Date(`${event.date}T00:00:00`);
 
     return (
@@ -293,7 +230,7 @@ export default function EventsProgramsSection() {
         <div className="rounded-[28px] px-0 py-0 md:px-0 md:py-0">
           <div className="mb-8 text-center md:mb-10 xl:hidden">
             <GradientTag
-              text="Events & Activities"
+              text={section.eyebrow}
               className="inline-block"
               gradientFrom="#20C997"
               gradientTo="#A1DF0A"
@@ -301,8 +238,8 @@ export default function EventsProgramsSection() {
               textColor="#2E7D32"
             />
             <GradientTitle
-              part1="Events & "
-              part2="Programs"
+              part1={section.titlePart1}
+              part2={section.titlePart2}
               part1Color="dark-green"
               lineBreak={false}
               size="md"
@@ -405,7 +342,7 @@ export default function EventsProgramsSection() {
                             popoverPositionClass,
                           ].join(' ')}>
                             <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#A1DF0A]">
-                              {event.kind} / {eventStatus}
+                              {getEventCategoryLabel(event)} / {eventStatus === 'upcoming' ? section.upcomingLabel : section.pastLabel}
                             </p>
                             <p className="mt-1 text-xs font-semibold leading-5">
                               {event.title}
@@ -423,7 +360,7 @@ export default function EventsProgramsSection() {
               <div className="mt-8 hidden space-y-8 xl:block">
                 <div>
                   <h3 className="text-[22px] font-bold text-[#0F3F1D] md:text-[28px]">
-                    Past Events & Programs
+                    {section.pastEventsTitle}
                   </h3>
                   <div className="mt-4 space-y-5">
                     {pastEvents.length > 0 ? (
@@ -433,13 +370,13 @@ export default function EventsProgramsSection() {
                             {event.title}
                           </h4>
                           <p className="text-[18px] font-normal text-[#98A2B3]">
-                            {formatDayMonth(event.date).day} {formatDayMonth(event.date).month} {new Date(`${event.date}T00:00:00`).getFullYear()}
+                            {getEventDateParts(event.date).day} {getEventDateParts(event.date).month} {new Date(`${event.date}T00:00:00`).getFullYear()}
                           </p>
                         </article>
                       ))
                     ) : (
                       <p className="text-base text-[#667085]">
-                        Nothing to revisit this month. Past events and programs will appear here once available.
+                        {section.pastEventsEmptyMessage}
                       </p>
                     )}
                   </div>
@@ -451,7 +388,7 @@ export default function EventsProgramsSection() {
               <div className="hidden flex-col gap-6 border-b border-[#B7DB6A] pb-6 md:flex-row md:items-end md:justify-between xl:flex">
                 <div>
                   <GradientTag
-                    text="Events & Activities"
+                    text={section.eyebrow}
                     className="inline-block"
                     gradientFrom="#20C997"
                     gradientTo="#A1DF0A"
@@ -459,8 +396,8 @@ export default function EventsProgramsSection() {
                     textColor="#2E7D32"
                   />
                   <GradientTitle
-                    part1="Events & "
-                    part2="Programs"
+                    part1={section.titlePart1}
+                    part2={section.titlePart2}
                     part1Color="dark-green"
                     lineBreak={false}
                     size="md"
@@ -530,11 +467,12 @@ export default function EventsProgramsSection() {
                       onTouchEnd={() => setIsPaused(false)}
                     >
                       {sliderEvents.map((event) => {
-                        const { day, month } = formatDayMonth(event.date);
+                        const { day, month } = getEventDateParts(event.date);
 
                         return (
-                          <article
+                          <Link
                             key={event.id}
+                            href={addLocaleToUrl(`${EVENTS_ROUTE}/${event.slug}`, locale)}
                             className="flex h-[320px] min-w-0 flex-col justify-between overflow-hidden rounded-[24px] border border-[#EEF2E8] bg-white px-5 py-5 md:h-[300px]"
                           >
                             <div className="min-w-[118px]">
@@ -551,7 +489,7 @@ export default function EventsProgramsSection() {
                             <div className="min-w-0">
                               <div className="mb-2 flex flex-wrap items-center gap-2">
                                 <span className="rounded-full bg-[#F5F7FA] px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-[#486476]">
-                                  {event.kind}
+                                  {getEventCategoryLabel(event)}
                                 </span>
                               </div>
                               <p className="flex min-w-0 items-start gap-2 text-base text-[#7A8B99]">
@@ -562,7 +500,7 @@ export default function EventsProgramsSection() {
                                 {event.title}
                               </h3>
                             </div>
-                          </article>
+                          </Link>
                         );
                       })}
                     </div>
@@ -588,10 +526,10 @@ export default function EventsProgramsSection() {
                 ) : (
                   <div className="rounded-[24px] border border-dashed border-[#DDECC0] bg-[#F8FBF4] px-6 py-10 text-center shadow-[0_18px_40px_rgba(15,63,29,0.04)]">
                     <p className="text-lg font-semibold text-[#0F3F1D]">
-                      No upcoming events or programs this month.
+                      {section.upcomingEmptyTitle}
                     </p>
                     <p className="mt-2 text-sm text-[#667085]">
-                      Check another month on the calendar to explore what is scheduled next.
+                      {section.upcomingEmptyDescription}
                     </p>
                   </div>
                 )}
@@ -599,11 +537,12 @@ export default function EventsProgramsSection() {
 
               <div className="mt-6 hidden flex-1 space-y-5 md:mt-8 md:space-y-6 xl:block">
                 {upcomingEvents.length > 0 ? paginatedEvents.map((event) => {
-                  const { day, month } = formatDayMonth(event.date);
+                  const { day, month } = getEventDateParts(event.date);
 
                   return (
-                    <article
+                    <Link
                       key={event.id}
+                      href={addLocaleToUrl(`${EVENTS_ROUTE}/${event.slug}`, locale)}
                       className="group flex flex-col gap-5 rounded-[24px] bg-white px-5 py-5 md:flex-row md:items-center md:px-6"
                     >
                       <div className="min-w-[118px] md:pr-2">
@@ -620,7 +559,7 @@ export default function EventsProgramsSection() {
                       <div className="min-w-0 flex-1">
                         <div className="mb-2 flex flex-wrap items-center gap-2">
                           <span className="rounded-full bg-[#F5F7FA] px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-[#486476]">
-                            {event.kind}
+                            {getEventCategoryLabel(event)}
                           </span>
                         </div>
 
@@ -633,22 +572,21 @@ export default function EventsProgramsSection() {
                         </h3>
                       </div>
 
-                      <button
-                        type="button"
+                      <span
                         aria-label={`Open ${event.title}`}
                         className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#E2E8D8] text-[#0F3F1D] transition group-hover:border-[#2E7D32] group-hover:bg-[#F1F8F1]"
                       >
                         <ArrowRight className="h-4 w-4" />
-                      </button>
-                    </article>
+                      </span>
+                    </Link>
                   );
                 }) : (
                   <div className="rounded-[24px] border border-dashed border-[#DDECC0] bg-[#F8FBF4] px-6 py-10 text-center shadow-[0_18px_40px_rgba(15,63,29,0.04)]">
                     <p className="text-lg font-semibold text-[#0F3F1D]">
-                      No upcoming events or programs this month.
+                      {section.upcomingEmptyTitle}
                     </p>
                     <p className="mt-2 text-sm text-[#667085]">
-                      Check another month on the calendar to explore what is scheduled next.
+                      {section.upcomingEmptyDescription}
                     </p>
                   </div>
                 )}
@@ -663,7 +601,7 @@ export default function EventsProgramsSection() {
                     className="flex items-center gap-2 transition enabled:hover:text-[#0F3F1D] disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     <ArrowLeft className="h-4 w-4" />
-                    Prev
+                    {section.previousLabel}
                   </button>
 
                   {Array.from({ length: totalPages }, (_, index) => {
@@ -691,7 +629,7 @@ export default function EventsProgramsSection() {
                     disabled={currentPage === totalPages}
                     className="flex items-center gap-2 transition enabled:hover:text-[#0F3F1D] disabled:cursor-not-allowed disabled:opacity-40"
                   >
-                    Next
+                    {section.nextLabel}
                     <ArrowRight className="h-4 w-4" />
                   </button>
                 </div>

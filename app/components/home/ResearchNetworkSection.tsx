@@ -207,7 +207,7 @@ export default function ResearchNetworkSection({
   }, [cardPhase, prefersReducedMotion]);
 
   return (
-    <section className="relative w-full overflow-hidden py-12 md:py-24 bg-white">
+    <section className="relative w-full overflow-hidden py-12 md:py-18 bg-white">
       {/* Background Image - Behind content with overlay */}
       <div className="absolute inset-0 z-0">
         {useFallbackBackground ? (
@@ -250,7 +250,7 @@ export default function ResearchNetworkSection({
       </div>
 
       {/* Content Container */}
-      <div className="relative z-10 container mx-auto px-4 md:px-6 xl:px-8 mt-10 md:mt-20 mb-[200px] md:mb-[150px] lg:mb-[175px] xl:mb-[0px]">
+      <div className="relative z-10 container mx-auto px-4 md:px-6 xl:px-8 mt-4 md:mt-0 mb-8 md:mb-8">
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 md:gap-12 xl:gap-16 items-start">
           {/* Left Side - Research Station Card */}
           <div className="w-full order-2 xl:order-1">

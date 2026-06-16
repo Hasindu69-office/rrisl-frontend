@@ -1,6 +1,9 @@
 import { Suspense } from 'react';
 import {
   getAllAnnouncements,
+  getAllEvents,
+  getEventCategories,
+  getEventPage,
   getAllNewsArticles,
   getDepartmentHomepageCurrentProjects,
   getEstateSubstations,
@@ -17,8 +20,10 @@ import {
   mapHomeResearchSection,
 } from '@/app/lib/home/currentResearchSection';
 import { mapDataInsightsSection } from '@/app/lib/home/dataInsightsSection';
+import { mapHomeEventsProgramsSection } from '@/app/lib/home/eventsProgramsSection';
 import { resolveHeroSlides } from '@/app/lib/home/hero';
 import { mapIndustrySupportSection } from '@/app/lib/home/industrySupportSection';
+import { mapHomeQuickLinksSection } from '@/app/lib/home/quickLinksSection';
 import { mapHomeResearchNetworkSection } from '@/app/lib/home/researchNetworkSection';
 import { resolveHomePageStats } from '@/app/lib/home/stats';
 import { addLocaleToUrl, normalizeLocale } from '@/app/lib/locale';
@@ -30,6 +35,7 @@ import {
   mapNewsPageData,
   NEWS_AND_BLOGS_ROUTE,
 } from '@/app/lib/news/pageData';
+import { mapEventsPageData } from '@/app/lib/events/pageData';
 import HomeHeroWithHeader from './components/home/HomeHeroWithHeader';
 import ContentSection from './components/home/ContentSection';
 import IndustrySupportSection from './components/home/IndustrySupportSection';
@@ -66,6 +72,12 @@ export default async function Home({ searchParams }: HomeProps) {
     researchNetworkLocations,
     localizedEstateSubstations,
     fallbackEstateSubstations,
+    localizedEvents,
+    fallbackEvents,
+    localizedEventCategories,
+    fallbackEventCategories,
+    localizedEventPage,
+    fallbackEventPage,
   ] = await Promise.all([
     getHomePage(locale),
     locale !== 'en' ? getHomePage('en') : Promise.resolve(null),
@@ -81,6 +93,12 @@ export default async function Home({ searchParams }: HomeProps) {
     getHomepageResearchNetworkLocations(locale),
     getEstateSubstations(locale),
     locale !== 'en' ? getEstateSubstations('en') : Promise.resolve([]),
+    getAllEvents(locale),
+    locale !== 'en' ? getAllEvents('en') : Promise.resolve([]),
+    getEventCategories(locale),
+    locale !== 'en' ? getEventCategories('en') : Promise.resolve([]),
+    getEventPage(locale),
+    locale !== 'en' ? getEventPage('en') : Promise.resolve(null),
   ]);
 
   const effectiveHomePage = homePage?.hero
@@ -167,6 +185,29 @@ export default async function Home({ searchParams }: HomeProps) {
   const newsPageData = mapNewsPageData(localizedNewsPage, fallbackNewsPage, [], []);
   const newsSectionHeader =
     homePage?.newssectionheader || fallbackHomePage?.newssectionheader || null;
+  const eventPageData = mapEventsPageData(
+    localizedEventPage,
+    fallbackEventPage,
+    [],
+    []
+  );
+  const homeEventsProgramsSection = mapHomeEventsProgramsSection(
+    homePage?.eventsandprogramssection || fallbackHomePage?.eventsandprogramssection,
+    {
+      upcoming: eventPageData.labels.upcoming,
+      past: eventPageData.labels.past,
+      previous: eventPageData.labels.previous,
+      next: eventPageData.labels.next,
+    },
+    localizedEvents,
+    fallbackEvents,
+    localizedEventCategories,
+    fallbackEventCategories
+  );
+  const quickLinksSection = mapHomeQuickLinksSection(
+    homePage?.quicklinkssection || fallbackHomePage?.quicklinkssection,
+    locale
+  );
   const newsArticles = mapNewsArticles(
     localizedNewsArticles.length > 0 ? localizedNewsArticles : fallbackNewsArticles
   );
@@ -271,12 +312,12 @@ export default async function Home({ searchParams }: HomeProps) {
 
       {/* Events & Programs Section */}
       <div className="mt-8 md:mt-16">
-        <EventsProgramsSection />
+        <EventsProgramsSection section={homeEventsProgramsSection} />
       </div>
 
       {/* Home Quick Links Section */}
       <div className="mb-48 md:mb-62 lg:mb-[275px]">
-        <HomeQuickLinksSection />
+        <HomeQuickLinksSection section={quickLinksSection} />
       </div>
 
     </div>

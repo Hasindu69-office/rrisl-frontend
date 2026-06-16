@@ -1,4 +1,4 @@
-import type { AboutSection, HeroCta, RichTextBlock } from './shared';
+import type { AboutSection, ErrorMessageContent, HeroCta, RichTextBlock } from './shared';
 import type { SectionHeader } from './shared';
 import type { StrapiImage } from './strapi';
 import type { EstateSubstation } from './estates';
@@ -132,6 +132,27 @@ export interface HomeResearchNetworkSection {
   backgroundimage?: StrapiImage | null;
 }
 
+export interface HomeEventsAndProgramsSection {
+  id: number;
+  sectionheader?: SectionHeader | null;
+  noupcomingeventserrormessage?: ErrorMessageContent | null;
+  pasteventsandprogramslabel?: string | null;
+  noeventslabel?: string | null;
+}
+
+export interface HomeQuickLink {
+  id: number;
+  title: string;
+  url: string;
+  sortorder?: number | null;
+  openinnewtab: boolean;
+}
+
+export interface HomeQuickLinksSection {
+  id: number;
+  quicklinks?: HomeQuickLink[] | null;
+}
+
 export type HomepageResearchNetworkLocationMapmark =
   | 'dartonfield-group'
   | 'kuruwita-substation'
@@ -161,5 +182,7 @@ export interface HomePage {
   datainsightssection?: DataInsightsSection | null;
   newssectionheader?: SectionHeader | null;
   researchnetworksection?: HomeResearchNetworkSection | null;
+  eventsandprogramssection?: HomeEventsAndProgramsSection | null;
+  quicklinkssection?: HomeQuickLinksSection | null;
   Announcement?: AnnouncementSection | null;
 }

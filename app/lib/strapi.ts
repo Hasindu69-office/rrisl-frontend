@@ -9,6 +9,7 @@ export * from './strapi/departments';
 export * from './strapi/downloads';
 export * from './strapi/estates';
 export * from './strapi/e-publications';
+export * from './strapi/events';
 export * from './strapi/faq';
 export * from './strapi/footer';
 export * from './strapi/gallery';
