@@ -1,177 +1,30 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
+import { isLocalhostAssetUrl } from '@/app/lib/strapi';
 import ResearchStationCard from './ResearchStationCard';
 import ResearchNetworkMap from './ResearchNetworkMap';
-
-interface ResearchStationData {
-  id: string;
-  images: {
-    leftVertical: string;
-    topRight: string;
-    bottomRight: string;
-    rightVertical: string;
-  };
-  title: string;
-  description: string;
-  stats: Array<{
-    value: string;
-    label: string;
-  }>;
-  actions: string[];
-}
-
-interface LocationMarker {
-  id: string;
-  label: string;
-  position: { x: number; y: number };
-}
+import type { ResearchNetworkSectionViewModel } from '@/app/lib/home/researchNetworkSection';
 
 type ViewportKind = 'mobile' | 'tablet' | 'desktop';
+type CardAnimationPhase = 'idle' | 'exiting' | 'entering';
+
+const CARD_EXIT_DURATION_MS = 180;
 
 /**
  * ResearchNetworkSection Component
  * Interactive section with research station details on left and map on right
  * Hovering over map markers changes the left panel content
  */
-export default function ResearchNetworkSection() {
-  // Sample data for research stations
-  const researchStations: ResearchStationData[] = [
-    {
-      id: 'ratmalana',
-      images: {
-        leftVertical: '/images/section7_img2.jpg',
-        topRight: '/images/section7_img1.jpg',
-        bottomRight: '/images/section7_img3.png',
-        rightVertical: '/images/section7_img4.jpg',
-      },
-      title: 'Ratmalana research station',
-      description:
-        'Our researchers are developing advanced planting materials, disease-resistant clones, and modern agronomic techniques to increase field productivity while minimizing environmental impact.',
-      stats: [
-        { value: '48,000', label: 'All Researches' },
-        { value: '48,000', label: 'On-going' },
-        { value: '48,000', label: 'Output' },
-        { value: '48,000', label: 'Output' },
-        { value: '48,000', label: 'Output' },
-      ],
-      actions: [
-        'Field Experimentation & Trials',
-        'Laboratory Facilities',
-        'Laboratory Facilities',
-        'Field Experimentation & Trials',
-      ],
-    },
-    {
-      id: 'location2',
-      images: {
-        leftVertical: '/images/section7_img2.jpg',
-        topRight: '/images/section7_img1.jpg',
-        bottomRight: '/images/section7_img3.png',
-        rightVertical: '/images/section7_img4.jpg',
-      },
-      title: 'Second research station',
-      description:
-        'This research station focuses on advanced biotechnology and genetic research to develop superior rubber clones with enhanced yield and disease resistance.',
-      stats: [
-        { value: '35,000', label: 'All Researches' },
-        { value: '12,000', label: 'On-going' },
-        { value: '23,000', label: 'Output' },
-        { value: '15,000', label: 'Output' },
-        { value: '8,000', label: 'Output' },
-      ],
-      actions: [
-        'Genetic Research',
-        'Biotechnology Lab',
-        'Field Testing',
-        'Data Analysis',
-      ],
-    },
-    {
-      id: 'location3',
-      images: {
-        leftVertical: '/images/section7_img2.jpg',
-        topRight: '/images/section7_img1.jpg',
-        bottomRight: '/images/section7_img3.png',
-        rightVertical: '/images/section7_img4.jpg',
-      },
-      title: 'Third research station',
-      description:
-        'Dedicated to sustainable farming practices and environmental conservation, this station develops eco-friendly cultivation methods.',
-      stats: [
-        { value: '28,000', label: 'All Researches' },
-        { value: '10,000', label: 'On-going' },
-        { value: '18,000', label: 'Output' },
-        { value: '12,000', label: 'Output' },
-        { value: '6,000', label: 'Output' },
-      ],
-      actions: [
-        'Sustainability Research',
-        'Environmental Studies',
-        'Eco-friendly Methods',
-        'Conservation Programs',
-      ],
-    },
-  ];
+interface ResearchNetworkSectionProps {
+  section: ResearchNetworkSectionViewModel;
+}
 
-  // Desktop markers remain unchanged.
-  const desktopLocations: LocationMarker[] = [
-    {
-      id: 'ratmalana',
-      label: 'Rathmalana',
-      position: { x: 26, y: 73 },
-    },
-    {
-      id: 'location2',
-      label: 'Research Station 2',
-      position: { x: 36, y: 78 },
-    },
-    {
-      id: 'location3',
-      label: 'Research Station 3',
-      position: { x: 35, y: 70 },
-    },
-  ];
-
-  // Tablet markers can be adjusted independently from desktop/mobile.
-  const tabletLocations: LocationMarker[] = [
-    {
-      id: 'ratmalana',
-      label: 'Rathmalana',
-      position: { x: 33, y: 73 },
-    },
-    {
-      id: 'location2',
-      label: 'Research Station 2',
-      position: { x: 44, y: 88 },
-    },
-    {
-      id: 'location3',
-      label: 'Research Station 3',
-      position: { x: 45, y: 75 },
-    },
-  ];
-
-  // Mobile markers can be adjusted independently from desktop/tablet.
-  const mobileLocations: LocationMarker[] = [
-    {
-      id: 'ratmalana',
-      label: 'Rathmalana',
-      position: { x: 33, y: 73 },
-    },
-    {
-      id: 'location2',
-      label: 'Research Station 2',
-      position: { x: 44, y: 88 },
-    },
-    {
-      id: 'location3',
-      label: 'Research Station 3',
-      position: { x: 45, y: 75 },
-    },
-  ];
-
+export default function ResearchNetworkSection({
+  section,
+}: ResearchNetworkSectionProps) {
+  const hasLocalhostBackground = isLocalhostAssetUrl(section.backgroundImage);
   const getViewportKind = (): ViewportKind => {
     if (typeof window === 'undefined') {
       return 'desktop';
@@ -189,6 +42,14 @@ export default function ResearchNetworkSection() {
   };
 
   const [viewportKind, setViewportKind] = useState<ViewportKind>(getViewportKind);
+  const [useFallbackBackground, setUseFallbackBackground] = useState(() => {
+    if (typeof window !== 'undefined' && hasLocalhostBackground) {
+      const hostname = window.location.hostname;
+      return hostname !== 'localhost' && hostname !== '127.0.0.1';
+    }
+
+    return false;
+  });
 
   useEffect(() => {
     const handleResize = () => {
@@ -203,21 +64,37 @@ export default function ResearchNetworkSection() {
     };
   }, []);
 
-  const locations =
-    viewportKind === 'mobile'
-      ? mobileLocations
-      : viewportKind === 'tablet'
-        ? tabletLocations
-        : desktopLocations;
+  const locations = section.locations.map((station) => ({
+    id: station.id,
+    label: station.label,
+    position:
+      viewportKind === 'mobile'
+        ? station.positions.mobile
+        : viewportKind === 'tablet'
+          ? station.positions.tablet
+          : station.positions.desktop,
+  }));
 
   // State management
   const [activeStationId, setActiveStationId] = useState<string | null>(
     locations[0]?.id || null
   );
+  const [displayedStationId, setDisplayedStationId] = useState<string | null>(
+    locations[0]?.id || null
+  );
+  const [cardPhase, setCardPhase] = useState<CardAnimationPhase>('idle');
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const exitTimeoutRef = useRef<number | null>(null);
+  const enterAnimationFrameRef = useRef<number | null>(null);
 
   // Find active station data
   const activeStation =
-    researchStations.find((s) => s.id === activeStationId) || researchStations[0];
+    section.locations.find((station) => station.id === displayedStationId) ||
+    section.locations[0];
+
+  if (!activeStation) {
+    return null;
+  }
 
   const handleLocationHover = (id: string) => {
     setActiveStationId(id);
@@ -228,18 +105,141 @@ export default function ResearchNetworkSection() {
     // Or reset to default: setActiveStationId(locations[0]?.id || null);
   };
 
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    const handleChange = () => {
+      setPrefersReducedMotion(mediaQuery.matches);
+    };
+
+    handleChange();
+    mediaQuery.addEventListener('change', handleChange);
+
+    return () => {
+      mediaQuery.removeEventListener('change', handleChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    const firstLocationId = locations[0]?.id || null;
+    const hasActiveStation = locations.some((station) => station.id === activeStationId);
+    const hasDisplayedStation = locations.some(
+      (station) => station.id === displayedStationId
+    );
+
+    if (!hasActiveStation) {
+      setActiveStationId(firstLocationId);
+    }
+
+    if (!hasDisplayedStation) {
+      setDisplayedStationId(firstLocationId);
+      setCardPhase('idle');
+    }
+  }, [activeStationId, displayedStationId, locations]);
+
+  useEffect(() => {
+    return () => {
+      if (exitTimeoutRef.current !== null) {
+        window.clearTimeout(exitTimeoutRef.current);
+      }
+
+      if (enterAnimationFrameRef.current !== null) {
+        window.cancelAnimationFrame(enterAnimationFrameRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!activeStationId || activeStationId === displayedStationId) {
+      return;
+    }
+
+    if (exitTimeoutRef.current !== null) {
+      window.clearTimeout(exitTimeoutRef.current);
+    }
+
+    if (enterAnimationFrameRef.current !== null) {
+      window.cancelAnimationFrame(enterAnimationFrameRef.current);
+    }
+
+    if (prefersReducedMotion) {
+      setDisplayedStationId(activeStationId);
+      setCardPhase('idle');
+      return;
+    }
+
+    setCardPhase('exiting');
+
+    exitTimeoutRef.current = window.setTimeout(() => {
+      setDisplayedStationId(activeStationId);
+      setCardPhase('entering');
+    }, CARD_EXIT_DURATION_MS);
+
+    return () => {
+      if (exitTimeoutRef.current !== null) {
+        window.clearTimeout(exitTimeoutRef.current);
+      }
+
+      if (enterAnimationFrameRef.current !== null) {
+        window.cancelAnimationFrame(enterAnimationFrameRef.current);
+      }
+    };
+  }, [activeStationId, displayedStationId, prefersReducedMotion]);
+
+  useEffect(() => {
+    if (prefersReducedMotion || cardPhase !== 'entering') {
+      return;
+    }
+
+    enterAnimationFrameRef.current = window.requestAnimationFrame(() => {
+      setCardPhase('idle');
+    });
+
+    return () => {
+      if (enterAnimationFrameRef.current !== null) {
+        window.cancelAnimationFrame(enterAnimationFrameRef.current);
+      }
+    };
+  }, [cardPhase, prefersReducedMotion]);
+
   return (
     <section className="relative w-full overflow-hidden py-12 md:py-24 bg-white">
       {/* Background Image - Behind content with overlay */}
       <div className="absolute inset-0 z-0">
-        <Image
-          src="/images/section7_bg.png"
-          alt="Forest background"
-          fill
-          className="object-cover"
-          priority
-          quality={90}
-        />
+        {useFallbackBackground ? (
+          <img
+            src={section.backgroundImage}
+            alt={section.backgroundImageAlt}
+            className="absolute inset-0 h-full w-full object-cover object-center"
+            onError={() => {
+              console.error(
+                'Failed to load research network section background image:',
+                section.backgroundImage
+              );
+            }}
+          />
+        ) : (
+          <Image
+            src={section.backgroundImage}
+            alt={section.backgroundImageAlt}
+            fill
+            className="object-cover object-center"
+            priority
+            quality={90}
+            unoptimized={hasLocalhostBackground}
+            onError={() => {
+              console.error(
+                'Next.js Image failed for research network section background, falling back to img:',
+                section.backgroundImage
+              );
+              setUseFallbackBackground(true);
+            }}
+          />
+        )}
         {/* Dark green -> black vertical gradient overlay (using RGBA) */}
         <div
           className="absolute inset-0"
@@ -255,18 +255,19 @@ export default function ResearchNetworkSection() {
           {/* Left Side - Research Station Card */}
           <div className="w-full order-2 xl:order-1">
             <ResearchStationCard
-              key={activeStationId} // Key prop ensures smooth transition
               stationData={activeStation}
+              animationPhase={cardPhase}
+              prefersReducedMotion={prefersReducedMotion}
             />
           </div>
 
           {/* Right Side - Map */}
           <div className="w-full flex justify-center xl:justify-start order-1 xl:order-2">
             <ResearchNetworkMap
-              buttonText="Our Research"
-              titlePart1="Explore Our"
-              titlePart2="Research Network"
-              mapImage="/images/section7_SLmap.png"
+              buttonText={section.buttonText}
+              titlePart1={section.titlePart1}
+              titlePart2={section.titlePart2}
+              mapImage={section.mapImage}
               locations={locations}
               activeLocationId={activeStationId}
               onLocationHover={handleLocationHover}

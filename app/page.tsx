@@ -3,8 +3,10 @@ import {
   getAllAnnouncements,
   getAllNewsArticles,
   getDepartmentHomepageCurrentProjects,
+  getEstateSubstations,
   getGlobalLayout,
   getHomePage,
+  getHomepageResearchNetworkLocations,
   getHomepageStatistics,
   getMenuBySlug,
   getNewsAndBlogPage,
@@ -17,6 +19,7 @@ import {
 import { mapDataInsightsSection } from '@/app/lib/home/dataInsightsSection';
 import { resolveHeroSlides } from '@/app/lib/home/hero';
 import { mapIndustrySupportSection } from '@/app/lib/home/industrySupportSection';
+import { mapHomeResearchNetworkSection } from '@/app/lib/home/researchNetworkSection';
 import { resolveHomePageStats } from '@/app/lib/home/stats';
 import { addLocaleToUrl, normalizeLocale } from '@/app/lib/locale';
 import {
@@ -60,6 +63,9 @@ export default async function Home({ searchParams }: HomeProps) {
     fallbackNewsPage,
     localizedNewsArticles,
     fallbackNewsArticles,
+    researchNetworkLocations,
+    localizedEstateSubstations,
+    fallbackEstateSubstations,
   ] = await Promise.all([
     getHomePage(locale),
     locale !== 'en' ? getHomePage('en') : Promise.resolve(null),
@@ -72,6 +78,9 @@ export default async function Home({ searchParams }: HomeProps) {
     locale !== 'en' ? getNewsAndBlogPage('en') : Promise.resolve(null),
     getAllNewsArticles(locale),
     locale !== 'en' ? getAllNewsArticles('en') : Promise.resolve([]),
+    getHomepageResearchNetworkLocations(locale),
+    getEstateSubstations(locale),
+    locale !== 'en' ? getEstateSubstations('en') : Promise.resolve([]),
   ]);
 
   const effectiveHomePage = homePage?.hero
@@ -137,6 +146,12 @@ export default async function Home({ searchParams }: HomeProps) {
   const dataInsightsSection = mapDataInsightsSection(
     homePage?.datainsightssection || fallbackHomePage?.datainsightssection,
     homePageStatistics.length > 0 ? homePageStatistics : fallbackHomePageStatistics
+  );
+  const researchNetworkSection = mapHomeResearchNetworkSection(
+    homePage?.researchnetworksection || fallbackHomePage?.researchnetworksection,
+    researchNetworkLocations,
+    localizedEstateSubstations,
+    fallbackEstateSubstations
   );
   const researchSection = mapHomeResearchSection(
     homePage?.currentresearchsection || fallbackHomePage?.currentresearchsection,
@@ -251,7 +266,7 @@ export default async function Home({ searchParams }: HomeProps) {
 
       {/* Research Network Section */}
       <div className="mt-8 md:mt-16 lg:mt-[150px]">
-        <ResearchNetworkSection />
+        <ResearchNetworkSection section={researchNetworkSection} />
       </div>
 
       {/* Events & Programs Section */}

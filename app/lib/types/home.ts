@@ -1,6 +1,7 @@
 import type { AboutSection, HeroCta, RichTextBlock } from './shared';
 import type { SectionHeader } from './shared';
 import type { StrapiImage } from './strapi';
+import type { EstateSubstation } from './estates';
 
 export interface HeroBadge {
   id: number;
@@ -125,6 +126,26 @@ export interface CurrentResearchSection {
   sectionheader?: SectionHeader | null;
 }
 
+export interface HomeResearchNetworkSection {
+  id: number;
+  sectionheader?: SectionHeader | null;
+  backgroundimage?: StrapiImage | null;
+}
+
+export type HomepageResearchNetworkLocationMapmark =
+  | 'dartonfield-group'
+  | 'kuruwita-substation'
+  | 'nivitigalakele-substation'
+  | 'monaragala-substation'
+  | 'polgahawela-substation';
+
+export interface HomepageResearchNetworkLocation {
+  id: number;
+  documentId?: string;
+  mapmark: HomepageResearchNetworkLocationMapmark;
+  estate_substation?: EstateSubstation | null;
+}
+
 export interface HomePage {
   id: number;
   documentId: string;
@@ -139,5 +160,6 @@ export interface HomePage {
   currentresearchsection?: CurrentResearchSection | null;
   datainsightssection?: DataInsightsSection | null;
   newssectionheader?: SectionHeader | null;
+  researchnetworksection?: HomeResearchNetworkSection | null;
   Announcement?: AnnouncementSection | null;
 }

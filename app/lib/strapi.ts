@@ -13,6 +13,7 @@ export * from './strapi/faq';
 export * from './strapi/footer';
 export * from './strapi/gallery';
 export * from './strapi/home';
+export * from './strapi/homeResearchNetwork';
 export * from './strapi/homepageStatistics';
 export * from './strapi/media';
 export * from './strapi/navigation';

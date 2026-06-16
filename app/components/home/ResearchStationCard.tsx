@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
+import { isLocalhostAssetUrl } from '@/app/lib/strapi';
 import StatBox from './StatBox';
 
 // Gradient-stroke MapPinCheck icon (provided SVG)
@@ -40,7 +41,7 @@ interface ResearchStationData {
   };
   title: string;
   description: string;
-  stats: Array<{
+  stats?: Array<{
     value: string;
     label: string;
   }>;
@@ -49,6 +50,8 @@ interface ResearchStationData {
 
 interface ResearchStationCardProps {
   stationData: ResearchStationData;
+  animationPhase?: 'idle' | 'exiting' | 'entering';
+  prefersReducedMotion?: boolean;
   className?: string;
 }
 
@@ -59,13 +62,45 @@ interface ResearchStationCardProps {
  */
 export default function ResearchStationCard({
   stationData,
+  animationPhase = 'idle',
+  prefersReducedMotion = false,
   className = '',
 }: ResearchStationCardProps) {
+  const stats = stationData.stats || [];
+  const useUnoptimizedLeftImage = isLocalhostAssetUrl(stationData.images.leftVertical);
+  const useUnoptimizedTopImage = isLocalhostAssetUrl(stationData.images.topRight);
+  const useUnoptimizedBottomImage = isLocalhostAssetUrl(stationData.images.bottomRight);
+  const useUnoptimizedRightImage = isLocalhostAssetUrl(stationData.images.rightVertical);
+  const cardTransform = prefersReducedMotion
+    ? 'translateX(0)'
+    : animationPhase === 'exiting'
+      ? 'translateX(-16px)'
+      : animationPhase === 'entering'
+        ? 'translateX(24px)'
+        : 'translateX(0)';
+  const cardOpacity = prefersReducedMotion
+    ? 1
+    : animationPhase === 'exiting'
+      ? 0
+      : animationPhase === 'entering'
+        ? 0
+        : 1;
+  const cardTransitionDuration = prefersReducedMotion
+    ? '0ms'
+    : animationPhase === 'exiting'
+      ? '180ms'
+      : '320ms';
+
   return (
     <div
       className={`relative rounded-2xl p-4 md:p-8 w-full h-auto lg:w-[925px] lg:h-[990px] ${className}`}
       style={{
-        transition: 'opacity 0.4s ease-in-out',
+        opacity: cardOpacity,
+        transform: cardTransform,
+        transition: prefersReducedMotion
+          ? 'none'
+          : `opacity ${cardTransitionDuration} cubic-bezier(0.22,1,0.36,1), transform ${cardTransitionDuration} cubic-bezier(0.22,1,0.36,1)`,
+        willChange: prefersReducedMotion ? 'auto' : 'opacity, transform',
         background: 'transparent',
       }}
     >
@@ -105,6 +140,7 @@ export default function ResearchStationCard({
               width={206}
               height={310}
               className="object-cover w-full h-full"
+              unoptimized={useUnoptimizedLeftImage}
             />
           </div>
 
@@ -120,6 +156,7 @@ export default function ResearchStationCard({
                 width={281}
                 height={139}
                 className="object-cover w-full h-full"
+                unoptimized={useUnoptimizedTopImage}
               />
             </div>
             <div
@@ -132,6 +169,7 @@ export default function ResearchStationCard({
                 width={281}
                 height={139}
                 className="object-cover w-full h-full"
+                unoptimized={useUnoptimizedBottomImage}
               />
             </div>
           </div>
@@ -154,6 +192,7 @@ export default function ResearchStationCard({
               width={206}
               height={310}
               className="object-cover w-full h-full"
+              unoptimized={useUnoptimizedRightImage}
             />
           </div>
         </div>
@@ -161,18 +200,42 @@ export default function ResearchStationCard({
         {/* Mobile/Tablet Grid Layout (non-lg) */}
         <div className="lg:hidden grid grid-cols-2 gap-3 md:gap-4 p-2">
           <div className="relative aspect-[3/4] rounded-[20px] overflow-hidden">
-            <Image src={stationData.images.leftVertical} alt="" fill className="object-cover" />
+            <Image
+              src={stationData.images.leftVertical}
+              alt=""
+              fill
+              className="object-cover"
+              unoptimized={useUnoptimizedLeftImage}
+            />
           </div>
           <div className="grid grid-rows-2 gap-3 md:gap-4">
             <div className="relative rounded-[20px] overflow-hidden">
-              <Image src={stationData.images.topRight} alt="" fill className="object-cover" />
+              <Image
+                src={stationData.images.topRight}
+                alt=""
+                fill
+                className="object-cover"
+                unoptimized={useUnoptimizedTopImage}
+              />
             </div>
             <div className="relative rounded-[20px] overflow-hidden">
-              <Image src={stationData.images.bottomRight} alt="" fill className="object-cover" />
+              <Image
+                src={stationData.images.bottomRight}
+                alt=""
+                fill
+                className="object-cover"
+                unoptimized={useUnoptimizedBottomImage}
+              />
             </div>
           </div>
           <div className="relative aspect-[3/4] rounded-[20px] overflow-hidden col-span-2 md:col-span-1">
-            <Image src={stationData.images.rightVertical} alt="" fill className="object-cover" />
+            <Image
+              src={stationData.images.rightVertical}
+              alt=""
+              fill
+              className="object-cover"
+              unoptimized={useUnoptimizedRightImage}
+            />
           </div>
         </div>
       </div>
@@ -194,11 +257,13 @@ export default function ResearchStationCard({
         </p>
 
         {/* Stats Grid - Responsive columns */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4 lg:gap-2 mb-8 pr-2">
-          {stationData.stats.map((stat, index) => (
-            <StatBox key={index} value={stat.value} label={stat.label} />
-          ))}
-        </div>
+        {stats.length > 0 ? (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4 lg:gap-2 mb-8 pr-2">
+            {stats.map((stat, index) => (
+              <StatBox key={index} value={stat.value} label={stat.label} />
+            ))}
+          </div>
+        ) : null}
 
         {/* Action Buttons - Responsive flow */}
         <div className="flex flex-wrap gap-2 lg:gap-[10px] mt-6 md:mt-10 lg:ml-[20px]">
