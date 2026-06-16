@@ -4,29 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import ResearchStationCard from './ResearchStationCard';
 import ResearchNetworkMap from './ResearchNetworkMap';
-
-interface ResearchStationData {
-  id: string;
-  images: {
-    leftVertical: string;
-    topRight: string;
-    bottomRight: string;
-    rightVertical: string;
-  };
-  title: string;
-  description: string;
-  stats: Array<{
-    value: string;
-    label: string;
-  }>;
-  actions: string[];
-}
-
-interface LocationMarker {
-  id: string;
-  label: string;
-  position: { x: number; y: number };
-}
+import { researchNetworkStations } from './researchNetworkData';
 
 type ViewportKind = 'mobile' | 'tablet' | 'desktop';
 
@@ -36,142 +14,6 @@ type ViewportKind = 'mobile' | 'tablet' | 'desktop';
  * Hovering over map markers changes the left panel content
  */
 export default function ResearchNetworkSection() {
-  // Sample data for research stations
-  const researchStations: ResearchStationData[] = [
-    {
-      id: 'ratmalana',
-      images: {
-        leftVertical: '/images/section7_img2.jpg',
-        topRight: '/images/section7_img1.jpg',
-        bottomRight: '/images/section7_img3.png',
-        rightVertical: '/images/section7_img4.jpg',
-      },
-      title: 'Ratmalana research station',
-      description:
-        'Our researchers are developing advanced planting materials, disease-resistant clones, and modern agronomic techniques to increase field productivity while minimizing environmental impact.',
-      stats: [
-        { value: '48,000', label: 'All Researches' },
-        { value: '48,000', label: 'On-going' },
-        { value: '48,000', label: 'Output' },
-        { value: '48,000', label: 'Output' },
-        { value: '48,000', label: 'Output' },
-      ],
-      actions: [
-        'Field Experimentation & Trials',
-        'Laboratory Facilities',
-        'Laboratory Facilities',
-        'Field Experimentation & Trials',
-      ],
-    },
-    {
-      id: 'location2',
-      images: {
-        leftVertical: '/images/section7_img2.jpg',
-        topRight: '/images/section7_img1.jpg',
-        bottomRight: '/images/section7_img3.png',
-        rightVertical: '/images/section7_img4.jpg',
-      },
-      title: 'Second research station',
-      description:
-        'This research station focuses on advanced biotechnology and genetic research to develop superior rubber clones with enhanced yield and disease resistance.',
-      stats: [
-        { value: '35,000', label: 'All Researches' },
-        { value: '12,000', label: 'On-going' },
-        { value: '23,000', label: 'Output' },
-        { value: '15,000', label: 'Output' },
-        { value: '8,000', label: 'Output' },
-      ],
-      actions: [
-        'Genetic Research',
-        'Biotechnology Lab',
-        'Field Testing',
-        'Data Analysis',
-      ],
-    },
-    {
-      id: 'location3',
-      images: {
-        leftVertical: '/images/section7_img2.jpg',
-        topRight: '/images/section7_img1.jpg',
-        bottomRight: '/images/section7_img3.png',
-        rightVertical: '/images/section7_img4.jpg',
-      },
-      title: 'Third research station',
-      description:
-        'Dedicated to sustainable farming practices and environmental conservation, this station develops eco-friendly cultivation methods.',
-      stats: [
-        { value: '28,000', label: 'All Researches' },
-        { value: '10,000', label: 'On-going' },
-        { value: '18,000', label: 'Output' },
-        { value: '12,000', label: 'Output' },
-        { value: '6,000', label: 'Output' },
-      ],
-      actions: [
-        'Sustainability Research',
-        'Environmental Studies',
-        'Eco-friendly Methods',
-        'Conservation Programs',
-      ],
-    },
-  ];
-
-  // Desktop markers remain unchanged.
-  const desktopLocations: LocationMarker[] = [
-    {
-      id: 'ratmalana',
-      label: 'Rathmalana',
-      position: { x: 26, y: 73 },
-    },
-    {
-      id: 'location2',
-      label: 'Research Station 2',
-      position: { x: 36, y: 78 },
-    },
-    {
-      id: 'location3',
-      label: 'Research Station 3',
-      position: { x: 35, y: 70 },
-    },
-  ];
-
-  // Tablet markers can be adjusted independently from desktop/mobile.
-  const tabletLocations: LocationMarker[] = [
-    {
-      id: 'ratmalana',
-      label: 'Rathmalana',
-      position: { x: 33, y: 73 },
-    },
-    {
-      id: 'location2',
-      label: 'Research Station 2',
-      position: { x: 44, y: 88 },
-    },
-    {
-      id: 'location3',
-      label: 'Research Station 3',
-      position: { x: 45, y: 75 },
-    },
-  ];
-
-  // Mobile markers can be adjusted independently from desktop/tablet.
-  const mobileLocations: LocationMarker[] = [
-    {
-      id: 'ratmalana',
-      label: 'Rathmalana',
-      position: { x: 33, y: 73 },
-    },
-    {
-      id: 'location2',
-      label: 'Research Station 2',
-      position: { x: 44, y: 88 },
-    },
-    {
-      id: 'location3',
-      label: 'Research Station 3',
-      position: { x: 45, y: 75 },
-    },
-  ];
-
   const getViewportKind = (): ViewportKind => {
     if (typeof window === 'undefined') {
       return 'desktop';
@@ -203,12 +45,16 @@ export default function ResearchNetworkSection() {
     };
   }, []);
 
-  const locations =
-    viewportKind === 'mobile'
-      ? mobileLocations
-      : viewportKind === 'tablet'
-        ? tabletLocations
-        : desktopLocations;
+  const locations = researchNetworkStations.map((station) => ({
+    id: station.id,
+    label: station.label,
+    position:
+      viewportKind === 'mobile'
+        ? station.positions.mobile
+        : viewportKind === 'tablet'
+          ? station.positions.tablet
+          : station.positions.desktop,
+  }));
 
   // State management
   const [activeStationId, setActiveStationId] = useState<string | null>(
@@ -217,7 +63,8 @@ export default function ResearchNetworkSection() {
 
   // Find active station data
   const activeStation =
-    researchStations.find((s) => s.id === activeStationId) || researchStations[0];
+    researchNetworkStations.find((station) => station.id === activeStationId) ||
+    researchNetworkStations[0];
 
   const handleLocationHover = (id: string) => {
     setActiveStationId(id);

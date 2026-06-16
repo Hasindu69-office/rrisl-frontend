@@ -40,7 +40,7 @@ interface ResearchStationData {
   };
   title: string;
   description: string;
-  stats: Array<{
+  stats?: Array<{
     value: string;
     label: string;
   }>;
@@ -61,6 +61,8 @@ export default function ResearchStationCard({
   stationData,
   className = '',
 }: ResearchStationCardProps) {
+  const stats = stationData.stats || [];
+
   return (
     <div
       className={`relative rounded-2xl p-4 md:p-8 w-full h-auto lg:w-[925px] lg:h-[990px] ${className}`}
@@ -194,11 +196,13 @@ export default function ResearchStationCard({
         </p>
 
         {/* Stats Grid - Responsive columns */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4 lg:gap-2 mb-8 pr-2">
-          {stationData.stats.map((stat, index) => (
-            <StatBox key={index} value={stat.value} label={stat.label} />
-          ))}
-        </div>
+        {stats.length > 0 ? (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4 lg:gap-2 mb-8 pr-2">
+            {stats.map((stat, index) => (
+              <StatBox key={index} value={stat.value} label={stat.label} />
+            ))}
+          </div>
+        ) : null}
 
         {/* Action Buttons - Responsive flow */}
         <div className="flex flex-wrap gap-2 lg:gap-[10px] mt-6 md:mt-10 lg:ml-[20px]">
