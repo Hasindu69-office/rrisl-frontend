@@ -140,6 +140,19 @@ export interface HomeEventsAndProgramsSection {
   noeventslabel?: string | null;
 }
 
+export interface HomeQuickLink {
+  id: number;
+  title: string;
+  url: string;
+  sortorder?: number | null;
+  openinnewtab: boolean;
+}
+
+export interface HomeQuickLinksSection {
+  id: number;
+  quicklinks?: HomeQuickLink[] | null;
+}
+
 export type HomepageResearchNetworkLocationMapmark =
   | 'dartonfield-group'
   | 'kuruwita-substation'
@@ -170,5 +183,6 @@ export interface HomePage {
   newssectionheader?: SectionHeader | null;
   researchnetworksection?: HomeResearchNetworkSection | null;
   eventsandprogramssection?: HomeEventsAndProgramsSection | null;
+  quicklinkssection?: HomeQuickLinksSection | null;
   Announcement?: AnnouncementSection | null;
 }

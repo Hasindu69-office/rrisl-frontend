@@ -23,6 +23,7 @@ import { mapDataInsightsSection } from '@/app/lib/home/dataInsightsSection';
 import { mapHomeEventsProgramsSection } from '@/app/lib/home/eventsProgramsSection';
 import { resolveHeroSlides } from '@/app/lib/home/hero';
 import { mapIndustrySupportSection } from '@/app/lib/home/industrySupportSection';
+import { mapHomeQuickLinksSection } from '@/app/lib/home/quickLinksSection';
 import { mapHomeResearchNetworkSection } from '@/app/lib/home/researchNetworkSection';
 import { resolveHomePageStats } from '@/app/lib/home/stats';
 import { addLocaleToUrl, normalizeLocale } from '@/app/lib/locale';
@@ -203,6 +204,10 @@ export default async function Home({ searchParams }: HomeProps) {
     localizedEventCategories,
     fallbackEventCategories
   );
+  const quickLinksSection = mapHomeQuickLinksSection(
+    homePage?.quicklinkssection || fallbackHomePage?.quicklinkssection,
+    locale
+  );
   const newsArticles = mapNewsArticles(
     localizedNewsArticles.length > 0 ? localizedNewsArticles : fallbackNewsArticles
   );
@@ -312,7 +317,7 @@ export default async function Home({ searchParams }: HomeProps) {
 
       {/* Home Quick Links Section */}
       <div className="mb-48 md:mb-62 lg:mb-[275px]">
-        <HomeQuickLinksSection />
+        <HomeQuickLinksSection section={quickLinksSection} />
       </div>
 
     </div>
