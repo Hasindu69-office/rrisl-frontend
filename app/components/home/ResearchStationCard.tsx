@@ -50,6 +50,8 @@ interface ResearchStationData {
 
 interface ResearchStationCardProps {
   stationData: ResearchStationData;
+  animationPhase?: 'idle' | 'exiting' | 'entering';
+  prefersReducedMotion?: boolean;
   className?: string;
 }
 
@@ -60,6 +62,8 @@ interface ResearchStationCardProps {
  */
 export default function ResearchStationCard({
   stationData,
+  animationPhase = 'idle',
+  prefersReducedMotion = false,
   className = '',
 }: ResearchStationCardProps) {
   const stats = stationData.stats || [];
@@ -67,12 +71,36 @@ export default function ResearchStationCard({
   const useUnoptimizedTopImage = isLocalhostAssetUrl(stationData.images.topRight);
   const useUnoptimizedBottomImage = isLocalhostAssetUrl(stationData.images.bottomRight);
   const useUnoptimizedRightImage = isLocalhostAssetUrl(stationData.images.rightVertical);
+  const cardTransform = prefersReducedMotion
+    ? 'translateX(0)'
+    : animationPhase === 'exiting'
+      ? 'translateX(-16px)'
+      : animationPhase === 'entering'
+        ? 'translateX(24px)'
+        : 'translateX(0)';
+  const cardOpacity = prefersReducedMotion
+    ? 1
+    : animationPhase === 'exiting'
+      ? 0
+      : animationPhase === 'entering'
+        ? 0
+        : 1;
+  const cardTransitionDuration = prefersReducedMotion
+    ? '0ms'
+    : animationPhase === 'exiting'
+      ? '180ms'
+      : '320ms';
 
   return (
     <div
       className={`relative rounded-2xl p-4 md:p-8 w-full h-auto lg:w-[925px] lg:h-[990px] ${className}`}
       style={{
-        transition: 'opacity 0.4s ease-in-out',
+        opacity: cardOpacity,
+        transform: cardTransform,
+        transition: prefersReducedMotion
+          ? 'none'
+          : `opacity ${cardTransitionDuration} cubic-bezier(0.22,1,0.36,1), transform ${cardTransitionDuration} cubic-bezier(0.22,1,0.36,1)`,
+        willChange: prefersReducedMotion ? 'auto' : 'opacity, transform',
         background: 'transparent',
       }}
     >
