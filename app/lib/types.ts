@@ -12,6 +12,7 @@ export * from './types/footer';
 export * from './types/gallery';
 export * from './types/home';
 export * from './types/navigation';
+export * from './types/news';
 export * from './types/newsletter';
 export * from './types/organization-structure';
 export * from './types/photo-gallery';

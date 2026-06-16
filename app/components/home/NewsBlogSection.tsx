@@ -1,27 +1,28 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
 import GradientTag from '@/app/components/ui/GradientTag';
 import GradientTitle from '@/app/components/ui/GradientTitle';
 import FeaturedArticleCard from './FeaturedArticleCard';
 import SmallArticleCard from './SmallArticleCard';
-import { addLocaleToUrl } from '@/app/lib/locale';
-import { formatArticleDate, getFeaturedArticle, newsArticles, type NewsArticle } from '@/app/lib/news/pageData';
 
 interface Article {
   imageSrc: string;
   imageAlt: string;
   title: string;
   description?: string;
-  author: string;
+  categoryLabel: string;
   date: string;
   link: string;
 }
 
 interface NewsBlogSectionProps {
-  featuredArticle?: Article;
+  featuredArticle?: Article | null;
   smallArticles?: Article[];
+  tagText?: string;
+  titlePart1?: string;
+  titlePart2?: string;
+  readMoreLabel?: string;
 }
 
 /**
@@ -32,28 +33,17 @@ interface NewsBlogSectionProps {
 export default function NewsBlogSection({
   featuredArticle,
   smallArticles = [],
+  tagText = 'News and Blogs',
+  titlePart1 = 'Tips, Stories, and Updates from',
+  titlePart2 = 'Our Research Institute',
+  readMoreLabel = 'Read more',
 }: NewsBlogSectionProps) {
-  const searchParams = useSearchParams();
-  const currentLocale = searchParams.get('locale') || 'en';
+  const featured = featuredArticle || null;
+  const articles = smallArticles;
 
-  const mapNewsArticle = (article: NewsArticle): Article => ({
-    imageSrc: article.featuredImage,
-    imageAlt: article.featuredImageAlt,
-    title: article.title,
-    description: article.summary,
-    author: article.author,
-    date: formatArticleDate(article.publishedDate),
-    link: addLocaleToUrl(`/news/${article.slug}`, currentLocale),
-  });
-
-  const defaultFeaturedArticle = mapNewsArticle(getFeaturedArticle());
-  const defaultSmallArticles = newsArticles
-    .filter((article) => article.slug !== getFeaturedArticle().slug)
-    .slice(0, 3)
-    .map(mapNewsArticle);
-
-  const featured = featuredArticle || defaultFeaturedArticle;
-  const articles = smallArticles.length > 0 ? smallArticles : defaultSmallArticles;
+  if (!featured && articles.length === 0) {
+    return null;
+  }
 
   const sectionRef = useRef<HTMLElement | null>(null);
   const [hasEnteredView, setHasEnteredView] = useState(false);
@@ -110,7 +100,7 @@ export default function NewsBlogSection({
           {/* News & Blog Tag */}
           <div className="mb-6">
             <GradientTag
-              text="News & Blog"
+              text={tagText}
               className="inline-block"
               gradientFrom="#20C997"
               gradientTo="#A1DF0A"
@@ -121,8 +111,8 @@ export default function NewsBlogSection({
 
           {/* Title */}
           <GradientTitle
-            part1="Tips, Stories, and Updates from"
-            part2="Our Research Institute"
+            part1={titlePart1}
+            part2={titlePart2}
             part1Color="dark-green"
             size="md"
             align="center"
@@ -134,25 +124,30 @@ export default function NewsBlogSection({
         {/* Articles Grid */}
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-2 xl:gap-8 xl:px-12 2xl:px-16">
           {/* Featured Article - Left Column */}
-          <div
-            className="m-[30px] xl:m-0"
-            style={{
-              opacity: hasEnteredView ? 1 : 0,
-              transform: hasEnteredView ? 'translateY(0)' : 'translateY(20px)',
-              transition: 'opacity 600ms ease-out, transform 600ms ease-out',
-              transitionDelay: '0.1s',
-            }}
-          >
-            <FeaturedArticleCard
-              imageSrc={featured.imageSrc}
-              imageAlt={featured.imageAlt}
-              title={featured.title}
-              description={featured.description || ''}
-              author={featured.author}
-              date={featured.date}
-              link={featured.link}
-            />
-          </div>
+          {featured ? (
+            <div
+              className="m-[30px] xl:m-0"
+              style={{
+                opacity: hasEnteredView ? 1 : 0,
+                transform: hasEnteredView ? 'translateY(0)' : 'translateY(20px)',
+                transition: 'opacity 600ms ease-out, transform 600ms ease-out',
+                transitionDelay: '0.1s',
+              }}
+            >
+              <FeaturedArticleCard
+                imageSrc={featured.imageSrc}
+                imageAlt={featured.imageAlt}
+                title={featured.title}
+                description={featured.description || ''}
+                categoryLabel={featured.categoryLabel}
+                date={featured.date}
+                link={featured.link}
+                readMoreLabel={readMoreLabel}
+              />
+            </div>
+          ) : (
+            <div />
+          )}
 
           {/* Small Articles - Right Column */}
           <div className="xl:space-y-8 xl:mt-1">
@@ -171,7 +166,7 @@ export default function NewsBlogSection({
                   imageSrc={article.imageSrc}
                   imageAlt={article.imageAlt}
                   title={article.title}
-                  author={article.author}
+                  categoryLabel={article.categoryLabel}
                   date={article.date}
                   link={article.link}
                 />

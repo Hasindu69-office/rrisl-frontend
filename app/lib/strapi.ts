@@ -16,6 +16,7 @@ export * from './strapi/home';
 export * from './strapi/homepageStatistics';
 export * from './strapi/media';
 export * from './strapi/navigation';
+export * from './strapi/news';
 export * from './strapi/newsletter';
 export * from './strapi/organization-structure';
 export * from './strapi/photo-gallery';

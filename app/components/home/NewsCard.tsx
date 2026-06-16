@@ -4,9 +4,10 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { HeroNewsItem } from '@/app/lib/types';
-import { getOptimizedImageUrl, getStrapiImageUrl } from '@/app/lib/strapi';
+import { getOptimizedImageUrl, getStrapiImageUrl, isLocalhostAssetUrl } from '@/app/lib/strapi';
 import { addLocaleToUrl } from '@/app/lib/locale';
 import { useSearchParams } from 'next/navigation';
+import { NEWS_AND_BLOGS_ROUTE } from '@/app/lib/news/pageData';
 
 interface NewsCardProps {
   title: string;
@@ -36,7 +37,7 @@ export default function NewsCard({ title, newsItems }: NewsCardProps) {
 
   // Helper to preserve locale in links
   const getLocalizedUrl = (slug: string) => {
-    return addLocaleToUrl(`/news/${slug}`, currentLocale);
+    return addLocaleToUrl(`${NEWS_AND_BLOGS_ROUTE}/${slug}`, currentLocale);
   };
 
   if (!newsItems || newsItems.length === 0) {
@@ -56,7 +57,7 @@ export default function NewsCard({ title, newsItems }: NewsCardProps) {
               getStrapiImageUrl(item.featuredImage)
             : null;
           
-          const isLocalhost = imageUrl?.includes('localhost') || false;
+          const isLocalhost = isLocalhostAssetUrl(imageUrl);
           const formattedDate = formatDate(item.publishedDate || item.publishedAt || '');
 
           return (

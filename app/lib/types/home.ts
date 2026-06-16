@@ -138,5 +138,6 @@ export interface HomePage {
   industrysupportsection?: IndustrySupportSection | null;
   currentresearchsection?: CurrentResearchSection | null;
   datainsightssection?: DataInsightsSection | null;
+  newssectionheader?: SectionHeader | null;
   Announcement?: AnnouncementSection | null;
 }
