@@ -27,6 +27,8 @@ function buildHomePageQuery(locale: string): string {
   params.set('populate[newssectionheader]', 'true');
   params.set('populate[researchnetworksection][populate][sectionheader]', 'true');
   params.set('populate[researchnetworksection][populate][backgroundimage]', 'true');
+  params.set('populate[eventsandprogramssection][populate][sectionheader]', 'true');
+  params.set('populate[eventsandprogramssection][populate][noupcomingeventserrormessage]', 'true');
 
   return params.toString();
 }

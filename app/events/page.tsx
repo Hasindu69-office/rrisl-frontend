@@ -6,15 +6,16 @@ import EventArchiveGrid from '../components/events/EventArchiveGrid';
 import EventMediaFallback from '../components/events/EventMediaFallback';
 import PageHero from '../components/shared/PageHero';
 import { addLocaleToUrl, normalizeLocale } from '../lib/locale';
+import { getAllEvents, getEventCategories, getEventPage } from '../lib/strapi';
 import { isLocalhostAssetUrl } from '../lib/strapi';
 import {
-  EVENTS_PAGE_DATA,
   EVENTS_ROUTE,
   filterEventsByKind,
   formatEventDate,
   getArchiveEvents,
-  getEventDateParts,
   getFeaturedEvent,
+  mapEventsWithFallback,
+  mapEventsPageData,
 } from '../lib/events/pageData';
 
 interface EventsPageProps {
@@ -36,7 +37,7 @@ function filterHref(filterSlug: string, locale: string) {
 function paginationHref(
   page: number,
   locale: string,
-  selectedType: 'all' | 'event' | 'program'
+  selectedType: string
 ) {
   const params = new URLSearchParams();
 
@@ -56,11 +57,39 @@ function paginationHref(
 export default async function EventsPage({ searchParams }: EventsPageProps) {
   const params = await searchParams;
   const locale = normalizeLocale(params.locale);
-  const selectedType =
-    params.type === 'event' || params.type === 'program' ? params.type : 'all';
   const rawPage = Number.parseInt(params.page || '1', 10);
-  const pageData = EVENTS_PAGE_DATA;
-  const archiveEvents = getArchiveEvents();
+  const [
+    localizedPage,
+    fallbackPage,
+    localizedCategories,
+    fallbackCategories,
+    localizedEvents,
+    fallbackEvents,
+  ] = await Promise.all([
+    getEventPage(locale),
+    locale !== 'en' ? getEventPage('en') : Promise.resolve(null),
+    getEventCategories(locale),
+    locale !== 'en' ? getEventCategories('en') : Promise.resolve([]),
+    getAllEvents(locale),
+    locale !== 'en' ? getAllEvents('en') : Promise.resolve([]),
+  ]);
+  const pageData = mapEventsPageData(
+    localizedPage,
+    fallbackPage,
+    localizedCategories,
+    fallbackCategories
+  );
+  const selectedType = pageData.categories.some((category) => category.slug === params.type)
+    ? (params.type as string)
+    : 'all';
+  const archiveEvents = getArchiveEvents(
+    mapEventsWithFallback(
+      localizedEvents.length > 0 ? localizedEvents : fallbackEvents,
+      fallbackEvents,
+      localizedCategories,
+      fallbackCategories
+    )
+  );
   const filteredEvents = filterEventsByKind(archiveEvents, selectedType);
   const totalPages = Math.max(1, Math.ceil(filteredEvents.length / EVENTS_PAGE_SIZE));
   const currentPage = Number.isNaN(rawPage) ? 1 : Math.min(Math.max(rawPage, 1), totalPages);
@@ -69,7 +98,6 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
     currentPage * EVENTS_PAGE_SIZE
   );
   const featuredEvent = getFeaturedEvent(archiveEvents);
-  const featuredDateParts = featuredEvent ? getEventDateParts(featuredEvent.date) : null;
 
   return (
     <div className="min-h-screen bg-white text-[#0F3F1D]">
@@ -210,7 +238,7 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
                       : 'hover:text-[#0F3F1D]'
                   }`}
                 >
-                  Prev
+                  {pageData.labels.previous}
                 </Link>
 
                 {Array.from({ length: totalPages }, (_, index) => {
@@ -240,7 +268,7 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
                       : 'hover:text-[#0F3F1D]'
                   }`}
                 >
-                  Next
+                  {pageData.labels.next}
                 </Link>
               </div>
             ) : null}

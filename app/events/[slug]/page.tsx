@@ -13,16 +13,17 @@ import DepartmentAnimatedSection from '../../components/department/DepartmentAni
 import EventMediaFallback from '../../components/events/EventMediaFallback';
 import PageHero from '../../components/shared/PageHero';
 import { addLocaleToUrl, normalizeLocale } from '../../lib/locale';
+import { getAllEvents, getEventBySlug, getEventCategories, getEventPage } from '../../lib/strapi';
 import { isLocalhostAssetUrl } from '../../lib/strapi';
 import {
-  EVENTS_PAGE_DATA,
   EVENTS_ROUTE,
   formatEventDate,
-  getAllEvents,
-  getEventBySlug,
   getEventDateParts,
   getEventStatus,
   getRelatedEvents,
+  mapEvent,
+  mapEventsWithFallback,
+  mapEventsPageData,
 } from '../../lib/events/pageData';
 
 interface EventDetailPageProps {
@@ -31,7 +32,11 @@ interface EventDetailPageProps {
 }
 
 export async function generateStaticParams() {
-  return getAllEvents().map((event) => ({ slug: event.slug }));
+  const events = await getAllEvents('en');
+  return events
+    .map((event) => event?.slug?.trim())
+    .filter((slug): slug is string => Boolean(slug))
+    .map((slug) => ({ slug }));
 }
 
 export default async function EventDetailPage({
@@ -40,16 +45,47 @@ export default async function EventDetailPage({
 }: EventDetailPageProps) {
   const [{ slug }, query] = await Promise.all([params, searchParams]);
   const locale = normalizeLocale(query.locale);
-  const pageData = EVENTS_PAGE_DATA;
-  const event = getEventBySlug(slug);
+  const [
+    localizedPage,
+    fallbackPage,
+    localizedCategories,
+    fallbackCategories,
+    eventEntity,
+    fallbackEventEntity,
+    localizedEvents,
+    fallbackEvents,
+  ] = await Promise.all([
+    getEventPage(locale),
+    locale !== 'en' ? getEventPage('en') : Promise.resolve(null),
+    getEventCategories(locale),
+    locale !== 'en' ? getEventCategories('en') : Promise.resolve([]),
+    getEventBySlug(slug, locale),
+    locale !== 'en' ? getEventBySlug(slug, 'en') : Promise.resolve(null),
+    getAllEvents(locale),
+    locale !== 'en' ? getAllEvents('en') : Promise.resolve([]),
+  ]);
+  const pageData = mapEventsPageData(
+    localizedPage,
+    fallbackPage,
+    localizedCategories,
+    fallbackCategories
+  );
+  const event = mapEvent(eventEntity || fallbackEventEntity);
 
   if (!event) {
     notFound();
   }
 
-  const relatedEvents = getRelatedEvents(event, getAllEvents());
+  const relatedEvents = getRelatedEvents(
+    event,
+    mapEventsWithFallback(
+      localizedEvents.length > 0 ? localizedEvents : fallbackEvents,
+      fallbackEvents,
+      localizedCategories,
+      fallbackCategories
+    )
+  );
   const backHref = addLocaleToUrl(EVENTS_ROUTE, locale);
-  const dateParts = getEventDateParts(event.date);
   const status = getEventStatus(event.date);
   const kindIcon = event.kind === 'Program' ? GraduationCap : CalendarDays;
   const KindIcon = kindIcon;

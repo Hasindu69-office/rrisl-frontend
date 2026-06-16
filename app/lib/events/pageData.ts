@@ -1,6 +1,11 @@
 import type { BreadcrumbItem } from '@/app/components/shared/Breadcrumb';
+import { getOptimizedImageUrl, getStrapiImageUrl } from '@/app/lib/strapi';
+import type { EventCategory, EventEntity, EventPage } from '@/app/lib/types';
 
 export const EVENTS_ROUTE = '/events';
+
+const EVENT_TIME_ZONE = 'Asia/Colombo';
+const EVENT_FALLBACK_IMAGE = '/images/section6_img1.png';
 
 export type EventKind = 'Event' | 'Program';
 export type EventStatus = 'past' | 'upcoming';
@@ -18,17 +23,18 @@ export interface EventItem {
   content: string[];
   date: string;
   time: string;
+  dateTime: string;
   location: string;
   kind: EventKind;
+  categories: EventCategoryViewModel[];
   featuredImage: string | null;
   featuredImageAlt: string;
   galleryImages: EventGalleryImage[];
-  isFeatured: boolean;
 }
 
 export interface EventCategoryViewModel {
   label: string;
-  slug: 'all' | 'event' | 'program';
+  slug: string;
 }
 
 export interface EventsPageLabels {
@@ -37,8 +43,6 @@ export interface EventsPageLabels {
   all: string;
   events: string;
   programs: string;
-  featured: string;
-  featuredLabel: string;
   archiveEyebrow: string;
   browseAll: string;
   readDetails: string;
@@ -58,6 +62,8 @@ export interface EventsPageLabels {
   status: string;
   upcoming: string;
   past: string;
+  previous: string;
+  next: string;
 }
 
 export interface EventsPageHeroViewModel {
@@ -73,7 +79,13 @@ export interface EventsPageViewModel {
   categories: EventCategoryViewModel[];
 }
 
-export const EVENTS_PAGE_DATA: EventsPageViewModel = {
+interface EventMappingOptions {
+  fallbackEvent?: EventEntity | null;
+  localizedCategories?: EventCategory[];
+  fallbackCategories?: EventCategory[];
+}
+
+const EVENTS_PAGE_FALLBACK: EventsPageViewModel = {
   hero: {
     title: 'Events and Programs',
     breadcrumbItems: [
@@ -89,8 +101,6 @@ export const EVENTS_PAGE_DATA: EventsPageViewModel = {
     all: 'All',
     events: 'Events',
     programs: 'Programs',
-    featured: 'Featured',
-    featuredLabel: 'Featured upcoming item',
     archiveEyebrow: 'RRISL Calendar',
     browseAll: 'Browse all scheduled items',
     readDetails: 'Read Details',
@@ -110,6 +120,8 @@ export const EVENTS_PAGE_DATA: EventsPageViewModel = {
     status: 'Status',
     upcoming: 'Upcoming',
     past: 'Past',
+    previous: 'Previous',
+    next: 'Next',
   },
   categories: [
     { label: 'All', slug: 'all' },
@@ -118,161 +130,172 @@ export const EVENTS_PAGE_DATA: EventsPageViewModel = {
   ],
 };
 
-const EVENT_ITEMS: EventItem[] = [
-  {
-    id: 'scientific-affairs',
-    slug: 'scientific-affairs-r-and-d-committee-meeting',
-    title: '1st committee meeting of Scientific Affairs and R&D (Technology)',
-    summary:
-      'A cross-functional session to review current applied research priorities, commercialization readiness, and institutional delivery milestones.',
-    content: [
-      'This committee meeting brings together research leads, administration, and technology transfer stakeholders to review the current portfolio of institutional research and development activity.',
-      'The agenda focuses on aligning active investigations with operational needs, identifying barriers to field deployment, and clarifying next-step ownership across scientific and administrative teams.',
-      'Participants will also review upcoming reporting expectations and collaboration priorities for the next quarter.',
-    ],
-    date: '2026-03-21',
-    time: '10.00 am',
-    location: 'Rubber Research Institute, Sri Lanka.',
-    kind: 'Event',
-    featuredImage: '/images/section6_img1.png',
-    featuredImageAlt: 'Scientific affairs meeting at RRISL',
-    galleryImages: [
-      {
-        src: '/images/section6_img1.png',
-        alt: 'Research team gathered for the scientific affairs meeting',
-      },
-    ],
-    isFeatured: true,
-  },
-  {
-    id: 'latex-quality-program',
-    slug: 'latex-quality-improvement-program-for-field-officers',
-    title: 'Latex Quality Improvement Program for Field Officers',
-    summary:
-      'A focused capacity-building programme for field officers on process discipline, handling practices, and practical quality interventions.',
-    content: [
-      'The programme is designed for field officers who directly support producers and estate teams working on latex quality management.',
-      'Sessions cover contamination prevention, handling routines, field-level quality checks, and structured troubleshooting practices that can be applied immediately after training.',
-      'The programme also includes discussion time for recurring quality failures reported from the field and how to standardize responses across regions.',
-    ],
-    date: '2026-03-24',
-    time: '2.30 pm',
-    location: 'Technology Transfer Division, Ratmalana.',
-    kind: 'Program',
-    featuredImage: null,
-    featuredImageAlt: 'Latex quality training program',
-    galleryImages: [],
-    isFeatured: false,
-  },
-  {
-    id: 'smallholders-workshop',
-    slug: 'smallholders-sustainability-workshop',
-    title: 'Smallholders Sustainability Workshop',
-    summary:
-      'A practical workshop on long-term field resilience, good agricultural practices, and advisory support for smallholder growers.',
-    content: [
-      'This workshop is structured around the operational challenges faced by smallholder growers and the advisory teams who support them.',
-      'Discussion topics include field sustainability, risk awareness, and the practical integration of RRISL guidance into everyday cultivation decisions.',
-      'Participants will leave with implementation notes that can be adapted for local outreach and extension work.',
-    ],
-    date: '2026-03-29',
-    time: '9.30 am',
-    location: 'RRISL Outreach Center, Kalutara.',
-    kind: 'Program',
-    featuredImage: '/images/section6_img1.png',
-    featuredImageAlt: 'Smallholders sustainability workshop',
-    galleryImages: [
-      {
-        src: '/images/section6_img1.png',
-        alt: 'Workshop session with RRISL outreach participants',
-      },
-    ],
-    isFeatured: false,
-  },
-  {
-    id: 'crop-management-review',
-    slug: 'crop-management-review-meeting',
-    title: 'Crop management review meeting',
-    summary:
-      'An internal review of field performance observations, operational concerns, and near-term crop management interventions.',
-    content: [
-      'The crop management review meeting consolidates observations from active sites and recent reporting cycles to identify where corrective action is needed.',
-      'Contributors compare performance indicators, discuss agronomic risks, and agree on the priority interventions that should be communicated to field teams.',
-    ],
-    date: '2026-03-05',
-    time: '11.00 am',
-    location: 'Research Administration Board Room.',
-    kind: 'Event',
-    featuredImage: null,
-    featuredImageAlt: 'Crop management review meeting',
-    galleryImages: [],
-    isFeatured: false,
-  },
-  {
-    id: 'lab-safety-session',
-    slug: 'laboratory-safety-orientation-for-new-trainees',
-    title: 'Laboratory safety orientation for new trainees',
-    summary:
-      'A foundational orientation on laboratory conduct, safety systems, and operating expectations for incoming trainees.',
-    content: [
-      'This orientation introduces new trainees to RRISL laboratory environments, safety protocols, and supervision expectations before they begin hands-on work.',
-      'The session covers facility rules, incident prevention, and the basic routines required to work safely around equipment, samples, and shared lab resources.',
-    ],
-    date: '2026-03-11',
-    time: '1.00 pm',
-    location: 'Central Laboratory Complex.',
-    kind: 'Program',
-    featuredImage: null,
-    featuredImageAlt: 'Laboratory safety orientation',
-    galleryImages: [],
-    isFeatured: false,
-  },
-  {
-    id: 'plant-breeding-clinic',
-    slug: 'plant-breeding-clinic-for-extension-officers',
-    title: 'Plant breeding clinic for extension officers',
-    summary:
-      'A targeted clinic on breeding priorities, communication to the field, and how extension teams can translate current research into practice.',
-    content: [
-      'The clinic is aimed at extension officers who need a clearer working understanding of plant breeding outputs and how those outputs should be explained in the field.',
-      'Researchers will walk through current themes, answer operational questions, and provide guidance on how to communicate breeding value without oversimplifying technical nuance.',
-    ],
-    date: '2026-02-06',
-    time: '9.00 am',
-    location: 'Genetics and Plant Breeding Unit.',
-    kind: 'Program',
-    featuredImage: '/images/section6_img1.png',
-    featuredImageAlt: 'Plant breeding clinic for extension officers',
-    galleryImages: [],
-    isFeatured: false,
-  },
-  {
-    id: 'advisory-panel',
-    slug: 'quarterly-advisory-panel-discussion-on-field-innovation',
-    title: 'Quarterly advisory panel discussion on field innovation',
-    summary:
-      'A panel discussion reviewing practical field innovation priorities, stakeholder feedback, and implementation opportunities.',
-    content: [
-      'The advisory panel discussion is a structured conversation between institutional leaders and technical stakeholders working close to field conditions.',
-      'It is intended to surface practical insights, stress-test ongoing initiatives, and identify where innovation efforts need stronger operational support.',
-    ],
-    date: '2025-12-19',
-    time: '3.00 pm',
-    location: 'Main Auditorium, RRISL.',
-    kind: 'Event',
-    featuredImage: null,
-    featuredImageAlt: 'Quarterly advisory panel discussion',
-    galleryImages: [],
-    isFeatured: false,
-  },
-];
-
-function toDate(dateString: string): Date {
-  return new Date(`${dateString}T00:00:00`);
+function titleCase(value: string): string {
+  return value
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
 }
 
-function sortByDateAsc(items: EventItem[]): EventItem[] {
-  return [...items].sort((left, right) => left.date.localeCompare(right.date));
+function toCategorySlug(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+function formatDateParts(dateTime: string, options: Intl.DateTimeFormatOptions) {
+  return new Intl.DateTimeFormat('en-US', {
+    timeZone: EVENT_TIME_ZONE,
+    ...options,
+  }).formatToParts(new Date(dateTime));
+}
+
+function getEventDateKey(dateTime: string): string {
+  const parts = formatDateParts(dateTime, {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  });
+
+  const year = parts.find((part) => part.type === 'year')?.value || '1970';
+  const month = parts.find((part) => part.type === 'month')?.value || '01';
+  const day = parts.find((part) => part.type === 'day')?.value || '01';
+
+  return `${year}-${month}-${day}`;
+}
+
+function formatDisplayTime(dateTime: string): string {
+  const parts = formatDateParts(dateTime, {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  });
+
+  const hour = parts.find((part) => part.type === 'hour')?.value || '12';
+  const minute = parts.find((part) => part.type === 'minute')?.value || '00';
+  const dayPeriod = (parts.find((part) => part.type === 'dayPeriod')?.value || 'AM').toLowerCase();
+
+  return `${hour}.${minute} ${dayPeriod}`;
+}
+
+function mapBreadcrumbItems(page: EventPage | null | undefined): BreadcrumbItem[] {
+  const breadcrumbItems =
+    page?.pagehero?.Breadcrumb
+      ?.filter((item) => item?.label)
+      .map((item) => ({
+        label: item.label,
+        ...(item.href ? { href: item.href } : {}),
+      })) || [];
+
+  return breadcrumbItems.length > 0
+    ? breadcrumbItems
+    : EVENTS_PAGE_FALLBACK.hero.breadcrumbItems;
+}
+
+function mapCategory(category: EventCategory | null | undefined): EventCategoryViewModel | null {
+  const label = category?.name?.trim();
+
+  if (!label) {
+    return null;
+  }
+
+  return {
+    label: titleCase(label),
+    slug: toCategorySlug(label),
+  };
+}
+
+function buildCategoryLookups(
+  localizedCategories: EventCategory[] = [],
+  fallbackCategories: EventCategory[] = []
+) {
+  const localizedByDocumentId = new Map<string, EventCategory>();
+  const localizedBySlug = new Map<string, EventCategory>();
+
+  localizedCategories.forEach((category) => {
+    if (category?.documentId) {
+      localizedByDocumentId.set(category.documentId, category);
+    }
+
+    if (category?.name?.trim()) {
+      localizedBySlug.set(toCategorySlug(category.name), category);
+    }
+  });
+
+  fallbackCategories.forEach((category) => {
+    const slug = category?.name?.trim() ? toCategorySlug(category.name) : null;
+
+    if (category?.documentId && !localizedByDocumentId.has(category.documentId)) {
+      localizedByDocumentId.set(category.documentId, category);
+    }
+
+    if (slug && !localizedBySlug.has(slug)) {
+      localizedBySlug.set(slug, category);
+    }
+  });
+
+  return {
+    localizedByDocumentId,
+    localizedBySlug,
+  };
+}
+
+function resolveEventCategories(
+  event: EventEntity | null | undefined,
+  fallbackEvent: EventEntity | null | undefined,
+  localizedCategories: EventCategory[] = [],
+  fallbackCategories: EventCategory[] = []
+): EventCategoryViewModel[] {
+  const relationCategories =
+    event?.event_categories && event.event_categories.length > 0
+      ? event.event_categories
+      : fallbackEvent?.event_categories || [];
+  const { localizedByDocumentId, localizedBySlug } = buildCategoryLookups(
+    localizedCategories,
+    fallbackCategories
+  );
+
+  return uniqueCategories(
+    relationCategories
+      .map((category) => {
+        const translatedCategory =
+          (category?.documentId
+            ? localizedByDocumentId.get(category.documentId)
+            : null) ||
+          (category?.name?.trim()
+            ? localizedBySlug.get(toCategorySlug(category.name))
+            : null) ||
+          category;
+
+        return mapCategory(translatedCategory);
+      })
+      .filter((category): category is EventCategoryViewModel => Boolean(category))
+  );
+}
+
+function uniqueCategories(categories: EventCategoryViewModel[]): EventCategoryViewModel[] {
+  const seen = new Set<string>();
+
+  return categories.filter((category) => {
+    if (seen.has(category.slug)) {
+      return false;
+    }
+
+    seen.add(category.slug);
+    return true;
+  });
+}
+
+function inferEventKind(categories: EventCategoryViewModel[]): EventKind {
+  return categories.some((category) => category.slug === 'program') ? 'Program' : 'Event';
+}
+
+function sortByDateTimeAsc(items: EventItem[]): EventItem[] {
+  return [...items].sort((left, right) => left.dateTime.localeCompare(right.dateTime));
 }
 
 function sortByUpcomingThenPast(items: EventItem[]): EventItem[] {
@@ -280,13 +303,9 @@ function sortByUpcomingThenPast(items: EventItem[]): EventItem[] {
   const past = items.filter((item) => getEventStatus(item.date) === 'past');
 
   return [
-    ...sortByDateAsc(upcoming),
-    ...sortByDateAsc(past).reverse(),
+    ...sortByDateTimeAsc(upcoming),
+    ...sortByDateTimeAsc(past).reverse(),
   ];
-}
-
-export function getAllEvents(): EventItem[] {
-  return sortByDateAsc(EVENT_ITEMS);
 }
 
 export function formatEventDate(date: string): string {
@@ -294,7 +313,7 @@ export function formatEventDate(date: string): string {
     month: 'long',
     day: 'numeric',
     year: 'numeric',
-  }).format(toDate(date));
+  }).format(new Date(`${date}T00:00:00`));
 }
 
 export function getEventDateParts(date: string): {
@@ -303,7 +322,7 @@ export function getEventDateParts(date: string): {
   year: string;
   weekday: string;
 } {
-  const eventDate = toDate(date);
+  const eventDate = new Date(`${date}T00:00:00`);
 
   return {
     day: `${eventDate.getDate()}`,
@@ -316,7 +335,179 @@ export function getEventDateParts(date: string): {
 export function getEventStatus(date: string): EventStatus {
   const today = new Date();
   const localToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-  return toDate(date) < localToday ? 'past' : 'upcoming';
+  return new Date(`${date}T00:00:00`) < localToday ? 'past' : 'upcoming';
+}
+
+export function mapEvent(
+  event: EventEntity | null | undefined,
+  options: EventMappingOptions = {}
+): EventItem | null {
+  const slug = event?.slug?.trim();
+  const title = event?.title?.trim();
+  const dateTime = event?.dateandtime;
+
+  if (!slug || !title || !dateTime) {
+    return null;
+  }
+
+  const categories = resolveEventCategories(
+    event,
+    options.fallbackEvent,
+    options.localizedCategories,
+    options.fallbackCategories
+  );
+  const featuredImage =
+    getOptimizedImageUrl(event?.featuredImage, 'large') ||
+    getOptimizedImageUrl(event?.featuredImage, 'medium') ||
+    getStrapiImageUrl(event?.featuredImage) ||
+    null;
+  const galleryImages =
+    event?.galleryimages
+      ?.map((image, index) => {
+        const src =
+          getOptimizedImageUrl(image, 'large') ||
+          getOptimizedImageUrl(image, 'medium') ||
+          getStrapiImageUrl(image);
+
+        if (!src) {
+          return null;
+        }
+
+        return {
+          src,
+          alt: image?.alternativeText || `${title} gallery image ${index + 1}`,
+        };
+      })
+      .filter((image): image is EventGalleryImage => Boolean(image)) || [];
+
+  return {
+    id: event?.documentId?.trim() || `${event?.id || slug}`,
+    slug,
+    title,
+    summary: event?.summary?.trim() || '',
+    content:
+      event?.paragraph
+        ?.map((item) => item?.paragraph?.trim())
+        .filter((paragraph): paragraph is string => Boolean(paragraph)) || [],
+    date: getEventDateKey(dateTime),
+    time: formatDisplayTime(dateTime),
+    dateTime,
+    location: event?.location?.trim() || '',
+    kind: inferEventKind(categories),
+    categories,
+    featuredImage,
+    featuredImageAlt: event?.featuredImage?.alternativeText || title,
+    galleryImages,
+  };
+}
+
+export function mapEvents(events: EventEntity[]): EventItem[] {
+  return sortByDateTimeAsc(
+    events
+      .map((event) => mapEvent(event))
+      .filter((event): event is EventItem => Boolean(event))
+  );
+}
+
+export function mapEventsWithFallback(
+  events: EventEntity[],
+  fallbackEvents: EventEntity[] = [],
+  localizedCategories: EventCategory[] = [],
+  fallbackCategories: EventCategory[] = []
+): EventItem[] {
+  return sortByDateTimeAsc(
+    events
+      .map((event) => {
+        const fallbackEvent =
+          fallbackEvents.find((candidate) =>
+            (event?.documentId && candidate?.documentId)
+              ? candidate.documentId === event.documentId
+              : false
+          ) ||
+          fallbackEvents.find((candidate) =>
+            candidate?.slug?.trim() && event?.slug?.trim()
+              ? candidate.slug?.trim() === event.slug?.trim()
+              : false
+          ) ||
+          null;
+
+        return mapEvent(event, {
+          fallbackEvent,
+          localizedCategories,
+          fallbackCategories,
+        });
+      })
+      .filter((event): event is EventItem => Boolean(event))
+  );
+}
+
+export function mapEventsPageData(
+  localizedPage: EventPage | null | undefined,
+  fallbackPage: EventPage | null | undefined,
+  localizedCategories: EventCategory[],
+  fallbackCategories: EventCategory[]
+): EventsPageViewModel {
+  const page = localizedPage || fallbackPage;
+  const hero = page?.pagehero || fallbackPage?.pagehero;
+  const heroImage = hero?.backgroundImage || fallbackPage?.pagehero?.backgroundImage || null;
+  const sectionHeader = page?.sectionheader || fallbackPage?.sectionheader;
+  const sourceCategories =
+    (localizedCategories.length > 0 ? localizedCategories : fallbackCategories)
+      .filter((category) => category?.isActive !== false);
+  const mappedCategories = uniqueCategories(
+    sourceCategories
+      .map(mapCategory)
+      .filter((category): category is EventCategoryViewModel => Boolean(category))
+  );
+
+  return {
+    hero: {
+      title: hero?.PageTitle?.trim() || EVENTS_PAGE_FALLBACK.hero.title,
+      breadcrumbItems: mapBreadcrumbItems(page),
+      backgroundImage:
+        getOptimizedImageUrl(heroImage, 'large') ||
+        getOptimizedImageUrl(heroImage, 'medium') ||
+        getStrapiImageUrl(heroImage) ||
+        EVENTS_PAGE_FALLBACK.hero.backgroundImage,
+      backgroundImageAlt:
+        hero?.backgroundImageAlt?.trim() ||
+        heroImage?.alternativeText ||
+        EVENTS_PAGE_FALLBACK.hero.backgroundImageAlt,
+    },
+    labels: {
+      title: hero?.PageTitle?.trim() || EVENTS_PAGE_FALLBACK.labels.title,
+      topic: EVENTS_PAGE_FALLBACK.labels.topic,
+      all: page?.alllabel?.trim() || EVENTS_PAGE_FALLBACK.labels.all,
+      events: EVENTS_PAGE_FALLBACK.labels.events,
+      programs: EVENTS_PAGE_FALLBACK.labels.programs,
+      archiveEyebrow: sectionHeader?.eyebrow?.trim() || EVENTS_PAGE_FALLBACK.labels.archiveEyebrow,
+      browseAll: sectionHeader?.title?.trim() || EVENTS_PAGE_FALLBACK.labels.browseAll,
+      readDetails: page?.readdetailslabel?.trim() || EVENTS_PAGE_FALLBACK.labels.readDetails,
+      viewDetails: page?.viewdetailslabel?.trim() || EVENTS_PAGE_FALLBACK.labels.viewDetails,
+      backToAllEvents:
+        page?.backtoalleventslabel?.trim() || EVENTS_PAGE_FALLBACK.labels.backToAllEvents,
+      relatedEvents: EVENTS_PAGE_FALLBACK.labels.relatedEvents,
+      gallery: EVENTS_PAGE_FALLBACK.labels.gallery,
+      event: EVENTS_PAGE_FALLBACK.labels.event,
+      program: EVENTS_PAGE_FALLBACK.labels.program,
+      emptyTitle: EVENTS_PAGE_FALLBACK.labels.emptyTitle,
+      emptyDescription: EVENTS_PAGE_FALLBACK.labels.emptyDescription,
+      details: page?.detailslabel?.trim() || EVENTS_PAGE_FALLBACK.labels.details,
+      kind: EVENTS_PAGE_FALLBACK.labels.kind,
+      location: page?.locationlabel?.trim() || EVENTS_PAGE_FALLBACK.labels.location,
+      time: page?.timelabel?.trim() || EVENTS_PAGE_FALLBACK.labels.time,
+      date: page?.datelabel?.trim() || EVENTS_PAGE_FALLBACK.labels.date,
+      status: page?.statuslabel?.trim() || EVENTS_PAGE_FALLBACK.labels.status,
+      upcoming: page?.upcominglabel?.trim() || EVENTS_PAGE_FALLBACK.labels.upcoming,
+      past: page?.pastlabel?.trim() || EVENTS_PAGE_FALLBACK.labels.past,
+      previous: page?.previousbuttonlabel?.trim() || EVENTS_PAGE_FALLBACK.labels.previous,
+      next: page?.nextbuttonlabel?.trim() || EVENTS_PAGE_FALLBACK.labels.next,
+    },
+    categories: [
+      { label: page?.alllabel?.trim() || EVENTS_PAGE_FALLBACK.labels.all, slug: 'all' },
+      ...mappedCategories,
+    ],
+  };
 }
 
 export function getFeaturedEvent(events: EventItem[]): EventItem | null {
@@ -324,21 +515,18 @@ export function getFeaturedEvent(events: EventItem[]): EventItem | null {
     return null;
   }
 
-  const upcoming = sortByDateAsc(events.filter((event) => getEventStatus(event.date) === 'upcoming'));
-  return upcoming[0] || events.find((event) => event.isFeatured) || events[0];
+  const upcoming = sortByDateTimeAsc(events.filter((event) => getEventStatus(event.date) === 'upcoming'));
+  return upcoming[0] || events[0];
 }
 
-export function getEventBySlug(slug: string): EventItem | null {
-  return EVENT_ITEMS.find((event) => event.slug === slug) || null;
-}
-
-export function filterEventsByKind(events: EventItem[], kindSlug: 'all' | 'event' | 'program'): EventItem[] {
-  if (kindSlug === 'all') {
+export function filterEventsByKind(events: EventItem[], kindSlug: string): EventItem[] {
+  if (!kindSlug || kindSlug === 'all') {
     return sortByUpcomingThenPast(events);
   }
 
-  const kind = kindSlug === 'event' ? 'Event' : 'Program';
-  return sortByUpcomingThenPast(events.filter((event) => event.kind === kind));
+  return sortByUpcomingThenPast(
+    events.filter((event) => event.categories.some((category) => category.slug === kindSlug))
+  );
 }
 
 export function getRelatedEvents(event: EventItem, events: EventItem[], limit = 3): EventItem[] {
@@ -347,6 +535,10 @@ export function getRelatedEvents(event: EventItem, events: EventItem[], limit = 
   return sortByUpcomingThenPast(sameKind).slice(0, limit);
 }
 
-export function getArchiveEvents(): EventItem[] {
-  return sortByUpcomingThenPast(EVENT_ITEMS);
+export function getArchiveEvents(events: EventItem[]): EventItem[] {
+  return sortByUpcomingThenPast(events);
+}
+
+export function getFallbackEventImage(): string {
+  return EVENT_FALLBACK_IMAGE;
 }

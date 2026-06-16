@@ -7,6 +7,7 @@ export * from './types/departments';
 export * from './types/downloads';
 export * from './types/estates';
 export * from './types/e-publications';
+export * from './types/events';
 export * from './types/faq';
 export * from './types/footer';
 export * from './types/gallery';
