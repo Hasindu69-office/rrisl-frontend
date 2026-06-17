@@ -231,7 +231,7 @@ export default function HomeHeroWithHeader({
         </div>
       )}
 
-      <div className="relative z-50 bg-transparent">
+      <div className="relative z-[160] bg-transparent">
         <div className="relative z-10">
           <div className="container mx-auto px-3 sm:px-4 md:px-5 lg:px-8 py-2 sm:py-3 md:py-3 max-w-[1440px] w-full">
             <div className="flex items-center justify-between">
