@@ -25,7 +25,7 @@ export default async function Header({ locale = 'en', compactOnMobile = false }:
   const leftMenuItems: MenuItem[] = leftMenu?.items || [];
 
   return (
-    <header className="relative z-50 bg-transparent">
+    <header className="relative z-[160] bg-transparent">
       {/* Content on top of background */}
       <div className="relative z-10">
         {/* Top Section - Logo and Actions */}

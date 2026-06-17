@@ -21,7 +21,7 @@ export default async function PageHero({
   locale = 'en',
 }: PageHeroProps) {
   return (
-    <section className={`${styles.heroRoot} relative min-h-[200px] sm:min-h-[250px] md:min-h-[350px] lg:min-h-[480px] xl:min-h-[480px] flex flex-col overflow-hidden`}>
+    <section className={`${styles.heroRoot} relative min-h-[200px] sm:min-h-[250px] md:min-h-[350px] lg:min-h-[480px] xl:min-h-[480px] flex flex-col overflow-x-clip overflow-y-visible`}>
       <div className={`${styles.backgroundReveal} absolute top-0 left-0 w-full h-full z-0`}>
         <PageHeroBackground
           src={backgroundImage}
