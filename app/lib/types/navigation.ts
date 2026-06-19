@@ -23,6 +23,12 @@ export interface MenuItem {
   children?: MenuItem[];
 }
 
+export interface HeaderCtaItem {
+  title: string;
+  url: string;
+  target: MenuItem['target'];
+}
+
 export interface Menu {
   id: number;
   title: string;
