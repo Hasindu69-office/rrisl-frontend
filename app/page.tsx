@@ -46,6 +46,7 @@ import ResearchNetworkSection from './components/home/ResearchNetworkSection';
 import EventsProgramsSection from './components/home/EventsProgramsSection';
 import HomeQuickLinksSection from './components/home/HomeQuickLinksSection';
 import RubberAnnouncement from './components/home/RubberAnnouncement';
+import type { HeaderCtaItem } from '@/app/lib/types';
 
 interface HomeProps {
   searchParams: Promise<{ locale?: string }>;
@@ -125,12 +126,18 @@ export default async function Home({ searchParams }: HomeProps) {
   const effectiveGlobalLayout = globalLayout || fallbackGlobalLayout;
 
   // Fetch menus in parallel using slugs from global layout
-  const [leftMenu, fallbackLeftMenu] = await Promise.all([
+  const [leftMenu, fallbackLeftMenu, rightMenu, fallbackRightMenu] = await Promise.all([
     effectiveGlobalLayout?.headerLeftMenuSlug
       ? getMenuBySlug(effectiveGlobalLayout.headerLeftMenuSlug, locale)
       : Promise.resolve(null),
     locale !== 'en' && fallbackGlobalLayout?.headerLeftMenuSlug
       ? getMenuBySlug(fallbackGlobalLayout.headerLeftMenuSlug, 'en')
+      : Promise.resolve(null),
+    effectiveGlobalLayout?.headerRightMenuSlug
+      ? getMenuBySlug(effectiveGlobalLayout.headerRightMenuSlug, locale)
+      : Promise.resolve(null),
+    locale !== 'en' && fallbackGlobalLayout?.headerRightMenuSlug
+      ? getMenuBySlug(fallbackGlobalLayout.headerRightMenuSlug, 'en')
       : Promise.resolve(null),
   ]);
 
@@ -139,6 +146,18 @@ export default async function Home({ searchParams }: HomeProps) {
     leftMenu?.items && leftMenu.items.length > 0
       ? leftMenu.items
       : fallbackLeftMenu?.items || [];
+  const rightMenuFirstItem =
+    rightMenu?.items && rightMenu.items.length > 0
+      ? rightMenu.items[0]
+      : fallbackRightMenu?.items?.[0];
+  const headerCta: HeaderCtaItem | null =
+    rightMenuFirstItem?.title?.trim() && rightMenuFirstItem?.url?.trim()
+      ? {
+          title: rightMenuFirstItem.title.trim(),
+          url: rightMenuFirstItem.url.trim(),
+          target: rightMenuFirstItem.target || '_self',
+        }
+      : null;
   const departmentSlugs = extractDepartmentSlugsFromMenuItems(leftMenuItems);
   const [departmentCurrentProjectPages, fallbackDepartmentCurrentProjectPages] = await Promise.all([
     Promise.all(
@@ -252,6 +271,7 @@ export default async function Home({ searchParams }: HomeProps) {
           statistics={heroStatistics}
           globalLayout={globalLayout}
           leftMenuItems={leftMenuItems}
+          headerCta={headerCta}
           announcements={showAnnouncementCard && allAnnouncements && allAnnouncements.length > 0 ? allAnnouncements : []}
           announcementLabel={announcementLabel}
         />

@@ -5,12 +5,13 @@ import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { createPortal } from 'react-dom';
 import { ChevronDown } from 'lucide-react';
-import { MenuItem as MenuItemType } from '@/app/lib/types';
+import { HeaderCtaItem, MenuItem as MenuItemType } from '@/app/lib/types';
 import { addLocaleToUrl } from '@/app/lib/locale';
 import HeaderCta from './HeaderCta';
 
 interface MobileMenuProps {
   menuItems: MenuItemType[];
+  headerCta?: HeaderCtaItem | null;
 }
 
 interface MobileMenuListProps {
@@ -164,7 +165,7 @@ function MobileMenuList({
   );
 }
 
-export default function MobileMenu({ menuItems }: MobileMenuProps) {
+export default function MobileMenu({ menuItems, headerCta = null }: MobileMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const pathname = usePathname();
@@ -348,6 +349,7 @@ export default function MobileMenu({ menuItems }: MobileMenuProps) {
                   </nav>
 
                   <HeaderCta
+                    item={headerCta}
                     className="block"
                     buttonClassName="w-full"
                     onClick={handleCloseMenu}

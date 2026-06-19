@@ -3,7 +3,7 @@ import LogoSection from './LogoSection';
 import Navigation from './Navigation';
 import HeaderActions from './HeaderActions';
 import { getGlobalLayout, getMenuBySlug } from '@/app/lib/strapi';
-import { MenuItem } from '@/app/lib/types';
+import { HeaderCtaItem, MenuItem } from '@/app/lib/types';
 
 interface HeaderProps {
   locale?: string;
@@ -15,14 +15,26 @@ export default async function Header({ locale = 'en', compactOnMobile = false }:
   const globalLayout = await getGlobalLayout(locale);
 
   // Fetch menus in parallel using slugs from global layout
-  const [leftMenu] = await Promise.all([
+  const [leftMenu, rightMenu] = await Promise.all([
     globalLayout?.headerLeftMenuSlug
       ? getMenuBySlug(globalLayout.headerLeftMenuSlug, locale)
+      : Promise.resolve(null),
+    globalLayout?.headerRightMenuSlug
+      ? getMenuBySlug(globalLayout.headerRightMenuSlug, locale)
       : Promise.resolve(null),
   ]);
 
   // Extract menu items
   const leftMenuItems: MenuItem[] = leftMenu?.items || [];
+  const rightMenuFirstItem = rightMenu?.items?.[0];
+  const headerCta: HeaderCtaItem | null =
+    rightMenuFirstItem?.title?.trim() && rightMenuFirstItem?.url?.trim()
+      ? {
+          title: rightMenuFirstItem.title.trim(),
+          url: rightMenuFirstItem.url.trim(),
+          target: rightMenuFirstItem.target || '_self',
+        }
+      : null;
 
   return (
     <header className="relative z-[160] bg-transparent">
@@ -39,7 +51,7 @@ export default async function Header({ locale = 'en', compactOnMobile = false }:
             <LogoSection globalLayout={globalLayout} />
 
             {/* Right: Actions (Buttons + Language Switcher + Hamburger) */}
-            <HeaderActions leftMenuItems={leftMenuItems} />
+            <HeaderActions leftMenuItems={leftMenuItems} headerCta={headerCta} />
           </div>
         </div>
 
