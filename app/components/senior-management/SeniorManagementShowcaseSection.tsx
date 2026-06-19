@@ -3,7 +3,8 @@
 import Image from 'next/image';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { startTransition, useEffect, useRef, useState } from 'react';
-import type { SeniorManagementShowcaseItem } from '../../senior-management/showcaseData';
+import { isLocalhostAssetUrl } from '@/app/lib/strapi';
+import type { SeniorManagementShowcaseItem } from '@/app/lib/senior-management/pageData';
 
 interface SeniorManagementShowcaseSectionProps {
   items: SeniorManagementShowcaseItem[];
@@ -55,6 +56,7 @@ interface FadeVisualStyle {
 }
 
 const AUTO_ADVANCE_INTERVAL_MS = 4500;
+const PLACEHOLDER_AVATAR = '/images/avatarimages.png';
 
 function getSafeIndex(index: number, length: number) {
   return ((index % length) + length) % length;
@@ -381,6 +383,7 @@ export default function SeniorManagementShowcaseSection({
   const [overflowingItemIds, setOverflowingItemIds] = useState<
     Record<string, boolean>
   >({});
+  const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     const node = sectionRef.current;
@@ -483,6 +486,10 @@ export default function SeniorManagementShowcaseSection({
   }, [activeIndex]);
 
   useEffect(() => {
+    setImageErrors({});
+  }, [items]);
+
+  useEffect(() => {
     const frameId = window.requestAnimationFrame(() => {
       const nextOverflowingState: Record<string, boolean> = {};
 
@@ -548,6 +555,8 @@ export default function SeniorManagementShowcaseSection({
           const isMobileExpandedCard = isMobileViewport && isActive && isExpanded;
           const shouldShowReadMore =
             isExpanded || (overflowingItemIds[item.id] ?? false);
+          const resolvedImageSrc = imageErrors[item.id] ? PLACEHOLDER_AVATAR : item.imageSrc;
+          const useUnoptimizedImage = isLocalhostAssetUrl(resolvedImageSrc);
 
           return (
             <div key={item.id}>
@@ -628,16 +637,25 @@ export default function SeniorManagementShowcaseSection({
                 aria-hidden={!isVisible}
               >
                 <Image
-                  src={item.imageSrc}
+                  src={resolvedImageSrc}
                   alt={isActive ? item.imageAlt : ''}
                   fill
                   priority={index === activeIndex}
                   className={isActive ? 'object-contain object-bottom' : 'object-cover object-top'}
+                  unoptimized={useUnoptimizedImage}
                   sizes={
                     isActive
                       ? '(max-width: 767px) 255px, (max-width: 1023px) 320px, (max-width: 1279px) 380px, 430px'
                       : `${metrics.thumbSize}px`
                   }
+                  onError={() => {
+                    if (!imageErrors[item.id]) {
+                      setImageErrors((current) => ({
+                        ...current,
+                        [item.id]: true,
+                      }));
+                    }
+                  }}
                   style={{
                     transform: isActive ? 'scale(1.01)' : 'scale(1.2)',
                     transformOrigin: isActive ? 'center bottom' : 'center top',

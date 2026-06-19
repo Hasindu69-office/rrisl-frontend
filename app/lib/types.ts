@@ -19,6 +19,7 @@ export * from './types/organization-structure';
 export * from './types/photo-gallery';
 export * from './types/research-managers';
 export * from './types/rubber-prices';
+export * from './types/senior-management';
 export * from './types/shared';
 export * from './types/services';
 export * from './types/statistics';

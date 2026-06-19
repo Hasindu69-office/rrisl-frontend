@@ -27,6 +27,7 @@ export * from './strapi/query';
 export * from './strapi/research-managers';
 export * from './strapi/services';
 export * from './strapi/rubber-prices';
+export * from './strapi/senior-management';
 export * from './strapi/training-program';
 export * from './strapi/video-gallery';
 export * from './strapi/vacancy';
