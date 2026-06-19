@@ -38,7 +38,7 @@ export default function HeaderCta({
     <Button
       variant="primary"
       size="sm"
-      className={`min-h-[38px] px-[40px] text-xs sm:text-sm md:min-h-[42px] ${buttonClassName}`}
+      className={`px-[30px] text-xs sm:text-sm ${buttonClassName}`}
     >
       {item.title}
     </Button>

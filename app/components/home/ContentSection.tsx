@@ -98,7 +98,7 @@ export default function ContentSection({
 
             {/* Description */}
             <p
-              className="text-gray-700 mt-6 max-w-2xl text-[14px] md:text-[16px] lg:text-[18px] leading-[1.5] lg:leading-[35px]"
+              className="text-gray-700 mt-6 max-w-2xl text-[14px] md:text-[16px] lg:text-[18px] leading-[1.5] lg:leading-[35px] text-justify"
               style={{
                 fontWeight: 400, // regular
               }}
@@ -113,9 +113,7 @@ export default function ContentSection({
                   <Link href={href}>
                     <Button
                       variant="primary"
-                      size="sm"
-                      className="!w-[150px] !h-[48px] md:!w-[178px] md:!h-[56px] !rounded-[30px] !text-sm md:!text-base"
-                    >
+                      size="sm">
                       {cta.label}
                     </Button>
                   </Link>

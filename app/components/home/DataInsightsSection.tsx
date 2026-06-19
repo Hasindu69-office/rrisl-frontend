@@ -119,7 +119,7 @@ export default function DataInsightsSection({
             {section.cta && (
               section.cta.linkType === 'internal' ? (
                 <Link href={href}>
-                  <Button variant="primary" size="lg">
+                  <Button variant="primary" size="sm">
                     {section.cta.label}
                   </Button>
                 </Link>
@@ -129,7 +129,7 @@ export default function DataInsightsSection({
                   target={section.cta.openInNewTab ? '_blank' : '_self'}
                   rel={section.cta.openInNewTab ? 'noopener noreferrer' : undefined}
                 >
-                  <Button variant="primary" size="lg">
+                  <Button variant="primary" size="sm">
                     {section.cta.label}
                   </Button>
                 </a>

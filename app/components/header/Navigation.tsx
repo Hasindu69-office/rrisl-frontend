@@ -39,6 +39,31 @@ function normalizeUrl(url: string) {
   }
 }
 
+function isPlaceholderUrl(url: string | null | undefined) {
+  const trimmedUrl = url?.trim();
+  return !trimmedUrl || trimmedUrl.startsWith('#');
+}
+
+function normalizeNavigableUrl(url: string | null | undefined) {
+  if (isPlaceholderUrl(url)) {
+    return null;
+  }
+
+  return normalizeUrl(url as string);
+}
+
+function matchesPath(url: string | null | undefined, pathname: string) {
+  const normalizedUrl = normalizeNavigableUrl(url);
+
+  if (!normalizedUrl) {
+    return false;
+  }
+
+  return normalizedUrl === '/'
+    ? pathname === '/'
+    : pathname === normalizedUrl || pathname.startsWith(`${normalizedUrl}/`);
+}
+
 function isExternalUrl(url: string) {
   return url.startsWith('http') || url.startsWith('//');
 }
@@ -339,11 +364,7 @@ export default function Navigation({ menuItems }: NavigationProps) {
       return false;
     }
 
-    const normalizedUrl = normalizeUrl(item.url);
-    const selfActive =
-      normalizedUrl === '/'
-        ? pathname === '/'
-        : pathname === normalizedUrl || pathname.startsWith(`${normalizedUrl}/`);
+    const selfActive = matchesPath(item.url, pathname);
 
     if (selfActive) {
       return true;
@@ -375,7 +396,7 @@ export default function Navigation({ menuItems }: NavigationProps) {
       ref={navRef}
       aria-label="Primary navigation"
       onMouseLeave={() => setOpenPath([])}
-      className="hidden xl:flex items-center justify-between bg-white/85 rounded-[16px] md:rounded-[20px] lg:rounded-[24px] w-full max-w-[1440px] h-[44px] md:h-[52px] lg:h-[60px] px-6 md:px-10 lg:px-16 mx-auto"
+      className="hidden xl:flex items-center justify-between bg-white/85 rounded-[16px] md:rounded-[20px] lg:rounded-[50px] w-full max-w-[1440px] h-[44px] md:h-[52px] lg:h-[60px] px-6 md:px-10 lg:px-16 mx-auto"
     >
       <DesktopMenuList
         items={menuItems}

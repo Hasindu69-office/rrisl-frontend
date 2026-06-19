@@ -228,7 +228,7 @@ export default function AnnouncementSlider({
       >
         {/* Main Title with Gradient */}
         <h2
-          className="font-semibold bg-gradient-to-r from-[#20C997] to-[#A1DF0A] bg-clip-text text-transparent text-[19px] md:text-[28px] lg:text-[40px] xl:text-[50px] md:ml-8 ml-0"
+          className="lg:-mt-22 font-semibold bg-gradient-to-r from-[#20C997] to-[#A1DF0A] bg-clip-text text-transparent text-[19px] md:text-[28px] lg:text-[40px] xl:text-[50px] md:ml-14 ml-0"
           style={{
             lineHeight: '130%',
           }}

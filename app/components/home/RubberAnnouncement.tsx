@@ -200,7 +200,7 @@ export default function RubberAnnouncement({
             </div>
 
             <p
-              className="text-gray-700 mt-6 max-w-2xl text-[18px] leading-[35px]"
+              className="text-gray-700 mt-6 max-w-2xl text-[16px] leading-[35px] text-justify"
               style={{ fontWeight: 400 }}
             >
               {description}
@@ -213,7 +213,6 @@ export default function RubberAnnouncement({
                     <Button
                       variant="primary"
                       size="sm"
-                      className="!w-[178px] !h-[56px] !rounded-[30px] !text-base"
                     >
                       {cta.label}
                     </Button>
