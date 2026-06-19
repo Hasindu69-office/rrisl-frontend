@@ -38,13 +38,34 @@ function normalizeUrl(url: string) {
   }
 }
 
+function isPlaceholderUrl(url: string | null | undefined) {
+  const trimmedUrl = url?.trim();
+  return !trimmedUrl || trimmedUrl.startsWith('#');
+}
+
+function normalizeNavigableUrl(url: string | null | undefined) {
+  if (isPlaceholderUrl(url)) {
+    return null;
+  }
+
+  return normalizeUrl(url as string);
+}
+
+function matchesPath(url: string | null | undefined, pathname: string) {
+  const normalizedUrl = normalizeNavigableUrl(url);
+
+  if (!normalizedUrl) {
+    return false;
+  }
+
+  return normalizedUrl === '/'
+    ? pathname === '/'
+    : pathname === normalizedUrl || pathname.startsWith(`${normalizedUrl}/`);
+}
+
 function findActivePath(items: MenuItemType[], pathname: string): string[] {
   for (const item of items) {
-    const normalizedUrl = normalizeUrl(item.url);
-    const isDirectMatch =
-      normalizedUrl === '/'
-        ? pathname === '/'
-        : pathname === normalizedUrl || pathname.startsWith(`${normalizedUrl}/`);
+    const isDirectMatch = matchesPath(item.url, pathname);
 
     if (isDirectMatch) {
       return [item.id];
@@ -222,11 +243,7 @@ export default function MobileMenu({ menuItems, headerCta = null }: MobileMenuPr
       return false;
     }
 
-    const normalizedUrl = normalizeUrl(item.url);
-    const selfActive =
-      normalizedUrl === '/'
-        ? pathname === '/'
-        : pathname === normalizedUrl || pathname.startsWith(`${normalizedUrl}/`);
+    const selfActive = matchesPath(item.url, pathname);
 
     if (selfActive) {
       return true;

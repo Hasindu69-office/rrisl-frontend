@@ -111,7 +111,7 @@ export default function FeaturedArticleCard({
 
         {/* Description */}
         <p
-          className="font-normal mb-5 md:mb-6 text-[14px] md:text-[16px] xl:text-[18px]"
+          className="font-normal mb-5 md:mb-6 text-[14px] md:text-[16px]"
           style={{
             color: '#000000',
             lineHeight: '1.5',
