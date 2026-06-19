@@ -430,14 +430,7 @@ export default function HomeHeroWithHeader({
                 </div>
               )}
 
-              <div
-                className="hero-content-item pt-8 md:pt-12 lg:pt-[86px]"
-                style={{
-                  ['--hero-translate-y' as string]: '16px',
-                  ['--hero-duration' as string]: '450ms',
-                  ['--hero-delay' as string]: '420ms',
-                }}
-              >
+              <div className="pt-8 md:pt-12 lg:pt-[86px]">
                 <HeroStatistics statistics={statistics} />
               </div>
             </div>
