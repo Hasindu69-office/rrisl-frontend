@@ -137,7 +137,7 @@ export default function FeaturedArticleCard({
           {/* Button on the right */}
           <div className="ml-auto">
             <Link href={link}>
-              <Button variant="outline" size="sm" className="md:!text-base">
+              <Button variant="outline" size="sm">
                 {readMoreLabel}
               </Button>
             </Link>

@@ -381,7 +381,7 @@ export default function HomeHeroWithHeader({
 
               {descriptionText && (
                 <p
-                  className="hero-content-item text-[14px] md:text-[16px] lg:text-[18px] font-normal text-[#FFFFFF] max-w-2xl"
+                  className="hero-content-item text-[14px] md:text-[16px] lg:text-[18px] font-normal text-[#FFFFFF] max-w-2xl text-justify"
                   style={{
                     lineHeight: '1.5',
                     ['--hero-translate-y' as string]: '18px',
@@ -407,7 +407,7 @@ export default function HomeHeroWithHeader({
                       <Button
                         variant="primary"
                         size="sm"
-                        className="!w-[150px] !h-[48px] md:!w-[178px] md:!h-[56px] !rounded-[30px] !bg-[#2E7D32] hover:!bg-[#2E7D32]/90 !text-sm md:!text-base"
+                        className="!w-[150px] !h-[45px] md:!w-[200px] md:!h-[50px] !rounded-[30px] !bg-[#2E7D32] hover:!bg-[#2E7D32]/90 !text-sm md:!text-base"
                       >
                         {cta.label}
                       </Button>
