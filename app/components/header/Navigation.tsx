@@ -375,7 +375,7 @@ export default function Navigation({ menuItems }: NavigationProps) {
       ref={navRef}
       aria-label="Primary navigation"
       onMouseLeave={() => setOpenPath([])}
-      className="hidden xl:flex items-center justify-between bg-white/85 rounded-[16px] md:rounded-[20px] lg:rounded-[24px] w-full max-w-[1440px] h-[44px] md:h-[52px] lg:h-[60px] px-6 md:px-10 lg:px-16 mx-auto"
+      className="hidden xl:flex items-center justify-between bg-white/85 rounded-[16px] md:rounded-[20px] lg:rounded-[50px] w-full max-w-[1440px] h-[44px] md:h-[52px] lg:h-[60px] px-6 md:px-10 lg:px-16 mx-auto"
     >
       <DesktopMenuList
         items={menuItems}

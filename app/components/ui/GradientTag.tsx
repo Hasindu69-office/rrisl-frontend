@@ -23,7 +23,7 @@ export default function GradientTag({
   gradientFrom = '#20C997',
   gradientTo = '#A1DF0A',
   textColor = '#2E7D32',
-  padding = 'px-4 py-1.5'
+  padding = 'px-6 py-1'
 }: GradientTagProps) {
 
   // Check if background is transparent
@@ -86,7 +86,7 @@ export default function GradientTag({
               color: textColor,
               fontWeight: 600,
             }}
-            className="text-[12px] md:text-[14px] lg:text-[20px]"
+            className="text-[12px] md:text-[12px] lg:text-[14px]"
           >
             {text}
           </span>
@@ -117,7 +117,7 @@ export default function GradientTag({
             color: textColor,
             fontWeight: 600,
           }}
-          className="text-[12px] md:text-[14px] lg:text-[20px]"
+          className="text-[12px] md:text-[12px] lg:text-[14px]"
         >
           {text}
         </span>

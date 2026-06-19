@@ -269,7 +269,7 @@ export default function MobileMenu({ menuItems, headerCta = null }: MobileMenuPr
     <>
       <button
         onClick={handleToggleMenu}
-        className="xl:hidden p-2 text-[#546F7A] hover:text-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 rounded-lg bg-white hover:bg-gray-50 transition-colors"
+        className="xl:hidden p-2 text-[#546F7A] hover:text-green-600 rounded-lg bg-white hover:bg-gray-50 transition-colors"
         aria-label="Toggle menu"
         aria-expanded={isOpen}
       >
@@ -279,21 +279,12 @@ export default function MobileMenu({ menuItems, headerCta = null }: MobileMenuPr
           stroke="currentColor"
           viewBox="0 0 24 24"
         >
-          {isOpen ? (
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M6 18L18 6M6 6l12 12"
-            />
-          ) : (
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M4 6h16M4 12h16M4 18h16"
-            />
-          )}
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M4 6h16M4 12h16M4 18h16"
+          />
         </svg>
       </button>
 
@@ -301,22 +292,22 @@ export default function MobileMenu({ menuItems, headerCta = null }: MobileMenuPr
         ? createPortal(
             <>
               <div
-                className={`fixed inset-0 bg-black/50 z-[90] xl:hidden transition-opacity duration-300 ease-in-out ${
+                className={`fixed inset-0 bg-black/50 z-[190] xl:hidden transition-opacity duration-300 ease-in-out ${
                   isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
                 }`}
                 onClick={handleCloseMenu}
               />
 
               <div
-                className={`fixed inset-y-0 right-0 h-dvh w-80 max-w-[85vw] bg-gray-900 z-[100] xl:hidden shadow-xl overflow-y-auto transition-transform duration-300 ease-in-out ${
+                className={`fixed inset-y-0 right-0 h-dvh w-80 max-w-[85vw] bg-gray-900 z-[200] xl:hidden shadow-xl overflow-y-auto transition-transform duration-300 ease-in-out ${
                   isOpen ? 'translate-x-0 pointer-events-auto' : 'translate-x-full pointer-events-none'
                 }`}
               >
                 <div className="p-6">
-                  <div className="mb-6 flex justify-end">
+                  <div className="mb-6 flex items-center justify-end">
                     <button
                       onClick={handleCloseMenu}
-                      className="p-2 text-white hover:text-green-400 focus:outline-none"
+                      className="rounded-lg p-2 text-white transition-colors hover:bg-white/10 hover:text-green-400"
                       aria-label="Close menu"
                     >
                       <svg
