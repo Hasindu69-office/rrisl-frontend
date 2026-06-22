@@ -4,7 +4,15 @@ import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import type { GlobalLayout, HeaderCtaItem, Hero, HeroAnnouncementItem, MenuItem, StrapiImage } from '@/app/lib/types';
+import type {
+  GlobalLayout,
+  HeaderCtaItem,
+  Hero,
+  HeroAnnouncementItem,
+  MenuItem,
+  ResearchMegaMenuImages,
+  StrapiImage,
+} from '@/app/lib/types';
 import { addLocaleToUrl } from '@/app/lib/locale';
 import { getOptimizedImageUrl, getStrapiImageUrl } from '@/app/lib/strapi';
 import {
@@ -24,6 +32,7 @@ interface HomeHeroWithHeaderProps {
   heroes: Hero[];
   globalLayout: GlobalLayout | null;
   leftMenuItems: MenuItem[];
+  researchMegaMenuImages: ResearchMegaMenuImages;
   headerCta?: HeaderCtaItem | null;
   announcements?: HeroAnnouncementItem[];
   announcementLabel?: string;
@@ -37,6 +46,7 @@ export default function HomeHeroWithHeader({
   heroes,
   globalLayout,
   leftMenuItems,
+  researchMegaMenuImages,
   headerCta = null,
   announcements = [],
   announcementLabel,
@@ -244,7 +254,7 @@ export default function HomeHeroWithHeader({
 
           <div className="hidden md:block container mx-auto px-3 sm:px-4 md:px-5 lg:px-8 pb-2 sm:pb-3 md:pb-3 max-w-[1440px] w-full">
             <div className="flex items-center justify-between">
-              <Navigation menuItems={leftMenuItems} />
+              <Navigation menuItems={leftMenuItems} researchMegaMenuImages={researchMegaMenuImages} />
             </div>
           </div>
         </div>

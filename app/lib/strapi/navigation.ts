@@ -1,4 +1,4 @@
-import type { GlobalLayout, Menu } from '../types';
+import type { GlobalLayout, Menu, StrapiResponse } from '../types';
 import { fetchStrapi, unwrapSingleEntity, withLocaleFallback } from './client';
 import { buildQueryString } from './query';
 
@@ -9,7 +9,7 @@ async function fetchGlobalLayout(locale: string): Promise<GlobalLayout | null> {
     locale,
   });
 
-  const response = await fetchStrapi<any>(`/api/global-layout?${queryString}`);
+  const response = await fetchStrapi<StrapiResponse<GlobalLayout>>(`/api/global-layout?${queryString}`);
   return unwrapSingleEntity<GlobalLayout>(response);
 }
 
@@ -27,10 +27,11 @@ async function fetchMenuBySlug(slug: string, locale: string): Promise<Menu | nul
   const queryString = buildQueryString({
     'filters[slug][$eq]': slug,
     locale,
-    populate: '*',
+    'populate[0]': 'researchdepartmentbackgroundimg',
+    'populate[1]': 'estateandsubstationbackgroundimg',
   });
 
-  const response = await fetchStrapi<any>(`/api/tree-menus/menu?${queryString}`);
+  const response = await fetchStrapi<StrapiResponse<Menu>>(`/api/tree-menus/menu?${queryString}`);
   return unwrapSingleEntity<Menu>(response);
 }
 

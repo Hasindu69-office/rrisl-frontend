@@ -157,7 +157,7 @@ export default function IndustrySupportSection({
 
           {/* Central Plant Image - Absolutely positioned to center in section */}
           <div
-            className="absolute left-1/2 top-[60%] -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] md:w-[900px] md:h-[900px] lg:w-[1080px] lg:h-[1080px]"
+            className="absolute left-1/2 top-[60%] -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] md:w-[900px] md:h-[900px] lg:w-[800px] lg:h-[800px]"
           >
             <div className="relative w-full h-full">
               <Image

@@ -27,6 +27,7 @@ import { mapHomeQuickLinksSection } from '@/app/lib/home/quickLinksSection';
 import { mapHomeResearchNetworkSection } from '@/app/lib/home/researchNetworkSection';
 import { resolveHomePageStats } from '@/app/lib/home/stats';
 import { addLocaleToUrl, normalizeLocale } from '@/app/lib/locale';
+import { mapResearchMegaMenuImages } from '@/app/lib/navigation/megaMenuImages';
 import {
   formatArticleDate,
   getFeaturedArticle,
@@ -146,6 +147,7 @@ export default async function Home({ searchParams }: HomeProps) {
     leftMenu?.items && leftMenu.items.length > 0
       ? leftMenu.items
       : fallbackLeftMenu?.items || [];
+  const researchMegaMenuImages = mapResearchMegaMenuImages(leftMenu, fallbackLeftMenu);
   const rightMenuFirstItem =
     rightMenu?.items && rightMenu.items.length > 0
       ? rightMenu.items[0]
@@ -271,6 +273,7 @@ export default async function Home({ searchParams }: HomeProps) {
           statistics={heroStatistics}
           globalLayout={globalLayout}
           leftMenuItems={leftMenuItems}
+          researchMegaMenuImages={researchMegaMenuImages}
           headerCta={headerCta}
           announcements={showAnnouncementCard && allAnnouncements && allAnnouncements.length > 0 ? allAnnouncements : []}
           announcementLabel={announcementLabel}
