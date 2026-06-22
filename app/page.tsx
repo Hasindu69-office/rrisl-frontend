@@ -13,6 +13,7 @@ import {
   getHomepageStatistics,
   getMenuBySlug,
   getNewsAndBlogPage,
+  getResearchManagersPage,
 } from '@/app/lib/strapi';
 import { mapAboutSection } from '@/app/lib/home/aboutSection';
 import {
@@ -28,6 +29,7 @@ import { mapHomeResearchNetworkSection } from '@/app/lib/home/researchNetworkSec
 import { resolveHomePageStats } from '@/app/lib/home/stats';
 import { addLocaleToUrl, normalizeLocale } from '@/app/lib/locale';
 import { mapResearchMegaMenuImages } from '@/app/lib/navigation/megaMenuImages';
+import { mapResearchManagersMenuCopy } from '@/app/lib/navigation/researchManagersMenuCopy';
 import {
   formatArticleDate,
   getFeaturedArticle,
@@ -80,6 +82,8 @@ export default async function Home({ searchParams }: HomeProps) {
     fallbackEventCategories,
     localizedEventPage,
     fallbackEventPage,
+    researchManagersPage,
+    fallbackResearchManagersPage,
   ] = await Promise.all([
     getHomePage(locale),
     locale !== 'en' ? getHomePage('en') : Promise.resolve(null),
@@ -101,6 +105,8 @@ export default async function Home({ searchParams }: HomeProps) {
     locale !== 'en' ? getEventCategories('en') : Promise.resolve([]),
     getEventPage(locale),
     locale !== 'en' ? getEventPage('en') : Promise.resolve(null),
+    getResearchManagersPage(locale),
+    locale !== 'en' ? getResearchManagersPage('en') : Promise.resolve(null),
   ]);
 
   const effectiveHomePage = homePage?.hero
@@ -148,6 +154,10 @@ export default async function Home({ searchParams }: HomeProps) {
       ? leftMenu.items
       : fallbackLeftMenu?.items || [];
   const researchMegaMenuImages = mapResearchMegaMenuImages(leftMenu, fallbackLeftMenu);
+  const researchManagersMenuCopy = mapResearchManagersMenuCopy(
+    researchManagersPage,
+    fallbackResearchManagersPage,
+  );
   const rightMenuFirstItem =
     rightMenu?.items && rightMenu.items.length > 0
       ? rightMenu.items[0]
@@ -274,6 +284,7 @@ export default async function Home({ searchParams }: HomeProps) {
           globalLayout={globalLayout}
           leftMenuItems={leftMenuItems}
           researchMegaMenuImages={researchMegaMenuImages}
+          researchManagersMenuCopy={researchManagersMenuCopy}
           headerCta={headerCta}
           announcements={showAnnouncementCard && allAnnouncements && allAnnouncements.length > 0 ? allAnnouncements : []}
           announcementLabel={announcementLabel}

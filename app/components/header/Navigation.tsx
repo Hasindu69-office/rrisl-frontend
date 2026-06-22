@@ -5,13 +5,19 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { ArrowRight, ChevronDown, ChevronRight } from 'lucide-react';
-import type { MenuItem, NavigationImage, ResearchMegaMenuImages } from '@/app/lib/types';
+import type {
+  MenuItem,
+  NavigationImage,
+  ResearchMegaMenuImages,
+  ResearchManagersMenuCopy,
+} from '@/app/lib/types';
 import { addLocaleToUrl } from '@/app/lib/locale';
 import { isLocalhostAssetUrl } from '@/app/lib/strapi';
 
 interface NavigationProps {
   menuItems: MenuItem[];
   researchMegaMenuImages: ResearchMegaMenuImages;
+  researchManagersMenuCopy: ResearchManagersMenuCopy;
 }
 
 interface DesktopMenuListProps {
@@ -25,6 +31,7 @@ interface DesktopMenuListProps {
   getLocalizedUrl: (url: string) => string;
   isItemActive: (item: MenuItem) => boolean;
   researchMegaMenuImages: ResearchMegaMenuImages;
+  researchManagersMenuCopy: ResearchManagersMenuCopy;
 }
 
 const SUBMENU_COLUMN_MAX_ITEMS = 6;
@@ -38,15 +45,6 @@ const RESEARCH_DEVELOPMENT_CATEGORY_URLS = new Set([
   '/estates-and-substations',
 ]);
 const RESEARCH_MANAGERS_URL = '/research-managers';
-
-const RESEARCH_MANAGERS_MENU_COPY = {
-  eyebrow: 'Research Leadership',
-  title: 'Profiles shaping RRISL research direction',
-  description:
-    "Explore the institute's research management team through a cleaner, more readable profile format. Each card surfaces the essentials first, with the full profile available on demand.",
-  cta: 'View Full Profile',
-  label: 'Research Management',
-};
 
 function normalizeMenuTitle(title: string) {
   return title.trim().replace(/\s+/g, ' ').toLowerCase();
@@ -172,6 +170,7 @@ function DesktopMenuEntry({
   getLocalizedUrl,
   isItemActive,
   researchMegaMenuImages,
+  researchManagersMenuCopy,
 }: DesktopMenuEntryProps) {
   const itemRef = useRef<HTMLDivElement | null>(null);
   const submenuRef = useRef<HTMLDivElement | null>(null);
@@ -491,13 +490,13 @@ function DesktopMenuEntry({
                     className="research-menu-animated max-w-[620px] rounded-[24px] border border-[#E4EDE0] bg-[linear-gradient(135deg,#F8FBF6_0%,#EEF8ED_100%)] p-5 shadow-[0_18px_44px_rgba(15,63,29,0.07)] animate-[researchMenuFade_220ms_ease-out]"
                   >
                     <div className="inline-flex rounded-full bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-green-700 shadow-[0_8px_18px_rgba(15,63,29,0.06)]">
-                      {RESEARCH_MANAGERS_MENU_COPY.eyebrow}
+                      {researchManagersMenuCopy.eyebrow}
                     </div>
                     <h3 className="mt-4 max-w-[480px] text-[22px] font-semibold leading-[1.15] text-[#15341F]">
-                      {RESEARCH_MANAGERS_MENU_COPY.title}
+                      {researchManagersMenuCopy.title}
                     </h3>
                     <p className="mt-3 max-w-[540px] text-sm leading-7 text-[#546F7A]">
-                      {RESEARCH_MANAGERS_MENU_COPY.description}
+                      {researchManagersMenuCopy.description}
                     </p>
 
                     <div className="mt-6 flex flex-wrap items-center gap-4">
@@ -507,11 +506,11 @@ function DesktopMenuEntry({
                         onClick={onCloseAll}
                         className="inline-flex items-center gap-2 rounded-full bg-[#0F3F1D] px-5 py-3 text-sm font-semibold text-white transition duration-200 hover:bg-[#2E7D32] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2E7D32] focus-visible:ring-offset-2"
                       >
-                        {RESEARCH_MANAGERS_MENU_COPY.cta}
+                        {researchManagersMenuCopy.cta}
                         <ArrowRight className="h-4 w-4" strokeWidth={2.2} aria-hidden="true" />
                       </Link>
                       <p className="max-w-[260px] text-xs font-semibold uppercase tracking-[0.12em] text-[#6A7A70]">
-                        {RESEARCH_MANAGERS_MENU_COPY.label}
+                        {researchManagersMenuCopy.label}
                       </p>
                     </div>
                   </div>
@@ -553,6 +552,7 @@ function DesktopMenuEntry({
               getLocalizedUrl={getLocalizedUrl}
               isItemActive={isItemActive}
               researchMegaMenuImages={researchMegaMenuImages}
+              researchManagersMenuCopy={researchManagersMenuCopy}
             />
           )}
         </div>
@@ -572,6 +572,7 @@ function DesktopMenuList({
   getLocalizedUrl,
   isItemActive,
   researchMegaMenuImages,
+  researchManagersMenuCopy,
 }: DesktopMenuListProps) {
   const isRootLevel = level === 0;
   const itemColumns =
@@ -601,6 +602,7 @@ function DesktopMenuList({
             getLocalizedUrl={getLocalizedUrl}
             isItemActive={isItemActive}
             researchMegaMenuImages={researchMegaMenuImages}
+            researchManagersMenuCopy={researchManagersMenuCopy}
           />
         ))
       ) : (
@@ -620,6 +622,7 @@ function DesktopMenuList({
                   getLocalizedUrl={getLocalizedUrl}
                   isItemActive={isItemActive}
                   researchMegaMenuImages={researchMegaMenuImages}
+                  researchManagersMenuCopy={researchManagersMenuCopy}
                 />
               ))}
             </div>
@@ -630,7 +633,11 @@ function DesktopMenuList({
   );
 }
 
-export default function Navigation({ menuItems, researchMegaMenuImages }: NavigationProps) {
+export default function Navigation({
+  menuItems,
+  researchMegaMenuImages,
+  researchManagersMenuCopy,
+}: NavigationProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const currentLocale = searchParams.get('locale') || 'en';
@@ -717,6 +724,7 @@ export default function Navigation({ menuItems, researchMegaMenuImages }: Naviga
         getLocalizedUrl={getLocalizedUrl}
         isItemActive={isItemActive}
         researchMegaMenuImages={researchMegaMenuImages}
+        researchManagersMenuCopy={researchManagersMenuCopy}
       />
     </nav>
   );

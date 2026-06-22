@@ -51,3 +51,11 @@ export interface ResearchMegaMenuImages {
   researchDepartments: NavigationImage;
   estatesAndSubstations: NavigationImage;
 }
+
+export interface ResearchManagersMenuCopy {
+  eyebrow: string;
+  title: string;
+  description: string;
+  cta: string;
+  label: string;
+}
