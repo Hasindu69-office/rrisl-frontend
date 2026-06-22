@@ -34,8 +34,20 @@ export interface Menu {
   title: string;
   slug: string;
   items: MenuItem[];
+  researchdepartmentbackgroundimg?: StrapiImage | null;
+  estateandsubstationbackgroundimg?: StrapiImage | null;
   createdAt: string;
   updatedAt: string;
   publishedAt: string;
   locale: string;
+}
+
+export interface NavigationImage {
+  src: string;
+  alt: string;
+}
+
+export interface ResearchMegaMenuImages {
+  researchDepartments: NavigationImage;
+  estatesAndSubstations: NavigationImage;
 }

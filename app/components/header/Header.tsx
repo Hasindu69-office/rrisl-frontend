@@ -3,6 +3,7 @@ import LogoSection from './LogoSection';
 import Navigation from './Navigation';
 import HeaderActions from './HeaderActions';
 import { getGlobalLayout, getMenuBySlug } from '@/app/lib/strapi';
+import { mapResearchMegaMenuImages } from '@/app/lib/navigation/megaMenuImages';
 import { HeaderCtaItem, MenuItem } from '@/app/lib/types';
 
 interface HeaderProps {
@@ -26,6 +27,7 @@ export default async function Header({ locale = 'en', compactOnMobile = false }:
 
   // Extract menu items
   const leftMenuItems: MenuItem[] = leftMenu?.items || [];
+  const researchMegaMenuImages = mapResearchMegaMenuImages(leftMenu);
   const rightMenuFirstItem = rightMenu?.items?.[0];
   const headerCta: HeaderCtaItem | null =
     rightMenuFirstItem?.title?.trim() && rightMenuFirstItem?.url?.trim()
@@ -63,7 +65,7 @@ export default async function Header({ locale = 'en', compactOnMobile = false }:
         >
           <div className="flex items-center justify-between">
             {/* Desktop Navigation with transparent white background */}
-            <Navigation menuItems={leftMenuItems} />
+            <Navigation menuItems={leftMenuItems} researchMegaMenuImages={researchMegaMenuImages} />
           </div>
         </div>
       </div>
