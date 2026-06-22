@@ -1,15 +1,18 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import Link from 'next/link';
-import { HeroAnnouncementItem } from '@/app/lib/types';
+import { X } from 'lucide-react';
+import type { HomeUpdateSliderItem } from '@/app/lib/types';
 import { getOptimizedImageUrl, getStrapiImageUrl } from '@/app/lib/strapi';
 import { addLocaleToUrl } from '@/app/lib/locale';
 import { useSearchParams } from 'next/navigation';
+import { NEWS_AND_BLOGS_ROUTE } from '@/app/lib/news/pageData';
 
 interface AnnouncementSliderProps {
-  announcements: HeroAnnouncementItem[];
+  items: HomeUpdateSliderItem[];
   label?: string;
 }
 
@@ -83,13 +86,18 @@ function formatTitle(title: string): string {
 }
 
 export default function AnnouncementSlider({
-  announcements,
+  items,
   label = 'Research & Institute Updates',
 }: AnnouncementSliderProps) {
   const searchParams = useSearchParams();
   const currentLocale = searchParams.get('locale') || 'en';
-  const [currentIndex, setCurrentIndex] = useState(() => announcements.length);
-  const [isHovered, setIsHovered] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(() => items.length);
+  const [selectedAnnouncement, setSelectedAnnouncement] = useState<
+    Extract<HomeUpdateSliderItem, { kind: 'announcement' }> | null
+  >(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const announcementTriggerRef = useRef<HTMLButtonElement | null>(null);
   const [windowWidth, setWindowWidth] = useState(() =>
     typeof window === 'undefined' ? 0 : window.innerWidth
   );
@@ -105,33 +113,29 @@ export default function AnnouncementSlider({
     return () => window.removeEventListener('resize', updateWidth);
   }, []);
 
-  const getAnnouncementsPageUrl = () => {
-    return addLocaleToUrl('/announcements', currentLocale);
-  };
-
   // Create a circular array for infinite loop - 3 sets are enough for jump logic
-  const totalAnnouncements = announcements.length;
-  const displayAnnouncements = [...announcements, ...announcements, ...announcements];
+  const totalItems = items.length;
+  const displayItems = [...items, ...items, ...items];
 
   // Handle seamless jump when reaching boundaries
   // This effect resets the index to the middle set without animation
   useEffect(() => {
-    if (totalAnnouncements === 0) return;
+    if (totalItems === 0) return;
 
     // Boundary check for end (completed transition into the third set)
-    if (currentIndex >= totalAnnouncements * 2) {
+    if (currentIndex >= totalItems * 2) {
       const timer = setTimeout(() => {
         setTransitionEnabled(false);
-        setCurrentIndex(totalAnnouncements);
+        setCurrentIndex(totalItems);
       }, 500); // Match transition duration
       return () => clearTimeout(timer);
     }
 
     // Boundary check for start (completed transition into the first set)
-    if (currentIndex < totalAnnouncements) {
+    if (currentIndex < totalItems) {
       const timer = setTimeout(() => {
         setTransitionEnabled(false);
-        setCurrentIndex(totalAnnouncements * 2 - 1);
+        setCurrentIndex(totalItems * 2 - 1);
       }, 500); // Match transition duration
       return () => clearTimeout(timer);
     }
@@ -143,18 +147,65 @@ export default function AnnouncementSlider({
       }, 50);
       return () => clearTimeout(timer);
     }
-  }, [currentIndex, totalAnnouncements, transitionEnabled]);
+  }, [currentIndex, totalItems, transitionEnabled]);
 
   // Auto-slide functionality
   useEffect(() => {
-    if (totalAnnouncements === 0 || isHovered || !transitionEnabled) return;
+    if (totalItems === 0 || !transitionEnabled || selectedAnnouncement) return;
 
     const interval = setInterval(() => {
       setCurrentIndex((prev) => prev + 1);
-    }, 5000);
+    }, 2000);
 
     return () => clearInterval(interval);
-  }, [totalAnnouncements, isHovered, transitionEnabled]);
+  }, [totalItems, transitionEnabled, selectedAnnouncement]);
+
+  const closeAnnouncement = useCallback(() => {
+    setSelectedAnnouncement(null);
+  }, []);
+
+  useEffect(() => {
+    if (!selectedAnnouncement) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    closeButtonRef.current?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        closeAnnouncement();
+        return;
+      }
+
+      if (event.key !== 'Tab' || !dialogRef.current) return;
+
+      const focusableElements = Array.from(
+        dialogRef.current.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])'
+        )
+      );
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+
+      if (!firstElement || !lastElement) return;
+
+      if (event.shiftKey && document.activeElement === firstElement) {
+        event.preventDefault();
+        lastElement.focus();
+      } else if (!event.shiftKey && document.activeElement === lastElement) {
+        event.preventDefault();
+        firstElement.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', handleKeyDown);
+      announcementTriggerRef.current?.focus();
+    };
+  }, [closeAnnouncement, selectedAnnouncement]);
 
   // Calculate responsive values based on screen size
   // Use default desktop values during SSR to prevent hydration mismatch
@@ -197,7 +248,7 @@ export default function AnnouncementSlider({
   // The transform value calculation is now simpler
   const transformValue = currentIndex * (cardWidth + cardGap);
 
-  if (!announcements || announcements.length === 0) {
+  if (items.length === 0) {
     return null;
   }
 
@@ -210,8 +261,6 @@ export default function AnnouncementSlider({
         maxWidth: '100%',
         marginLeft: isMobile ? '-16px' : isDesktop ? '0' : '0', // Remove any container padding on mobile, keep desktop original
       }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
     >
       {/* Left: Title Section */}
       <div
@@ -255,24 +304,24 @@ export default function AnnouncementSlider({
             willChange: 'transform'
           }}
         >
-          {displayAnnouncements.map((announcement, index) => {
-            // Calculate which original announcement should be shown at this position
-            const originalIndex = index % totalAnnouncements;
-            const actualAnnouncement = announcements[originalIndex];
+          {displayItems.map((item, index) => {
+            const originalIndex = index % totalItems;
+            const actualItem = items[originalIndex];
 
             // Leftmost card in current view is "selected"
             const isSelected = index === currentIndex;
 
-            const imageUrl = actualAnnouncement?.image
-              ? getOptimizedImageUrl(actualAnnouncement.image, 'medium') ||
-              getStrapiImageUrl(actualAnnouncement.image)
+            const imageUrl = actualItem?.image
+              ? getOptimizedImageUrl(actualItem.image, 'medium') ||
+              getStrapiImageUrl(actualItem.image)
               : null;
             const isLocalhost = imageUrl?.includes('localhost') || false;
-            const summaryText = limitWords(extractTextFromSummary(actualAnnouncement?.summary || null), 25);
+            const fullSummary = extractTextFromSummary(actualItem?.summary || null);
+            const summaryText = limitWords(fullSummary, 25);
 
             return (
               <div
-                key={`announcement-${originalIndex}-${index}`}
+                key={`${item.id}-${index}`}
                 className="flex-shrink-0"
                 style={{
                   width: `${cardWidth}px`,
@@ -323,36 +372,44 @@ export default function AnnouncementSlider({
                     )}
                   </svg>
 
-                  {/* Circle Button - Top Right */}
-                  <Link
-                    href={getAnnouncementsPageUrl()}
-                    className={`absolute top-0 right-0 z-20 flex items-center justify-center ${transitionEnabled ? 'transition-all duration-300' : ''} hover:opacity-90`}
-                    style={{
-                      transform: 'translate(1%, -1%)',
-                      width: '70px',
-                      height: '70px',
-                      borderRadius: '50%',
-                      backgroundColor: isSelected ? '#0F3F1D' : 'white',
-                      border: !isSelected ? '1px solid #2E7D32' : 'none',
-                    }}
-                  >
-                    {/* Arrow Icon inside circle - pointing to top-right (northeast) */}
-                    <svg
-                      width="50"
-                      height="50"
-                      viewBox="0 0 70 70"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
+                  {/* Circle action - Top Right */}
+                  {actualItem.kind === 'announcement' ? (
+                    <button
+                      type="button"
+                      onClick={(event) => {
+                        announcementTriggerRef.current = event.currentTarget;
+                        setSelectedAnnouncement(actualItem);
+                      }}
+                      className={`absolute right-0 top-0 z-20 flex cursor-pointer items-center justify-center hover:opacity-90 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#A1DF0A] ${transitionEnabled ? 'transition-all duration-300' : ''}`}
+                      style={{
+                        transform: 'translate(1%, -1%)',
+                        width: '70px',
+                        height: '70px',
+                        borderRadius: '50%',
+                        backgroundColor: isSelected ? '#0F3F1D' : 'white',
+                        border: !isSelected ? '1px solid #2E7D32' : 'none',
+                      }}
+                      aria-label={`View announcement: ${actualItem.title}`}
                     >
-                      <path
-                        d="M25 45L45 25M45 25H35M45 25V35"
-                        stroke={isSelected ? 'white' : '#2E7D32'}
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </Link>
+                      <SliderArrow isSelected={isSelected} />
+                    </button>
+                  ) : (
+                    <Link
+                      href={addLocaleToUrl(`${NEWS_AND_BLOGS_ROUTE}/${actualItem.slug}`, currentLocale)}
+                      className={`absolute right-0 top-0 z-20 flex items-center justify-center hover:opacity-90 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#A1DF0A] ${transitionEnabled ? 'transition-all duration-300' : ''}`}
+                      style={{
+                        transform: 'translate(1%, -1%)',
+                        width: '70px',
+                        height: '70px',
+                        borderRadius: '50%',
+                        backgroundColor: isSelected ? '#0F3F1D' : 'white',
+                        border: !isSelected ? '1px solid #2E7D32' : 'none',
+                      }}
+                      aria-label={`Read article: ${actualItem.title}`}
+                    >
+                      <SliderArrow isSelected={isSelected} />
+                    </Link>
+                  )}
 
                   {/* Content Container - Clipped to SVG Path */}
                   <div
@@ -394,7 +451,7 @@ export default function AnnouncementSlider({
                             overflow: 'hidden',
                           }}
                         >
-                          {formatTitle(actualAnnouncement?.title || '')}
+                          {formatTitle(actualItem?.title || '')}
                         </h3>
                       </div>
 
@@ -419,11 +476,11 @@ export default function AnnouncementSlider({
                       )}
 
                       {/* Image (optional) */}
-                      {imageUrl && (
+                      {actualItem.kind === 'announcement' && imageUrl && (
                         <div className="mt-4 w-full h-28 md:h-32 lg:h-32 rounded-lg overflow-hidden">
                           <Image
                             src={imageUrl}
-                            alt={actualAnnouncement?.title || ''}
+                            alt={actualItem?.title || ''}
                             width={400}
                             height={200}
                             className="object-cover w-full h-full"
@@ -439,6 +496,73 @@ export default function AnnouncementSlider({
           })}
         </div>
       </div>
+
+      {selectedAnnouncement &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[200] flex min-h-dvh items-center justify-center bg-[#03140B]/75 px-4 py-6 backdrop-blur-[6px]"
+            role="presentation"
+            onMouseDown={(event) => {
+              if (event.target === event.currentTarget) closeAnnouncement();
+            }}
+          >
+            <div
+              ref={dialogRef}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby={`announcement-dialog-title-${selectedAnnouncement.id}`}
+              aria-describedby={fullDialogSummary(selectedAnnouncement.summary) ? `announcement-dialog-summary-${selectedAnnouncement.id}` : undefined}
+              className="relative max-h-[90dvh] w-full max-w-2xl overflow-y-auto rounded-[28px] border border-white/15 bg-[#F8FBF6] px-6 pb-8 pt-16 text-[#0F3F1D] shadow-[0_35px_100px_rgba(0,0,0,0.4)] sm:px-10 sm:pb-10 sm:pt-16"
+            >
+              <button
+                ref={closeButtonRef}
+                type="button"
+                onClick={closeAnnouncement}
+                className="absolute right-4 top-4 inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-full bg-[#0F3F1D] text-white transition hover:bg-[#A1DF0A] hover:text-[#10341B] focus:outline-none focus-visible:ring-4 focus-visible:ring-[#20C997]/40"
+                aria-label="Close announcement"
+              >
+                <X className="h-5 w-5" aria-hidden="true" />
+              </button>
+
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#2E7D32]">
+                Announcement
+              </p>
+              <h2
+                id={`announcement-dialog-title-${selectedAnnouncement.id}`}
+                className="mt-3 text-2xl font-semibold leading-tight sm:text-3xl"
+              >
+                {selectedAnnouncement.title}
+              </h2>
+              {fullDialogSummary(selectedAnnouncement.summary) ? (
+                <p
+                  id={`announcement-dialog-summary-${selectedAnnouncement.id}`}
+                  className="mt-5 whitespace-pre-line text-base leading-7 text-[#31543B] sm:text-lg sm:leading-8"
+                >
+                  {fullDialogSummary(selectedAnnouncement.summary)}
+                </p>
+              ) : null}
+            </div>
+          </div>,
+          document.body
+        )}
     </div>
   );
+}
+
+function SliderArrow({ isSelected }: { isSelected: boolean }) {
+  return (
+    <svg width="50" height="50" viewBox="0 0 70 70" fill="none" aria-hidden="true">
+      <path
+        d="M25 45L45 25M45 25H35M45 25V35"
+        stroke={isSelected ? 'white' : '#2E7D32'}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function fullDialogSummary(summary: string): string {
+  return extractTextFromSummary(summary);
 }

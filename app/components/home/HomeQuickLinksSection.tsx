@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import type { HomeQuickLinksSectionViewModel } from '@/app/lib/home/quickLinksSection';
+import { isLocalhostAssetUrl } from '@/app/lib/strapi';
 
 interface HomeQuickLinksSectionProps {
   section: HomeQuickLinksSectionViewModel;
@@ -24,11 +25,12 @@ export default function HomeQuickLinksSection({
             const content = (
               <span className="flex min-h-[104px] w-full flex-col items-center justify-center rounded-[9px] bg-white px-3 py-4 text-center shadow-[0_12px_30px_rgba(15,63,29,0.04)] transition-shadow duration-300 group-hover:shadow-[0_18px_40px_rgba(15,63,29,0.10)] min-[420px]:min-h-[116px] min-[420px]:px-4 md:min-h-[130px] md:px-5 md:py-5 xl:items-start xl:text-left">
                 <Image
-                  src="/images/lets-icons_arhives-group-docks-light.png"
+                  src={item.iconSrc}
                   alt=""
                   width={40}
                   height={40}
                   className="h-10 w-10 object-contain"
+                  unoptimized={isLocalhostAssetUrl(item.iconSrc)}
                 />
                 <span className="mt-3 max-w-full break-words text-[14px] font-semibold leading-tight text-[#2E7D32] md:mt-4">
                   {item.title}

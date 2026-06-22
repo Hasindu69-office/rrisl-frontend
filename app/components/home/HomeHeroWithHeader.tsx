@@ -8,7 +8,7 @@ import type {
   GlobalLayout,
   HeaderCtaItem,
   Hero,
-  HeroAnnouncementItem,
+  HomeUpdateSliderItem,
   MenuItem,
   ResearchMegaMenuImages,
   ResearchManagersMenuCopy,
@@ -36,7 +36,7 @@ interface HomeHeroWithHeaderProps {
   researchMegaMenuImages: ResearchMegaMenuImages;
   researchManagersMenuCopy: ResearchManagersMenuCopy;
   headerCta?: HeaderCtaItem | null;
-  announcements?: HeroAnnouncementItem[];
+  updateSliderItems?: HomeUpdateSliderItem[];
   announcementLabel?: string;
   statistics?: HeroStatisticItem[];
 }
@@ -51,7 +51,7 @@ export default function HomeHeroWithHeader({
   researchMegaMenuImages,
   researchManagersMenuCopy,
   headerCta = null,
-  announcements = [],
+  updateSliderItems = [],
   announcementLabel,
   statistics,
 }: HomeHeroWithHeaderProps) {
@@ -647,10 +647,10 @@ export default function HomeHeroWithHeader({
         </svg>
       </div>
 
-      {announcements && announcements.length > 0 && (
+      {updateSliderItems.length > 0 && (
         <div className="absolute bottom-36 md:bottom-0 lg:-bottom-64 xl:-bottom-64 right-0 md:right-0 z-30 pointer-events-auto pr-0 md:pr-8 lg:pr-8 left-[20px] xl:left-auto" style={{ overflow: 'visible' }}>
           <div className="flex justify-start md:justify-end lg:justify-end" style={{ overflow: 'visible', maxWidth: '100%' }}>
-            <AnnouncementSlider announcements={announcements} label={announcementLabel} />
+            <AnnouncementSlider items={updateSliderItems} label={announcementLabel} />
           </div>
         </div>
       )}

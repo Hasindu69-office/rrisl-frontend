@@ -49,7 +49,7 @@ import ResearchNetworkSection from './components/home/ResearchNetworkSection';
 import EventsProgramsSection from './components/home/EventsProgramsSection';
 import HomeQuickLinksSection from './components/home/HomeQuickLinksSection';
 import RubberAnnouncement from './components/home/RubberAnnouncement';
-import type { HeaderCtaItem } from '@/app/lib/types';
+import type { HeaderCtaItem, HomeUpdateSliderItem } from '@/app/lib/types';
 
 interface HomeProps {
   searchParams: Promise<{ locale?: string }>;
@@ -238,6 +238,30 @@ export default async function Home({ searchParams }: HomeProps) {
   const newsArticles = mapNewsArticles(
     localizedNewsArticles.length > 0 ? localizedNewsArticles : fallbackNewsArticles
   );
+  const effectiveNewsArticles =
+    localizedNewsArticles.length > 0 ? localizedNewsArticles : fallbackNewsArticles;
+  const updateSliderItems: HomeUpdateSliderItem[] = [
+    ...allAnnouncements.map((announcement) => ({
+      id: `announcement-${announcement.documentId || announcement.id}`,
+      kind: 'announcement' as const,
+      title: announcement.title,
+      summary: announcement.summary || '',
+      image: announcement.image,
+      publishedAt: announcement.publishedAt,
+    })),
+    ...effectiveNewsArticles
+      .filter((article) => Boolean(article.slug?.trim() && article.title?.trim()))
+      .slice(0, 6)
+      .map((article) => ({
+        id: `article-${article.documentId || article.id}`,
+        kind: 'article' as const,
+        title: article.title!.trim(),
+        summary: article.summary?.trim() || '',
+        image: article.featuredImage || null,
+        publishedAt: article.publishedAt,
+        slug: article.slug!.trim(),
+      })),
+  ];
   const featuredNewsArticle = getFeaturedArticle(newsArticles);
   const homepageNewsArticles = newsArticles
     .filter((article) => article.slug !== featuredNewsArticle?.slug)
@@ -282,7 +306,7 @@ export default async function Home({ searchParams }: HomeProps) {
           researchMegaMenuImages={researchMegaMenuImages}
           researchManagersMenuCopy={researchManagersMenuCopy}
           headerCta={headerCta}
-          announcements={showAnnouncementCard && allAnnouncements && allAnnouncements.length > 0 ? allAnnouncements : []}
+          updateSliderItems={showAnnouncementCard ? updateSliderItems : []}
           announcementLabel={announcementLabel}
         />
       </Suspense>
