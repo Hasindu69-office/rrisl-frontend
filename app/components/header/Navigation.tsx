@@ -526,7 +526,7 @@ function DesktopMenuEntry({
               ) : (
                 <div
                   key={`research-image-${activeResearchImage.src}`}
-                  className="research-menu-animated relative h-[220px] self-end overflow-hidden rounded-[22px] bg-[#EAF4E8] animate-[researchMenuFade_220ms_ease-out]"
+                  className="research-menu-animated relative h-[220px] self-end animate-[researchMenuFade_220ms_ease-out]"
                 >
                   <Image
                     key={activeResearchImage.src}
@@ -535,7 +535,13 @@ function DesktopMenuEntry({
                     fill
                     sizes="260px"
                     unoptimized={isLocalhostAssetUrl(activeResearchImage.src)}
-                    className="object-cover transition-transform duration-300 ease-out motion-reduce:transition-none"
+                    className="object-cover opacity-35 transition-transform duration-300 ease-out motion-reduce:transition-none"
+                    style={{
+                      WebkitMaskImage:
+                        'linear-gradient(to right, transparent 0%, black 30%, black 70%, transparent 100%)',
+                      maskImage:
+                        'linear-gradient(to right, transparent 0%, black 30%, black 70%, transparent 100%)',
+                    }}
                   />
                 </div>
               )}
