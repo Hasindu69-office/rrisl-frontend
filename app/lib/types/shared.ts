@@ -36,6 +36,7 @@ export interface AboutSection {
   body: RichTextBlock[];
   header: SectionHeader | null;
   primaryCta: HeroCta | null;
+  annoucementlabel?: string;
   imageTop: StrapiImage | null;
   imageBottom: StrapiImage | null;
 }

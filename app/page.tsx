@@ -182,9 +182,6 @@ export default async function Home({ searchParams }: HomeProps) {
       : Promise.resolve(Array(departmentSlugs.length).fill(null)),
   ]);
 
-  const localizedAnnouncement = homePage?.Announcement;
-  const fallbackAnnouncement = fallbackHomePage?.Announcement;
-
   // Always fetch English version as fallback for non-English locales
   const aboutSection = mapAboutSection(
     homePage?.aboutSection || fallbackHomePage?.aboutSection
@@ -210,9 +207,8 @@ export default async function Home({ searchParams }: HomeProps) {
       fallbackPage: fallbackDepartmentCurrentProjectPages[index],
     }))
   );
-  const announcementSection = localizedAnnouncement || fallbackAnnouncement || null;
-  const showAnnouncementCard = announcementSection?.showAnnoucementCard ?? true;
-  const announcementLabel = announcementSection?.annoucementlabel || 'Research & Institute Updates';
+  const showAnnouncementCard = true;
+  const announcementLabel = aboutSection.announcementLabel;
   const newsPageData = mapNewsPageData(localizedNewsPage, fallbackNewsPage, [], []);
   const newsSectionHeader =
     homePage?.newssectionheader || fallbackHomePage?.newssectionheader || null;
