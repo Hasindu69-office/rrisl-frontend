@@ -29,7 +29,10 @@ function buildHomePageQuery(locale: string): string {
   params.set('populate[researchnetworksection][populate][backgroundimage]', 'true');
   params.set('populate[eventsandprogramssection][populate][sectionheader]', 'true');
   params.set('populate[eventsandprogramssection][populate][noupcomingeventserrormessage]', 'true');
-  params.set('populate[quicklinkssection][populate][quicklinks]', 'true');
+  params.set(
+    'populate[quicklinkssection][populate][quicklinks][populate][icon]',
+    'true'
+  );
 
   return params.toString();
 }
@@ -37,7 +40,7 @@ function buildHomePageQuery(locale: string): string {
 async function fetchHomePage(locale: string): Promise<HomePage | null> {
   const queryString = buildHomePageQuery(locale);
   const url = queryString ? `/api/home-page?${queryString}` : '/api/home-page';
-  const response = await fetchStrapi<any>(url);
+  const response = await fetchStrapi<unknown>(url);
   return unwrapSingleEntity<HomePage>(response);
 }
 

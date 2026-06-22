@@ -46,6 +46,25 @@ export interface HeroAnnouncementItem {
   locale?: string;
 }
 
+export type HomeUpdateSliderItem =
+  | {
+      id: string;
+      kind: 'announcement';
+      title: string;
+      summary: string;
+      image: StrapiImage | null;
+      publishedAt?: string;
+    }
+  | {
+      id: string;
+      kind: 'article';
+      title: string;
+      summary: string;
+      image: StrapiImage | null;
+      publishedAt?: string;
+      slug: string;
+    };
+
 export interface AnnouncementSection {
   id: number;
   showNewsCard?: boolean;
@@ -143,6 +162,7 @@ export interface HomeEventsAndProgramsSection {
 export interface HomeQuickLink {
   id: number;
   title: string;
+  icon?: StrapiImage | null;
   url: string;
   sortorder?: number | null;
   openinnewtab: boolean;

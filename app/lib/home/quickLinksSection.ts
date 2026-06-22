@@ -1,9 +1,13 @@
 import type { HomeQuickLink, HomeQuickLinksSection } from '@/app/lib/types';
 import { addLocaleToUrl } from '@/app/lib/locale';
+import { getStrapiImageUrl } from '@/app/lib/strapi';
+
+const DEFAULT_QUICK_LINK_ICON = '/images/lets-icons_arhives-group-docks-light.png';
 
 export interface HomeQuickLinksSectionItemViewModel {
   title: string;
   href: string;
+  iconSrc: string;
   isExternal: boolean;
   openInNewTab: boolean;
 }
@@ -17,30 +21,35 @@ const QUICK_LINKS_FALLBACK: HomeQuickLinksSectionViewModel = {
     {
       title: 'PROCUREMENT NOTICE',
       href: '/bid-notice',
+      iconSrc: DEFAULT_QUICK_LINK_ICON,
       isExternal: false,
       openInNewTab: false,
     },
     {
       title: 'DOWNLOADS',
       href: '/downloads',
+      iconSrc: DEFAULT_QUICK_LINK_ICON,
       isExternal: false,
       openInNewTab: false,
     },
     {
       title: 'ADVISORY CIRCULARS',
       href: '/e-Library-Publications',
+      iconSrc: DEFAULT_QUICK_LINK_ICON,
       isExternal: false,
       openInNewTab: false,
     },
     {
       title: 'RUBBER PRICES',
       href: '/rubber-prices',
+      iconSrc: DEFAULT_QUICK_LINK_ICON,
       isExternal: false,
       openInNewTab: false,
     },
     {
       title: 'CONTACT',
       href: '/contact',
+      iconSrc: DEFAULT_QUICK_LINK_ICON,
       isExternal: false,
       openInNewTab: false,
     },
@@ -67,6 +76,7 @@ function normalizeQuickLink(
   return {
     title,
     href: isExternal ? url : addLocaleToUrl(url, locale),
+    iconSrc: getStrapiImageUrl(item.icon) || DEFAULT_QUICK_LINK_ICON,
     isExternal,
     openInNewTab: Boolean(item.openinnewtab),
   };
