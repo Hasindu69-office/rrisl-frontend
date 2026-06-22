@@ -387,7 +387,7 @@ function DesktopMenuEntry({
         >
           {isResearchMegaMenu ? (
             <div
-              className="grid h-[420px] grid-cols-[290px_minmax(600px,1fr)_260px] gap-6 overflow-hidden rounded-[28px] border border-white/70 bg-white/95 p-4 text-left shadow-[0_24px_64px_rgba(15,63,29,0.18)] backdrop-blur-xl"
+              className="grid h-[460px] grid-cols-[290px_minmax(600px,1fr)_260px] gap-6 overflow-hidden rounded-[28px] border border-white/70 bg-white/95 p-4 text-left shadow-[0_24px_64px_rgba(15,63,29,0.18)] backdrop-blur-xl"
               style={{ width: researchMenuWidth ? `${researchMenuWidth}px` : 'min(1240px, calc(100vw - 64px))' }}
             >
               <style jsx global>{`
