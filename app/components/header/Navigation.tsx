@@ -456,7 +456,7 @@ function DesktopMenuEntry({
                 {activeResearchColumns.length > 0 ? (
                   <div
                     key={`research-links-${activeResearchCategory?.id ?? 'research'}`}
-                    className="research-menu-animated grid max-h-[350px] grid-cols-3 gap-x-6 gap-y-1 overflow-y-auto overflow-x-hidden pr-1 animate-[researchMenuFade_220ms_ease-out]"
+                    className="research-menu-animated grid max-h-[450px] grid-cols-3 gap-x-6 gap-y-1 overflow-y-auto overflow-x-hidden pr-1 animate-[researchMenuFade_220ms_ease-out]"
                   >
                     {activeResearchColumns.map((columnItems, columnIndex) => (
                       <div
