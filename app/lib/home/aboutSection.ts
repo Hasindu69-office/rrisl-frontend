@@ -6,6 +6,7 @@ export interface AboutSectionViewModel {
   title: string;
   highlightedText: string;
   description: string;
+  announcementLabel: string;
   imageSrc: string;
   imageAlt: string;
   cta: HeroCta | null;
@@ -17,6 +18,7 @@ const ABOUT_SECTION_FALLBACKS: AboutSectionViewModel = {
   highlightedText: "Research for Sri Lanka's Future",
   description:
     'Rubber Research Institute of Sri Lanka is the oldest research institute on rubber in the world and is the nodal agency in Sri Lanka with the statutory responsibility for research and development on all aspects of rubber cultivation and processing for the benefit of the rubber industry.',
+  announcementLabel: 'Research & Institute Updates',
   imageSrc: '/images/sec1-img 1.png',
   imageAlt: 'Rubber Research Institute of Sri Lanka',
   cta: {
@@ -67,6 +69,8 @@ export function mapAboutSection(
     highlightedText:
       section?.header?.hightlightedtext || ABOUT_SECTION_FALLBACKS.highlightedText,
     description: description || ABOUT_SECTION_FALLBACKS.description,
+    announcementLabel:
+      section?.annoucementlabel || ABOUT_SECTION_FALLBACKS.announcementLabel,
     imageSrc,
     imageAlt: image?.alternativeText || ABOUT_SECTION_FALLBACKS.imageAlt,
     cta: section?.primaryCta || ABOUT_SECTION_FALLBACKS.cta,
