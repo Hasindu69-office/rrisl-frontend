@@ -11,6 +11,7 @@ import type {
   HeroAnnouncementItem,
   MenuItem,
   ResearchMegaMenuImages,
+  ResearchManagersMenuCopy,
   StrapiImage,
 } from '@/app/lib/types';
 import { addLocaleToUrl } from '@/app/lib/locale';
@@ -33,6 +34,7 @@ interface HomeHeroWithHeaderProps {
   globalLayout: GlobalLayout | null;
   leftMenuItems: MenuItem[];
   researchMegaMenuImages: ResearchMegaMenuImages;
+  researchManagersMenuCopy: ResearchManagersMenuCopy;
   headerCta?: HeaderCtaItem | null;
   announcements?: HeroAnnouncementItem[];
   announcementLabel?: string;
@@ -47,6 +49,7 @@ export default function HomeHeroWithHeader({
   globalLayout,
   leftMenuItems,
   researchMegaMenuImages,
+  researchManagersMenuCopy,
   headerCta = null,
   announcements = [],
   announcementLabel,
@@ -254,7 +257,11 @@ export default function HomeHeroWithHeader({
 
           <div className="hidden md:block container mx-auto px-3 sm:px-4 md:px-5 lg:px-8 pb-2 sm:pb-3 md:pb-3 max-w-[1440px] w-full">
             <div className="flex items-center justify-between">
-              <Navigation menuItems={leftMenuItems} researchMegaMenuImages={researchMegaMenuImages} />
+              <Navigation
+                menuItems={leftMenuItems}
+                researchMegaMenuImages={researchMegaMenuImages}
+                researchManagersMenuCopy={researchManagersMenuCopy}
+              />
             </div>
           </div>
         </div>

@@ -2,8 +2,9 @@ import React from 'react';
 import LogoSection from './LogoSection';
 import Navigation from './Navigation';
 import HeaderActions from './HeaderActions';
-import { getGlobalLayout, getMenuBySlug } from '@/app/lib/strapi';
+import { getGlobalLayout, getMenuBySlug, getResearchManagersPage } from '@/app/lib/strapi';
 import { mapResearchMegaMenuImages } from '@/app/lib/navigation/megaMenuImages';
+import { mapResearchManagersMenuCopy } from '@/app/lib/navigation/researchManagersMenuCopy';
 import { HeaderCtaItem, MenuItem } from '@/app/lib/types';
 
 interface HeaderProps {
@@ -16,18 +17,24 @@ export default async function Header({ locale = 'en', compactOnMobile = false }:
   const globalLayout = await getGlobalLayout(locale);
 
   // Fetch menus in parallel using slugs from global layout
-  const [leftMenu, rightMenu] = await Promise.all([
+  const [leftMenu, rightMenu, researchManagersPage, fallbackResearchManagersPage] = await Promise.all([
     globalLayout?.headerLeftMenuSlug
       ? getMenuBySlug(globalLayout.headerLeftMenuSlug, locale)
       : Promise.resolve(null),
     globalLayout?.headerRightMenuSlug
       ? getMenuBySlug(globalLayout.headerRightMenuSlug, locale)
       : Promise.resolve(null),
+    getResearchManagersPage(locale),
+    locale !== 'en' ? getResearchManagersPage('en') : Promise.resolve(null),
   ]);
 
   // Extract menu items
   const leftMenuItems: MenuItem[] = leftMenu?.items || [];
   const researchMegaMenuImages = mapResearchMegaMenuImages(leftMenu);
+  const researchManagersMenuCopy = mapResearchManagersMenuCopy(
+    researchManagersPage,
+    fallbackResearchManagersPage,
+  );
   const rightMenuFirstItem = rightMenu?.items?.[0];
   const headerCta: HeaderCtaItem | null =
     rightMenuFirstItem?.title?.trim() && rightMenuFirstItem?.url?.trim()
@@ -65,7 +72,11 @@ export default async function Header({ locale = 'en', compactOnMobile = false }:
         >
           <div className="flex items-center justify-between">
             {/* Desktop Navigation with transparent white background */}
-            <Navigation menuItems={leftMenuItems} researchMegaMenuImages={researchMegaMenuImages} />
+            <Navigation
+              menuItems={leftMenuItems}
+              researchMegaMenuImages={researchMegaMenuImages}
+              researchManagersMenuCopy={researchManagersMenuCopy}
+            />
           </div>
         </div>
       </div>
