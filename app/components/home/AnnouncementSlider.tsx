@@ -1,12 +1,8 @@
 'use client';
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
-import Image from 'next/image';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { X } from 'lucide-react';
 import type { HomeUpdateSliderItem } from '@/app/lib/types';
-import { getOptimizedImageUrl, getStrapiImageUrl } from '@/app/lib/strapi';
 import { addLocaleToUrl } from '@/app/lib/locale';
 import { useSearchParams } from 'next/navigation';
 import { NEWS_AND_BLOGS_ROUTE } from '@/app/lib/news/pageData';
@@ -92,12 +88,6 @@ export default function AnnouncementSlider({
   const searchParams = useSearchParams();
   const currentLocale = searchParams.get('locale') || 'en';
   const [currentIndex, setCurrentIndex] = useState(() => items.length);
-  const [selectedAnnouncement, setSelectedAnnouncement] = useState<
-    Extract<HomeUpdateSliderItem, { kind: 'announcement' }> | null
-  >(null);
-  const dialogRef = useRef<HTMLDivElement>(null);
-  const closeButtonRef = useRef<HTMLButtonElement>(null);
-  const announcementTriggerRef = useRef<HTMLButtonElement | null>(null);
   const [windowWidth, setWindowWidth] = useState(() =>
     typeof window === 'undefined' ? 0 : window.innerWidth
   );
@@ -151,61 +141,14 @@ export default function AnnouncementSlider({
 
   // Auto-slide functionality
   useEffect(() => {
-    if (totalItems === 0 || !transitionEnabled || selectedAnnouncement) return;
+    if (totalItems === 0 || !transitionEnabled) return;
 
     const interval = setInterval(() => {
       setCurrentIndex((prev) => prev + 1);
     }, 2000);
 
     return () => clearInterval(interval);
-  }, [totalItems, transitionEnabled, selectedAnnouncement]);
-
-  const closeAnnouncement = useCallback(() => {
-    setSelectedAnnouncement(null);
-  }, []);
-
-  useEffect(() => {
-    if (!selectedAnnouncement) return;
-
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    closeButtonRef.current?.focus();
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        closeAnnouncement();
-        return;
-      }
-
-      if (event.key !== 'Tab' || !dialogRef.current) return;
-
-      const focusableElements = Array.from(
-        dialogRef.current.querySelectorAll<HTMLElement>(
-          'button:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])'
-        )
-      );
-      const firstElement = focusableElements[0];
-      const lastElement = focusableElements[focusableElements.length - 1];
-
-      if (!firstElement || !lastElement) return;
-
-      if (event.shiftKey && document.activeElement === firstElement) {
-        event.preventDefault();
-        lastElement.focus();
-      } else if (!event.shiftKey && document.activeElement === lastElement) {
-        event.preventDefault();
-        firstElement.focus();
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      document.removeEventListener('keydown', handleKeyDown);
-      announcementTriggerRef.current?.focus();
-    };
-  }, [closeAnnouncement, selectedAnnouncement]);
+  }, [totalItems, transitionEnabled]);
 
   // Calculate responsive values based on screen size
   // Use default desktop values during SSR to prevent hydration mismatch
@@ -311,11 +254,6 @@ export default function AnnouncementSlider({
             // Leftmost card in current view is "selected"
             const isSelected = index === currentIndex;
 
-            const imageUrl = actualItem?.image
-              ? getOptimizedImageUrl(actualItem.image, 'medium') ||
-              getStrapiImageUrl(actualItem.image)
-              : null;
-            const isLocalhost = imageUrl?.includes('localhost') || false;
             const fullSummary = extractTextFromSummary(actualItem?.summary || null);
             const summaryText = limitWords(fullSummary, 25);
 
@@ -373,43 +311,21 @@ export default function AnnouncementSlider({
                   </svg>
 
                   {/* Circle action - Top Right */}
-                  {actualItem.kind === 'announcement' ? (
-                    <button
-                      type="button"
-                      onClick={(event) => {
-                        announcementTriggerRef.current = event.currentTarget;
-                        setSelectedAnnouncement(actualItem);
-                      }}
-                      className={`absolute right-0 top-0 z-20 flex cursor-pointer items-center justify-center hover:opacity-90 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#A1DF0A] ${transitionEnabled ? 'transition-all duration-300' : ''}`}
-                      style={{
-                        transform: 'translate(1%, -1%)',
-                        width: '70px',
-                        height: '70px',
-                        borderRadius: '50%',
-                        backgroundColor: isSelected ? '#0F3F1D' : 'white',
-                        border: !isSelected ? '1px solid #2E7D32' : 'none',
-                      }}
-                      aria-label={`View announcement: ${actualItem.title}`}
-                    >
-                      <SliderArrow isSelected={isSelected} />
-                    </button>
-                  ) : (
-                    <Link
-                      href={addLocaleToUrl(`${NEWS_AND_BLOGS_ROUTE}/${actualItem.slug}`, currentLocale)}
-                      className={`absolute right-0 top-0 z-20 flex items-center justify-center hover:opacity-90 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#A1DF0A] ${transitionEnabled ? 'transition-all duration-300' : ''}`}
-                      style={{
-                        transform: 'translate(1%, -1%)',
-                        width: '70px',
-                        height: '70px',
-                        borderRadius: '50%',
-                        backgroundColor: isSelected ? '#0F3F1D' : 'white',
-                        border: !isSelected ? '1px solid #2E7D32' : 'none',
-                      }}
-                      aria-label={`Read article: ${actualItem.title}`}
-                    >
-                      <SliderArrow isSelected={isSelected} />
-                    </Link>
-                  )}
+                  <Link
+                    href={addLocaleToUrl(`${NEWS_AND_BLOGS_ROUTE}/${actualItem.slug}`, currentLocale)}
+                    className={`absolute right-0 top-0 z-20 flex items-center justify-center hover:opacity-90 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#A1DF0A] ${transitionEnabled ? 'transition-all duration-300' : ''}`}
+                    style={{
+                      transform: 'translate(1%, -1%)',
+                      width: '70px',
+                      height: '70px',
+                      borderRadius: '50%',
+                      backgroundColor: isSelected ? '#0F3F1D' : 'white',
+                      border: !isSelected ? '1px solid #2E7D32' : 'none',
+                    }}
+                    aria-label={`${actualItem.kind === 'announcement' ? 'Read announcement' : 'Read article'}: ${actualItem.title}`}
+                  >
+                    <SliderArrow isSelected={isSelected} />
+                  </Link>
 
                   {/* Content Container - Clipped to SVG Path */}
                   <div
@@ -441,8 +357,8 @@ export default function AnnouncementSlider({
                         <h3
                           className="m-0 whitespace-pre-line break-words font-semibold
                             text-[24px] leading-[35px]
-                            md:text-[22px] md:leading-[35px]
-                            lg:text-[22px] lg:leading-[35px]"
+                            md:text-[18px] md:leading-[35px]
+                            lg:text-[18px] lg:leading-[35px]"
                           style={{
                             whiteSpace: 'normal',
                             display: '-webkit-box',
@@ -460,8 +376,8 @@ export default function AnnouncementSlider({
                         <p
                           className={`font-normal
                             text-[20px] leading-[35px]
-                            md:text-[20px] md:leading-[35px]
-                            lg:text-[18px] lg:leading-[35px]
+                            md:text-[16px] md:leading-[35px]
+                            lg:text-[16px] lg:leading-[35px]
                             ${isSelected ? 'text-white/90' : 'text-[#0F3F1D]/80'}
                           `}
                           style={{
@@ -475,19 +391,6 @@ export default function AnnouncementSlider({
                         </p>
                       )}
 
-                      {/* Image (optional) */}
-                      {actualItem.kind === 'announcement' && imageUrl && (
-                        <div className="mt-4 w-full h-28 md:h-32 lg:h-32 rounded-lg overflow-hidden">
-                          <Image
-                            src={imageUrl}
-                            alt={actualItem?.title || ''}
-                            width={400}
-                            height={200}
-                            className="object-cover w-full h-full"
-                            unoptimized={isLocalhost}
-                          />
-                        </div>
-                      )}
                     </div>
                   </div>
                 </div>
@@ -497,54 +400,6 @@ export default function AnnouncementSlider({
         </div>
       </div>
 
-      {selectedAnnouncement &&
-        createPortal(
-          <div
-            className="fixed inset-0 z-[200] flex min-h-dvh items-center justify-center bg-[#03140B]/75 px-4 py-6 backdrop-blur-[6px]"
-            role="presentation"
-            onMouseDown={(event) => {
-              if (event.target === event.currentTarget) closeAnnouncement();
-            }}
-          >
-            <div
-              ref={dialogRef}
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby={`announcement-dialog-title-${selectedAnnouncement.id}`}
-              aria-describedby={fullDialogSummary(selectedAnnouncement.summary) ? `announcement-dialog-summary-${selectedAnnouncement.id}` : undefined}
-              className="relative max-h-[90dvh] w-full max-w-2xl overflow-y-auto rounded-[28px] border border-white/15 bg-[#F8FBF6] px-6 pb-8 pt-16 text-[#0F3F1D] shadow-[0_35px_100px_rgba(0,0,0,0.4)] sm:px-10 sm:pb-10 sm:pt-16"
-            >
-              <button
-                ref={closeButtonRef}
-                type="button"
-                onClick={closeAnnouncement}
-                className="absolute right-4 top-4 inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-full bg-[#0F3F1D] text-white transition hover:bg-[#A1DF0A] hover:text-[#10341B] focus:outline-none focus-visible:ring-4 focus-visible:ring-[#20C997]/40"
-                aria-label="Close announcement"
-              >
-                <X className="h-5 w-5" aria-hidden="true" />
-              </button>
-
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#2E7D32]">
-                Announcement
-              </p>
-              <h2
-                id={`announcement-dialog-title-${selectedAnnouncement.id}`}
-                className="mt-3 text-2xl font-semibold leading-tight sm:text-3xl"
-              >
-                {selectedAnnouncement.title}
-              </h2>
-              {fullDialogSummary(selectedAnnouncement.summary) ? (
-                <p
-                  id={`announcement-dialog-summary-${selectedAnnouncement.id}`}
-                  className="mt-5 whitespace-pre-line text-base leading-7 text-[#31543B] sm:text-lg sm:leading-8"
-                >
-                  {fullDialogSummary(selectedAnnouncement.summary)}
-                </p>
-              ) : null}
-            </div>
-          </div>,
-          document.body
-        )}
     </div>
   );
 }
@@ -561,8 +416,4 @@ function SliderArrow({ isSelected }: { isSelected: boolean }) {
       />
     </svg>
   );
-}
-
-function fullDialogSummary(summary: string): string {
-  return extractTextFromSummary(summary);
 }
