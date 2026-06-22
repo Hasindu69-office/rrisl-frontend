@@ -1,6 +1,5 @@
 import { Suspense } from 'react';
 import {
-  getAllAnnouncements,
   getAllEvents,
   getEventCategories,
   getEventPage,
@@ -49,7 +48,30 @@ import ResearchNetworkSection from './components/home/ResearchNetworkSection';
 import EventsProgramsSection from './components/home/EventsProgramsSection';
 import HomeQuickLinksSection from './components/home/HomeQuickLinksSection';
 import RubberAnnouncement from './components/home/RubberAnnouncement';
-import type { HeaderCtaItem, HomeUpdateSliderItem } from '@/app/lib/types';
+import type {
+  HeaderCtaItem,
+  HomeUpdateSliderItem,
+  NewsArticleEntity,
+} from '@/app/lib/types';
+
+const ANNOUNCEMENT_CATEGORY = 'annoucement';
+
+function normalizeCategoryName(value: string | null | undefined): string {
+  return (value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-');
+}
+
+function isAnnouncementArticle(article: NewsArticleEntity): boolean {
+  return (article.news_categories || []).some((category) => {
+    const slug = category.slug?.trim().toLowerCase();
+    return (
+      slug === ANNOUNCEMENT_CATEGORY ||
+      normalizeCategoryName(category.name) === ANNOUNCEMENT_CATEGORY
+    );
+  });
+}
 
 interface HomeProps {
   searchParams: Promise<{ locale?: string }>;
@@ -68,7 +90,6 @@ export default async function Home({ searchParams }: HomeProps) {
     fallbackHomePageStatistics,
     globalLayout,
     fallbackGlobalLayout,
-    allAnnouncements,
     localizedNewsPage,
     fallbackNewsPage,
     localizedNewsArticles,
@@ -91,7 +112,6 @@ export default async function Home({ searchParams }: HomeProps) {
     locale !== 'en' ? getHomepageStatistics('en') : Promise.resolve([]),
     getGlobalLayout(locale),
     locale !== 'en' ? getGlobalLayout('en') : Promise.resolve(null),
-    getAllAnnouncements(locale),
     getNewsAndBlogPage(locale),
     locale !== 'en' ? getNewsAndBlogPage('en') : Promise.resolve(null),
     getAllNewsArticles(locale),
@@ -240,28 +260,24 @@ export default async function Home({ searchParams }: HomeProps) {
   );
   const effectiveNewsArticles =
     localizedNewsArticles.length > 0 ? localizedNewsArticles : fallbackNewsArticles;
+  const validSliderArticles = effectiveNewsArticles.filter(
+    (article) => Boolean(article.slug?.trim() && article.title?.trim())
+  );
+  const announcementArticles = validSliderArticles.filter(isAnnouncementArticle);
+  const regularArticles = validSliderArticles
+    .filter((article) => !isAnnouncementArticle(article))
+    .slice(0, 6);
   const updateSliderItems: HomeUpdateSliderItem[] = [
-    ...allAnnouncements.map((announcement) => ({
-      id: `announcement-${announcement.documentId || announcement.id}`,
-      kind: 'announcement' as const,
-      title: announcement.title,
-      summary: announcement.summary || '',
-      image: announcement.image,
-      publishedAt: announcement.publishedAt,
-    })),
-    ...effectiveNewsArticles
-      .filter((article) => Boolean(article.slug?.trim() && article.title?.trim()))
-      .slice(0, 6)
-      .map((article) => ({
-        id: `article-${article.documentId || article.id}`,
-        kind: 'article' as const,
-        title: article.title!.trim(),
-        summary: article.summary?.trim() || '',
-        image: article.featuredImage || null,
-        publishedAt: article.publishedAt,
-        slug: article.slug!.trim(),
-      })),
-  ];
+    ...announcementArticles,
+    ...regularArticles,
+  ].map((article) => ({
+    id: `article-${article.documentId || article.id}`,
+    kind: isAnnouncementArticle(article) ? 'announcement' : 'article',
+    title: article.title!.trim(),
+    summary: article.summary?.trim() || '',
+    publishedAt: article.publishedAt,
+    slug: article.slug!.trim(),
+  }));
   const featuredNewsArticle = getFeaturedArticle(newsArticles);
   const homepageNewsArticles = newsArticles
     .filter((article) => article.slug !== featuredNewsArticle?.slug)

@@ -52,15 +52,14 @@ export type HomeUpdateSliderItem =
       kind: 'announcement';
       title: string;
       summary: string;
-      image: StrapiImage | null;
       publishedAt?: string;
+      slug: string;
     }
   | {
       id: string;
       kind: 'article';
       title: string;
       summary: string;
-      image: StrapiImage | null;
       publishedAt?: string;
       slug: string;
     };
