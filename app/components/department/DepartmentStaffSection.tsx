@@ -53,15 +53,17 @@ function DepartmentStaffCard({
         </p>
       </div>
 
-      <div className="relative mt-6 flex-1 overflow-hidden rounded-b-[24px]">
-        <Image
-          src={member.imageSrc}
-          alt={member.imageAlt}
-          fill
-          className="object-contain object-bottom scale-[1.12] translate-y-3 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.16] group-focus-visible:scale-[1.16] md:scale-[1.12] md:translate-y-4"
-          sizes="(max-width: 767px) 100vw, (max-width: 1279px) 50vw, 33vw"
-          unoptimized={useUnoptimizedImage}
-        />
+      <div className="mt-6 flex flex-1 items-end justify-center overflow-hidden rounded-b-[24px]">
+        <div className="relative h-full w-[82%] max-w-[320px]">
+          <Image
+            src={member.imageSrc}
+            alt={member.imageAlt}
+            fill
+            className="object-contain object-bottom transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03] group-focus-visible:scale-[1.03]"
+            sizes="(max-width: 767px) 82vw, (max-width: 1279px) 41vw, 26vw"
+            unoptimized={useUnoptimizedImage}
+          />
+        </div>
       </div>
     </button>
   );
@@ -107,7 +109,7 @@ function DepartmentStaffProfileModal({
       onClick={onClose}
     >
       <div
-        className={`location-details-scroll relative flex max-h-[92dvh] w-full max-w-[1040px] flex-col overflow-y-auto overscroll-contain rounded-[28px] border border-white/14 bg-white shadow-[0_40px_120px_rgba(0,0,0,0.34)] transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] lg:flex-row lg:overflow-hidden ${
+        className={`relative flex max-h-[92dvh] w-full max-w-[1180px] flex-col overflow-y-auto rounded-[30px] border border-white/14 bg-[#F8FBF6] shadow-[0_40px_120px_rgba(0,0,0,0.34)] transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] lg:max-h-[88dvh] lg:flex-row lg:overflow-hidden ${
           isVisible
             ? 'translate-y-0 scale-100 opacity-100'
             : 'translate-y-5 scale-[0.98] opacity-0'
@@ -117,66 +119,83 @@ function DepartmentStaffProfileModal({
         <button
           type="button"
           onClick={onClose}
-          className="absolute right-4 top-4 z-20 inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-full bg-[#0F3F1D]/86 text-white backdrop-blur-sm transition hover:bg-[#A1DF0A] hover:text-[#10341B] focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+          className="absolute right-4 top-4 z-20 inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-full bg-[#0F3F1D]/82 text-white backdrop-blur-sm transition hover:bg-[#A1DF0A] hover:text-[#10341B] focus:outline-none focus-visible:ring-2 focus-visible:ring-white lg:right-5 lg:top-5"
           aria-label="Close staff profile"
         >
           <X className="h-5 w-5" strokeWidth={2.1} aria-hidden="true" />
         </button>
 
-        <aside className="relative bg-[radial-gradient(circle_at_top_left,_rgba(161,223,10,0.2),_rgba(32,201,151,0.08)_34%,_transparent_66%),linear-gradient(180deg,#10341B_0%,#184727_100%)] px-6 pb-7 pt-8 text-white lg:w-[330px] lg:px-8 lg:pb-8 lg:pt-12">
-          <div className="relative h-[168px] w-[168px] overflow-hidden rounded-[28px] border border-white/20 bg-white/12 shadow-[0_20px_50px_rgba(0,0,0,0.22)]">
+        <aside className="relative overflow-visible bg-[radial-gradient(circle_at_top_left,_rgba(161,223,10,0.18),_rgba(32,201,151,0.08)_32%,_transparent_64%),linear-gradient(180deg,#10341B_0%,#184727_100%)] px-6 pb-6 pt-8 text-white lg:w-[360px] lg:overflow-hidden lg:px-8 lg:pb-8 lg:pt-12">
+          <div className="relative h-[160px] w-[160px] overflow-hidden rounded-[30px] border border-white/20 bg-white/12 shadow-[0_20px_50px_rgba(0,0,0,0.20)] sm:h-[180px] sm:w-[180px]">
             <Image
               src={member.imageSrc}
               alt={member.imageAlt}
               fill
               className="object-contain object-top"
-              sizes="168px"
+              sizes="(max-width: 639px) 160px, 180px"
               priority
               unoptimized={useUnoptimizedImage}
             />
           </div>
+
+          <p className="mt-6 text-[12px] font-semibold uppercase tracking-[0.18em] text-[#A7E46A]">
+            Department Staff
+          </p>
+          <h3
+            id={`department-staff-title-${member.id || member.name}`}
+            className="mt-3 text-[28px] font-semibold leading-[1.14]"
+          >
+            {member.role}
+          </h3>
+          <p className="mt-4 text-[21px] font-semibold leading-[1.25] text-white">
+            {member.name}
+          </p>
+          {member.credentials ? (
+            <p className="mt-3 text-[15px] leading-7 text-white/76">
+              {member.credentials}
+            </p>
+          ) : null}
+
+          {member.emails && member.emails.length > 0 ? (
+            <div className="mt-6 space-y-3 border-t border-white/12 pt-6">
+              {member.emails.map((email) => (
+                <a
+                  key={email}
+                  href={`mailto:${email}`}
+                  className="block break-all text-[14px] font-medium text-[#D9F5CC] transition hover:text-white"
+                >
+                  {email}
+                </a>
+              ))}
+            </div>
+          ) : null}
         </aside>
 
-        <div className="location-details-scroll min-h-0 flex-1 px-6 py-7 md:px-8 lg:overflow-y-auto lg:px-10 lg:py-10 lg:pr-8">
-          <div className="max-w-[680px]">
-            <h4
-              id={`department-staff-title-${member.id || member.name}`}
-              className="mt-2 text-[26px] font-semibold leading-tight text-[#15341F] md:text-[30px]"
-            >
-              {member.role}
-            </h4>
+        <div className="min-h-0 flex-1 px-6 py-6 md:px-8 md:py-8 lg:overflow-y-auto lg:px-10 lg:py-10">
+          <div className="mx-auto max-w-[720px]">
+            <div className="rounded-[28px] border border-[#E3EBDD] bg-white px-5 py-6 shadow-[0_18px_50px_rgba(15,63,29,0.05)] md:px-7 md:py-7">
+              <h4 className="text-[22px] font-semibold text-[#15341F]">
+                Profile Overview
+              </h4>
+              <div className="mt-5 space-y-5">
+                {member.biography ? (
+                  <p className="text-[15px] leading-8 text-[#4A5F54]">
+                    {member.biography}
+                  </p>
+                ) : null}
 
-            <p className="mt-4 text-[16px] font-medium leading-7 text-[#16311F]">
-              {member.name}
-              {member.credentials ? `, ${member.credentials}` : ''}
-            </p>
+                {member.currentWork ? (
+                  <p className="text-[15px] leading-8 text-[#4A5F54]">
+                    {member.currentWork}
+                  </p>
+                ) : null}
 
-            {member.emails && member.emails.length > 0 ? (
-              <div className="mt-3 flex flex-wrap gap-x-3 gap-y-2">
-                {member.emails.map((email) => (
-                  <a
-                    key={email}
-                    href={`mailto:${email}`}
-                    className="break-all text-[15px] font-medium italic text-[#1468B3] transition hover:text-[#0F3F1D]"
-                  >
-                    {email}
-                  </a>
-                ))}
+                {!member.biography && !member.currentWork ? (
+                  <p className="text-[15px] leading-8 text-[#4A5F54]">
+                    Profile details are not available at this time.
+                  </p>
+                ) : null}
               </div>
-            ) : null}
-
-            <div className="mt-6 space-y-5 border-t border-[#E3EBDD] pt-6">
-              {member.biography ? (
-                <p className="text-[16px] leading-8 text-[#20372B]">
-                  {member.biography}
-                </p>
-              ) : null}
-
-              {member.currentWork ? (
-                <p className="text-[16px] leading-8 text-[#20372B]">
-                  {member.currentWork}
-                </p>
-              ) : null}
             </div>
           </div>
         </div>
