@@ -45,7 +45,7 @@ export default function Footer() {
 
   return (
     <div className="-mt-[200px] md:-mt-[236px] lg:-mt-[248px]">
-      <div className="-mb-[270px]">
+      <div className="-mb-[220px]">
         <FooterNewsletter />
       </div>
       <FooterMain config={config} locale={locale} />
