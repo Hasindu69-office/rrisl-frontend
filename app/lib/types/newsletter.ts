@@ -6,5 +6,6 @@ export interface NewsletterSection {
   ButtonText: string;
   SuccessMessage: string;
   ErrorMessage: string;
+  Alreadysubscribedmessage?: string | null;
   locale?: string;
 }

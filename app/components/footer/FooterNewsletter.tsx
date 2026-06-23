@@ -16,6 +16,7 @@ const fallbackContent: NewsletterSection = {
   ButtonText: 'Submit',
   SuccessMessage: "Thank you for subscribing. You'll start receiving updates soon.",
   ErrorMessage: 'Something went wrong. Please try again later.',
+  Alreadysubscribedmessage: 'This email is already subscribed.',
 };
 
 export default function FooterNewsletter() {
@@ -24,6 +25,8 @@ export default function FooterNewsletter() {
   const [content, setContent] = useState<NewsletterSection>(fallbackContent);
   const { email, status, errorMessage, setEmail, handleSubmit, resetSubmissionState } =
     useNewsletterForm({
+      alreadySubscribedMessage:
+        content.Alreadysubscribedmessage || fallbackContent.Alreadysubscribedmessage || undefined,
       genericErrorMessage: content.ErrorMessage,
     });
 
@@ -169,6 +172,5 @@ export default function FooterNewsletter() {
     </section>
   );
 }
-
 
 

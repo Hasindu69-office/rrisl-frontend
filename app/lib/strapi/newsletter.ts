@@ -8,6 +8,16 @@ export type CreateNewsletterSubscriberInput = {
   State?: 'Active' | 'Inactive';
 };
 
+export class NewsletterSubscriptionError extends Error {
+  constructor(
+    message: string,
+    public readonly code: 'already_subscribed' | 'validation_error' | 'unknown_error'
+  ) {
+    super(message);
+    this.name = 'NewsletterSubscriptionError';
+  }
+}
+
 function buildNewsletterSectionQuery(locale: string): string {
   const params = new URLSearchParams();
 
@@ -60,11 +70,13 @@ export async function createNewsletterSubscriber(
   if (!response.ok) {
     const errorText = await response.text().catch(() => 'Unknown error');
     let errorMessage = 'Failed to subscribe to the newsletter.';
+    let errorCode: NewsletterSubscriptionError['code'] = 'unknown_error';
 
     try {
       const parsedError = JSON.parse(errorText) as {
         message?: string;
         error?: {
+          name?: string;
           message?: string;
           details?: {
             errors?: Array<{
@@ -75,20 +87,38 @@ export async function createNewsletterSubscriber(
         };
       };
 
-      const fieldError = parsedError.error?.details?.errors?.[0]?.message;
+      const fieldErrors = parsedError.error?.details?.errors || [];
+      const emailUniqueError = fieldErrors.find((fieldError) => {
+        const fieldPath = fieldError.path?.join('.');
+        return fieldPath === 'Email' && fieldError.message === 'This attribute must be unique';
+      });
+      const fieldError = fieldErrors[0]?.message;
+
+      if (emailUniqueError) {
+        errorMessage = 'This email is already subscribed.';
+        errorCode = 'already_subscribed';
+      } else {
+        errorCode = parsedError.error?.name === 'ValidationError' ? 'validation_error' : errorCode;
+      }
+
       errorMessage =
-        fieldError ||
-        parsedError.message ||
-        parsedError.error?.message ||
-        errorMessage;
+        emailUniqueError
+          ? errorMessage
+          : fieldError ||
+            parsedError.message ||
+            parsedError.error?.message ||
+            errorMessage;
     } catch {
       // Keep the default message when the response body is not JSON.
     }
 
-    console.error(
-      `[Strapi API] Error ${response.status} ${response.statusText} for ${url}`,
-      errorText
-    );
-    throw new Error(errorMessage);
+    if (errorCode !== 'already_subscribed') {
+      console.error(
+        `[Strapi API] Error ${response.status} ${response.statusText} for ${url}`,
+        errorText
+      );
+    }
+
+    throw new NewsletterSubscriptionError(errorMessage, errorCode);
   }
 }

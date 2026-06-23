@@ -1,11 +1,12 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
-import { createNewsletterSubscriber } from '@/app/lib/strapi';
+import { createNewsletterSubscriber, NewsletterSubscriptionError } from '@/app/lib/strapi';
 
 type Status = 'idle' | 'submitting' | 'success' | 'error';
 
 type UseNewsletterFormOptions = {
+  alreadySubscribedMessage?: string;
   genericErrorMessage?: string;
 };
 
@@ -70,10 +71,21 @@ export function useNewsletterForm(options: UseNewsletterFormOptions = {}) {
       setEmail('');
       setStatus('success');
     } catch (error: unknown) {
-      console.error('Newsletter subscription error:', error);
+      if (
+        !(error instanceof NewsletterSubscriptionError) ||
+        error.code !== 'already_subscribed'
+      ) {
+        console.error('Newsletter subscription error:', error);
+      }
+
       setStatus('error');
+      const isAlreadySubscribed =
+        error instanceof NewsletterSubscriptionError && error.code === 'already_subscribed';
+
       setErrorMessage(
-        error instanceof Error
+        isAlreadySubscribed
+          ? options.alreadySubscribedMessage || error.message
+          : error instanceof Error
           ? error.message || options.genericErrorMessage || 'Something went wrong. Please try again later.'
           : options.genericErrorMessage || 'Something went wrong. Please try again later.'
       );
