@@ -55,10 +55,12 @@ export function useNewsletterForm(options: UseNewsletterFormOptions = {}) {
     setErrorMessage(null);
 
     try {
-      const sourcePage =
+      const currentPage =
         typeof window !== 'undefined'
           ? `${window.location.pathname}${window.location.search}` || '/'
           : '/';
+      const sourcePage = currentPage === '/' ? '/home' : currentPage;
+
       await createNewsletterSubscriber({
         Email: normalizedEmail,
         SourcePage: sourcePage,
