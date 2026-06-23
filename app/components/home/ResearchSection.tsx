@@ -14,6 +14,7 @@ export default function ResearchSection({ section }: ResearchSectionProps) {
       titlePart1={section.titlePart1}
       titlePart2={section.titlePart2}
       projects={section.projects}
+      autoSlide
     />
   );
 }

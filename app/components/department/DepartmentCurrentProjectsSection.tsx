@@ -23,11 +23,14 @@ interface DepartmentCurrentProjectsSectionProps {
   projects: DepartmentCurrentProjectItem[];
   containerClassName?: string;
   sectionId?: string;
+  autoSlide?: boolean;
+  autoSlideIntervalMs?: number;
 }
 
 const MOBILE_GAP = 20;
 const TABLET_GAP = 24;
 const DESKTOP_GAP = 28;
+const DEFAULT_AUTO_SLIDE_INTERVAL_MS = 3000;
 
 function getVisibleCardCount(viewportWidth: number) {
   if (viewportWidth >= 1024) {
@@ -126,10 +129,14 @@ export default function DepartmentCurrentProjectsSection({
   projects,
   containerClassName = '',
   sectionId,
+  autoSlide = false,
+  autoSlideIntervalMs = DEFAULT_AUTO_SLIDE_INTERVAL_MS,
 }: DepartmentCurrentProjectsSectionProps) {
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [viewportWidth, setViewportWidth] = useState(0);
+  const [isAutoSlidePaused, setIsAutoSlidePaused] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
   useEffect(() => {
     const node = viewportRef.current;
@@ -192,40 +199,166 @@ export default function DepartmentCurrentProjectsSection({
   };
 
   useEffect(() => {
-    if (activeIndex > maxIndex) {
-      setActiveIndex(maxIndex);
+    if (!autoSlide || typeof window === 'undefined') {
+      return;
     }
-  }, [activeIndex, maxIndex]);
+
+    const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const syncMotionPreference = (event?: MediaQueryListEvent) => {
+      setPrefersReducedMotion(event ? event.matches : motionQuery.matches);
+    };
+
+    syncMotionPreference();
+    motionQuery.addEventListener('change', syncMotionPreference);
+
+    return () => {
+      motionQuery.removeEventListener('change', syncMotionPreference);
+    };
+  }, [autoSlide]);
+
+  useEffect(() => {
+    if (
+      !autoSlide ||
+      !canSlide ||
+      isAutoSlidePaused ||
+      prefersReducedMotion ||
+      autoSlideIntervalMs <= 0
+    ) {
+      return;
+    }
+
+    const intervalId = window.setInterval(() => {
+      startTransition(() => {
+        setActiveIndex((previousIndex) => {
+          const safePreviousIndex = Math.min(previousIndex, maxIndex);
+
+          return safePreviousIndex >= maxIndex ? 0 : safePreviousIndex + 1;
+        });
+      });
+    }, autoSlideIntervalMs);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [
+    autoSlide,
+    autoSlideIntervalMs,
+    canSlide,
+    isAutoSlidePaused,
+    maxIndex,
+    prefersReducedMotion,
+  ]);
+
+  const handleAutoSlidePause = () => {
+    if (!autoSlide) {
+      return;
+    }
+
+    setIsAutoSlidePaused(true);
+  };
+
+  const handleAutoSlideResume = () => {
+    if (!autoSlide) {
+      return;
+    }
+
+    setIsAutoSlidePaused(false);
+  };
+
+  const handleAutoSlideBlur = (event: React.FocusEvent<HTMLDivElement>) => {
+    if (!event.currentTarget.contains(event.relatedTarget)) {
+      handleAutoSlideResume();
+    }
+  };
 
   return (
     <section id={sectionId} className="scroll-mt-28 bg-white py-16 md:py-20 lg:py-24">
       <div className={`mx-auto max-w-[1600px] px-4 md:px-6 xl:w-[80%] xl:px-0 ${containerClassName}`}>
-        <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
-          <div className="max-w-[760px]" data-department-reveal>
-            <GradientTag
-              text={tagText}
-              backgroundColor="transparent"
-              className="inline-block"
-              padding="px-4 py-1"
-            />
+        <div
+          onMouseEnter={handleAutoSlidePause}
+          onMouseLeave={handleAutoSlideResume}
+          onFocus={handleAutoSlidePause}
+          onBlur={handleAutoSlideBlur}
+        >
+          <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
+            <div className="max-w-[760px]" data-department-reveal>
+              <GradientTag
+                text={tagText}
+                backgroundColor="transparent"
+                className="inline-block"
+                padding="px-4 py-1"
+              />
 
-            <GradientTitle
-              part1={titlePart1}
-              part2={titlePart2}
-              lineBreak={false}
-              part1Color="dark-green"
-              size="custom"
-              customSize="clamp(30px, 4vw, 58px)"
-              align="left"
-              className="mt-5 font-bold leading-[1.12]"
-            />
+              <GradientTitle
+                part1={titlePart1}
+                part2={titlePart2}
+                lineBreak={false}
+                part1Color="dark-green"
+                size="custom"
+                customSize="clamp(30px, 4vw, 58px)"
+                align="left"
+                className="mt-5 font-bold leading-[1.12]"
+              />
+            </div>
+
+            <div
+              className={`hidden items-center gap-3 self-end lg:self-start ${
+                canSlide ? 'lg:flex' : 'lg:hidden'
+              }`}
+              data-department-reveal
+            >
+              <button
+                type="button"
+                aria-label="Previous projects"
+                onClick={handlePrevious}
+                disabled={boundedActiveIndex === 0}
+                className="flex h-12 w-12 items-center justify-center rounded-full bg-[#0F4B1D] text-white transition duration-300 hover:bg-[#136127] disabled:cursor-not-allowed disabled:bg-[#DCE5D7] disabled:text-[#8BA191]"
+              >
+                <ArrowLeft className="h-5 w-5" strokeWidth={2.2} />
+              </button>
+              <button
+                type="button"
+                aria-label="Next projects"
+                onClick={handleNext}
+                disabled={boundedActiveIndex >= maxIndex}
+                className="flex h-12 w-12 items-center justify-center rounded-full bg-[#0F4B1D] text-white transition duration-300 hover:bg-[#136127] disabled:cursor-not-allowed disabled:bg-[#DCE5D7] disabled:text-[#8BA191]"
+              >
+                <ArrowRight className="h-5 w-5" strokeWidth={2.2} />
+              </button>
+            </div>
           </div>
 
           <div
-            className={`hidden items-center gap-3 self-end lg:self-start ${
-              canSlide ? 'lg:flex' : 'lg:hidden'
-            }`}
+            ref={viewportRef}
             data-department-reveal
+            className="mt-12 overflow-x-hidden overflow-y-visible pt-2 pb-16 lg:pt-2 lg:pb-20"
+          >
+            <div
+              className="flex items-start transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
+              style={{
+                gap: `${trackGap}px`,
+                transform: `translateX(-${translateX}px)`,
+              }}
+            >
+              {projects.map((project, index) => (
+                <div
+                  key={project.id}
+                  className="shrink-0"
+                  style={{
+                    width: cardWidth > 0 ? `${cardWidth}px` : undefined,
+                    flexBasis: cardWidth > 0 ? `${cardWidth}px` : undefined,
+                  }}
+                >
+                  <ProjectCard project={project} staggered={index % 2 === 1} />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div
+            className={`mt-2 items-center justify-center gap-3 lg:hidden ${
+              canSlide ? 'flex' : 'hidden'
+            }`}
           >
             <button
               type="button"
@@ -246,58 +379,6 @@ export default function DepartmentCurrentProjectsSection({
               <ArrowRight className="h-5 w-5" strokeWidth={2.2} />
             </button>
           </div>
-        </div>
-
-        <div
-          ref={viewportRef}
-          data-department-reveal
-          className="mt-12 overflow-x-hidden overflow-y-visible pt-2 pb-16 lg:pt-2 lg:pb-20"
-        >
-          <div
-            className="flex items-start transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
-            style={{
-              gap: `${trackGap}px`,
-              transform: `translateX(-${translateX}px)`,
-            }}
-          >
-            {projects.map((project, index) => (
-              <div
-                key={project.id}
-                className="shrink-0"
-                style={{
-                  width: cardWidth > 0 ? `${cardWidth}px` : undefined,
-                  flexBasis: cardWidth > 0 ? `${cardWidth}px` : undefined,
-                }}
-              >
-                <ProjectCard project={project} staggered={index % 2 === 1} />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div
-          className={`mt-2 items-center justify-center gap-3 lg:hidden ${
-            canSlide ? 'flex' : 'hidden'
-          }`}
-        >
-          <button
-            type="button"
-            aria-label="Previous projects"
-            onClick={handlePrevious}
-            disabled={boundedActiveIndex === 0}
-            className="flex h-12 w-12 items-center justify-center rounded-full bg-[#0F4B1D] text-white transition duration-300 hover:bg-[#136127] disabled:cursor-not-allowed disabled:bg-[#DCE5D7] disabled:text-[#8BA191]"
-          >
-            <ArrowLeft className="h-5 w-5" strokeWidth={2.2} />
-          </button>
-          <button
-            type="button"
-            aria-label="Next projects"
-            onClick={handleNext}
-            disabled={boundedActiveIndex >= maxIndex}
-            className="flex h-12 w-12 items-center justify-center rounded-full bg-[#0F4B1D] text-white transition duration-300 hover:bg-[#136127] disabled:cursor-not-allowed disabled:bg-[#DCE5D7] disabled:text-[#8BA191]"
-          >
-            <ArrowRight className="h-5 w-5" strokeWidth={2.2} />
-          </button>
         </div>
       </div>
     </section>
