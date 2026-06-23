@@ -16,6 +16,7 @@ const fallbackContent: NewsletterSection = {
   ButtonText: 'Submit',
   SuccessMessage: "Thank you for subscribing. You'll start receiving updates soon.",
   ErrorMessage: 'Something went wrong. Please try again later.',
+  Alreadysubscribedmessage: 'This email is already subscribed.',
 };
 
 export default function FooterNewsletter() {
@@ -24,6 +25,8 @@ export default function FooterNewsletter() {
   const [content, setContent] = useState<NewsletterSection>(fallbackContent);
   const { email, status, errorMessage, setEmail, handleSubmit, resetSubmissionState } =
     useNewsletterForm({
+      alreadySubscribedMessage:
+        content.Alreadysubscribedmessage || fallbackContent.Alreadysubscribedmessage || undefined,
       genericErrorMessage: content.ErrorMessage,
     });
 
@@ -68,7 +71,7 @@ export default function FooterNewsletter() {
       className="relative z-20 px-4 md:px-6 lg:px-36"
     >
       <div className="mx-auto w-full max-w-[1480px]">
-        <div className="relative flex items-center overflow-hidden rounded-[24px] md:rounded-[32px] bg-gradient-to-r from-[#20C997] to-[#A1DF0A] px-6 py-10 md:px-12 md:py-16 xl:px-[97px] xl:py-0 xl:h-[290px] shadow-[0_16px_40px_rgba(0,0,0,0.25)] md:shadow-[0_24px_60px_rgba(0,0,0,0.3)] lg:shadow-[0_32px_80px_rgba(0,0,0,0.35)]">
+        <div className="relative flex items-center overflow-hidden rounded-[24px] md:rounded-[32px] bg-gradient-to-r from-[#20C997] to-[#A1DF0A] px-6 py-10 md:px-12 md:py-16 xl:px-[97px] xl:py-0 xl:h-[250px] shadow-[0_16px_40px_rgba(0,0,0,0.25)] md:shadow-[0_24px_60px_rgba(0,0,0,0.3)] lg:shadow-[0_32px_80px_rgba(0,0,0,0.35)]">
           {/* Content layout */}
           <div className="w-full grid items-center gap-8 xl:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
             {/* Text */}
@@ -81,7 +84,7 @@ export default function FooterNewsletter() {
             {/* Form */}
             <form
               onSubmit={handleSubmit}
-              className="w-full xl:w-auto h-auto xl:h-[74px]"
+              className="w-full xl:w-auto h-auto xl:h-[70px]"
               noValidate
             >
               <label className="sr-only" htmlFor="footer-newsletter-email">
@@ -169,6 +172,5 @@ export default function FooterNewsletter() {
     </section>
   );
 }
-
 
 
