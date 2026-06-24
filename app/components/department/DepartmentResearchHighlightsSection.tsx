@@ -654,7 +654,7 @@ export default function DepartmentResearchHighlightsSection({
               <div
                 className={`relative ${
                   sectionHeight
-                    ? 'location-details-scroll overflow-y-auto overscroll-contain pr-1 sm:pr-2 md:pr-3'
+                    ? 'location-details-scroll overflow-y-auto overscroll-y-auto pr-1 sm:pr-2 md:pr-3'
                     : 'space-y-4'
                 }`}
                 style={
