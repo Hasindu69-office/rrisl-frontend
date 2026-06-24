@@ -386,7 +386,7 @@ function DesktopMenuEntry({
         >
           {isResearchMegaMenu ? (
             <div
-              className="grid h-[460px] grid-cols-[290px_minmax(600px,1fr)_260px] gap-6 overflow-hidden rounded-[28px] border border-white/70 bg-white/95 p-4 text-left shadow-[0_24px_64px_rgba(15,63,29,0.18)] backdrop-blur-xl"
+              className="relative grid h-[460px] grid-cols-[290px_minmax(0,1fr)] gap-6 overflow-hidden rounded-[28px] border border-white/70 bg-white/95 p-4 text-left shadow-[0_24px_64px_rgba(15,63,29,0.18)] backdrop-blur-xl"
               style={{ width: researchMenuWidth ? `${researchMenuWidth}px` : 'min(1240px, calc(100vw - 64px))' }}
             >
               <style jsx global>{`
@@ -408,7 +408,7 @@ function DesktopMenuEntry({
                   }
                 }
               `}</style>
-              <div className="flex flex-col gap-1 border-r border-[#E4E8E0] pr-3">
+              <div className="relative z-10 flex flex-col gap-1 border-r border-[#E4E8E0] pr-3">
                 {researchCategories.map((category) => {
                   const categoryActive = activeResearchCategory?.id === category.id;
                   const categoryRouteActive = isItemActive(category);
@@ -440,7 +440,7 @@ function DesktopMenuEntry({
                 })}
               </div>
 
-              <div className="min-h-0 py-1">
+              <div className="relative z-10 min-h-0 py-1">
                 {activeResearchCategory ? (
                   <div
                     key={`research-heading-${activeResearchCategory.id}`}
@@ -521,30 +521,31 @@ function DesktopMenuEntry({
                 )}
               </div>
 
-              {!activeResearchImage ? (
-                <div aria-hidden="true" />
-              ) : (
+              {activeResearchImage ? (
                 <div
                   key={`research-image-${activeResearchImage.src}`}
-                  className="research-menu-animated relative h-[220px] self-end animate-[researchMenuFade_220ms_ease-out]"
+                  className="research-menu-animated pointer-events-none absolute -bottom-10 -right-8 z-0 h-[58%] w-1/2 animate-[researchMenuFade_220ms_ease-out]"
                 >
                   <Image
                     key={activeResearchImage.src}
                     src={activeResearchImage.src}
                     alt={activeResearchImage.alt}
                     fill
-                    sizes="260px"
+                    sizes="50vw"
                     unoptimized={isLocalhostAssetUrl(activeResearchImage.src)}
-                    className="object-cover opacity-35 transition-transform duration-300 ease-out motion-reduce:transition-none"
+                    className="object-cover opacity-30 transition-transform duration-300 ease-out motion-reduce:transition-none"
+                    objectPosition="right bottom"
                     style={{
                       WebkitMaskImage:
-                        'linear-gradient(to right, transparent 0%, black 30%, black 70%, transparent 100%)',
+                        'linear-gradient(to left, black 0%, black 55%, transparent 100%), linear-gradient(to bottom, transparent 0%, black 22%, black 100%)',
                       maskImage:
-                        'linear-gradient(to right, transparent 0%, black 30%, black 70%, transparent 100%)',
+                        'linear-gradient(to left, black 0%, black 55%, transparent 100%), linear-gradient(to bottom, transparent 0%, black 22%, black 100%)',
+                      WebkitMaskComposite: 'source-in',
+                      maskComposite: 'intersect',
                     }}
                   />
                 </div>
-              )}
+              ) : null}
             </div>
           ) : (
             <DesktopMenuList
