@@ -98,7 +98,7 @@ export default function DepartmentSection({
                             className="font-bold leading-[1.2]"
                         />
 
-                        <p className="text-justify text-[16px] leading-[1.7] text-gray-700 md:text-[18px] lg:max-w-[640px] lg:text-[18px] lg:leading-[1.95]">
+                        <p className="text-justify text-[16px] leading-[1.7] text-gray-700 md:text-[16px] lg:max-w-[640px] lg:text-[16px] lg:leading-[1.7]">
                             {description}
                         </p>
 
@@ -127,7 +127,7 @@ export default function DepartmentSection({
                                     ) : (
                                         <LeafIcon />
                                     )}
-                                    <span className="text-justify text-[16px] leading-[1.7] text-gray-800 md:text-[17px] md:leading-[1.8] lg:text-[18px] lg:leading-[1.9]">
+                                    <span className="text-justify text-[16px] leading-[1.7] text-gray-800 md:text-[17px] md:leading-[1.7] lg:text-[17px] lg:leading-[1.7]">
                                         {normalizedPoint.text}
                                     </span>
                                 </li>
