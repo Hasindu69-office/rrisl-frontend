@@ -48,7 +48,7 @@ function DepartmentStaffCard({
         <h3 className="text-[18px] font-semibold leading-[1.25] text-[#0F3F1D] md:text-[19px] xl:text-[20px]">
           {member.name}
         </h3>
-        <p className="text-[18px] leading-[1.5] text-[#1E1E1E]">
+        <p className="text-[16px] leading-[1.5] text-[#1E1E1E]">
           {member.role}
         </p>
       </div>
@@ -138,9 +138,6 @@ function DepartmentStaffProfileModal({
             />
           </div>
 
-          <p className="mt-6 text-[12px] font-semibold uppercase tracking-[0.18em] text-[#A7E46A]">
-            Department Staff
-          </p>
           <h3
             id={`department-staff-title-${member.id || member.name}`}
             className="mt-3 text-[28px] font-semibold leading-[1.14]"

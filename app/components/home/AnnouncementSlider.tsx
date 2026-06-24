@@ -74,8 +74,8 @@ function formatTitle(title: string): string {
   if (!title) return '';
   const words = title.split(/\s+/).filter(word => word.length > 0);
 
-  if (words.length > 8) {
-    return words.slice(0, 8).join(' ') + '...';
+  if (words.length > 10) {
+    return words.slice(0, 10).join(' ') + '...';
   }
 
   return words.join(' ');
@@ -155,6 +155,7 @@ export default function AnnouncementSlider({
   const isMobile = windowWidth > 0 && windowWidth < 640;
   const isTablet = windowWidth >= 640 && windowWidth < 1024;
   const isDesktop = windowWidth === 0 || windowWidth >= 1024;
+  const isWideDesktop = windowWidth >= 1600;
 
   // Card dimensions
   const baseCardWidth = 303;
@@ -167,13 +168,16 @@ export default function AnnouncementSlider({
   // Calculate scale and visible cards
   const scale = isMobile ? mobileScale : isTablet ? tabletScale : 1;
   const visibleCards = isMobile ? 1 : isTablet ? 2 : 3;
+  const desktopVisibleCardRatio = 2.5;
 
   // Calculate actual dimensions (scaled)
   const cardWidth = baseCardWidth * scale;
   const cardGap = baseCardGap * scale;
 
   // Calculate container width (based on scaled dimensions)
-  const calculatedWidth = (cardWidth * visibleCards) + (cardGap * (visibleCards - 1));
+  const calculatedWidth = isDesktop
+    ? (cardWidth * desktopVisibleCardRatio) + (cardGap * Math.floor(desktopVisibleCardRatio))
+    : (cardWidth * visibleCards) + (cardGap * (visibleCards - 1));
 
   // For tablet, ensure container doesn't exceed available viewport space
   // Account for title section width, gaps, and padding
@@ -215,7 +219,9 @@ export default function AnnouncementSlider({
             ? 'translateX(0) translateY(0)'
             : isTablet
               ? 'translateX(-20px) translateY(40px)'
-              : 'translateX(-100px) translateY(100px)'
+              : isWideDesktop
+                ? 'translateX(-190px) translateY(100px)'
+                : 'translateX(-100px) translateY(100px)'
         }}
       >
         {/* Main Title with Gradient */}
@@ -255,7 +261,7 @@ export default function AnnouncementSlider({
             const isSelected = index === currentIndex;
 
             const fullSummary = extractTextFromSummary(actualItem?.summary || null);
-            const summaryText = limitWords(fullSummary, 25);
+            const summaryText = limitWords(fullSummary, 35);
 
             return (
               <div
@@ -266,9 +272,9 @@ export default function AnnouncementSlider({
                   height: `${cardWidth * (307 / 303)}px`,
                 }}
               >
-                {/* Card with SVG Path Shape - Scale all content together */}
-                <div
-                  className="relative"
+                <Link
+                  href={addLocaleToUrl(`${NEWS_AND_BLOGS_ROUTE}/${actualItem.slug}`, currentLocale)}
+                  className="relative block hover:opacity-95 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#A1DF0A]"
                   style={{
                     overflow: 'visible',
                     transform: `scale(${scale})`,
@@ -276,7 +282,9 @@ export default function AnnouncementSlider({
                     width: `${baseCardWidth}px`,
                     height: `${baseCardWidth * (307 / 303)}px`
                   }}
+                  aria-label={`${actualItem.kind === 'announcement' ? 'Read announcement' : 'Read article'}: ${actualItem.title}`}
                 >
+                  {/* Card with SVG Path Shape - Scale all content together */}
                   {/* SVG Container with Path Shape */}
                   <svg
                     width="303"
@@ -311,9 +319,8 @@ export default function AnnouncementSlider({
                   </svg>
 
                   {/* Circle action - Top Right */}
-                  <Link
-                    href={addLocaleToUrl(`${NEWS_AND_BLOGS_ROUTE}/${actualItem.slug}`, currentLocale)}
-                    className={`absolute right-0 top-0 z-20 flex items-center justify-center hover:opacity-90 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#A1DF0A] ${transitionEnabled ? 'transition-all duration-300' : ''}`}
+                  <span
+                    className={`absolute right-0 top-0 z-20 flex items-center justify-center ${transitionEnabled ? 'transition-all duration-300' : ''}`}
                     style={{
                       transform: 'translate(1%, -1%)',
                       width: '70px',
@@ -322,10 +329,10 @@ export default function AnnouncementSlider({
                       backgroundColor: isSelected ? '#0F3F1D' : 'white',
                       border: !isSelected ? '1px solid #2E7D32' : 'none',
                     }}
-                    aria-label={`${actualItem.kind === 'announcement' ? 'Read announcement' : 'Read article'}: ${actualItem.title}`}
+                    aria-hidden="true"
                   >
                     <SliderArrow isSelected={isSelected} />
-                  </Link>
+                  </span>
 
                   {/* Content Container - Clipped to SVG Path */}
                   <div
@@ -356,9 +363,9 @@ export default function AnnouncementSlider({
                       >
                         <h3
                           className="m-0 whitespace-pre-line break-words font-semibold
-                            text-[24px] leading-[35px]
-                            md:text-[18px] md:leading-[35px]
-                            lg:text-[18px] lg:leading-[35px]"
+                            text-[19px] leading-[28px]
+                            md:text-[16px] md:leading-[33px]
+                            lg:text-[16px] lg:leading-[30px]"
                           style={{
                             whiteSpace: 'normal',
                             display: '-webkit-box',
@@ -375,14 +382,14 @@ export default function AnnouncementSlider({
                       {summaryText && (
                         <p
                           className={`font-normal
-                            text-[20px] leading-[35px]
-                            md:text-[16px] md:leading-[35px]
-                            lg:text-[16px] lg:leading-[35px]
+                            text-[16px] leading-[25px]
+                            md:text-[14px] md:leading-[28px]
+                            lg:text-[14px] lg:leading-[28px]
                             ${isSelected ? 'text-white/90' : 'text-[#0F3F1D]/80'}
                           `}
                           style={{
                             display: '-webkit-box',
-                            WebkitLineClamp: isMobile ? 3 : isTablet ? 3 : 3,
+                            WebkitLineClamp: isMobile ? 3 : isTablet ? 4 : 4,
                             WebkitBoxOrient: 'vertical',
                             overflow: 'hidden',
                           }}
@@ -393,7 +400,7 @@ export default function AnnouncementSlider({
 
                     </div>
                   </div>
-                </div>
+                </Link>
               </div>
             );
           })}

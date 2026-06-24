@@ -108,11 +108,11 @@ function DepartmentServiceCard({
               />
             </div>
 
-            <h3 className="max-w-[240px] text-[18px] font-medium leading-[1.3] text-[#2E7D32] md:text-[19px] xl:max-w-[220px] xl:text-[20px]">
+            <h3 className="max-w-[240px] text-[14px] font-medium leading-[1.7] text-[#2E7D32] md:text-[16px] xl:max-w-[220px] xl:text-[16px]">
               {item.title}
             </h3>
 
-            <p className="mt-4 max-w-[252px] text-[15px] leading-[1.7] text-[#000000] md:mt-5 md:text-[16px] xl:max-w-[232px] xl:text-[16px] xl:leading-[1.8]">
+            <p className="mt-4 max-w-[252px] text-[14px] leading-[1.7] text-[#000000] md:mt-5 md:text-[14px] xl:max-w-[232px] xl:text-[14px] xl:leading-[1.8]">
               {item.description}
             </p>
           </div>
@@ -143,11 +143,11 @@ function DepartmentServiceCard({
               />
             </div>
 
-            <h3 className="max-w-[240px] text-[18px] font-semibold leading-[1.3] text-[#A1DF0A] md:text-[19px] xl:max-w-[220px] xl:text-[20px]">
+            <h3 className="max-w-[240px] text-[14px] font-semibold leading-[1.7] text-[#A1DF0A] md:text-[16px] xl:max-w-[220px] xl:text-[16px]">
               {item.title}
             </h3>
 
-            <p className="mt-4 max-w-[252px] text-[15px] leading-[1.7] text-white md:mt-5 md:text-[16px] xl:max-w-[232px] xl:text-[16px] xl:leading-[1.8]">
+            <p className="mt-4 max-w-[252px] text-[14px] leading-[1.7] text-white md:mt-5 md:text-[14px] xl:max-w-[232px] xl:text-[14px] xl:leading-[1.8]">
               {item.description}
             </p>
           </div>

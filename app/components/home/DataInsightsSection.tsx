@@ -84,7 +84,7 @@ export default function DataInsightsSection({
           </div>
 
           {/* Right Side - Content Section */}
-          <div className="flex flex-col items-start text-left px-2 md:px-0">
+          <div className="flex flex-col items-start text-left px-2 md:px-0 w-full max-w-[600px]">
             {/* Data & Insights Tag */}
             <div className="mb-6">
               <GradientTag
@@ -141,4 +141,3 @@ export default function DataInsightsSection({
     </section>
   );
 }
-

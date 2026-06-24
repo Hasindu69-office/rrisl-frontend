@@ -86,11 +86,11 @@ function ProjectCard({
       <div className="absolute inset-0 flex items-end p-5 md:p-6">
         <div className="flex max-w-[18ch] flex-col gap-2">
           {project.departmentName ? (
-            <span className="text-[12px] font-medium uppercase tracking-[0.16em] text-[#D5F08B]">
+            <span className="text-[10px] font-medium uppercase tracking-[0.16em] text-[#D5F08B]">
               {project.departmentName}
             </span>
           ) : null}
-          <h3 className="text-[16px] font-medium leading-[1.35] text-white">
+          <h3 className="text-[14px] font-medium leading-[1.35] text-white">
             {project.title}
           </h3>
         </div>

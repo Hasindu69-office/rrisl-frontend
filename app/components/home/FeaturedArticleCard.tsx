@@ -34,7 +34,7 @@ export default function FeaturedArticleCard({
 }: FeaturedArticleCardProps) {
   return (
     <div
-      className="bg-white overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 group rounded-[20px] xl:rounded-[30px]"
+      className="bg-white overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 group rounded-[20px] xl:rounded-[30px] xl:h-full xl:flex xl:flex-col"
     >
       {/* Image Container - Responsive margins and height */}
       <div
@@ -97,7 +97,7 @@ export default function FeaturedArticleCard({
       </div>
 
       {/* Content Section with Title, Description, and Button */}
-      <div className="px-6 py-6 relative">
+      <div className="px-6 py-6 relative xl:flex xl:flex-1 xl:flex-col">
         {/* Title */}
         <h3
           className="font-bold mb-3 md:mb-4 group-hover:text-[#2E7D32] transition-colors text-[18px] md:text-[20px]"
@@ -121,7 +121,7 @@ export default function FeaturedArticleCard({
         </p>
 
         {/* Button with Dotted Line Connection */}
-        <div className="relative flex items-center">
+        <div className="relative flex items-center xl:mt-auto">
           {/* Dotted Line on the left */}
           <div
             className="absolute left-0"
