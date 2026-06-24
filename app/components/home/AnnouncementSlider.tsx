@@ -155,6 +155,7 @@ export default function AnnouncementSlider({
   const isMobile = windowWidth > 0 && windowWidth < 640;
   const isTablet = windowWidth >= 640 && windowWidth < 1024;
   const isDesktop = windowWidth === 0 || windowWidth >= 1024;
+  const isWideDesktop = windowWidth >= 1600;
 
   // Card dimensions
   const baseCardWidth = 303;
@@ -167,13 +168,16 @@ export default function AnnouncementSlider({
   // Calculate scale and visible cards
   const scale = isMobile ? mobileScale : isTablet ? tabletScale : 1;
   const visibleCards = isMobile ? 1 : isTablet ? 2 : 3;
+  const desktopVisibleCardRatio = 2.5;
 
   // Calculate actual dimensions (scaled)
   const cardWidth = baseCardWidth * scale;
   const cardGap = baseCardGap * scale;
 
   // Calculate container width (based on scaled dimensions)
-  const calculatedWidth = (cardWidth * visibleCards) + (cardGap * (visibleCards - 1));
+  const calculatedWidth = isDesktop
+    ? (cardWidth * desktopVisibleCardRatio) + (cardGap * Math.floor(desktopVisibleCardRatio))
+    : (cardWidth * visibleCards) + (cardGap * (visibleCards - 1));
 
   // For tablet, ensure container doesn't exceed available viewport space
   // Account for title section width, gaps, and padding
@@ -215,7 +219,9 @@ export default function AnnouncementSlider({
             ? 'translateX(0) translateY(0)'
             : isTablet
               ? 'translateX(-20px) translateY(40px)'
-              : 'translateX(-100px) translateY(100px)'
+              : isWideDesktop
+                ? 'translateX(-190px) translateY(100px)'
+                : 'translateX(-100px) translateY(100px)'
         }}
       >
         {/* Main Title with Gradient */}
