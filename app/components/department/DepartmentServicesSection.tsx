@@ -64,6 +64,7 @@ function DepartmentServiceCard({
 }) {
   const useUnoptimizedIcon = isLocalhostAssetUrl(item.iconSrc);
   const useUnoptimizedImage = isLocalhostAssetUrl(item.imageSrc);
+
   const interactiveProps = isDesktop
     ? {}
     : {
@@ -86,14 +87,19 @@ function DepartmentServiceCard({
       {...interactiveProps}
     >
       <div
-        className="relative h-[340px] w-full transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] [transform-style:preserve-3d] xl:group-hover:[transform:rotateY(180deg)] md:h-[356px] xl:h-[416px]"
-        style={!isDesktop ? { transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)' } : undefined}
+        className="relative h-[340px] w-full transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] [transform-style:preserve-3d] md:h-[356px] xl:h-[416px] xl:group-hover:[transform:rotateY(180deg)]"
+        style={
+          !isDesktop
+            ? { transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)' }
+            : undefined
+        }
       >
+        {/* FRONT SIDE - SOLID CARD WITH TITLE ONLY */}
         <div className="absolute inset-0 overflow-hidden rounded-[20px] bg-[rgba(161,223,10,0.11)] [backface-visibility:hidden]">
           <ServiceNumberBadge number={item.number} />
 
-          <div className="flex h-full flex-col px-5 pb-8 pt-14 md:px-6 md:pb-9 md:pt-[58px] xl:px-6 xl:pb-16 xl:pt-16">
-            <div className="mb-7 flex h-[48px] w-[48px] items-center justify-center md:mb-8 md:h-[52px] md:w-[52px] xl:mb-9 xl:h-[56px] xl:w-[56px]">
+          <div className="flex h-full min-h-0 flex-col px-5 pb-8 pt-14 md:px-6 md:pb-9 md:pt-[58px] xl:px-6 xl:pb-10 xl:pt-16">
+            <div className="mb-7 flex h-[48px] w-[48px] shrink-0 items-center justify-center md:mb-8 md:h-[52px] md:w-[52px] xl:mb-10 xl:h-[56px] xl:w-[56px]">
               <Image
                 src={item.iconSrc}
                 alt={item.iconAlt}
@@ -108,16 +114,15 @@ function DepartmentServiceCard({
               />
             </div>
 
-            <h3 className="max-w-[240px] text-[14px] font-medium leading-[1.7] text-[#2E7D32] md:text-[16px] xl:max-w-[220px] xl:text-[16px]">
-              {item.title}
-            </h3>
-
-            <p className="mt-4 max-w-[252px] text-[14px] leading-[1.7] text-[#000000] md:mt-5 md:text-[14px] xl:max-w-[232px] xl:text-[14px] xl:leading-[1.8]">
-              {item.description}
-            </p>
+            <div className="max-w-[275px] xl:max-w-[250px]">
+              <h3 className="text-[16px] font-semibold leading-[1.45] text-[#2E7D32] md:text-[18px] xl:text-[18px]">
+                {item.title}
+              </h3>
+            </div>
           </div>
         </div>
 
+        {/* BACK SIDE - IMAGE CARD WITH FULL DESCRIPTION + SCROLLER */}
         <div className="absolute inset-0 overflow-hidden rounded-[20px] [backface-visibility:hidden] [transform:rotateY(180deg)]">
           <Image
             src={item.imageSrc}
@@ -127,12 +132,13 @@ function DepartmentServiceCard({
             sizes="(max-width: 767px) 100vw, (max-width: 1279px) 50vw, 33vw"
             unoptimized={useUnoptimizedImage}
           />
-          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,75,36,0.3)_0%,rgba(8,40,18,0.82)_58%,rgba(8,40,18,0.92)_100%)]" />
+
+          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,75,36,0.45)_0%,rgba(8,40,18,0.88)_48%,rgba(8,40,18,0.96)_100%)]" />
 
           <ServiceNumberBadge number={item.number} isBack />
 
-          <div className="relative z-10 flex h-full flex-col px-5 pb-8 pt-14 md:px-6 md:pb-9 md:pt-[58px] xl:px-6 xl:pb-16 xl:pt-16">
-            <div className="mb-7 flex h-[48px] w-[48px] items-center justify-center md:mb-8 md:h-[52px] md:w-[52px] xl:mb-9 xl:h-[56px] xl:w-[56px]">
+          <div className="relative z-10 flex h-full min-h-0 flex-col px-5 pb-7 pt-14 md:px-6 md:pb-8 md:pt-[58px] xl:px-6 xl:pb-9 xl:pt-16">
+            <div className="mb-4 flex h-[40px] w-[40px] shrink-0 items-center justify-center md:h-[44px] md:w-[44px] xl:h-[48px] xl:w-[48px]">
               <Image
                 src={item.iconSrc}
                 alt={item.iconAlt}
@@ -143,13 +149,17 @@ function DepartmentServiceCard({
               />
             </div>
 
-            <h3 className="max-w-[240px] text-[14px] font-semibold leading-[1.7] text-[#A1DF0A] md:text-[16px] xl:max-w-[220px] xl:text-[16px]">
-              {item.title}
-            </h3>
+            <div className="flex min-h-0 max-w-[285px] flex-1 flex-col overflow-hidden xl:max-w-[260px]">
+              <h3 className="text-[14px] font-semibold leading-[1.45] text-[#A1DF0A] md:text-[15px] xl:text-[16px]">
+                {item.title}
+              </h3>
 
-            <p className="mt-4 max-w-[252px] text-[14px] leading-[1.7] text-white md:mt-5 md:text-[14px] xl:max-w-[232px] xl:text-[14px] xl:leading-[1.8]">
-              {item.description}
-            </p>
+              <div className="location-details-scroll mt-4 min-h-0 flex-1 overflow-y-auto overscroll-contain pr-4">
+                <p className="text-[13px] leading-[1.65] text-white/95 md:text-[13px] xl:text-[14px] xl:leading-[1.65]">
+                  {item.description}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -176,13 +186,16 @@ export default function DepartmentServicesSection({
 
     const updateIsDesktop = (event?: MediaQueryListEvent) => {
       const matches = event ? event.matches : mediaQuery.matches;
+
       setIsDesktop(matches);
+
       if (matches) {
         setActiveCard(null);
       }
     };
 
     updateIsDesktop();
+
     mediaQuery.addEventListener('change', updateIsDesktop);
 
     return () => mediaQuery.removeEventListener('change', updateIsDesktop);
@@ -190,13 +203,17 @@ export default function DepartmentServicesSection({
 
   const handleToggle = (number: string) => {
     if (isDesktop || !enableTouchFlip) return;
+
     setActiveCard((current) => (current === number ? null : number));
   };
 
   return (
     <section className="bg-[rgba(161,223,10,0.13)] py-16 md:py-20 lg:py-24">
       <div className={`mx-auto max-w-[1440px] px-4 md:px-6 lg:px-8 ${containerClassName}`}>
-        <div className="flex flex-col items-center text-center xl:items-end xl:text-right" data-department-reveal>
+        <div
+          className="flex flex-col items-center text-center xl:items-end xl:text-right"
+          data-department-reveal
+        >
           <GradientTag
             text={tagText}
             backgroundColor="transparent"
