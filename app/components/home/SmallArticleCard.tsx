@@ -30,7 +30,7 @@ export default function SmallArticleCard({
   return (
     <Link href={link} className="block group w-full">
       <div
-        className="bg-white overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 flex flex-col xl:flex-row mb-4"
+        className="bg-white overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 flex flex-col xl:flex-row mb-4 xl:mb-0"
         style={{
           border: '1px solid #A1DF0A',
           borderRadius: '30px',

@@ -126,7 +126,7 @@ export default function NewsBlogSection({
           {/* Featured Article - Left Column */}
           {featured ? (
             <div
-              className="m-[30px] xl:m-0"
+              className="m-[30px] xl:m-0 xl:h-full"
               style={{
                 opacity: hasEnteredView ? 1 : 0,
                 transform: hasEnteredView ? 'translateY(0)' : 'translateY(20px)',
@@ -150,7 +150,7 @@ export default function NewsBlogSection({
           )}
 
           {/* Small Articles - Right Column */}
-          <div className="xl:space-y-8 xl:mt-1">
+          <div className="xl:flex xl:flex-col xl:gap-8">
             {articles.map((article, index) => (
               <div
                 key={index}
