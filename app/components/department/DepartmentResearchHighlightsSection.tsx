@@ -480,7 +480,7 @@ export default function DepartmentResearchHighlightsSection({
   highlights,
   containerClassName = '',
 }: DepartmentResearchHighlightsSectionProps) {
-  const [openItemId, setOpenItemId] = useState(highlights[0]?.id ?? '');
+  const [openItemId, setOpenItemId] = useState('');
   const [responsiveMode, setResponsiveMode] = useState<ResponsiveMode>('desktop');
   const [galleryState, setGalleryState] = useState<{
     images: DepartmentResearchHighlightImage[];
@@ -742,8 +742,8 @@ export default function DepartmentResearchHighlightsSection({
 
                             {isExpandable ? (
                               <div
-                                className={`flex min-h-11 shrink-0 items-start justify-end pt-1 text-[#6FC109] transition-transform duration-300 lg:min-h-0 ${
-                                  isOpen ? 'rotate-180' : 'rotate-0'
+                                className={`flex h-9 w-9 min-h-9 shrink-0 items-center justify-center rounded-full border border-[#DDEBD5] bg-[#F5FAF1] text-[#6FC109] shadow-[0_8px_18px_rgba(46,125,50,0.08)] transition-[background-color,border-color,color,transform] duration-300 hover:border-[#BFDDB5] hover:bg-white lg:h-8 lg:w-8 lg:min-h-8 ${
+                                  isOpen ? 'rotate-180 border-[#A1DF0A] bg-white text-[#2E7D32]' : 'rotate-0'
                                 }`}
                               >
                                 <ChevronDown className="h-5 w-5" strokeWidth={2.15} />
