@@ -389,7 +389,7 @@ export default function AnnouncementSlider({
                           `}
                           style={{
                             display: '-webkit-box',
-                            WebkitLineClamp: isMobile ? 3 : isTablet ? 4 : 4,
+                            WebkitLineClamp: isMobile ? 5 : isTablet ? 4 : 4,
                             WebkitBoxOrient: 'vertical',
                             overflow: 'hidden',
                           }}
