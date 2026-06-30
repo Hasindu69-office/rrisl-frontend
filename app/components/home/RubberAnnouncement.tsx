@@ -54,11 +54,11 @@ export default function RubberAnnouncement({
 
     // IMPORTANT:
     // Change these to match your real files
-    const frameCount = 180;
+    const frameCount = 278;
 
     const getFrameSrc = (index: number) => {
       const frameNumber = String(index).padStart(5, '0');
-      return `/animations/Plant_${frameNumber}.webp`;
+      return `/animations/RubberPlant_${frameNumber}.webp`;
     };
 
     const images: HTMLImageElement[] = [];

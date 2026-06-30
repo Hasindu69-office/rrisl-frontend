@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronDown, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { isLocalhostAssetUrl } from '@/app/lib/strapi';
 
@@ -46,6 +46,7 @@ const TABLET_SCROLL_HEIGHT = '680px';
 const MOBILE_SCROLL_HEIGHT = '72dvh';
 const TIMELINE_ICON = '/images/departments/iconresearchhighlight.png';
 const GALLERY_TRANSITION_MS = 260;
+const SCROLL_BOUNDARY_TOLERANCE = 2;
 type ResponsiveMode = 'mobile' | 'tablet' | 'desktop';
 
 function formatHighlightItem(entry: string) {
@@ -480,6 +481,8 @@ export default function DepartmentResearchHighlightsSection({
   highlights,
   containerClassName = '',
 }: DepartmentResearchHighlightsSectionProps) {
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+  const previousTouchYRef = useRef<number | null>(null);
   const [openItemId, setOpenItemId] = useState('');
   const [responsiveMode, setResponsiveMode] = useState<ResponsiveMode>('desktop');
   const [galleryState, setGalleryState] = useState<{
@@ -540,6 +543,87 @@ export default function DepartmentResearchHighlightsSection({
 
     return highlights.length > 4 ? MOBILE_SCROLL_HEIGHT : undefined;
   }, [highlights.length, responsiveMode]);
+
+  useEffect(() => {
+    if (responsiveMode !== 'mobile' || !sectionHeight) {
+      previousTouchYRef.current = null;
+      return;
+    }
+
+    const scrollNode = scrollContainerRef.current;
+
+    if (!scrollNode) {
+      return;
+    }
+
+    const shouldHandOffScroll = (deltaY: number) => {
+      if (deltaY === 0) {
+        return false;
+      }
+
+      const { scrollTop, scrollHeight, clientHeight } = scrollNode;
+      const isAtTop = scrollTop <= SCROLL_BOUNDARY_TOLERANCE;
+      const isAtBottom =
+        scrollTop + clientHeight >= scrollHeight - SCROLL_BOUNDARY_TOLERANCE;
+
+      return (deltaY < 0 && isAtTop) || (deltaY > 0 && isAtBottom);
+    };
+
+    const handOffScroll = (event: Event, deltaY: number) => {
+      if (!shouldHandOffScroll(deltaY)) {
+        return;
+      }
+
+      if (event.cancelable) {
+        event.preventDefault();
+      }
+
+      window.scrollBy(0, deltaY);
+    };
+
+    const handleTouchStart = (event: TouchEvent) => {
+      previousTouchYRef.current = event.touches[0]?.clientY ?? null;
+    };
+
+    const handleTouchMove = (event: TouchEvent) => {
+      const currentTouchY = event.touches[0]?.clientY;
+      const previousTouchY = previousTouchYRef.current;
+
+      if (currentTouchY === undefined || previousTouchY === null) {
+        previousTouchYRef.current = currentTouchY ?? null;
+        return;
+      }
+
+      const deltaY = previousTouchY - currentTouchY;
+      previousTouchYRef.current = currentTouchY;
+      handOffScroll(event, deltaY);
+    };
+
+    const handleTouchEnd = () => {
+      previousTouchYRef.current = null;
+    };
+
+    const handleWheel = (event: WheelEvent) => {
+      handOffScroll(event, event.deltaY);
+    };
+
+    const passiveOptions: AddEventListenerOptions = { passive: false };
+
+    scrollNode.addEventListener('touchstart', handleTouchStart, passiveOptions);
+    scrollNode.addEventListener('touchmove', handleTouchMove, passiveOptions);
+    scrollNode.addEventListener('touchend', handleTouchEnd);
+    scrollNode.addEventListener('touchcancel', handleTouchEnd);
+    scrollNode.addEventListener('wheel', handleWheel, passiveOptions);
+
+    return () => {
+      previousTouchYRef.current = null;
+      scrollNode.removeEventListener('touchstart', handleTouchStart);
+      scrollNode.removeEventListener('touchmove', handleTouchMove);
+      scrollNode.removeEventListener('touchend', handleTouchEnd);
+      scrollNode.removeEventListener('touchcancel', handleTouchEnd);
+      scrollNode.removeEventListener('wheel', handleWheel);
+    };
+  }, [responsiveMode, sectionHeight]);
 
   const openGallery = (
     images: DepartmentResearchHighlightImage[],
@@ -652,6 +736,7 @@ export default function DepartmentResearchHighlightsSection({
 
             <div className="min-w-0 md:pt-1 lg:pt-4 xl:pt-5" data-department-reveal>
               <div
+                ref={scrollContainerRef}
                 className={`relative ${
                   sectionHeight
                     ? 'location-details-scroll overflow-y-auto overscroll-y-auto pr-1 sm:pr-2 md:pr-3'
