@@ -1,8 +1,10 @@
 'use client';
 
-import type { ReactNode } from 'react';
+import type { ReactNode, RefObject } from 'react';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import Image from 'next/image';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import {
   CalendarDays,
   ChevronDown,
@@ -17,6 +19,8 @@ import { isLocalhostAssetUrl } from '@/app/lib/strapi';
 import GradientTag from '@/app/components/ui/GradientTag';
 import GradientTitle from '@/app/components/ui/GradientTitle';
 import type { RubberPriceEntry, RubberPricesSectionContent } from '@/app/lib/types';
+
+gsap.registerPlugin(ScrollTrigger);
 
 interface RubberPricesSectionProps {
   content: RubberPricesSectionContent;
@@ -67,7 +71,10 @@ function StatCard({
   value: string;
 }) {
   return (
-    <div className="rounded-[20px] border border-[#E4ECE0] bg-white/88 p-4 shadow-[0_18px_40px_rgba(15,63,29,0.05)] backdrop-blur sm:rounded-[22px] sm:p-5">
+    <div
+      data-rubber-prices-stat
+      className="rounded-[20px] border border-[#E4ECE0] bg-white/88 p-4 shadow-[0_18px_40px_rgba(15,63,29,0.05)] backdrop-blur sm:rounded-[22px] sm:p-5"
+    >
       <div className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#F1F8EB] text-[#1F6D31] sm:h-11 sm:w-11">
         {icon}
       </div>
@@ -193,6 +200,7 @@ function RubberPriceArchiveNav({
   activeYear,
   expandedMobileYear,
   activeEntryId,
+  desktopListRef,
   onYearSelect,
   onMobileYearToggle,
   onEntrySelect,
@@ -203,13 +211,20 @@ function RubberPriceArchiveNav({
   activeYear: string;
   expandedMobileYear: string | null;
   activeEntryId: string;
+  desktopListRef: RefObject<HTMLDivElement | null>;
   onYearSelect: (year: string) => void;
   onMobileYearToggle: (year: string) => void;
   onEntrySelect: (entryId: string) => void;
 }) {
   return (
-    <section className="mt-12 overflow-x-hidden rounded-[24px] border border-[#E3EBDD] bg-white p-4 shadow-[0_24px_70px_rgba(15,63,29,0.08)] sm:rounded-[26px] sm:p-5 md:mt-14 md:p-6 lg:rounded-[30px] lg:p-10">
-      <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+    <section
+      data-rubber-prices-archive
+      className="mt-12 overflow-x-hidden rounded-[24px] border border-[#E3EBDD] bg-white p-4 shadow-[0_24px_70px_rgba(15,63,29,0.08)] sm:rounded-[26px] sm:p-5 md:mt-14 md:p-6 lg:rounded-[30px] lg:p-10"
+    >
+      <div
+        data-rubber-prices-archive-header
+        className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between"
+      >
         <div className="max-w-[720px] min-w-0">
           <GradientTag
             text={content.archiveTag}
@@ -246,10 +261,10 @@ function RubberPriceArchiveNav({
         </div>
       </div>
 
-      <div className="mt-8 hidden min-w-0 gap-8 lg:grid lg:grid-cols-[280px_minmax(0,1fr)]">
-        <div className="space-y-3">
-          {archiveYears.map((year) => {
-            const isActive = year === activeYear;
+        <div className="mt-8 hidden min-w-0 gap-8 lg:grid lg:grid-cols-[280px_minmax(0,1fr)]">
+          <div className="space-y-3">
+            {archiveYears.map((year) => {
+              const isActive = year === activeYear;
             const yearEntries = entriesByYear[year] ?? [];
 
             return (
@@ -258,6 +273,7 @@ function RubberPriceArchiveNav({
                 type="button"
                 onClick={() => onYearSelect(year)}
                 aria-pressed={isActive}
+                data-rubber-prices-year-card
                 className={`w-full cursor-pointer rounded-[24px] border p-5 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2E7D32] focus-visible:ring-offset-2 ${
                   isActive
                     ? 'border-[#2E7D32] bg-[#0F3F1D] text-white shadow-[0_20px_44px_rgba(15,63,29,0.20)]'
@@ -285,8 +301,15 @@ function RubberPriceArchiveNav({
           })}
         </div>
 
-        <div className="rounded-[26px] border border-[#E5EEE1] bg-[#F8FBF6] p-5 md:p-6">
-          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div
+          ref={desktopListRef}
+          data-rubber-prices-desktop-list
+          className="rounded-[26px] border border-[#E5EEE1] bg-[#F8FBF6] p-5 md:p-6"
+        >
+          <div
+            data-rubber-prices-desktop-copy
+            className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between"
+          >
             <div>
               <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#7A8C82]">
                 {content.availableDatesLabel}
@@ -302,7 +325,7 @@ function RubberPriceArchiveNav({
             </div>
           </div>
 
-          <div className="mt-6 flex flex-wrap gap-3">
+          <div data-rubber-prices-date-chips className="mt-6 flex flex-wrap gap-3">
             {(entriesByYear[activeYear] ?? []).map((entry) => (
               <RubberPriceDateChip
                 key={entry.id}
@@ -324,6 +347,7 @@ function RubberPriceArchiveNav({
           return (
             <div
               key={year}
+              data-rubber-prices-mobile-year
               className={`overflow-hidden rounded-[22px] border transition ${
                 isExpanded
                   ? 'border-[#2E7D32] bg-[#F8FBF6] shadow-[0_18px_36px_rgba(15,63,29,0.08)]'
@@ -713,10 +737,245 @@ export default function RubberPricesSection({
   entriesByYear,
 }: RubberPricesSectionProps) {
   const defaultYear = latestEntry?.archiveYear ?? archiveYears[0] ?? '';
+  const hasContent = Boolean(latestEntry) && entries.length > 0;
   const [activeYear, setActiveYear] = useState<string>(defaultYear);
   const [expandedMobileYear, setExpandedMobileYear] = useState<string | null>(defaultYear);
   const [viewerEntryId, setViewerEntryId] = useState<string | null>(null);
   const [isViewerVisible, setIsViewerVisible] = useState(false);
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const topGridRef = useRef<HTMLDivElement | null>(null);
+  const introRef = useRef<HTMLDivElement | null>(null);
+  const recentPanelRef = useRef<HTMLDivElement | null>(null);
+  const previewCardRef = useRef<HTMLDivElement | null>(null);
+  const archiveDesktopListRef = useRef<HTMLDivElement | null>(null);
+  const hasAnimatedArchiveDesktopStateRef = useRef(false);
+
+  useLayoutEffect(() => {
+    if (
+      typeof window === 'undefined' ||
+      !hasContent ||
+      !sectionRef.current ||
+      !topGridRef.current ||
+      !introRef.current ||
+      !recentPanelRef.current ||
+      !previewCardRef.current
+    ) {
+      return;
+    }
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
+
+    const sectionNode = sectionRef.current;
+    const topGridNode = topGridRef.current;
+    const introNode = introRef.current;
+    const recentPanelNode = recentPanelRef.current;
+    const previewCardNode = previewCardRef.current;
+
+    const context = gsap.context(() => {
+      const statCards = gsap.utils.toArray<HTMLElement>('[data-rubber-prices-stat]', introNode);
+      const archiveSection = sectionNode.querySelector<HTMLElement>('[data-rubber-prices-archive]');
+      const archiveHeader = sectionNode.querySelector<HTMLElement>('[data-rubber-prices-archive-header]');
+      const yearCards = gsap.utils.toArray<HTMLElement>('[data-rubber-prices-year-card]', sectionNode);
+      const desktopList = sectionNode.querySelector<HTMLElement>('[data-rubber-prices-desktop-list]');
+      const mobileYears = gsap.utils.toArray<HTMLElement>('[data-rubber-prices-mobile-year]', sectionNode);
+
+      gsap.set([introNode, recentPanelNode, previewCardNode], { autoAlpha: 0, y: 28 });
+
+      if (statCards.length > 0) {
+        gsap.set(statCards, { autoAlpha: 0, y: 24 });
+      }
+
+      ScrollTrigger.create({
+        trigger: topGridNode,
+        start: 'top 82%',
+        once: true,
+        onEnter: () => {
+          const timeline = gsap.timeline({
+            defaults: {
+              ease: 'power3.out',
+            },
+          });
+
+          timeline.to(introNode, {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.72,
+            clearProps: 'opacity,visibility,transform',
+          });
+
+          if (statCards.length > 0) {
+            timeline.to(
+              statCards,
+              {
+                autoAlpha: 1,
+                y: 0,
+                duration: 0.58,
+                stagger: 0.08,
+                clearProps: 'opacity,visibility,transform',
+              },
+              '-=0.34'
+            );
+          }
+
+          timeline.to(
+            recentPanelNode,
+            {
+              autoAlpha: 1,
+              y: 0,
+              duration: 0.62,
+              clearProps: 'opacity,visibility,transform',
+            },
+            '-=0.3'
+          );
+
+          timeline.to(
+            previewCardNode,
+            {
+              autoAlpha: 1,
+              y: 0,
+              duration: 0.76,
+              clearProps: 'opacity,visibility,transform',
+            },
+            '-=0.58'
+          );
+        },
+      });
+
+      if (archiveSection && archiveHeader) {
+        gsap.set(archiveHeader, { autoAlpha: 0, y: 26 });
+
+        if (yearCards.length > 0) {
+          gsap.set(yearCards, { autoAlpha: 0, y: 22 });
+        }
+
+        if (desktopList) {
+          gsap.set(desktopList, { autoAlpha: 0, y: 22 });
+        }
+
+        if (mobileYears.length > 0) {
+          gsap.set(mobileYears, { autoAlpha: 0, y: 20 });
+        }
+
+        ScrollTrigger.create({
+          trigger: archiveSection,
+          start: 'top 84%',
+          once: true,
+          onEnter: () => {
+            const timeline = gsap.timeline({
+              defaults: {
+                ease: 'power3.out',
+              },
+            });
+
+            timeline.to(archiveHeader, {
+              autoAlpha: 1,
+              y: 0,
+              duration: 0.72,
+              clearProps: 'opacity,visibility,transform',
+            });
+
+            if (yearCards.length > 0) {
+              timeline.to(
+                yearCards,
+                {
+                  autoAlpha: 1,
+                  y: 0,
+                  duration: 0.84,
+                  stagger: 0.14,
+                  clearProps: 'opacity,visibility,transform',
+                },
+                '-=0.36'
+              );
+            }
+
+            if (desktopList) {
+              timeline.to(
+                desktopList,
+                {
+                  autoAlpha: 1,
+                  y: 0,
+                  duration: 0.9,
+                  clearProps: 'opacity,visibility,transform',
+                },
+                '-=0.18'
+              );
+            }
+
+            if (mobileYears.length > 0) {
+              timeline.to(
+                mobileYears,
+                {
+                  autoAlpha: 1,
+                  y: 0,
+                  duration: 0.48,
+                  stagger: 0.06,
+                  clearProps: 'opacity,visibility,transform',
+                },
+                '-=0.46'
+              );
+            }
+          },
+        });
+      }
+
+      ScrollTrigger.refresh();
+    }, sectionNode);
+
+    return () => context.revert();
+  }, [archiveYears.length, hasContent]);
+
+  useLayoutEffect(() => {
+    if (typeof window === 'undefined' || !hasContent || !archiveDesktopListRef.current) {
+      return;
+    }
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
+
+    if (!hasAnimatedArchiveDesktopStateRef.current) {
+      hasAnimatedArchiveDesktopStateRef.current = true;
+      return;
+    }
+
+    const desktopListNode = archiveDesktopListRef.current;
+    const copyNode = desktopListNode.querySelector<HTMLElement>('[data-rubber-prices-desktop-copy]');
+    const chipsNode = desktopListNode.querySelector<HTMLElement>('[data-rubber-prices-date-chips]');
+
+    const context = gsap.context(() => {
+      if (copyNode) {
+        gsap.fromTo(
+          copyNode,
+          { autoAlpha: 0, y: 14 },
+          {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.62,
+            ease: 'power2.out',
+            clearProps: 'opacity,visibility,transform',
+          },
+        );
+      }
+
+      if (chipsNode) {
+        gsap.fromTo(
+          chipsNode,
+          { autoAlpha: 0, y: 16 },
+          {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.72,
+            ease: 'power3.out',
+            clearProps: 'opacity,visibility,transform',
+          },
+        );
+      }
+    }, desktopListNode);
+
+    return () => context.revert();
+  }, [activeYear, hasContent]);
 
   if (!latestEntry || entries.length === 0) {
     return (
@@ -786,10 +1045,16 @@ export default function RubberPricesSection({
   const viewerYearEntries = viewerEntry ? entriesByYear[viewerEntry.archiveYear] ?? [] : [];
 
   return (
-    <section className="overflow-x-hidden bg-white px-4 pb-56 pt-12 md:px-6 md:pb-48 md:pt-16 lg:px-36 lg:pb-80 lg:pt-22">
+    <section
+      ref={sectionRef}
+      className="overflow-x-hidden bg-white px-4 pb-56 pt-12 md:px-6 md:pb-48 md:pt-16 lg:px-36 lg:pb-80 lg:pt-22"
+    >
       <div className="mx-auto w-full max-w-[1480px] min-w-0">
-        <div className="grid gap-10 lg:grid-cols-[minmax(0,0.88fr)_minmax(420px,1fr)] lg:items-start">
-          <div className="min-w-0">
+        <div
+          ref={topGridRef}
+          className="grid gap-10 lg:grid-cols-[minmax(0,0.88fr)_minmax(420px,1fr)] lg:items-start"
+        >
+          <div ref={introRef} className="min-w-0">
             <GradientTag
               text={content.sectionTag}
               className="inline-block"
@@ -826,7 +1091,10 @@ export default function RubberPricesSection({
               />
             </div>
 
-            <div className="mt-8 rounded-[22px] border border-[#E3EBDD] bg-[#F8FBF6] p-4 sm:rounded-[24px] sm:p-5 md:mt-10 md:rounded-[28px] md:p-6">
+            <div
+              ref={recentPanelRef}
+              className="mt-8 rounded-[22px] border border-[#E3EBDD] bg-[#F8FBF6] p-4 sm:rounded-[24px] sm:p-5 md:mt-10 md:rounded-[28px] md:p-6"
+            >
               <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                 <div>
                   <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#7A8C82]">
@@ -859,7 +1127,9 @@ export default function RubberPricesSection({
             </div>
           </div>
 
-          <RubberPricePreviewCard entry={latestEntry} content={content} />
+          <div ref={previewCardRef}>
+            <RubberPricePreviewCard entry={latestEntry} content={content} />
+          </div>
         </div>
 
         <RubberPriceArchiveNav
@@ -869,6 +1139,7 @@ export default function RubberPricesSection({
           activeYear={activeYear}
           expandedMobileYear={expandedMobileYear}
           activeEntryId={viewerEntry?.id ?? latestEntry.id}
+          desktopListRef={archiveDesktopListRef}
           onYearSelect={handleYearSelect}
           onMobileYearToggle={handleMobileYearToggle}
           onEntrySelect={handleViewerEntrySelect}

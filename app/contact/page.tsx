@@ -1,4 +1,5 @@
 import PageHero from '../components/shared/PageHero';
+import ContactTopSectionMotion from '../components/contact/ContactTopSectionMotion';
 import ContactInfoPanel from '../components/contact/ContactInfoPanel';
 import ContactFormPanel from '../components/contact/ContactFormPanel';
 import LocationSection from '../components/contact/LocationSection';
@@ -40,15 +41,10 @@ export default async function ContactPage({ searchParams }: ContactPageProps) {
 
       <section className="bg-white px-4 py-16 md:px-6 md:py-20 lg:px-36 lg:py-24 mb-56">
         <div className="mx-auto w-full max-w-[1480px]">
-          <div className="grid gap-0 lg:grid-cols-3">
-            <div className="lg:col-span-1 lg:-ml-6 xl:-ml-8">
-              <ContactInfoPanel {...pageData.infoPanel} />
-            </div>
-
-            <div className="lg:col-span-2">
-              <ContactFormPanel {...pageData.formPanel} />
-            </div>
-          </div>
+          <ContactTopSectionMotion
+            infoPanel={<ContactInfoPanel {...pageData.infoPanel} />}
+            formPanel={<ContactFormPanel {...pageData.formPanel} />}
+          />
 
           <div
             className="-mx-4 px-4 py-8 md:-mx-6 md:px-6 md:py-16 lg:-mx-36 lg:px-36 lg:py-6"
