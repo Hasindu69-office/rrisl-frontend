@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, Camera, Film } from 'lucide-react';
 import PageHero from '../components/shared/PageHero';
+import DepartmentAnimatedSection from '../components/department/DepartmentAnimatedSection';
 import GradientTag from '../components/ui/GradientTag';
 import GradientTitle from '../components/ui/GradientTitle';
 import { normalizeLocale, addLocaleToUrl } from '../lib/locale';
@@ -52,8 +53,13 @@ export default async function MediaGalleryPage({
       />
 
       <section className="bg-white px-4 pb-72 pt-14 md:px-6 md:pb-72 md:pt-18 lg:px-36 lg:pb-84 lg:pt-22">
-        <div className="mx-auto w-full max-w-[1480px]">
-          <div className="max-w-[760px]">
+        <DepartmentAnimatedSection
+          className="mx-auto w-full max-w-[1480px]"
+          y={34}
+          duration={0.78}
+          stagger={0.1}
+        >
+          <div className="max-w-[760px]" data-department-reveal>
             <GradientTag
               text={pageData.section.tag}
               className="inline-block"
@@ -90,6 +96,7 @@ export default async function MediaGalleryPage({
                 <Link
                   key={card.id}
                   href={href}
+                  data-department-reveal
                   className="group relative block overflow-hidden rounded-[28px] bg-[#0F3F1D] shadow-[0_22px_70px_rgba(15,63,29,0.13)] outline-none transition duration-300 hover:-translate-y-1 hover:shadow-[0_30px_80px_rgba(15,63,29,0.2)] focus-visible:ring-2 focus-visible:ring-[#2E7D32] focus-visible:ring-offset-4"
                   aria-label={`Open ${card.title}`}
                 >
@@ -133,7 +140,7 @@ export default async function MediaGalleryPage({
               );
             })}
           </div>
-        </div>
+        </DepartmentAnimatedSection>
       </section>
     </div>
   );

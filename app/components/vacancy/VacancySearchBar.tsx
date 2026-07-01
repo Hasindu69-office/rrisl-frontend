@@ -1,4 +1,11 @@
+'use client';
+
+import { useLayoutEffect, useRef } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Search, ChevronDown } from 'lucide-react';
+
+gsap.registerPlugin(ScrollTrigger);
 
 interface VacancySearchBarProps {
   categories: string[];
@@ -16,11 +23,60 @@ export default function VacancySearchBar({
   selectedCategory = '',
 }: VacancySearchBarProps) {
   const normalizedSelectedCategory = categories.includes(selectedCategory) ? selectedCategory : '';
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const formRef = useRef<HTMLFormElement | null>(null);
+
+  useLayoutEffect(() => {
+    if (
+      typeof window === 'undefined' ||
+      !sectionRef.current ||
+      !formRef.current
+    ) {
+      return;
+    }
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
+
+    const sectionNode = sectionRef.current;
+    const formNode = formRef.current;
+
+    const context = gsap.context(() => {
+      gsap.fromTo(
+        formNode,
+        {
+          autoAlpha: 0,
+          y: 20,
+        },
+        {
+          autoAlpha: 1,
+          y: 0,
+          duration: 0.68,
+          ease: 'power3.out',
+          clearProps: 'opacity,visibility,transform',
+          scrollTrigger: {
+            trigger: sectionNode,
+            start: 'top 84%',
+            once: true,
+          },
+        }
+      );
+
+      ScrollTrigger.refresh();
+    }, sectionNode);
+
+    return () => context.revert();
+  }, []);
 
   return (
-    <section className="relative bg-white px-4 pt-8 pb-6 md:px-6 md:pt-10 md:pb-16 lg:px-36 lg:pt-12">
+    <section
+      ref={sectionRef}
+      className="relative bg-white px-4 pt-8 pb-6 md:px-6 md:pt-10 md:pb-16 lg:px-36 lg:pt-12"
+    >
       <div className="mx-auto flex w-full max-w-[1480px] justify-end">
         <form
+          ref={formRef}
           action="/vacancy"
           method="get"
           className="flex w-full max-w-[430px] flex-col gap-3 sm:flex-row sm:items-stretch sm:justify-end"

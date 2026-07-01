@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import PageHero from '../../components/shared/PageHero';
+import VacancyDetailAnimatedLayout from '../../components/vacancy/VacancyDetailAnimatedLayout';
 import VacancyDetailContent from '../../components/vacancy/VacancyDetailContent';
 import VacancyOverviewPanel from '../../components/vacancy/VacancyOverviewPanel';
 import { getVacancyBySlug, getVacancyDetailsPage, getVacancyPage } from '../../lib/strapi';
@@ -77,16 +78,21 @@ export default async function VacancyDetailPage({
       />
 
       <section className="mb-72 bg-white px-4 py-12 md:px-6 md:py-16 lg:px-36 lg:py-20">
-        <div className="mx-auto grid w-full max-w-[1480px] gap-10 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-12">
-          <VacancyDetailContent job={job} labels={pageData.labels} detailLabels={detailLabels} />
-          <div className="hidden self-start lg:sticky lg:top-2 lg:block">
+        <VacancyDetailAnimatedLayout>
+          <div data-vacancy-detail-column>
+            <VacancyDetailContent job={job} labels={pageData.labels} detailLabels={detailLabels} />
+          </div>
+          <div
+            className="hidden self-start lg:sticky lg:top-2 lg:block"
+            data-vacancy-detail-column
+          >
             <VacancyOverviewPanel
               heading={pageData.labels.overviewTitle}
               job={job}
               labels={pageData.labels.overviewItemLabels}
             />
           </div>
-        </div>
+        </VacancyDetailAnimatedLayout>
       </section>
     </div>
   );

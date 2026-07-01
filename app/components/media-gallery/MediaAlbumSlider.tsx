@@ -1,11 +1,15 @@
 'use client';
 
-import { startTransition, useEffect, useRef, useState } from 'react';
+import { startTransition, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { addLocaleToUrl } from '@/app/lib/locale';
 import { isLocalhostAssetUrl } from '@/app/lib/strapi';
+
+gsap.registerPlugin(ScrollTrigger);
 
 export interface MediaAlbumSlide {
   id: string;
@@ -254,7 +258,10 @@ export default function MediaAlbumSlider({
   const [isDragging, setIsDragging] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const touchStartXRef = useRef<number | null>(null);
+  const sectionRef = useRef<HTMLElement | null>(null);
   const viewportRef = useRef<HTMLDivElement | null>(null);
+  const stageRef = useRef<HTMLDivElement | null>(null);
+  const paginationRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const desktopMedia = window.matchMedia('(min-width: 1280px)');
@@ -332,6 +339,80 @@ export default function MediaAlbumSlider({
     return () => window.clearInterval(interval);
   }, [slides.length, prefersReducedMotion, isDragging, isHovered]);
 
+  useLayoutEffect(() => {
+    if (
+      typeof window === 'undefined' ||
+      !sectionRef.current ||
+      !stageRef.current ||
+      prefersReducedMotion
+    ) {
+      return;
+    }
+
+    const sectionNode = sectionRef.current;
+    const stageNode = stageRef.current;
+    const paginationNode = paginationRef.current;
+
+    const context = gsap.context(() => {
+      const paginationItems = paginationNode
+        ? Array.from(paginationNode.children).filter(
+            (node): node is HTMLElement => node instanceof HTMLElement
+          )
+        : [];
+
+      gsap.set(stageNode, {
+        autoAlpha: 0,
+        y: 34,
+      });
+
+      if (paginationItems.length > 0) {
+        gsap.set(paginationItems, {
+          autoAlpha: 0,
+          y: 12,
+        });
+      }
+
+      const timeline = gsap.timeline({
+        paused: true,
+        defaults: {
+          ease: 'power3.out',
+        },
+      });
+
+      timeline.to(stageNode, {
+        autoAlpha: 1,
+        y: 0,
+        duration: 0.82,
+        clearProps: 'opacity,visibility,transform',
+      });
+
+      if (paginationItems.length > 0) {
+        timeline.to(
+          paginationItems,
+          {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.62,
+            stagger: 0.055,
+            clearProps: 'opacity,visibility,transform',
+          },
+          '-=0.34'
+        );
+      }
+
+      ScrollTrigger.create({
+        trigger: sectionNode,
+        start: 'top 84%',
+        once: true,
+        onEnter: () => timeline.play(0),
+      });
+
+      ScrollTrigger.refresh();
+    }, sectionNode);
+
+    return () => context.revert();
+  }, [mode, prefersReducedMotion, slides.length]);
+
   if (!slides.length) {
     return null;
   }
@@ -394,120 +475,125 @@ export default function MediaAlbumSlider({
   };
 
   return (
-    <section className="mb-56 bg-white px-4 py-16 md:px-6 md:py-[72px] lg:px-10 lg:py-20 xl:px-0 p">
+    <section
+      ref={sectionRef}
+      className="mb-56 bg-white px-4 py-16 md:px-6 md:py-[72px] lg:px-10 lg:py-20 xl:px-0 p"
+    >
       <div
         className="mx-auto w-full max-w-[1480px]"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        {mode === 'desktop' ? (
-          <div className="relative h-[620px] overflow-hidden">
-            {slides.map((slide, index) => {
-              const offset = getWrappedOffset(index, activeIndex, slides.length);
-              const styleConfig = getDesktopCardStyle(offset);
+        <div ref={stageRef}>
+          {mode === 'desktop' ? (
+            <div className="relative h-[620px] overflow-hidden">
+              {slides.map((slide, index) => {
+                const offset = getWrappedOffset(index, activeIndex, slides.length);
+                const styleConfig = getDesktopCardStyle(offset);
 
-              return (
-                <article
-                  key={slide.id}
-                  className="absolute transition-[left,top,width,height,opacity] ease-[cubic-bezier(0.22,1,0.36,1)]"
-                  style={{
-                    left: styleConfig.left,
-                    top: styleConfig.top,
-                    width: styleConfig.width,
-                    height: styleConfig.height,
-                    opacity: styleConfig.opacity,
-                    zIndex: styleConfig.zIndex,
-                    transform: 'translateX(-50%)',
-                    pointerEvents: Math.abs(offset) <= 2 ? 'auto' : 'none',
-                    transitionDuration: prefersReducedMotion ? '0ms' : '800ms',
-                  }}
-                  aria-hidden={Math.abs(offset) > 2}
-                >
-                  <MediaAlbumCard
-                    slide={slide}
-                    locale={locale}
-                    presentation={getCardPresentation(mode, offset === 0)}
-                  />
-                </article>
-              );
-            })}
-          </div>
-        ) : mode === 'tablet' ? (
-          <div className="relative mx-auto h-[520px] max-w-[860px] overflow-hidden">
-            {slides.map((slide, index) => {
-              const offset = getWrappedOffset(index, activeIndex, slides.length);
-              const styleConfig = getTabletCardStyle(offset);
-
-              return (
-                <article
-                  key={slide.id}
-                  className="absolute transition-[left,top,width,height,opacity] ease-[cubic-bezier(0.22,1,0.36,1)]"
-                  style={{
-                    left: styleConfig.left,
-                    top: styleConfig.top,
-                    width: styleConfig.width,
-                    height: styleConfig.height,
-                    opacity: styleConfig.opacity,
-                    zIndex: styleConfig.zIndex,
-                    transform: 'translateX(-50%)',
-                    pointerEvents: Math.abs(offset) <= 1 ? 'auto' : 'none',
-                    transitionDuration: prefersReducedMotion ? '0ms' : '700ms',
-                  }}
-                  aria-hidden={Math.abs(offset) > 1}
-                >
-                  <MediaAlbumCard
-                    slide={slide}
-                    locale={locale}
-                    presentation={getCardPresentation(mode, offset === 0)}
-                  />
-                </article>
-              );
-            })}
-          </div>
-        ) : (
-          <div
-            ref={viewportRef}
-            className="overflow-hidden"
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-            onTouchCancel={handleTouchEnd}
-          >
-            <div
-              className="flex items-start"
-              style={{
-                gap: `${MOBILE_GAP}px`,
-                transform: `translateX(${mobileTrackTranslate}px)`,
-                transition: isDragging
-                  ? 'none'
-                  : prefersReducedMotion
-                    ? 'transform 0ms linear'
-                    : 'transform 520ms cubic-bezier(0.22, 1, 0.36, 1)',
-                willChange: 'transform',
-              }}
-            >
-              {slides.map((slide) => (
-                <article
-                  key={slide.id}
-                  className="shrink-0"
-                  style={{
-                    width: `${mobileCardWidth}px`,
-                    height: `${mobileCardHeight}px`,
-                  }}
-                >
-                  <MediaAlbumCard
-                    slide={slide}
-                    locale={locale}
-                    presentation="mobile-active"
-                  />
-                </article>
-              ))}
+                return (
+                  <article
+                    key={slide.id}
+                    className="absolute transition-[left,top,width,height,opacity] ease-[cubic-bezier(0.22,1,0.36,1)]"
+                    style={{
+                      left: styleConfig.left,
+                      top: styleConfig.top,
+                      width: styleConfig.width,
+                      height: styleConfig.height,
+                      opacity: styleConfig.opacity,
+                      zIndex: styleConfig.zIndex,
+                      transform: 'translateX(-50%)',
+                      pointerEvents: Math.abs(offset) <= 2 ? 'auto' : 'none',
+                      transitionDuration: prefersReducedMotion ? '0ms' : '800ms',
+                    }}
+                    aria-hidden={Math.abs(offset) > 2}
+                  >
+                    <MediaAlbumCard
+                      slide={slide}
+                      locale={locale}
+                      presentation={getCardPresentation(mode, offset === 0)}
+                    />
+                  </article>
+                );
+              })}
             </div>
-          </div>
-        )}
+          ) : mode === 'tablet' ? (
+            <div className="relative mx-auto h-[520px] max-w-[860px] overflow-hidden">
+              {slides.map((slide, index) => {
+                const offset = getWrappedOffset(index, activeIndex, slides.length);
+                const styleConfig = getTabletCardStyle(offset);
+
+                return (
+                  <article
+                    key={slide.id}
+                    className="absolute transition-[left,top,width,height,opacity] ease-[cubic-bezier(0.22,1,0.36,1)]"
+                    style={{
+                      left: styleConfig.left,
+                      top: styleConfig.top,
+                      width: styleConfig.width,
+                      height: styleConfig.height,
+                      opacity: styleConfig.opacity,
+                      zIndex: styleConfig.zIndex,
+                      transform: 'translateX(-50%)',
+                      pointerEvents: Math.abs(offset) <= 1 ? 'auto' : 'none',
+                      transitionDuration: prefersReducedMotion ? '0ms' : '700ms',
+                    }}
+                    aria-hidden={Math.abs(offset) > 1}
+                  >
+                    <MediaAlbumCard
+                      slide={slide}
+                      locale={locale}
+                      presentation={getCardPresentation(mode, offset === 0)}
+                    />
+                  </article>
+                );
+              })}
+            </div>
+          ) : (
+            <div
+              ref={viewportRef}
+              className="overflow-hidden"
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              onTouchCancel={handleTouchEnd}
+            >
+              <div
+                className="flex items-start"
+                style={{
+                  gap: `${MOBILE_GAP}px`,
+                  transform: `translateX(${mobileTrackTranslate}px)`,
+                  transition: isDragging
+                    ? 'none'
+                    : prefersReducedMotion
+                      ? 'transform 0ms linear'
+                      : 'transform 520ms cubic-bezier(0.22, 1, 0.36, 1)',
+                  willChange: 'transform',
+                }}
+              >
+                {slides.map((slide) => (
+                  <article
+                    key={slide.id}
+                    className="shrink-0"
+                    style={{
+                      width: `${mobileCardWidth}px`,
+                      height: `${mobileCardHeight}px`,
+                    }}
+                  >
+                    <MediaAlbumCard
+                      slide={slide}
+                      locale={locale}
+                      presentation="mobile-active"
+                    />
+                  </article>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
 
         <div className="mt-8 flex items-center justify-center">
-          <div className="flex items-center gap-3">
+          <div ref={paginationRef} className="flex items-center gap-3">
             {slides.map((slide, index) => (
               <button
                 key={slide.id}
