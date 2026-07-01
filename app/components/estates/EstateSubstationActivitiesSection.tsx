@@ -1,16 +1,21 @@
 'use client';
 
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Image from 'next/image';
 import { isLocalhostAssetUrl } from '@/app/lib/strapi';
 import {
   startTransition,
   type TouchEvent,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
 } from 'react';
 import GradientTag from '../ui/GradientTag';
 import GradientTitle from '../ui/GradientTitle';
+
+gsap.registerPlugin(ScrollTrigger);
 
 export interface EstateSubstationActivityCard {
   title: string;
@@ -222,6 +227,9 @@ export default function EstateSubstationActivitiesSection({
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const touchStartXRef = useRef<number | null>(null);
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const introRef = useRef<HTMLDivElement | null>(null);
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const useUnoptimizedBackground = isLocalhostAssetUrl(content.backgroundImageSrc);
 
@@ -282,6 +290,74 @@ export default function EstateSubstationActivitiesSection({
 
     return () => observer.disconnect();
   }, [mode]);
+
+  useLayoutEffect(() => {
+    if (
+      typeof window === 'undefined' ||
+      !sectionRef.current ||
+      !introRef.current
+    ) {
+      return;
+    }
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
+
+    const sectionNode = sectionRef.current;
+    const introNode = introRef.current;
+    const orderedCardNodes = cardRefs.current.filter(
+      (node): node is HTMLDivElement => Boolean(node)
+    );
+
+    const context = gsap.context(() => {
+      gsap.set(introNode, { autoAlpha: 0, y: 14 });
+
+      if (orderedCardNodes.length > 0) {
+        gsap.set(orderedCardNodes, { autoAlpha: 0, y: 24, x: 12 });
+      }
+
+      const timeline = gsap.timeline({
+        paused: true,
+        defaults: {
+          ease: 'power3.out',
+        },
+      });
+
+      timeline.to(introNode, {
+        autoAlpha: 1,
+        y: 0,
+        duration: 0.78,
+        clearProps: 'opacity,visibility,transform',
+      });
+
+      if (orderedCardNodes.length > 0) {
+        timeline.to(
+          orderedCardNodes,
+          {
+            autoAlpha: 1,
+            y: 0,
+            x: 0,
+            duration: 0.9,
+            stagger: 0.2,
+            clearProps: 'opacity,visibility,transform',
+          },
+          '-=0.18'
+        );
+      }
+
+      ScrollTrigger.create({
+        trigger: sectionNode,
+        start: 'top 84%',
+        once: true,
+        onEnter: () => timeline.play(0),
+      });
+
+      ScrollTrigger.refresh();
+    }, sectionNode);
+
+    return () => context.revert();
+  }, [content.cards.length, mode]);
 
   const goToCard = (index: number) => {
     startTransition(() => {
@@ -351,8 +427,10 @@ export default function EstateSubstationActivitiesSection({
     ? 0
     : -(activeIndex * trackStep) + dragOffset;
 
+  cardRefs.current = [];
+
   return (
-    <section className="relative overflow-hidden">
+    <section ref={sectionRef} className="relative overflow-hidden">
       <div className="absolute inset-0">
         <Image
           src={content.backgroundImageSrc}
@@ -373,7 +451,7 @@ export default function EstateSubstationActivitiesSection({
 
       <div className="relative z-10 px-4 py-12 md:px-6 md:py-16 lg:px-36 lg:py-24">
         <div className="mx-auto w-full max-w-[1440px]">
-          <div className="max-w-[720px] pt-1">
+          <div ref={introRef} className="max-w-[720px] pt-1">
             <GradientTag
               text={content.eyebrow}
               backgroundColor="transparent"
@@ -395,14 +473,20 @@ export default function EstateSubstationActivitiesSection({
             <div className="mt-10 overflow-x-auto pb-2 md:mt-12 lg:mt-14 [scrollbar-color:rgba(255,255,255,0.24)_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar]:h-[5px] [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/30">
               <div className="flex min-w-max items-end justify-end gap-[42px] pl-1 md:pl-2 lg:ml-auto lg:w-full">
                 {content.cards.map((card, index) => (
-                  <ActivityRailCard
+                  <div
                     key={`${card.title}-${index}`}
-                    card={card}
-                    expanded={index === activeIndex}
-                    mode={mode}
-                    onActivate={() => setActiveIndex(index)}
-                    reduceMotion={reduceMotion}
-                  />
+                    ref={(node) => {
+                      cardRefs.current[index] = node;
+                    }}
+                  >
+                    <ActivityRailCard
+                      card={card}
+                      expanded={index === activeIndex}
+                      mode={mode}
+                      onActivate={() => setActiveIndex(index)}
+                      reduceMotion={reduceMotion}
+                    />
+                  </div>
                 ))}
               </div>
             </div>
@@ -434,6 +518,9 @@ export default function EstateSubstationActivitiesSection({
                     className="shrink-0"
                     style={{ width: `${responsiveCardWidth}px` }}
                     aria-hidden={index !== activeIndex}
+                    ref={(node) => {
+                      cardRefs.current[index] = node;
+                    }}
                   >
                     <ActivityRailCard
                       card={card}

@@ -1,10 +1,14 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useLayoutEffect, useRef, useState } from 'react';
 import Image from 'next/image';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import GradientTag from '@/app/components/ui/GradientTag';
 import GradientTitle from '@/app/components/ui/GradientTitle';
 import type { AboutObjectiveViewModel } from '@/app/lib/about/objectives';
+
+gsap.registerPlugin(ScrollTrigger);
 
 const desktopPositions: Record<string, string> = {
   '01': 'left-[9%] top-[54%] w-[200px]',
@@ -123,9 +127,98 @@ export default function ObjectivesSection({
   imageAlt,
 }: ObjectivesSectionProps) {
   const [activeObjective, setActiveObjective] = useState<string>(objectives[0]?.id || '01');
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const introRef = useRef<HTMLDivElement | null>(null);
+  const imageRef = useRef<HTMLDivElement | null>(null);
+  const objectiveRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  useLayoutEffect(() => {
+    if (typeof window === 'undefined' || !sectionRef.current || !introRef.current || !imageRef.current) {
+      return;
+    }
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
+
+    const desktopMedia = window.matchMedia('(min-width: 1280px)');
+
+    if (!desktopMedia.matches) {
+      return;
+    }
+
+    const sectionNode = sectionRef.current;
+    const introNode = introRef.current;
+    const imageNode = imageRef.current;
+    const orderedObjectiveNodes = objectives
+      .map((obj) => objectiveRefs.current[obj.id])
+      .filter((node): node is HTMLDivElement => Boolean(node));
+
+    if (orderedObjectiveNodes.length === 0) {
+      return;
+    }
+
+    const context = gsap.context(() => {
+      gsap.set(introNode, { autoAlpha: 0, y: 10 });
+      gsap.set(orderedObjectiveNodes, { autoAlpha: 0, y: 24 });
+      gsap.set(imageNode, { autoAlpha: 0, y: 28 });
+
+      const timeline = gsap.timeline({
+        paused: true,
+        defaults: {
+          ease: 'power3.out',
+        },
+      });
+
+      timeline.to(introNode, {
+        autoAlpha: 1,
+        y: 0,
+        duration: 0.72,
+        clearProps: 'opacity,visibility,transform',
+      });
+
+      orderedObjectiveNodes.forEach((node, index) => {
+        timeline.to(
+          node,
+          {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.62,
+            clearProps: 'opacity,visibility,transform',
+          },
+          index === 0 ? '-=0.08' : '-=0.2'
+        );
+      });
+
+      timeline.to(
+        imageNode,
+        {
+          autoAlpha: 1,
+          y: 0,
+          duration: 1.05,
+          clearProps: 'opacity,visibility,transform',
+        },
+        '-=0.14'
+      );
+
+      ScrollTrigger.create({
+        trigger: sectionNode,
+        start: 'top 84%',
+        once: true,
+        onEnter: () => timeline.play(0),
+      });
+
+      ScrollTrigger.refresh();
+    }, sectionNode);
+
+    return () => context.revert();
+  }, [objectives]);
 
   return (
-    <section className="relative overflow-hidden bg-white pb-20 pt-16 md:pb-24 md:pt-20 xl:mb-20 xl:pb-0 xl:pt-24">
+    <section
+      ref={sectionRef}
+      className="relative overflow-hidden bg-white pb-20 pt-16 md:pb-24 md:pt-20 xl:mb-20 xl:pb-0 xl:pt-24"
+    >
       <div className="absolute inset-0 z-0">
         <Image
           src="/images/datainsightsbackground.png"
@@ -138,7 +231,7 @@ export default function ObjectivesSection({
       </div>
 
       <div className="container relative z-10 mx-auto px-4 mb-42 md:mb-48 lg:mb-20">
-        <div className="text-center">
+        <div ref={introRef} className="text-center">
           <GradientTag
             text={eyebrow}
             className="mx-auto inline-block"
@@ -175,7 +268,7 @@ export default function ObjectivesSection({
         </div>
 
         <div className="relative mt-0 hidden h-[640px] xl:block">
-          <div className="absolute bottom-[11%] left-1/2 z-20 w-[480px] -translate-x-1/2">
+          <div ref={imageRef} className="absolute bottom-[11%] left-1/2 z-20 w-[480px] -translate-x-1/2">
             <Image
               src={imageSrc}
               alt={imageAlt}
@@ -193,11 +286,17 @@ export default function ObjectivesSection({
               key={obj.id}
               className={`absolute z-30 transition-transform duration-300 ${desktopPositions[obj.id]}`}
             >
-              <ObjectiveCard
-                obj={obj}
-                isActive={activeObjective === obj.id}
-                onActivate={setActiveObjective}
-              />
+              <div
+                ref={(node) => {
+                  objectiveRefs.current[obj.id] = node;
+                }}
+              >
+                <ObjectiveCard
+                  obj={obj}
+                  isActive={activeObjective === obj.id}
+                  onActivate={setActiveObjective}
+                />
+              </div>
             </div>
           ))}
         </div>

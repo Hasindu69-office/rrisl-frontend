@@ -1,7 +1,14 @@
+ 'use client';
+
+import { useLayoutEffect, useRef } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Image from 'next/image';
 import { isLocalhostAssetUrl } from '@/app/lib/strapi';
 import GradientTag from '../ui/GradientTag';
 import GradientTitle from '../ui/GradientTitle';
+
+gsap.registerPlugin(ScrollTrigger);
 
 export interface EstateSubstationFeatureCard {
   title: string;
@@ -71,10 +78,88 @@ function FeatureCard({
 export default function EstateSubstationFeatureSection({
   content,
 }: EstateSubstationFeatureSectionProps) {
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const introRef = useRef<HTMLDivElement | null>(null);
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const useUnoptimizedBackground = isLocalhostAssetUrl(content.backgroundImageSrc);
 
+  useLayoutEffect(() => {
+    if (
+      typeof window === 'undefined' ||
+      !sectionRef.current ||
+      !introRef.current
+    ) {
+      return;
+    }
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
+
+    const sectionNode = sectionRef.current;
+    const introNode = introRef.current;
+    const orderedCardNodes = cardRefs.current.filter(
+      (node): node is HTMLDivElement => Boolean(node)
+    );
+
+    const context = gsap.context(() => {
+      gsap.set(introNode, {
+        autoAlpha: 0,
+        y: 14,
+      });
+
+      if (orderedCardNodes.length > 0) {
+        gsap.set(orderedCardNodes, {
+          autoAlpha: 0,
+          y: 24,
+        });
+      }
+
+      const timeline = gsap.timeline({
+        paused: true,
+        defaults: {
+          ease: 'power3.out',
+        },
+      });
+
+      timeline.to(introNode, {
+        autoAlpha: 1,
+        y: 0,
+        duration: 0.78,
+        clearProps: 'opacity,visibility,transform',
+      });
+
+      if (orderedCardNodes.length > 0) {
+        timeline.to(
+          orderedCardNodes,
+          {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.82,
+            stagger: 0.16,
+            clearProps: 'opacity,visibility,transform',
+          },
+          '-=0.18'
+        );
+      }
+
+      ScrollTrigger.create({
+        trigger: sectionNode,
+        start: 'top 84%',
+        once: true,
+        onEnter: () => timeline.play(0),
+      });
+
+      ScrollTrigger.refresh();
+    }, sectionNode);
+
+    return () => context.revert();
+  }, [content.cards?.length]);
+
+  cardRefs.current = [];
+
   return (
-    <section className="relative overflow-hidden">
+    <section ref={sectionRef} className="relative overflow-hidden">
       <div className="absolute inset-0">
         <Image
           src={content.backgroundImageSrc}
@@ -89,7 +174,10 @@ export default function EstateSubstationFeatureSection({
 
       <div className="relative z-10 px-4 py-12 md:px-6 md:py-16 lg:px-36 lg:py-24">
         <div className="mx-auto w-full max-w-[1440px]">
-          <div className="grid gap-7 md:gap-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(320px,0.85fr)] lg:items-start lg:gap-16">
+          <div
+            ref={introRef}
+            className="grid gap-7 md:gap-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(320px,0.85fr)] lg:items-start lg:gap-16"
+          >
             <div className="max-w-[640px]">
               <GradientTag
                 text={content.eyebrow}
@@ -118,8 +206,15 @@ export default function EstateSubstationFeatureSection({
           {content.cards?.length ? (
             <div className="mt-8 md:mt-10 lg:mt-12 lg:relative lg:left-1/2 lg:w-screen lg:max-w-none lg:-translate-x-1/2 lg:px-8 xl:px-10">
               <div className="grid gap-4 md:grid-cols-2 md:gap-5 xl:grid-cols-5 xl:gap-6">
-                {content.cards.map((card) => (
-                  <FeatureCard key={`${card.title}-${card.badge}`} {...card} />
+                {content.cards.map((card, index) => (
+                  <div
+                    key={`${card.title}-${card.badge}`}
+                    ref={(node) => {
+                      cardRefs.current[index] = node;
+                    }}
+                  >
+                    <FeatureCard {...card} />
+                  </div>
                 ))}
               </div>
             </div>

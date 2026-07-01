@@ -1,7 +1,13 @@
-import React from 'react';
+'use client';
+
+import React, { useLayoutEffect, useRef } from 'react';
 import Image from 'next/image';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import GradientTag from '../ui/GradientTag';
 import GradientTitle from '../ui/GradientTitle';
+
+gsap.registerPlugin(ScrollTrigger);
 
 interface WhoWeAreSectionProps {
   tag: string;
@@ -19,9 +25,79 @@ const WhoWeAreSection = ({
   outlineLines,
 }: WhoWeAreSectionProps) => {
   const [firstOutlineLine, secondOutlineLine] = outlineLines;
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const contentRef = useRef<HTMLDivElement | null>(null);
+  const outlineRef = useRef<HTMLDivElement | null>(null);
+
+  useLayoutEffect(() => {
+    if (
+      typeof window === 'undefined' ||
+      !sectionRef.current ||
+      !contentRef.current ||
+      !outlineRef.current
+    ) {
+      return;
+    }
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
+
+    const sectionNode = sectionRef.current;
+    const contentNode = contentRef.current;
+    const outlineNode = outlineRef.current;
+
+    const context = gsap.context(() => {
+      gsap.set(contentNode, {
+        autoAlpha: 0,
+        x: -44,
+      });
+      gsap.set(outlineNode, {
+        autoAlpha: 0,
+        x: 52,
+      });
+
+      ScrollTrigger.create({
+        trigger: sectionNode,
+        start: 'top 92%',
+        once: true,
+        onEnter: () => {
+          gsap.to(contentNode, {
+            autoAlpha: 1,
+            x: 0,
+            duration: 1.05,
+            ease: 'power3.out',
+            clearProps: 'opacity,visibility,transform',
+          });
+        },
+      });
+
+      ScrollTrigger.create({
+        trigger: sectionNode,
+        start: 'top 68%',
+        once: true,
+        onEnter: () => {
+          gsap.to(outlineNode, {
+            autoAlpha: 0.82,
+            x: 0,
+            duration: 1.1,
+            ease: 'power3.out',
+            clearProps: 'transform',
+          });
+        },
+      });
+
+      ScrollTrigger.refresh();
+    }, sectionNode);
+
+    return () => context.revert();
+  }, []);
 
   return (
-    <section className="relative w-full min-h-[600px] md:min-h-[700px] lg:min-h-[1280px] overflow-hidden">
+    <section
+      ref={sectionRef}
+      className="relative w-full min-h-[600px] md:min-h-[700px] lg:min-h-[1280px] overflow-hidden"
+    >
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <Image
@@ -45,7 +121,7 @@ const WhoWeAreSection = ({
         <div className="relative w-full min-h-[600px] md:min-h-[700px] lg:min-h-[850px] pt-12 md:pt-20 lg:pt-24">
 
           {/* Left Column: Content (Top Left) */}
-          <div className="flex flex-col gap-6 max-w-2xl items-start relative z-20">
+          <div ref={contentRef} className="flex flex-col gap-6 max-w-2xl items-start relative z-20">
             <GradientTag text={tag} />
 
             <GradientTitle
@@ -62,7 +138,10 @@ const WhoWeAreSection = ({
           </div>
 
           {/* Right Column: Outline Text (Slightly bottom right) */}
-          <div className="absolute top-[55%] md:top-[40%] lg:top-[40%] right-0 md:right-4 lg:right-[-2%] z-10 select-none pointer-events-none">
+          <div
+            ref={outlineRef}
+            className="absolute top-[55%] md:top-[40%] lg:top-[40%] right-0 md:right-4 lg:right-[-2%] z-10 select-none pointer-events-none"
+          >
             <div className="transform translate-y-12">
               <svg
                 width="900"

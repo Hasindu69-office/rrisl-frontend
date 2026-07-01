@@ -1,4 +1,5 @@
 import EstatesResearchSlider from '../components/estates/EstatesResearchSlider';
+import DepartmentAnimatedSection from '../components/department/DepartmentAnimatedSection';
 import GradientTag from '../components/ui/GradientTag';
 import GradientTitle from '../components/ui/GradientTitle';
 import PageHero from '../components/shared/PageHero';
@@ -43,8 +44,8 @@ export default async function EstatesAndSubstationsPage({
 
         <div className="relative min-h-[820px] px-4 py-16 md:px-6 lg:px-36 lg:py-12">
           <div className="mx-auto w-full max-w-[1480px]">
-            <div className="min-h-[820px] pt-4 lg:pt-0">
-              <div className="w-full lg:ml-[48%] lg:max-w-[620px]">
+            <DepartmentAnimatedSection className="min-h-[820px] pt-4 lg:pt-0">
+              <div className="w-full lg:ml-[48%] lg:max-w-[620px]" data-department-reveal>
                 <div className="flex flex-col items-start gap-5">
                   <GradientTag
                     text={pageData.section.eyebrow}
@@ -64,14 +65,14 @@ export default async function EstatesAndSubstationsPage({
                 </div>
               </div>
 
-              <div className="mt-10 w-full lg:w-[80%] lg:ml-[10%]">
+              <div className="mt-10 w-full lg:w-[80%] lg:ml-[10%]" data-department-reveal>
                 <EstatesResearchSlider
                   slides={pageData.slides}
                   readMoreLabel={pageData.readMoreButtonLabel}
                   locale={locale}
                 />
               </div>
-            </div>
+            </DepartmentAnimatedSection>
           </div>
         </div>
       </section>

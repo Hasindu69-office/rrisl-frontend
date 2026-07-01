@@ -1,4 +1,5 @@
 import GradientTitle from '../ui/GradientTitle';
+import DepartmentAnimatedSection from '../department/DepartmentAnimatedSection';
 import BoardEmptyState from './BoardEmptyState';
 import BoardMemberCard from './BoardMemberCard';
 
@@ -28,8 +29,8 @@ export default function AttendanceSection({
 }: AttendanceSectionProps) {
   return (
     <section className="bg-white px-4 pb-16 md:px-6 md:pb-20 lg:px-36 lg:pb-24 mb-64">
-      <div className="mx-auto w-full max-w-[1480px]">
-        <div className="flex justify-center text-center">
+      <DepartmentAnimatedSection className="mx-auto w-full max-w-[1480px]">
+        <div className="flex justify-center text-center" data-department-reveal>
           <GradientTitle
             part1={title.part1}
             part2={title.part2}
@@ -43,7 +44,7 @@ export default function AttendanceSection({
         </div>
 
         {members.length === 0 ? (
-          <div className="mt-10 md:mt-12">
+          <div className="mt-10 md:mt-12" data-department-reveal>
             <BoardEmptyState
               title={emptyStateTitle}
               description={emptyStateDescription}
@@ -52,11 +53,13 @@ export default function AttendanceSection({
         ) : (
           <div className="mx-auto mt-10 grid max-w-[380px] grid-cols-2 place-items-center gap-x-4 gap-y-5 md:mt-12 md:max-w-[560px] md:grid-cols-2 md:gap-x-8 md:gap-y-8 lg:max-w-[1450px] lg:grid-cols-3 lg:gap-x-[110px] lg:gap-y-[45px]">
             {members.map((member) => (
-              <BoardMemberCard key={member.name} member={member} />
+              <div key={member.name} data-department-reveal>
+                <BoardMemberCard member={member} />
+              </div>
             ))}
           </div>
         )}
-      </div>
+      </DepartmentAnimatedSection>
     </section>
   );
 }

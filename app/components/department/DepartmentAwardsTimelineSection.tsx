@@ -51,6 +51,8 @@ function getTrackGap(viewportWidth: number) {
   return 20;
 }
 
+const DESKTOP_END_HOLD_VIEWPORT_COUNT = 1;
+
 function TimelineBlock({
   block,
   compact = false,
@@ -134,6 +136,7 @@ export default function DepartmentAwardsTimelineSection({
   backgroundColor = 'rgba(161, 223, 10, 0.17)',
 }: DepartmentAwardsTimelineSectionProps) {
   const sectionRef = useRef<HTMLElement | null>(null);
+  const stickyContainerRef = useRef<HTMLDivElement | null>(null);
   const timelineViewportRef = useRef<HTMLDivElement | null>(null);
   const desktopTrackRef = useRef<HTMLDivElement | null>(null);
   const carouselRef = useRef<HTMLDivElement | null>(null);
@@ -189,10 +192,13 @@ export default function DepartmentAwardsTimelineSection({
   const visibleItemCount = getVisibleItemCount(windowWidth);
   const trackGap = getTrackGap(windowWidth);
   const desktopMaxStartIndex = Math.max(0, items.length - visibleItemCount);
+  const hasPinnedDesktopTimeline = isDesktop && desktopMaxStartIndex > 0;
   const desktopCardWidth =
     timelineViewportWidth > 0
       ? (timelineViewportWidth - trackGap * Math.max(visibleItemCount - 1, 0)) / visibleItemCount
       : 0;
+  const desktopTimelineLineWidth =
+    desktopCardWidth > 0 && items.length > 1 ? (items.length - 1) * (desktopCardWidth + trackGap) : 0;
   const boundedActiveIndex = Math.min(activeIndex, Math.max(items.length - 1, 0));
   const mobileCardWidth = useMemo(() => {
     if (timelineViewportWidth <= 0) {
@@ -205,6 +211,9 @@ export default function DepartmentAwardsTimelineSection({
 
     return Math.max(timelineViewportWidth - 52, 260);
   }, [isTablet, timelineViewportWidth]);
+  const mobileTimelineLineWidth =
+    mobileCardWidth > 0 && items.length > 1 ? (items.length - 1) * (mobileCardWidth + trackGap) : 0;
+  const mobileCarouselPadding = isTablet ? 56 : 32;
 
   const arrowColor = 'rgba(161, 223, 10, 1)';
   const totalMobileItems = items.length;
@@ -274,8 +283,11 @@ export default function DepartmentAwardsTimelineSection({
 
     const syncDesktopProgress = () => {
       const rect = sectionNode.getBoundingClientRect();
-      const scrollDistance = Math.max(sectionNode.offsetHeight - window.innerHeight, 1);
-      targetProgress.value = Math.min(Math.max(-rect.top / scrollDistance, 0), 1);
+      const totalScrollDistance = Math.max(sectionNode.offsetHeight - window.innerHeight, 1);
+      const endHoldDistance = window.innerHeight * DESKTOP_END_HOLD_VIEWPORT_COUNT;
+      const horizontalScrollDistance = Math.max(totalScrollDistance - endHoldDistance, 1);
+
+      targetProgress.value = Math.min(Math.max(-rect.top / horizontalScrollDistance, 0), 1);
       animateTo();
     };
 
@@ -364,10 +376,14 @@ export default function DepartmentAwardsTimelineSection({
     if (isDesktop) {
       if (sectionRef.current && typeof window !== 'undefined') {
         const sectionTop = window.scrollY + sectionRef.current.getBoundingClientRect().top;
+        const totalScrollDistance = Math.max(sectionRef.current.offsetHeight - window.innerHeight, 1);
+        const endHoldDistance = window.innerHeight * DESKTOP_END_HOLD_VIEWPORT_COUNT;
+        const horizontalScrollDistance = Math.max(totalScrollDistance - endHoldDistance, 1);
+        const scrollStep = desktopMaxStartIndex > 0 ? horizontalScrollDistance / desktopMaxStartIndex : 0;
         const targetIndex = Math.max(boundedActiveIndex - 1, 0);
 
         window.scrollTo({
-          top: sectionTop + targetIndex * window.innerHeight,
+          top: sectionTop + targetIndex * scrollStep,
           behavior: 'smooth',
         });
       }
@@ -382,10 +398,14 @@ export default function DepartmentAwardsTimelineSection({
     if (isDesktop) {
       if (sectionRef.current && typeof window !== 'undefined') {
         const sectionTop = window.scrollY + sectionRef.current.getBoundingClientRect().top;
+        const totalScrollDistance = Math.max(sectionRef.current.offsetHeight - window.innerHeight, 1);
+        const endHoldDistance = window.innerHeight * DESKTOP_END_HOLD_VIEWPORT_COUNT;
+        const horizontalScrollDistance = Math.max(totalScrollDistance - endHoldDistance, 1);
+        const scrollStep = desktopMaxStartIndex > 0 ? horizontalScrollDistance / desktopMaxStartIndex : 0;
         const targetIndex = Math.min(boundedActiveIndex + 1, desktopMaxStartIndex);
 
         window.scrollTo({
-          top: sectionTop + targetIndex * window.innerHeight,
+          top: sectionTop + targetIndex * scrollStep,
           behavior: 'smooth',
         });
       }
@@ -402,19 +422,28 @@ export default function DepartmentAwardsTimelineSection({
       className="py-16 md:py-20 lg:py-24"
       style={{
         backgroundColor,
-        minHeight: isDesktop && desktopMaxStartIndex > 0 ? `${(desktopMaxStartIndex + 1) * 100}vh` : undefined,
+        minHeight: hasPinnedDesktopTimeline
+          ? `${(desktopMaxStartIndex + 1 + DESKTOP_END_HOLD_VIEWPORT_COUNT) * 100}vh`
+          : undefined,
       }}
     >
-      <div className={`${isDesktop && desktopMaxStartIndex > 0 ? 'sticky top-0 flex min-h-screen items-center py-5 xl:py-6' : ''}`}>
+      <div className={`mx-auto w-full max-w-none px-4 md:px-8 xl:px-12 ${containerClassName}`}>
+        <div className="flex justify-center text-center" data-department-reveal>
+          <GradientTag
+            text={tagText}
+            backgroundColor="transparent"
+            className="inline-block"
+            padding="px-5 py-1.5"
+          />
+        </div>
+      </div>
+
+      <div
+        ref={stickyContainerRef}
+        className={`${hasPinnedDesktopTimeline ? 'sticky top-0 flex min-h-screen items-center py-5 xl:py-6' : ''}`}
+      >
         <div className={`mx-auto w-full max-w-none px-4 md:px-8 xl:px-12 ${containerClassName}`}>
           <div className="flex flex-col items-center text-center" data-department-reveal>
-            <GradientTag
-              text={tagText}
-              backgroundColor="transparent"
-              className="inline-block"
-              padding="px-5 py-1.5"
-            />
-
             <GradientTitle
               part1={titlePart1}
               part2={titlePart2}
@@ -423,7 +452,7 @@ export default function DepartmentAwardsTimelineSection({
               size="custom"
               customSize="clamp(32px, 4vw, 58px)"
               align="center"
-              className="mt-4 font-bold leading-[1.02] lg:text-[clamp(28px,3.7vw,54px)]"
+              className={`${hasPinnedDesktopTimeline ? 'lg:mt-0' : 'mt-4'} font-bold leading-[1.02] lg:text-[clamp(28px,3.7vw,54px)]`}
             />
           </div>
 
@@ -463,18 +492,24 @@ export default function DepartmentAwardsTimelineSection({
             {isDesktop ? (
               <div className="relative min-h-[340px] xl:min-h-[360px]">
                 <div
-                  className="absolute left-0 right-0 top-1/2 h-px -translate-y-1/2 bg-[#111111]/35"
-                  aria-hidden="true"
-                />
-
-                <div
                   ref={desktopTrackRef}
-                  className="flex items-stretch will-change-transform"
+                  className="relative flex items-stretch will-change-transform"
                   style={{
                     gap: `${trackGap}px`,
                     transform: 'translate3d(0, 0, 0)',
                   }}
                 >
+                  {desktopTimelineLineWidth > 0 ? (
+                    <div
+                      className="pointer-events-none absolute top-1/2 h-px -translate-y-1/2 bg-[#111111]/35"
+                      style={{
+                        left: `${desktopCardWidth / 2}px`,
+                        width: `${desktopTimelineLineWidth}px`,
+                      }}
+                      aria-hidden="true"
+                    />
+                  ) : null}
+
                   {items.map((item) => (
                     <article
                       key={item.id}
@@ -508,15 +543,21 @@ export default function DepartmentAwardsTimelineSection({
             ) : (
               <div className="relative pb-12">
                 <div
-                  className="pointer-events-none absolute left-0 right-0 h-px -translate-y-1/2 bg-[#111111]/30"
-                  style={{ top: isTablet ? '31%' : '29.5%' }}
-                  aria-hidden="true"
-                />
-
-                <div
                   ref={carouselRef}
-                  className="flex snap-x snap-mandatory gap-5 overflow-x-auto px-8 pb-4 pt-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden md:gap-7 md:px-14"
+                  className="relative flex snap-x snap-mandatory gap-5 overflow-x-auto px-8 pb-4 pt-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden md:gap-7 md:px-14"
                 >
+                  {mobileTimelineLineWidth > 0 ? (
+                    <div
+                      className="pointer-events-none absolute h-px -translate-y-1/2 bg-[#111111]/30"
+                      style={{
+                        left: `${mobileCarouselPadding + mobileCardWidth / 2}px`,
+                        top: isTablet ? '31%' : '29.5%',
+                        width: `${mobileTimelineLineWidth}px`,
+                      }}
+                      aria-hidden="true"
+                    />
+                  ) : null}
+
                   {items.map((item, index) => {
                     const markerActive = index === boundedActiveIndex;
 
