@@ -110,9 +110,9 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
       />
 
       <DepartmentAnimatedSection y={30} duration={0.78} stagger={0.08}>
-        <section className="relative mb-56 overflow-hidden px-4 py-16 md:py-24">
+        <section className="relative mb-56 overflow-hidden px-4 py-16 md:px-6 md:py-24 lg:px-36">
           <div className="absolute inset-x-0 top-0 h-80 bg-white" />
-          <div className="container relative mx-auto max-w-[1180px]">
+          <div className="relative mx-auto w-full max-w-[1480px]">
             <div
               className="mb-10 flex flex-col gap-5 md:flex-row md:items-end md:justify-between"
               data-department-reveal
@@ -142,7 +142,7 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
                       fill
                       priority
                       className="object-cover transition duration-700 group-hover:scale-105"
-                      sizes="(min-width: 1024px) 55vw, 100vw"
+                      sizes="(min-width: 1768px) 755px, (min-width: 1024px) calc(51vw - 147px), 100vw"
                       unoptimized={isLocalhostAssetUrl(featuredEvent.featuredImage)}
                     />
                   ) : (

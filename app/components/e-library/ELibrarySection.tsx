@@ -2,6 +2,7 @@
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import {
   ChevronDown,
   ChevronLeft,
@@ -13,6 +14,8 @@ import {
 import GradientTitle from '@/app/components/ui/GradientTitle';
 import PublicationCard from '../shared/PublicationCard';
 import type { PublicationCardItem } from '../shared/PublicationCard';
+
+gsap.registerPlugin(ScrollTrigger);
 
 interface ELibrarySectionProps {
   filters: ELibraryFilterNode[];
@@ -215,6 +218,10 @@ export default function ELibrarySection({
   const [viewportWidth, setViewportWidth] = useState(1600);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [isTabletFilterOpen, setIsTabletFilterOpen] = useState(false);
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const sidebarRef = useRef<HTMLElement | null>(null);
+  const responsiveControlsRef = useRef<HTMLDivElement | null>(null);
+  const headingRowRef = useRef<HTMLDivElement | null>(null);
   const contentPanelRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -303,6 +310,87 @@ export default function ELibrarySection({
   ];
 
   useLayoutEffect(() => {
+    if (!sectionRef.current || typeof window === 'undefined') {
+      return;
+    }
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
+
+    const sectionNode = sectionRef.current;
+    const sidebarNode = sidebarRef.current;
+    const responsiveControlsNode = responsiveControlsRef.current;
+    const headingNode = headingRowRef.current;
+
+    const context = gsap.context(() => {
+      if (sidebarNode) {
+        gsap.set(sidebarNode, { autoAlpha: 0, x: -28 });
+      }
+
+      if (responsiveControlsNode) {
+        gsap.set(responsiveControlsNode, { autoAlpha: 0, y: 18 });
+      }
+
+      if (headingNode) {
+        gsap.set(headingNode, { autoAlpha: 0, y: 20 });
+      }
+
+      ScrollTrigger.create({
+        trigger: sectionNode,
+        start: 'top 84%',
+        once: true,
+        onEnter: () => {
+          const timeline = gsap.timeline({
+            defaults: {
+              ease: 'power3.out',
+            },
+          });
+
+          if (sidebarNode) {
+            timeline.to(sidebarNode, {
+              autoAlpha: 1,
+              x: 0,
+              duration: 0.72,
+              clearProps: 'opacity,visibility,transform',
+            });
+          }
+
+          if (responsiveControlsNode) {
+            timeline.to(
+              responsiveControlsNode,
+              {
+                autoAlpha: 1,
+                y: 0,
+                duration: 0.62,
+                clearProps: 'opacity,visibility,transform',
+              },
+              sidebarNode ? '-=0.42' : 0,
+            );
+          }
+
+          if (headingNode) {
+            timeline.to(
+              headingNode,
+              {
+                autoAlpha: 1,
+                y: 0,
+                duration: 0.68,
+                clearProps: 'opacity,visibility,transform',
+              },
+              sidebarNode || responsiveControlsNode ? '-=0.38' : 0,
+            );
+          }
+        },
+      });
+
+      ScrollTrigger.refresh();
+    }, sectionNode);
+
+    return () => context.revert();
+  }, [isDesktop]);
+
+  useLayoutEffect(() => {
     if (!contentPanelRef.current || typeof window === 'undefined') {
       return;
     }
@@ -371,9 +459,15 @@ export default function ELibrarySection({
   const activeFilterLabel = activeNode?.label ?? 'Library';
 
   return (
-    <section className="mb-20 overflow-x-clip bg-white px-4 pb-20 pt-12 md:mb-24 md:px-6 md:pb-24 md:pt-16 lg:mb-48 lg:px-8 lg:pb-28 lg:pt-20">
+    <section
+      ref={sectionRef}
+      className="mb-20 overflow-x-clip bg-white px-4 pb-20 pt-12 md:mb-24 md:px-6 md:pb-24 md:pt-16 lg:mb-48 lg:px-8 lg:pb-28 lg:pt-20"
+    >
       <div className="mx-auto grid w-full max-w-[1920px] gap-8 xl:grid-cols-[290px_minmax(0,1fr)] xl:gap-10">
-        <aside className="hidden self-start rounded-[18px] border border-[#E4E8E0] bg-white p-4 shadow-[0_10px_28px_rgba(13,62,28,0.04)] md:p-5 xl:sticky xl:top-6 xl:block">
+        <aside
+          ref={sidebarRef}
+          className="hidden self-start rounded-[18px] border border-[#E4E8E0] bg-white p-4 shadow-[0_10px_28px_rgba(13,62,28,0.04)] md:p-5 xl:sticky xl:top-6 xl:block"
+        >
           <div className="relative">
             <label htmlFor="library-search-desktop" className="sr-only">
               {searchLibraryLabel}
@@ -405,7 +499,10 @@ export default function ELibrarySection({
 
         <div className="min-w-0">
           {!isDesktop && (
-            <div className="sticky top-0 z-30 mb-6 -mx-4 border-b border-[#EFF2EB] bg-white/95 px-4 pb-4 pt-2 backdrop-blur-sm md:-mx-6 md:px-6">
+            <div
+              ref={responsiveControlsRef}
+              className="sticky top-0 z-30 mb-6 -mx-4 border-b border-[#EFF2EB] bg-white/95 px-4 pb-4 pt-2 backdrop-blur-sm md:-mx-6 md:px-6"
+            >
               <div className="relative">
                 <label htmlFor="library-search-responsive" className="sr-only">
                   {searchLibraryLabel}
@@ -498,7 +595,10 @@ export default function ELibrarySection({
             </div>
           )}
 
-          <div className="mb-8 flex items-start justify-between gap-4">
+          <div
+            ref={headingRowRef}
+            className="mb-8 flex items-start justify-between gap-4"
+          >
             <div>
               <GradientTitle
                 part1=""

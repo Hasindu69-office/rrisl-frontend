@@ -87,7 +87,7 @@ export default async function DepartmentPage({
             points={introduction.points}
             videoUrl={introduction.videoUrl}
             videoTitle={introduction.videoTitle}
-            containerClassName="w-[80%]"
+            containerClassName="w-[85%]"
           />
         </DepartmentAnimatedSection>
       ) : null}
@@ -99,7 +99,7 @@ export default async function DepartmentPage({
             titlePart1={services.titlePart1}
             titlePart2={services.titlePart2}
             items={services.items}
-            containerClassName="w-[80%]"
+            containerClassName="w-[85%]"
           />
         </DepartmentAnimatedSection>
       ) : null}
@@ -111,7 +111,7 @@ export default async function DepartmentPage({
             titlePart1={researchStaff.titlePart1}
             titlePart2={researchStaff.titlePart2}
             staff={researchStaff.staff}
-            containerClassName="w-[80%]"
+            containerClassName="w-[85%]"
           />
         </DepartmentAnimatedSection>
       ) : null}
@@ -123,7 +123,7 @@ export default async function DepartmentPage({
             titlePart1={researchHighlights.titlePart1}
             titlePart2={researchHighlights.titlePart2}
             highlights={researchHighlights.highlights}
-            containerClassName="w-[80%]"
+            containerClassName="w-[85%]"
           />
         </DepartmentAnimatedSection>
       ) : null}

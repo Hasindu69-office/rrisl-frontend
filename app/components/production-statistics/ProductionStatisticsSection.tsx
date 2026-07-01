@@ -2,6 +2,7 @@
 
 import { useLayoutEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import GradientTitle from '../ui/GradientTitle';
 import StatisticsChartCard from './StatisticsChartCard';
 import StatisticsTabButton from './StatisticsTabButton';
@@ -13,6 +14,8 @@ import {
   type StatisticsTabData,
   type StatisticsTabId,
 } from './productionStatisticsData';
+
+gsap.registerPlugin(ScrollTrigger);
 
 interface ProductionStatisticsSectionProps {
   sectionTitle?: string;
@@ -32,7 +35,11 @@ export default function ProductionStatisticsSection({
   consumptionCard,
 }: ProductionStatisticsSectionProps) {
   const [activeTab, setActiveTab] = useState<StatisticsTabId>('production');
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const titleRef = useRef<HTMLDivElement | null>(null);
+  const tabsRef = useRef<HTMLDivElement | null>(null);
   const panelRef = useRef<HTMLDivElement | null>(null);
+  const hasMountedTabAnimationRef = useRef(false);
 
   const mergedTabContent = {
     ...statisticsTabContent,
@@ -71,11 +78,132 @@ export default function ProductionStatisticsSection({
   }));
 
   useLayoutEffect(() => {
+    if (
+      typeof window === 'undefined' ||
+      !sectionRef.current ||
+      !titleRef.current ||
+      !tabsRef.current ||
+      !panelRef.current
+    ) {
+      return;
+    }
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
+
+    const sectionNode = sectionRef.current;
+    const titleNode = titleRef.current;
+    const tabsNode = tabsRef.current;
+    const panelNode = panelRef.current;
+    const tabNodes = gsap.utils.toArray<HTMLElement>('[data-stats-tab]', tabsNode);
+    const panelCopyNode = panelNode.querySelector<HTMLElement>('[data-stats-panel-copy]');
+    const statsCardNode = panelNode.querySelector<HTMLElement>('[data-stats-card]');
+
+    const context = gsap.context(() => {
+      gsap.set(titleNode, { autoAlpha: 0, y: 22 });
+      gsap.set(tabsNode, { autoAlpha: 0, y: 20 });
+
+      if (tabNodes.length > 0) {
+        gsap.set(tabNodes, { autoAlpha: 0, y: 18 });
+      }
+
+      if (panelCopyNode) {
+        gsap.set(panelCopyNode, { autoAlpha: 0, y: 20 });
+      }
+
+      if (statsCardNode) {
+        gsap.set(statsCardNode, { autoAlpha: 0, y: 24 });
+      }
+
+      ScrollTrigger.create({
+        trigger: sectionNode,
+        start: 'top 82%',
+        once: true,
+        onEnter: () => {
+          const timeline = gsap.timeline({
+            defaults: {
+              ease: 'power3.out',
+            },
+          });
+
+          timeline.to(titleNode, {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.72,
+            clearProps: 'opacity,visibility,transform',
+          });
+
+          timeline.to(
+            tabsNode,
+            {
+              autoAlpha: 1,
+              y: 0,
+              duration: 0.56,
+              clearProps: 'opacity,visibility,transform',
+            },
+            '-=0.4'
+          );
+
+          if (tabNodes.length > 0) {
+            timeline.to(
+              tabNodes,
+              {
+                autoAlpha: 1,
+                y: 0,
+                duration: 0.5,
+                stagger: 0.06,
+                clearProps: 'opacity,visibility,transform',
+              },
+              '-=0.36'
+            );
+          }
+
+          if (panelCopyNode) {
+            timeline.to(
+              panelCopyNode,
+              {
+                autoAlpha: 1,
+                y: 0,
+                duration: 0.64,
+                clearProps: 'opacity,visibility,transform',
+              },
+              '-=0.24'
+            );
+          }
+
+          if (statsCardNode) {
+            timeline.to(
+              statsCardNode,
+              {
+                autoAlpha: 1,
+                y: 0,
+                duration: 0.72,
+                clearProps: 'opacity,visibility,transform',
+              },
+              '-=0.34'
+            );
+          }
+        },
+      });
+
+      ScrollTrigger.refresh();
+    }, sectionNode);
+
+    return () => context.revert();
+  }, []);
+
+  useLayoutEffect(() => {
     if (!panelRef.current || typeof window === 'undefined') {
       return;
     }
 
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
+
+    if (!hasMountedTabAnimationRef.current) {
+      hasMountedTabAnimationRef.current = true;
       return;
     }
 
@@ -131,20 +259,23 @@ export default function ProductionStatisticsSection({
   }, [activeTab]);
 
   return (
-    <section className="bg-white px-4 py-16 md:px-6 md:py-20 lg:px-8 lg:py-24">
+    <section ref={sectionRef} className="bg-white px-4 py-16 md:px-6 md:py-20 lg:px-8 lg:py-24">
       <div className="mx-auto w-full max-w-[80vw] md:max-w-[92vw] xl:max-w-[80vw]">
-        <GradientTitle
-          part1=""
-          part2={sectionTitle}
-          part1Color="dark-green"
-          lineBreak={false}
-          size="custom"
-          customSize="clamp(2.25rem, 3vw, 3.25rem)"
-          className="mb-10"
-          style={{ lineHeight: '1.1', fontWeight: 600 }}
-        />
+        <div ref={titleRef}>
+          <GradientTitle
+            part1=""
+            part2={sectionTitle}
+            part1Color="dark-green"
+            lineBreak={false}
+            size="custom"
+            customSize="clamp(2.25rem, 3vw, 3.25rem)"
+            className="mb-10"
+            style={{ lineHeight: '1.1', fontWeight: 600 }}
+          />
+        </div>
 
         <div
+          ref={tabsRef}
           className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-3 [scrollbar-color:rgba(46,125,50,0.27)_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar]:h-[5px] [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[rgba(46,125,50,0.27)] [&::-webkit-scrollbar-thumb:hover]:bg-[rgba(46,125,50,0.45)] md:mx-0 md:gap-3 md:px-0 lg:grid lg:grid-cols-5 lg:gap-4 lg:overflow-visible lg:pb-0 lg:[scrollbar-width:auto]"
           role="tablist"
           aria-label="Statistics categories"
@@ -167,7 +298,7 @@ export default function ProductionStatisticsSection({
           aria-labelledby={`statistics-tab-${activeTab}`}
           className="mt-8 sm:mt-10 lg:mt-[56px]"
         >
-          <div className="mb-6 max-w-[840px] sm:mb-8">
+          <div data-stats-panel-copy className="mb-6 max-w-[840px] sm:mb-8">
             <div className="text-[13px] font-medium uppercase tracking-[0.12em] text-[#1E6B2F]">
               {activeContent.insightLabel}
             </div>

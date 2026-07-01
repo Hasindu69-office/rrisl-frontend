@@ -88,8 +88,8 @@ export default async function NewsAndBlogsDetailPage({
       />
 
       <DepartmentAnimatedSection y={28} duration={0.76} stagger={0.09}>
-        <article className="mb-56 px-4 py-14 md:py-20">
-          <div className="container mx-auto max-w-[1180px]">
+        <article className="mb-56 px-4 py-14 md:px-6 md:py-20 lg:px-36">
+          <div className="mx-auto w-full max-w-[1480px]">
             <Link
               href={backHref}
               data-department-reveal
@@ -112,7 +112,7 @@ export default async function NewsAndBlogsDetailPage({
                       fill
                       priority
                       className="object-cover"
-                      sizes="(min-width: 1024px) 760px, 100vw"
+                      sizes="(min-width: 1768px) 1104px, (min-width: 1024px) calc(100vw - 18rem - 376px), 100vw"
                       unoptimized={isLocalhostAssetUrl(article.featuredImage)}
                     />
                     {getPrimaryCategory(article) ? (

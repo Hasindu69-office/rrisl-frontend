@@ -17,7 +17,10 @@ export default function FaqAccordionItem({
   const panelId = `faq-panel-${item.id}`;
 
   return (
-    <article className="rounded-[20px] bg-[#DCE25A] px-4 py-4 sm:px-5 sm:py-5 md:px-6 md:py-6">
+    <article
+      data-faq-card
+      className="rounded-[20px] bg-[#DCE25A] px-4 py-4 sm:px-5 sm:py-5 md:px-6 md:py-6"
+    >
       <button
         id={buttonId}
         type="button"
@@ -32,7 +35,7 @@ export default function FaqAccordionItem({
         <span aria-hidden="true" className="relative block h-6 w-6 shrink-0 sm:h-7 sm:w-7">
           <span className="absolute left-1/2 top-1/2 h-[2px] w-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#2E7D32]" />
           {!isOpen && (
-            <span className="absolute left-1/2 top-1/2 h-4 w-[2px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#2E7D32]" />
+            <span className="absolute left-1/2 top-1/2 h-4 w-[2px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#2E7D32] transition-opacity duration-200 ease-out" />
           )}
         </span>
       </button>

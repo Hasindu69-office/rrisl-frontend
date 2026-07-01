@@ -39,7 +39,6 @@ import {
 } from '@/app/lib/news/pageData';
 import { mapEventsPageData } from '@/app/lib/events/pageData';
 import HomeHeroWithHeader from './components/home/HomeHeroWithHeader';
-import ContentSection from './components/home/ContentSection';
 import IndustrySupportSection from './components/home/IndustrySupportSection';
 import ResearchSection from './components/home/ResearchSection';
 import DataInsightsSection from './components/home/DataInsightsSection';
@@ -329,29 +328,13 @@ export default async function Home({ searchParams }: HomeProps) {
 
       {/* Announcement Content Section */}
       <div className="mt-2 md:mt-6 lg:mt-56">
-        {/* Mobile and Tablet: Show ContentSection, Hide RubberAnnouncement */}
-        <div className="lg:hidden">
-          <ContentSection
-            imageSrc={aboutSection.imageSrc}
-            imageAlt={aboutSection.imageAlt}
-            tagText={aboutSection.eyebrow}
-            titlePart1={aboutSection.title}
-            titlePart2={aboutSection.highlightedText}
-            description={aboutSection.description}
-            cta={aboutSection.cta}
-          />
-        </div>
-        
-        {/* Desktop: Hide ContentSection, Show RubberAnnouncement */}
-        <div className="hidden lg:block">
-          <RubberAnnouncement
-            tagText={aboutSection.eyebrow}
-            titlePart1={aboutSection.title}
-            titlePart2={aboutSection.highlightedText}
-            description={aboutSection.description}
-            cta={aboutSection.cta}
-          />
-        </div>
+        <RubberAnnouncement
+          tagText={aboutSection.eyebrow}
+          titlePart1={aboutSection.title}
+          titlePart2={aboutSection.highlightedText}
+          description={aboutSection.description}
+          cta={aboutSection.cta}
+        />
       </div>
 
       {/* Industry Support Section */}
