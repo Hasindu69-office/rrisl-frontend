@@ -51,9 +51,9 @@ export default function BoardMembersSection({
             />
           </div>
         ) : (
-          <div className="mx-auto mt-10 grid max-w-[380px] grid-cols-2 place-items-center gap-x-4 gap-y-5 md:mt-12 md:max-w-[560px] md:grid-cols-2 md:gap-x-8 md:gap-y-8 lg:max-w-[1450px] lg:grid-cols-3 lg:gap-x-[110px] lg:gap-y-[45px]">
+          <div className="mx-auto mt-10 grid max-w-[380px] grid-cols-2 justify-items-center gap-x-4 gap-y-5 md:mt-12 md:max-w-[560px] md:grid-cols-2 md:gap-x-8 md:gap-y-8 lg:max-w-[1450px] lg:grid-cols-3 lg:gap-x-[110px] lg:gap-y-[45px]">
             {members.map((member) => (
-              <div key={member.name} data-department-reveal>
+              <div key={member.name} className="w-full" data-department-reveal>
                 <BoardMemberCard member={member} />
               </div>
             ))}
