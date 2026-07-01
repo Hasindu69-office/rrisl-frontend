@@ -1,5 +1,8 @@
 'use client';
 
+import { useLayoutEffect, useRef } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Link from 'next/link';
 import { useId } from 'react';
 import type { ReactNode } from 'react';
@@ -25,6 +28,8 @@ import {
 } from 'lucide-react';
 import GradientTag from '../ui/GradientTag';
 import GradientTitle from '../ui/GradientTitle';
+
+gsap.registerPlugin(ScrollTrigger);
 
 export interface EstateSubstationProductionTrendPoint {
   year: string;
@@ -556,12 +561,115 @@ export default function EstateSubstationPerformanceSection({
   className = '',
   contentClassName = '',
 }: EstateSubstationPerformanceSectionProps) {
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const introRef = useRef<HTMLDivElement | null>(null);
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const footerRef = useRef<HTMLDivElement | null>(null);
+
+  useLayoutEffect(() => {
+    if (
+      typeof window === 'undefined' ||
+      !sectionRef.current ||
+      !introRef.current
+    ) {
+      return;
+    }
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
+
+    const sectionNode = sectionRef.current;
+    const introNode = introRef.current;
+    const orderedCardNodes = cardRefs.current.filter(
+      (node): node is HTMLDivElement => Boolean(node)
+    );
+    const footerNode = footerRef.current;
+
+    const context = gsap.context(() => {
+      gsap.set(introNode, {
+        autoAlpha: 0,
+        y: 14,
+      });
+
+      if (orderedCardNodes.length > 0) {
+        gsap.set(orderedCardNodes, {
+          autoAlpha: 0,
+          y: 24,
+        });
+      }
+
+      if (footerNode) {
+        gsap.set(footerNode, {
+          autoAlpha: 0,
+          y: 18,
+        });
+      }
+
+      const timeline = gsap.timeline({
+        paused: true,
+        defaults: {
+          ease: 'power3.out',
+        },
+      });
+
+      timeline.to(introNode, {
+        autoAlpha: 1,
+        y: 0,
+        duration: 0.78,
+        clearProps: 'opacity,visibility,transform',
+      });
+
+      if (orderedCardNodes.length > 0) {
+        timeline.to(
+          orderedCardNodes,
+          {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.82,
+            stagger: 0.16,
+            clearProps: 'opacity,visibility,transform',
+          },
+          '-=0.18'
+        );
+      }
+
+      if (footerNode) {
+        timeline.to(
+          footerNode,
+          {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.74,
+            clearProps: 'opacity,visibility,transform',
+          },
+          '-=0.06'
+        );
+      }
+
+      ScrollTrigger.create({
+        trigger: sectionNode,
+        start: 'top 84%',
+        once: true,
+        onEnter: () => timeline.play(0),
+      });
+
+      ScrollTrigger.refresh();
+    }, sectionNode);
+
+    return () => context.revert();
+  }, [content.cards.length]);
+
+  cardRefs.current = [];
+
   return (
     <section
+      ref={sectionRef}
       className={`bg-white px-4 py-16 md:px-6 md:py-20 lg:px-36 lg:py-24 ${className}`.trim()}
     >
       <div className="mx-auto w-full max-w-[1440px]">
         <div
+          ref={introRef}
           className={`mx-auto flex max-w-[860px] flex-col items-center text-center ${contentClassName}`.trim()}
         >
           <GradientTag
@@ -587,11 +695,21 @@ export default function EstateSubstationPerformanceSection({
 
         <div className="mt-10 grid gap-5 md:grid-cols-2 xl:mt-12 xl:grid-cols-4">
           {content.cards.map((card, index) => (
-            <PerformanceCardRenderer key={`${card.type}-${card.title}`} card={card} index={index} />
+            <div
+              key={`${card.type}-${card.title}`}
+              ref={(node) => {
+                cardRefs.current[index] = node;
+              }}
+            >
+              <PerformanceCardRenderer card={card} index={index} />
+            </div>
           ))}
         </div>
 
-        <div className="mt-7 rounded-[24px] border border-[#E8EEDC] bg-white px-5 py-5 shadow-[0_16px_36px_rgba(15,63,29,0.05)] md:px-6">
+        <div
+          ref={footerRef}
+          className="mt-7 rounded-[24px] border border-[#E8EEDC] bg-white px-5 py-5 shadow-[0_16px_36px_rgba(15,63,29,0.05)] md:px-6"
+        >
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex items-start gap-4">
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#2E7D32] text-white">

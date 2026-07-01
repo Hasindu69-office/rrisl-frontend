@@ -1,7 +1,14 @@
+'use client';
+
+import { useLayoutEffect, useRef } from 'react';
 import Image from 'next/image';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { isLocalhostAssetUrl } from '@/app/lib/strapi';
 import GradientTag from '../ui/GradientTag';
 import GradientTitle from '../ui/GradientTitle';
+
+gsap.registerPlugin(ScrollTrigger);
 
 export interface EstateSubstationIntroContent {
   eyebrow: string;
@@ -19,12 +26,82 @@ export interface EstateSubstationIntroSectionProps {
 export default function EstateSubstationIntroSection({
   content,
 }: EstateSubstationIntroSectionProps) {
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const contentRef = useRef<HTMLDivElement | null>(null);
+  const imageRef = useRef<HTMLDivElement | null>(null);
   const useUnoptimizedImage = isLocalhostAssetUrl(content.imageSrc);
 
+  useLayoutEffect(() => {
+    if (
+      typeof window === 'undefined' ||
+      !sectionRef.current ||
+      !contentRef.current ||
+      !imageRef.current
+    ) {
+      return;
+    }
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
+
+    const sectionNode = sectionRef.current;
+    const contentNode = contentRef.current;
+    const imageNode = imageRef.current;
+
+    const context = gsap.context(() => {
+      gsap.set(contentNode, {
+        autoAlpha: 0,
+        x: -44,
+      });
+      gsap.set(imageNode, {
+        autoAlpha: 0,
+        x: 52,
+      });
+
+      ScrollTrigger.create({
+        trigger: sectionNode,
+        start: 'top 88%',
+        once: true,
+        onEnter: () => {
+          gsap.to(contentNode, {
+            autoAlpha: 1,
+            x: 0,
+            duration: 1.05,
+            ease: 'power3.out',
+            clearProps: 'opacity,visibility,transform',
+          });
+        },
+      });
+
+      ScrollTrigger.create({
+        trigger: sectionNode,
+        start: 'top 72%',
+        once: true,
+        onEnter: () => {
+          gsap.to(imageNode, {
+            autoAlpha: 1,
+            x: 0,
+            duration: 1.1,
+            ease: 'power3.out',
+            clearProps: 'opacity,visibility,transform',
+          });
+        },
+      });
+
+      ScrollTrigger.refresh();
+    }, sectionNode);
+
+    return () => context.revert();
+  }, []);
+
   return (
-    <section className="bg-white px-4 py-16 md:px-6 md:py-20 lg:px-36 lg:py-24">
+    <section
+      ref={sectionRef}
+      className="bg-white px-4 py-16 md:px-6 md:py-20 lg:px-36 lg:py-24"
+    >
       <div className="mx-auto grid w-full max-w-[1440px] gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(340px,520px)] lg:items-center lg:gap-16 xl:gap-24">
-        <div className="max-w-[720px]">
+        <div ref={contentRef} className="max-w-[720px]">
           <GradientTag
             text={content.eyebrow}
             backgroundColor="transparent"
@@ -51,7 +128,10 @@ export default function EstateSubstationIntroSection({
         </div>
 
         <div className="flex justify-center lg:justify-end">
-          <div className="relative w-full max-w-[320px] md:max-w-[420px] lg:max-w-[520px]">
+          <div
+            ref={imageRef}
+            className="relative w-full max-w-[320px] md:max-w-[420px] lg:max-w-[520px]"
+          >
             <Image
               src={content.imageSrc}
               alt={content.imageAlt}

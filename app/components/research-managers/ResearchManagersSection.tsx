@@ -8,6 +8,7 @@ import type {
   ResearchManagersLabelsViewModel,
   ResearchManagersSectionViewModel,
 } from '@/app/lib/research-managers/pageData';
+import DepartmentAnimatedSection from '../department/DepartmentAnimatedSection';
 import GradientTag from '../ui/GradientTag';
 import GradientTitle from '../ui/GradientTitle';
 
@@ -355,8 +356,8 @@ export default function ResearchManagersSection({
 
   return (
     <section className="relative overflow-hidden bg-white px-4 pb-72 pt-16 md:px-6 md:pb-80 md:pt-20 lg:px-36 lg:pb-[22rem] lg:pt-24">
-      <div className="relative mx-auto w-full max-w-[1480px]">
-        <div>
+      <DepartmentAnimatedSection className="relative mx-auto w-full max-w-[1480px]">
+        <div data-department-reveal>
           <GradientTag
             text={section.eyebrow}
             className="inline-block"
@@ -383,7 +384,10 @@ export default function ResearchManagersSection({
         </div>
 
         {profiles.length === 0 ? (
-          <div className="mt-12 rounded-[28px] border border-[#DCE6D7] bg-[linear-gradient(135deg,#F7FBF6_0%,#EEF7EF_100%)] px-6 py-14 text-center shadow-[0_12px_32px_rgba(15,63,29,0.06)] md:px-10">
+          <div
+            className="mt-12 rounded-[28px] border border-[#DCE6D7] bg-[linear-gradient(135deg,#F7FBF6_0%,#EEF7EF_100%)] px-6 py-14 text-center shadow-[0_12px_32px_rgba(15,63,29,0.06)] md:px-10"
+            data-department-reveal
+          >
             <div className="mx-auto max-w-2xl">
               <h3 className="text-2xl font-semibold text-[#16311F] md:text-3xl">
                 {labels.emptyStateTitle}
@@ -396,16 +400,17 @@ export default function ResearchManagersSection({
         ) : (
           <div className="mt-12 grid gap-8 lg:grid-cols-2 lg:gap-10">
             {profiles.map((profile) => (
-              <ProfileCard
-                key={profile.id}
-                profile={profile}
-                labels={labels}
-                onOpen={() => openProfile(profile.id)}
-              />
+              <div key={profile.id} data-department-reveal>
+                <ProfileCard
+                  profile={profile}
+                  labels={labels}
+                  onOpen={() => openProfile(profile.id)}
+                />
+              </div>
             ))}
           </div>
         )}
-      </div>
+      </DepartmentAnimatedSection>
 
       {activeProfile ? (
         <ProfileModal

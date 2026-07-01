@@ -1,7 +1,14 @@
+'use client';
+
+import { useLayoutEffect, useRef } from 'react';
 import Image from 'next/image';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { isLocalhostAssetUrl } from '@/app/lib/strapi';
 import GradientTag from '../ui/GradientTag';
 import GradientTitle from '../ui/GradientTitle';
+
+gsap.registerPlugin(ScrollTrigger);
 
 export interface EstateSubstationFacilityCard {
   title: string;
@@ -58,12 +65,100 @@ function FacilityCard({
 export default function EstateSubstationFacilitiesSection({
   content,
 }: EstateSubstationFacilitiesSectionProps) {
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const imageRef = useRef<HTMLDivElement | null>(null);
+  const introRef = useRef<HTMLDivElement | null>(null);
+  const cardRefs = useRef<(HTMLElement | null)[]>([]);
   const useUnoptimizedImage = isLocalhostAssetUrl(content.imageSrc);
 
+  useLayoutEffect(() => {
+    if (
+      typeof window === 'undefined' ||
+      !sectionRef.current ||
+      !imageRef.current ||
+      !introRef.current
+    ) {
+      return;
+    }
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
+
+    const sectionNode = sectionRef.current;
+    const imageNode = imageRef.current;
+    const introNode = introRef.current;
+    const orderedCardNodes = cardRefs.current.filter(
+      (node): node is HTMLElement => Boolean(node)
+    );
+
+    const context = gsap.context(() => {
+      gsap.set(imageNode, { autoAlpha: 0, x: -44 });
+      gsap.set(introNode, { autoAlpha: 0, x: 32 });
+
+      if (orderedCardNodes.length > 0) {
+        gsap.set(orderedCardNodes, { autoAlpha: 0, y: 24 });
+      }
+
+      const timeline = gsap.timeline({
+        paused: true,
+        defaults: {
+          ease: 'power3.out',
+        },
+      });
+
+      timeline.to(imageNode, {
+        autoAlpha: 1,
+        x: 0,
+        duration: 1.02,
+        clearProps: 'opacity,visibility,transform',
+      });
+
+      timeline.to(
+        introNode,
+        {
+          autoAlpha: 1,
+          x: 0,
+          duration: 0.86,
+          clearProps: 'opacity,visibility,transform',
+        },
+        '-=0.48'
+      );
+
+      if (orderedCardNodes.length > 0) {
+        timeline.to(
+          orderedCardNodes,
+          {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.64,
+            stagger: 0.14,
+            clearProps: 'opacity,visibility,transform',
+          },
+          '-=0.2'
+        );
+      }
+
+      ScrollTrigger.create({
+        trigger: sectionNode,
+        start: 'top 84%',
+        once: true,
+        onEnter: () => timeline.play(0),
+      });
+
+      ScrollTrigger.refresh();
+    }, sectionNode);
+
+    return () => context.revert();
+  }, [content.cards.length]);
+
   return (
-    <section className="bg-[#F5FCD9] px-4 py-12 md:px-6 md:py-[4.5rem] lg:px-36 lg:py-24">
+    <section
+      ref={sectionRef}
+      className="bg-[#F5FCD9] px-4 py-12 md:px-6 md:py-[4.5rem] lg:px-36 lg:py-24"
+    >
       <div className="mx-auto grid w-full max-w-[1440px] gap-8 lg:grid-cols-[minmax(360px,0.92fr)_minmax(0,1.08fr)] lg:items-stretch lg:gap-14 xl:gap-[72px]">
-        <div className="order-2 lg:order-1 lg:h-full">
+        <div ref={imageRef} className="order-2 lg:order-1 lg:h-full">
           <div className="relative overflow-hidden rounded-[24px] md:rounded-[36px] lg:h-full lg:rounded-[50px]">
             <Image
               src={content.imageSrc}
@@ -78,29 +173,38 @@ export default function EstateSubstationFacilitiesSection({
         </div>
 
         <div className="order-1 lg:order-2 lg:pt-1">
-          <GradientTag
-            text={content.eyebrow}
-            backgroundColor="transparent"
-            padding="px-4 py-1.5"
-          />
+          <div ref={introRef}>
+            <GradientTag
+              text={content.eyebrow}
+              backgroundColor="transparent"
+              padding="px-4 py-1.5"
+            />
 
-          <GradientTitle
-            part1=""
-            part2={content.title}
-            lineBreak={false}
-            align="left"
-            size="custom"
-            customSize="clamp(2rem, 5.5vw, 3.65rem)"
-            className="mt-4 leading-[1.08] tracking-[-0.02em] md:mt-5 md:leading-[1.1]"
-          />
+            <GradientTitle
+              part1=""
+              part2={content.title}
+              lineBreak={false}
+              align="left"
+              size="custom"
+              customSize="clamp(2rem, 5.5vw, 3.65rem)"
+              className="mt-4 leading-[1.08] tracking-[-0.02em] md:mt-5 md:leading-[1.1]"
+            />
 
-          <p className="mt-5 max-w-[620px] text-[14px] leading-[1.8] text-[#26362B] md:mt-7 md:text-[16px] md:leading-[2]">
-            {content.description}
-          </p>
+            <p className="mt-5 max-w-[620px] text-[14px] leading-[1.8] text-[#26362B] md:mt-7 md:text-[16px] md:leading-[2]">
+              {content.description}
+            </p>
+          </div>
 
           <div className="mt-7 grid gap-4 md:mt-9 md:grid-cols-2 md:gap-6">
-            {content.cards.map((card) => (
-              <FacilityCard key={`${card.title}-${card.description}`} {...card} />
+            {content.cards.map((card, index) => (
+              <article
+                key={`${card.title}-${card.description}`}
+                ref={(node) => {
+                  cardRefs.current[index] = node;
+                }}
+              >
+                <FacilityCard {...card} />
+              </article>
             ))}
           </div>
         </div>
