@@ -52,8 +52,13 @@ export default function RubberAnnouncement({
     const images: HTMLImageElement[] = [];
     const redrawCallbacks = new Set<() => void>();
 
+    ScrollTrigger.config({
+      ignoreMobileResize: true,
+    });
+
     for (let i = 0; i < frameCount; i++) {
       const img = new window.Image();
+      img.decoding = 'async';
       img.src = getFrameSrc(i);
       img.onerror = () => {
         console.error('Failed to load frame:', img.src);
@@ -83,6 +88,7 @@ export default function RubberAnnouncement({
       if (!context) return undefined;
 
       const state = { frame: 0 };
+      let animationFrameId: number | null = null;
 
       const setCanvasSize = () => {
         const rect = visual.getBoundingClientRect();
@@ -129,6 +135,15 @@ export default function RubberAnnouncement({
         context.drawImage(img, x, y, drawWidth, drawHeight);
       };
 
+      const requestDrawFrame = () => {
+        if (animationFrameId !== null) return;
+
+        animationFrameId = window.requestAnimationFrame(() => {
+          animationFrameId = null;
+          drawFrame();
+        });
+      };
+
       const redraw = () => {
         setCanvasSize();
         drawFrame();
@@ -141,12 +156,12 @@ export default function RubberAnnouncement({
         frame: frameCount - 1,
         snap: 'frame',
         ease: 'none',
-        onUpdate: drawFrame,
+        onUpdate: requestDrawFrame,
         scrollTrigger: {
           trigger,
           start: 'top top',
           end: `+=${scrollDistance}`,
-          scrub: true,
+          scrub: mode === 'mobile' ? 0.45 : true,
           pin: true,
           anticipatePin: 1,
           invalidateOnRefresh: true,
@@ -162,6 +177,9 @@ export default function RubberAnnouncement({
 
       return () => {
         redrawCallbacks.delete(redraw);
+        if (animationFrameId !== null) {
+          window.cancelAnimationFrame(animationFrameId);
+        }
         tween.kill();
         window.removeEventListener('resize', handleResize);
       };
