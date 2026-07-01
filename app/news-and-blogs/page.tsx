@@ -23,8 +23,11 @@ import {
 } from '../lib/news/pageData';
 
 interface NewsAndBlogsPageProps {
-  searchParams: Promise<{ locale?: string; category?: string }>;
+  searchParams: Promise<{ locale?: string; category?: string; page?: string }>;
 }
+
+const NEWS_PAGE_SIZE = 6;
+const NEWS_SECTION_ID = 'all-news';
 
 function articleHref(slug: string, locale: string) {
   return addLocaleToUrl(`${NEWS_AND_BLOGS_ROUTE}/${slug}`, locale);
@@ -36,6 +39,26 @@ function categoryHref(categorySlug: string, locale: string) {
       ? NEWS_AND_BLOGS_ROUTE
       : `${NEWS_AND_BLOGS_ROUTE}?category=${encodeURIComponent(categorySlug)}`;
   return addLocaleToUrl(base, locale);
+}
+
+function paginationHref(
+  page: number,
+  locale: string,
+  selectedCategory: string
+) {
+  const params = new URLSearchParams();
+
+  if (selectedCategory !== 'all') {
+    params.set('category', selectedCategory);
+  }
+
+  if (page > 1) {
+    params.set('page', `${page}`);
+  }
+
+  const queryString = params.toString();
+  const base = queryString ? `${NEWS_AND_BLOGS_ROUTE}?${queryString}` : NEWS_AND_BLOGS_ROUTE;
+  return `${addLocaleToUrl(base, locale)}#${NEWS_SECTION_ID}`;
 }
 
 function ArticleMeta({
@@ -69,6 +92,7 @@ export default async function NewsAndBlogsPage({ searchParams }: NewsAndBlogsPag
   const params = await searchParams;
   const locale = normalizeLocale(params.locale);
   const selectedCategory = params.category || 'all';
+  const rawPage = Number.parseInt(params.page || '1', 10);
 
   const [
     page,
@@ -91,6 +115,12 @@ export default async function NewsAndBlogsPage({ searchParams }: NewsAndBlogsPag
   const articles = mapNewsArticles(localizedArticles.length > 0 ? localizedArticles : fallbackArticles);
   const featuredArticle = getFeaturedArticle(articles);
   const filteredArticles = filterArticlesByCategory(articles, selectedCategory);
+  const totalPages = Math.max(1, Math.ceil(filteredArticles.length / NEWS_PAGE_SIZE));
+  const currentPage = Number.isNaN(rawPage) ? 1 : Math.min(Math.max(rawPage, 1), totalPages);
+  const paginatedArticles = filteredArticles.slice(
+    (currentPage - 1) * NEWS_PAGE_SIZE,
+    currentPage * NEWS_PAGE_SIZE
+  );
 
   return (
     <div className="min-h-screen bg-white text-[#0F3F1D]">
@@ -103,9 +133,9 @@ export default async function NewsAndBlogsPage({ searchParams }: NewsAndBlogsPag
       />
 
       <DepartmentAnimatedSection y={30} duration={0.78} stagger={0.08}>
-        <section className="relative mb-56 overflow-hidden px-4 py-16 md:py-24">
+        <section className="relative mb-56 overflow-hidden px-4 py-16 md:px-6 md:py-24 lg:px-36">
           <div className="absolute inset-x-0 top-0 h-80 bg-white" />
-          <div className="container relative mx-auto max-w-[1180px]">
+          <div className="relative mx-auto w-full max-w-[1480px]">
             <div
               className="mb-10 flex flex-col gap-5 md:flex-row md:items-end md:justify-between"
               data-department-reveal
@@ -134,7 +164,7 @@ export default async function NewsAndBlogsPage({ searchParams }: NewsAndBlogsPag
                     fill
                     priority
                     className="object-cover transition duration-700 group-hover:scale-105"
-                    sizes="(min-width: 1024px) 55vw, 100vw"
+                    sizes="(min-width: 1768px) 777px, (min-width: 1024px) calc(52.5vw - 151px), 100vw"
                     unoptimized={isLocalhostAssetUrl(featuredArticle.featuredImage)}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0F3F1D]/55 to-transparent lg:hidden" />
@@ -160,35 +190,90 @@ export default async function NewsAndBlogsPage({ searchParams }: NewsAndBlogsPag
               </Link>
             ) : null}
 
-            <div className="mt-14 flex flex-wrap gap-3" data-department-reveal>
-              {pageData.categories.map((category) => {
-                const isActive = selectedCategory === category.slug;
+            <div
+              id={NEWS_SECTION_ID}
+              className="mt-14 scroll-mt-32"
+              data-department-reveal
+            >
+              <div className="flex flex-wrap gap-3">
+                {pageData.categories.map((category) => {
+                  const isActive = selectedCategory === category.slug;
 
-                return (
-                  <Link
-                    key={category.slug}
-                    href={categoryHref(category.slug, locale)}
-                    scroll={false}
-                    className={`rounded-full border px-5 py-2.5 text-sm font-bold transition ${
-                      isActive
-                        ? 'border-[#2E7D32] bg-[#2E7D32] text-white shadow-[0_10px_24px_rgba(46,125,50,0.22)]'
-                        : 'border-[#DCECCB] bg-white text-[#2E7D32] hover:border-[#A1DF0A]'
-                    }`}
-                  >
-                    {category.label}
-                  </Link>
-                );
-              })}
+                  return (
+                    <Link
+                      key={category.slug}
+                      href={categoryHref(category.slug, locale)}
+                      scroll={false}
+                      className={`rounded-full border px-5 py-2.5 text-sm font-bold transition ${
+                        isActive
+                          ? 'border-[#2E7D32] bg-[#2E7D32] text-white shadow-[0_10px_24px_rgba(46,125,50,0.22)]'
+                          : 'border-[#DCECCB] bg-white text-[#2E7D32] hover:border-[#A1DF0A]'
+                      }`}
+                    >
+                      {category.label}
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
 
             <NewsArticleGrid
-              articles={filteredArticles}
+              articles={paginatedArticles}
               locale={locale}
               selectedCategory={selectedCategory}
               readArticleLabel={pageData.labels.readArticle}
               emptyTitle={emptyState.title}
               emptyDescription={emptyState.description}
             />
+
+            {filteredArticles.length > NEWS_PAGE_SIZE ? (
+              <div
+                className="mt-10 flex flex-wrap items-center justify-center gap-3 text-sm text-[#667085]"
+                data-department-reveal
+              >
+                <Link
+                  href={paginationHref(currentPage - 1, locale, selectedCategory)}
+                  aria-disabled={currentPage === 1}
+                  className={`flex items-center gap-2 transition ${
+                    currentPage === 1
+                      ? 'pointer-events-none opacity-40'
+                      : 'hover:text-[#0F3F1D]'
+                  }`}
+                >
+                  Previous
+                </Link>
+
+                {Array.from({ length: totalPages }, (_, index) => {
+                  const page = index + 1;
+
+                  return (
+                    <Link
+                      key={page}
+                      href={paginationHref(page, locale, selectedCategory)}
+                      className={`flex h-9 w-9 items-center justify-center rounded-full transition ${
+                        currentPage === page
+                          ? 'bg-[#2E7D32] font-semibold text-white shadow-[0_8px_20px_rgba(46,125,50,0.25)]'
+                          : 'text-[#98A2B3] hover:bg-[#F1F8F1] hover:text-[#0F3F1D]'
+                      }`}
+                    >
+                      {page}
+                    </Link>
+                  );
+                })}
+
+                <Link
+                  href={paginationHref(currentPage + 1, locale, selectedCategory)}
+                  aria-disabled={currentPage === totalPages}
+                  className={`flex items-center gap-2 transition ${
+                    currentPage === totalPages
+                      ? 'pointer-events-none opacity-40'
+                      : 'hover:text-[#0F3F1D]'
+                  }`}
+                >
+                  Next
+                </Link>
+              </div>
+            ) : null}
           </div>
         </section>
       </DepartmentAnimatedSection>
