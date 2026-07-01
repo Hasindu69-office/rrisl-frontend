@@ -2,8 +2,10 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { ChevronDown, X } from 'lucide-react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import GradientTag from '../ui/GradientTag';
 import GradientTitle from '../ui/GradientTitle';
 import type {
@@ -16,6 +18,9 @@ import type {
 import Button from '../ui/Button';
 
 const POPUP_SESSION_KEY_PREFIX = 'rrisl-services-sample-submission-popup';
+const REVEAL_EASE = 'power3.out';
+
+gsap.registerPlugin(ScrollTrigger);
 
 interface SampleSubmissionPopup {
   imageSrc: string;
@@ -36,6 +41,7 @@ function HighlightTiles({ highlights }: { highlights: ServicesHighlightViewModel
       {highlights.map(({ id, title, description, iconSrc, iconAlt }) => (
         <article
           key={id}
+          data-services-highlight
           className="group relative overflow-hidden rounded-[18px] border border-[#DDEAD7] bg-[#F7FBF5] p-5 shadow-[0_14px_34px_rgba(15,63,29,0.06)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_44px_rgba(15,63,29,0.1)] md:p-6"
         >
           <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-[0_10px_24px_rgba(46,125,50,0.12)]">
@@ -127,7 +133,7 @@ function ServicesTable({
 
 function TestingAccordion({ testing }: { testing: ServicesTestingViewModel }) {
   const [openGroups, setOpenGroups] = useState<Set<string>>(
-    () => new Set(testing.categories[0] ? [testing.categories[0].id] : []),
+    () => new Set(),
   );
 
   return (
@@ -148,6 +154,7 @@ function TestingAccordion({ testing }: { testing: ServicesTestingViewModel }) {
         return (
           <article
             key={group.title}
+            data-services-accordion-card
             className="overflow-hidden rounded-[20px] border border-[#DCE9D5] bg-white shadow-[0_16px_40px_rgba(15,63,29,0.06)]"
           >
             <button
@@ -319,11 +326,150 @@ export default function ServicesSection({
   cta,
   sampleSubmissionPopup,
 }: ServicesSectionProps) {
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const introRef = useRef<HTMLDivElement | null>(null);
+  const highlightsRef = useRef<HTMLDivElement | null>(null);
+  const testingIntroRef = useRef<HTMLDivElement | null>(null);
+  const accordionRef = useRef<HTMLDivElement | null>(null);
+  const ctaRef = useRef<HTMLDivElement | null>(null);
+
+  useLayoutEffect(() => {
+    if (
+      typeof window === 'undefined' ||
+      !sectionRef.current ||
+      !introRef.current ||
+      !testingIntroRef.current ||
+      !accordionRef.current ||
+      !ctaRef.current
+    ) {
+      return;
+    }
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
+
+    const sectionNode = sectionRef.current;
+    const introNode = introRef.current;
+    const testingIntroNode = testingIntroRef.current;
+    const accordionNode = accordionRef.current;
+    const ctaNode = ctaRef.current;
+    const highlightNodes = highlightsRef.current
+      ? gsap.utils.toArray<HTMLElement>('[data-services-highlight]', highlightsRef.current)
+      : [];
+    const accordionCards = gsap.utils.toArray<HTMLElement>(
+      '[data-services-accordion-card]',
+      accordionNode
+    );
+
+    const context = gsap.context(() => {
+      gsap.set(introNode, { autoAlpha: 0, y: 26 });
+      gsap.set(testingIntroNode, { autoAlpha: 0, y: 24 });
+      gsap.set(ctaNode, { autoAlpha: 0, y: 24 });
+
+      if (highlightNodes.length > 0) {
+        gsap.set(highlightNodes, { autoAlpha: 0, y: 24 });
+      }
+
+      if (accordionCards.length > 0) {
+        gsap.set(accordionCards, { autoAlpha: 0, y: 22 });
+      }
+
+      const introTimeline = gsap.timeline({
+        paused: true,
+        defaults: { ease: REVEAL_EASE },
+      });
+
+      introTimeline.to(introNode, {
+        autoAlpha: 1,
+        y: 0,
+        duration: 0.78,
+        clearProps: 'opacity,visibility,transform',
+      });
+
+      if (highlightNodes.length > 0) {
+        introTimeline.to(
+          highlightNodes,
+          {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.76,
+            stagger: 0.1,
+            clearProps: 'opacity,visibility,transform',
+          },
+          '-=0.16'
+        );
+      }
+
+      ScrollTrigger.create({
+        trigger: sectionNode,
+        start: 'top 80%',
+        once: true,
+        onEnter: () => introTimeline.play(0),
+      });
+
+      ScrollTrigger.create({
+        trigger: testingIntroNode,
+        start: 'top 84%',
+        once: true,
+        onEnter: () => {
+          gsap.to(testingIntroNode, {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.76,
+            ease: REVEAL_EASE,
+            clearProps: 'opacity,visibility,transform',
+          });
+        },
+      });
+
+      if (accordionCards.length > 0) {
+        ScrollTrigger.create({
+          trigger: accordionNode,
+          start: 'top 82%',
+          once: true,
+          onEnter: () => {
+            gsap.to(accordionCards, {
+              autoAlpha: 1,
+              y: 0,
+              duration: 0.74,
+              ease: REVEAL_EASE,
+              stagger: 0.09,
+              clearProps: 'opacity,visibility,transform',
+            });
+          },
+        });
+      }
+
+      ScrollTrigger.create({
+        trigger: ctaNode,
+        start: 'top 86%',
+        once: true,
+        onEnter: () => {
+          gsap.to(ctaNode, {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.74,
+            ease: REVEAL_EASE,
+            clearProps: 'opacity,visibility,transform',
+          });
+        },
+      });
+
+      ScrollTrigger.refresh();
+    }, sectionNode);
+
+    return () => context.revert();
+  }, [section.highlights.length, testing.categories.length]);
+
   return (
     <>
-      <section className="bg-white px-4 pb-72 pt-14 md:px-6 md:pb-72 md:pt-20 lg:px-36 lg:pb-84 lg:pt-24">
+      <section
+        ref={sectionRef}
+        className="bg-white px-4 pb-72 pt-14 md:px-6 md:pb-72 md:pt-20 lg:px-36 lg:pb-84 lg:pt-24"
+      >
         <div className="mx-auto w-full max-w-[1480px]">
-          <div className="max-w-[960px]">
+          <div ref={introRef} className="max-w-[960px]">
             <div>
               <GradientTag
                 text={section.eyebrow}
@@ -347,10 +493,15 @@ export default function ServicesSection({
             </div>
           </div>
 
-          <HighlightTiles highlights={section.highlights} />
+          <div ref={highlightsRef}>
+            <HighlightTiles highlights={section.highlights} />
+          </div>
 
           <div className="mt-16 rounded-[28px] bg-[#F6FAF2] px-4 py-10 md:mt-20 md:px-8 md:py-14 lg:px-10 lg:py-16">
-            <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+            <div
+              ref={testingIntroRef}
+              className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between"
+            >
               <div>
                 <GradientTag
                   text={testing.eyebrow}
@@ -374,9 +525,14 @@ export default function ServicesSection({
               </p>
             </div>
 
-            <TestingAccordion testing={testing} />
+            <div ref={accordionRef}>
+              <TestingAccordion testing={testing} />
+            </div>
 
-            <div className="mt-10 overflow-hidden rounded-[24px] bg-[linear-gradient(135deg,#0F3F1D_0%,#2E7D32_100%)] p-6 shadow-[0_18px_44px_rgba(15,63,29,0.18)] md:mt-12 md:p-8 lg:p-10">
+            <div
+              ref={ctaRef}
+              className="mt-10 overflow-hidden rounded-[24px] bg-[linear-gradient(135deg,#0F3F1D_0%,#2E7D32_100%)] p-6 shadow-[0_18px_44px_rgba(15,63,29,0.18)] md:mt-12 md:p-8 lg:p-10"
+            >
               <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
                 <div className="max-w-[720px]">
                   <h3 className="text-[24px] font-semibold leading-[1.25] text-white md:text-[30px]">

@@ -22,6 +22,7 @@ type ResponsiveMode = 'desktop' | 'tablet' | 'mobile';
 
 const AUTOPLAY_DELAY_MS = 4200;
 const MOTION_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
+const TAB_STAGGER_MS = 60;
 
 function AdvisoryProgramCard({ card }: { card: AdvisoryTrainingCard }) {
   const useUnoptimizedImage = isLocalhostAssetUrl(card.imageSrc);
@@ -319,25 +320,25 @@ export default function AdvisoryServicesProgramsSliderSectionClient({
     ? undefined
     : {
         opacity: hasEnteredView ? 1 : 0,
-        transform: hasEnteredView ? 'translateY(0)' : 'translateY(26px)',
-        transition: `opacity 520ms ${MOTION_EASE}, transform 520ms ${MOTION_EASE}`,
+        transform: hasEnteredView ? 'translateY(0)' : 'translateY(24px)',
+        transition: `opacity 560ms ${MOTION_EASE}, transform 560ms ${MOTION_EASE}`,
       };
 
   const lineMotionStyle = prefersReducedMotion
     ? undefined
     : {
         opacity: hasEnteredView ? 1 : 0,
-        transform: hasEnteredView ? 'scaleX(1)' : 'scaleX(0.84)',
+        transform: hasEnteredView ? 'scaleX(1)' : 'scaleX(0.88)',
         transformOrigin: 'left center',
-        transition: `opacity 460ms ${MOTION_EASE} 100ms, transform 620ms ${MOTION_EASE} 100ms`,
+        transition: `opacity 500ms ${MOTION_EASE} 120ms, transform 660ms ${MOTION_EASE} 120ms`,
       };
 
   const viewportMotionStyle = prefersReducedMotion
     ? undefined
     : {
         opacity: hasEnteredView ? 1 : 0,
-        transform: hasEnteredView ? 'translateY(0)' : 'translateY(34px)',
-        transition: `opacity 620ms ${MOTION_EASE} 120ms, transform 620ms ${MOTION_EASE} 120ms`,
+        transform: hasEnteredView ? 'translateY(0)' : 'translateY(28px)',
+        transition: `opacity 640ms ${MOTION_EASE} 180ms, transform 640ms ${MOTION_EASE} 180ms`,
       };
 
   const getVisibleCardAnimationStyle = (renderedIndex: number) => {
@@ -355,9 +356,9 @@ export default function AdvisoryServicesProgramsSliderSectionClient({
       opacity: 1,
       transform: 'translateY(0)',
       animationName: 'advisory-card-rise-in',
-      animationDuration: '620ms',
+      animationDuration: '640ms',
       animationTimingFunction: MOTION_EASE,
-      animationDelay: `${visibleSlot * 80}ms`,
+      animationDelay: `${visibleSlot * 70}ms`,
       animationFillMode: 'both',
     } as const;
   };
@@ -526,10 +527,12 @@ export default function AdvisoryServicesProgramsSliderSectionClient({
                               opacity: hasEnteredView ? 1 : 0,
                               transform: hasEnteredView
                                 ? 'translateY(0)'
-                                : 'translateY(18px)',
-                              transition: `opacity 440ms ${MOTION_EASE} ${
-                                categoryIndex * 70
-                              }ms, transform 440ms ${MOTION_EASE} ${categoryIndex * 70}ms`,
+                                : 'translateY(16px)',
+                              transition: `opacity 460ms ${MOTION_EASE} ${
+                                categoryIndex * TAB_STAGGER_MS
+                              }ms, transform 460ms ${MOTION_EASE} ${
+                                categoryIndex * TAB_STAGGER_MS
+                              }ms`,
                             }
                       }
                     >

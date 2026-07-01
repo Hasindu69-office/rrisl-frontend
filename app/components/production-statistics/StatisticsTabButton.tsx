@@ -45,6 +45,7 @@ export default function StatisticsTabButton({
 }: StatisticsTabButtonProps) {
   return (
     <button
+      data-stats-tab
       type="button"
       role="tab"
       aria-selected={active}

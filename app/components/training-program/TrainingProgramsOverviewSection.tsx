@@ -1,4 +1,9 @@
+'use client';
+
+import { useLayoutEffect, useRef } from 'react';
 import Image from 'next/image';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import GradientTag from '@/app/components/ui/GradientTag';
 import GradientTitle from '@/app/components/ui/GradientTitle';
 import { isLocalhostAssetUrl } from '@/app/lib/strapi';
@@ -6,6 +11,8 @@ import type {
   TrainingProgramCardViewModel,
   TrainingProgramPageViewModel,
 } from '@/app/lib/training-program/pageData';
+
+gsap.registerPlugin(ScrollTrigger);
 
 function TrainingProgramCard({
   title,
@@ -26,6 +33,7 @@ function TrainingProgramCard({
 
   return (
     <article
+      data-training-card
       className="relative min-h-[300px] overflow-hidden rounded-[20px] border border-[#21442A] md:min-h-[340px] lg:min-h-[396px]"
     >
       <div
@@ -73,7 +81,10 @@ function TrainingProgramCard({
         </ul>
       </div>
 
-      <div className={`pointer-events-none absolute bottom-0 z-20 hidden lg:block ${imageWrapClassName}`}>
+      <div
+        data-training-card-image
+        className={`pointer-events-none absolute bottom-0 z-20 hidden lg:block ${imageWrapClassName}`}
+      >
         <Image
           src={imageSrc}
           alt={imageAlt}
@@ -98,9 +109,102 @@ export default function TrainingProgramsOverviewSection({
   pageData: Pick<TrainingProgramPageViewModel, 'section' | 'cards'>;
 }) {
   const useUnoptimizedBackground = isLocalhostAssetUrl(pageData.section.backgroundImage);
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const introRef = useRef<HTMLDivElement | null>(null);
+  const cardsRef = useRef<HTMLDivElement | null>(null);
+
+  useLayoutEffect(() => {
+    if (
+      typeof window === 'undefined' ||
+      !sectionRef.current ||
+      !introRef.current ||
+      !cardsRef.current
+    ) {
+      return;
+    }
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
+
+    const sectionNode = sectionRef.current;
+    const introNode = introRef.current;
+    const cardsNode = cardsRef.current;
+    const cardNodes = gsap.utils.toArray<HTMLElement>('[data-training-card]', cardsNode);
+    const cardImageNodes = gsap.utils.toArray<HTMLElement>('[data-training-card-image]', cardsNode);
+
+    const context = gsap.context(() => {
+      gsap.set(introNode, { autoAlpha: 0, y: 24 });
+
+      if (cardNodes.length > 0) {
+        gsap.set(cardNodes, { autoAlpha: 0, y: 24 });
+      }
+
+      if (cardImageNodes.length > 0) {
+        gsap.set(cardImageNodes, { autoAlpha: 0, x: 20, y: 12 });
+      }
+
+      ScrollTrigger.create({
+        trigger: sectionNode,
+        start: 'top 82%',
+        once: true,
+        onEnter: () => {
+          gsap.to(introNode, {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.78,
+            ease: 'power3.out',
+            clearProps: 'opacity,visibility,transform',
+          });
+        },
+      });
+
+      if (cardNodes.length > 0) {
+        ScrollTrigger.create({
+          trigger: cardsNode,
+          start: 'top 84%',
+          once: true,
+          onEnter: () => {
+            const timeline = gsap.timeline({
+              defaults: {
+                ease: 'power3.out',
+              },
+            });
+
+            timeline.to(cardNodes, {
+              autoAlpha: 1,
+              y: 0,
+              duration: 0.76,
+              stagger: 0.1,
+              clearProps: 'opacity,visibility,transform',
+            });
+
+            if (cardImageNodes.length > 0) {
+              timeline.to(
+                cardImageNodes,
+                {
+                  autoAlpha: 1,
+                  x: 0,
+                  y: 0,
+                  duration: 0.68,
+                  stagger: 0.08,
+                  clearProps: 'opacity,visibility,transform',
+                },
+                '-=0.42'
+              );
+            }
+          },
+        });
+      }
+
+      ScrollTrigger.refresh();
+    }, sectionNode);
+
+    return () => context.revert();
+  }, [pageData.cards.length]);
 
   return (
-    <section className="relative overflow-hidden bg-white">
+    <section ref={sectionRef} className="relative overflow-hidden bg-white">
       <div className="absolute inset-0 z-0">
         <Image
           src={pageData.section.backgroundImage}
@@ -115,7 +219,10 @@ export default function TrainingProgramsOverviewSection({
 
       <div className="relative z-10 min-h-[680px] px-4 py-24 md:px-6 md:py-20 lg:px-36 lg:py-24 lg:pb-42">
         <div className="mx-auto mb-36 w-full max-w-[1920px]">
-          <div className="grid grid-cols-1 gap-6 md:gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(320px,0.95fr)] lg:items-start lg:gap-16">
+          <div
+            ref={introRef}
+            className="grid grid-cols-1 gap-6 md:gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(320px,0.95fr)] lg:items-start lg:gap-16"
+          >
             <div className="max-w-[620px]">
               <GradientTag
                 text={pageData.section.tag}
@@ -145,7 +252,10 @@ export default function TrainingProgramsOverviewSection({
             </div>
           </div>
 
-          <div className="mt-10 grid grid-cols-1 gap-6 md:mt-12 md:gap-7 lg:mt-16 lg:grid-cols-2 lg:gap-8">
+          <div
+            ref={cardsRef}
+            className="mt-10 grid grid-cols-1 gap-6 md:mt-12 md:gap-7 lg:mt-16 lg:grid-cols-2 lg:gap-8"
+          >
             {pageData.cards.map((card) => (
               <TrainingProgramCard key={card.title} {...card} />
             ))}
