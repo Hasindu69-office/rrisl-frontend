@@ -52,6 +52,14 @@ function getTrackGap(viewportWidth: number) {
 }
 
 const DESKTOP_END_HOLD_VIEWPORT_COUNT = 1;
+const DESKTOP_CENTERED_CARD_WIDTH = 360;
+const MOBILE_TIMELINE_TOP_OFFSET = 124;
+const TABLET_TIMELINE_TOP_OFFSET = 136;
+const MOBILE_MARKER_SIZE_ACTIVE = 18;
+const MOBILE_MARKER_SIZE_INACTIVE = 14;
+const MOBILE_CAROUSEL_TOP_PADDING = 16;
+const MOBILE_TIMELINE_ROW_GAP = 12;
+const TABLET_TIMELINE_ROW_GAP = 16;
 
 function TimelineBlock({
   block,
@@ -171,7 +179,11 @@ export default function DepartmentAwardsTimelineSection({
     }
 
     const updateTimelineViewportWidth = () => {
-      setTimelineViewportWidth(node.clientWidth);
+      const computedStyle = window.getComputedStyle(node);
+      const horizontalPadding =
+        parseFloat(computedStyle.paddingLeft) + parseFloat(computedStyle.paddingRight);
+
+      setTimelineViewportWidth(Math.max(node.clientWidth - horizontalPadding, 0));
     };
 
     updateTimelineViewportWidth();
@@ -193,10 +205,25 @@ export default function DepartmentAwardsTimelineSection({
   const trackGap = getTrackGap(windowWidth);
   const desktopMaxStartIndex = Math.max(0, items.length - visibleItemCount);
   const hasPinnedDesktopTimeline = isDesktop && desktopMaxStartIndex > 0;
+  const shouldCenterDesktopTrack = isDesktop && items.length <= visibleItemCount;
+  const desktopRenderedItemCount = shouldCenterDesktopTrack
+    ? Math.max(Math.min(items.length, visibleItemCount), 1)
+    : visibleItemCount;
   const desktopCardWidth =
     timelineViewportWidth > 0
-      ? (timelineViewportWidth - trackGap * Math.max(visibleItemCount - 1, 0)) / visibleItemCount
+      ? shouldCenterDesktopTrack
+        ? Math.min(
+            (timelineViewportWidth - trackGap * Math.max(desktopRenderedItemCount - 1, 0)) /
+              desktopRenderedItemCount,
+            DESKTOP_CENTERED_CARD_WIDTH
+          )
+        : (timelineViewportWidth - trackGap * Math.max(desktopRenderedItemCount - 1, 0)) /
+          desktopRenderedItemCount
       : 0;
+  const desktopTrackWidth =
+    shouldCenterDesktopTrack && desktopCardWidth > 0
+      ? items.length * desktopCardWidth + trackGap * Math.max(items.length - 1, 0)
+      : undefined;
   const desktopTimelineLineWidth =
     desktopCardWidth > 0 && items.length > 1 ? (items.length - 1) * (desktopCardWidth + trackGap) : 0;
   const boundedActiveIndex = Math.min(activeIndex, Math.max(items.length - 1, 0));
@@ -214,6 +241,13 @@ export default function DepartmentAwardsTimelineSection({
   const mobileTimelineLineWidth =
     mobileCardWidth > 0 && items.length > 1 ? (items.length - 1) * (mobileCardWidth + trackGap) : 0;
   const mobileCarouselPadding = isTablet ? 56 : 32;
+  const mobileTimelineTopOffset = isTablet ? TABLET_TIMELINE_TOP_OFFSET : MOBILE_TIMELINE_TOP_OFFSET;
+  const mobileTimelineRowGap = isTablet ? TABLET_TIMELINE_ROW_GAP : MOBILE_TIMELINE_ROW_GAP;
+  const mobileMarkerTopLaneHeight =
+    mobileTimelineTopOffset -
+    MOBILE_CAROUSEL_TOP_PADDING -
+    mobileTimelineRowGap -
+    MOBILE_MARKER_SIZE_ACTIVE / 2;
 
   const arrowColor = 'rgba(161, 223, 10, 1)';
   const totalMobileItems = items.length;
@@ -459,7 +493,9 @@ export default function DepartmentAwardsTimelineSection({
           <div
             ref={timelineViewportRef}
             data-department-reveal
-            className={`relative mt-10 ${isDesktop ? 'overflow-hidden px-0 md:mt-12 lg:px-24 xl:px-28' : 'px-0 md:mt-12'}`}
+            className={`relative mt-10 ${
+              isDesktop ? 'overflow-hidden px-0 pb-10 md:mt-12 lg:px-24 xl:px-28' : 'px-0 md:mt-12'
+            }`}
           >
             {items.length > visibleItemCount ? (
               <>
@@ -493,10 +529,13 @@ export default function DepartmentAwardsTimelineSection({
               <div className="relative min-h-[340px] xl:min-h-[360px]">
                 <div
                   ref={desktopTrackRef}
-                  className="relative flex items-stretch will-change-transform"
+                  className={`relative flex items-stretch will-change-transform ${
+                    shouldCenterDesktopTrack ? 'mx-auto' : ''
+                  }`}
                   style={{
                     gap: `${trackGap}px`,
                     transform: 'translate3d(0, 0, 0)',
+                    width: desktopTrackWidth ? `${desktopTrackWidth}px` : undefined,
                   }}
                 >
                   {desktopTimelineLineWidth > 0 ? (
@@ -544,14 +583,14 @@ export default function DepartmentAwardsTimelineSection({
               <div className="relative pb-12">
                 <div
                   ref={carouselRef}
-                  className="relative flex snap-x snap-mandatory gap-5 overflow-x-auto px-8 pb-4 pt-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden md:gap-7 md:px-14"
+                  className="relative flex snap-x snap-mandatory gap-5 overflow-x-auto px-8 pb-10 pt-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden md:gap-7 md:px-14 md:pb-12"
                 >
                   {mobileTimelineLineWidth > 0 ? (
                     <div
                       className="pointer-events-none absolute h-px -translate-y-1/2 bg-[#111111]/30"
                       style={{
                         left: `${mobileCarouselPadding + mobileCardWidth / 2}px`,
-                        top: isTablet ? '31%' : '29.5%',
+                        top: `${mobileTimelineTopOffset}px`,
                         width: `${mobileTimelineLineWidth}px`,
                       }}
                       aria-hidden="true"
@@ -574,8 +613,13 @@ export default function DepartmentAwardsTimelineSection({
                           flexBasis: mobileCardWidth > 0 ? `${mobileCardWidth}px` : undefined,
                         }}
                       >
-                        <article className="grid min-h-[300px] grid-rows-[auto_auto_auto] items-center justify-items-center gap-3 md:min-h-[340px] md:gap-4">
-                          <div className="flex w-full items-end justify-center pb-2 md:pb-3">
+                        <article
+                          className="grid min-h-[300px] items-center justify-items-center gap-3 md:min-h-[340px] md:gap-4"
+                          style={{
+                            gridTemplateRows: `${mobileMarkerTopLaneHeight}px auto 1fr`,
+                          }}
+                        >
+                          <div className="flex h-full w-full items-end justify-center pb-2 md:pb-3">
                             {index % 2 === 0 ? (
                               <div className="flex w-full flex-col items-center justify-end">
                                 <TimelineBlock block={item.top} compact />
@@ -591,8 +635,12 @@ export default function DepartmentAwardsTimelineSection({
                             <div
                               className="relative z-[1] rounded-full transition-all duration-300"
                               style={{
-                                width: markerActive ? '18px' : '14px',
-                                height: markerActive ? '18px' : '14px',
+                                width: markerActive
+                                  ? `${MOBILE_MARKER_SIZE_ACTIVE}px`
+                                  : `${MOBILE_MARKER_SIZE_INACTIVE}px`,
+                                height: markerActive
+                                  ? `${MOBILE_MARKER_SIZE_ACTIVE}px`
+                                  : `${MOBILE_MARKER_SIZE_INACTIVE}px`,
                                 backgroundColor: markerActive ? '#A1DF0A' : '#FFFFFF',
                                 boxShadow: markerActive
                                   ? '0 0 0 6px rgba(161,223,10,0.24)'
@@ -622,7 +670,7 @@ export default function DepartmentAwardsTimelineSection({
                   })}
                 </div>
 
-                <div className="mt-2 flex items-center justify-center gap-2 md:hidden">
+                <div className="-mt-4 flex items-center justify-center gap-2 md:hidden">
                   {items.map((item, index) => (
                     <button
                       key={item.id}

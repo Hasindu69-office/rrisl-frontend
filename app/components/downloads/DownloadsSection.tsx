@@ -110,9 +110,9 @@ export default function DownloadsSection({
             </div>
           </div>
         ) : (
-          <div className="mx-auto grid justify-center gap-6 sm:grid-cols-2 md:[grid-template-columns:repeat(2,246px)] xl:[grid-template-columns:repeat(4,246px)]">
+          <div className="mx-auto grid auto-rows-fr justify-center gap-6 sm:grid-cols-2 md:[grid-template-columns:repeat(2,246px)] xl:[grid-template-columns:repeat(4,246px)]">
             {items.map((item) => (
-              <div key={item.id} data-downloads-reveal>
+              <div key={item.id} data-downloads-reveal className="h-full">
                 <PublicationCard
                   item={item}
                   className="mx-auto w-full max-w-[246px]"

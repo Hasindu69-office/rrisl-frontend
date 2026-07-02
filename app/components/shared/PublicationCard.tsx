@@ -49,7 +49,7 @@ export default function PublicationCard({
 
   return (
     <article
-      className={`rounded-[20px] border border-[#E6E8E4] bg-white px-2.5 pb-5 pt-0.5 shadow-[0_12px_36px_rgba(15,63,29,0.04)] transition hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(15,63,29,0.08)] md:px-3 md:pb-5 ${className}`}
+      className={`flex h-full min-h-[360px] flex-col rounded-[20px] border border-[#E6E8E4] bg-white px-2.5 pb-5 pt-0.5 shadow-[0_12px_36px_rgba(15,63,29,0.04)] transition hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(15,63,29,0.08)] md:min-h-[390px] md:px-3 md:pb-5 ${className}`}
     >
       <div
         className={`pointer-events-none relative mx-auto -mb-1 -mt-6 aspect-[0.82] w-[calc(100%+16px)] max-w-[248px] md:w-[calc(100%+28px)] md:max-w-[286px] ${imageWrapperClassName}`}
@@ -77,14 +77,14 @@ export default function PublicationCard({
         )}
       </div>
 
-      <div className="relative z-[1] mt-0 flex w-full flex-col items-center text-center">
+      <div className="relative z-[1] mt-0 flex w-full flex-1 flex-col items-center text-center">
         <h3
-          className={`w-[calc(100%+20px)] text-[15px] font-semibold leading-[1.2] text-[#101828] ${titleClassName}`}
+          className={`flex min-h-[42px] w-full items-center justify-center px-4 text-[15px] font-semibold leading-[1.2] text-[#101828] md:px-5 ${titleClassName}`}
         >
           {item.title}
         </h3>
 
-        <div className="mb-[18px] mt-6 flex justify-center">
+        <div className="mb-[18px] mt-auto flex justify-center pt-6">
           {hasDocument ? (
             item.openInNewTab ? (
               <a
