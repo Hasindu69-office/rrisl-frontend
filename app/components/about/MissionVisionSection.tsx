@@ -265,7 +265,7 @@ const MissionVisionSection = ({
                         {/* Mission Content */}
                         <div className="relative mb-12 md:mb-20 lg:mb-[250px] max-w-xl z-10 mt-8 md:mt-16 lg:mt-[144px]">
                             <h3 ref={visionHeadingRef} className="text-3xl md:text-4xl font-bold text-[#0F3F1D] mb-4 md:mb-6">{visionLabel}</h3>
-                            <p ref={visionTextRef} className="text-gray-800 text-base md:text-lg lg:text-[18px] leading-relaxed text-justify">
+                            <p ref={visionTextRef} className="text-gray-800 text-base md:text-lg lg:text-[16px] leading-relaxed text-justify">
                                 {vision}
                             </p>
                         </div>
@@ -273,7 +273,7 @@ const MissionVisionSection = ({
                         {/* Vision Content */}
                         <div className="relative max-w-xl z-10">
                             <h3 ref={missionHeadingRef} className="text-3xl md:text-4xl font-bold text-[#0F3F1D] mb-4 md:mb-6">{missionLabel}</h3>
-                            <p ref={missionTextRef} className="text-gray-800 text-base md:text-lg lg:text-[18px] leading-relaxed text-justify mb-12 md:mb-24 lg:mb-[144px]">
+                            <p ref={missionTextRef} className="text-gray-800 text-base md:text-lg lg:text-[16px] leading-relaxed text-justify mb-12 md:mb-24 lg:mb-[144px]">
                                 {mission}
                             </p>
                         </div>

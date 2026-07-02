@@ -14,17 +14,17 @@ export default function Button({
   ...props
 }: ButtonProps) {
   const baseStyles =
-    'group relative inline-flex max-w-full items-center justify-center overflow-hidden text-center font-medium leading-tight whitespace-normal rounded-[30px] cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-500 ease-out';
+    'group relative inline-flex max-w-full items-center justify-center overflow-hidden text-center font-medium leading-tight whitespace-normal rounded-[30px] cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 transition-all duration-500 ease-out';
 
   const variants = {
     primary:
-      'bg-[#2E7D32] text-white shadow-[0_8px_20px_rgba(46,125,50,0.22)] hover:shadow-[0_14px_32px_rgba(46,125,50,0.35)] hover:-translate-y-[2px] focus:ring-[#2E7D32]',
+      'bg-[#2E7D32] text-white shadow-[0_8px_20px_rgba(46,125,50,0.22)] hover:shadow-[0_14px_32px_rgba(46,125,50,0.35)] hover:-translate-y-[2px] focus-visible:ring-[#2E7D32]',
 
     secondary:
-      'bg-gray-700 text-white shadow-[0_8px_20px_rgba(0,0,0,0.16)] hover:bg-gray-800 hover:shadow-[0_14px_32px_rgba(0,0,0,0.25)] hover:-translate-y-[2px] focus:ring-gray-600',
+      'bg-gray-700 text-white shadow-[0_8px_20px_rgba(0,0,0,0.16)] hover:bg-gray-800 hover:shadow-[0_14px_32px_rgba(0,0,0,0.25)] hover:-translate-y-[2px] focus-visible:ring-gray-600',
 
     outline:
-      'border border-[#A1DF0A] text-[#A1DF0A] hover:text-white hover:border-[#2E7D32] shadow-[0_8px_20px_rgba(161,223,10,0.12)] hover:shadow-[0_14px_32px_rgba(46,125,50,0.25)] hover:-translate-y-[2px] focus:ring-[#A1DF0A]',
+      'border border-[#A1DF0A] text-[#A1DF0A] hover:text-white hover:border-[#2E7D32] shadow-[0_8px_20px_rgba(161,223,10,0.12)] hover:shadow-[0_14px_32px_rgba(46,125,50,0.25)] hover:-translate-y-[2px] focus-visible:ring-[#A1DF0A]',
   };
 
   const sizes = {
