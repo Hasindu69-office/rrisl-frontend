@@ -163,7 +163,7 @@ function PerformanceCardShell({
     <article
       tabIndex={0}
       aria-label={title}
-      className={`group flex min-h-[420px] flex-col overflow-hidden rounded-[24px] border ${styles.softBorder} ${styles.softPanel} px-5 py-5 text-left shadow-[0_18px_40px_rgba(15,63,29,0.05)] ring-1 ring-transparent outline-none ${cardMotionClass} hover:-translate-y-0.5 hover:scale-[1.003] focus-visible:-translate-y-0.5 focus-visible:scale-[1.003] focus-visible:ring-2 focus-visible:ring-offset-4 focus-visible:ring-offset-white ${styles.hoverRing} ${styles.hoverShadow} md:px-6 md:py-6`}
+      className={`group flex h-full min-h-[420px] flex-col overflow-hidden rounded-[24px] border ${styles.softBorder} ${styles.softPanel} px-5 py-5 text-left shadow-[0_18px_40px_rgba(15,63,29,0.05)] ring-1 ring-transparent outline-none ${cardMotionClass} hover:-translate-y-0.5 hover:scale-[1.003] focus-visible:-translate-y-0.5 focus-visible:scale-[1.003] focus-visible:ring-2 focus-visible:ring-offset-4 focus-visible:ring-offset-white ${styles.hoverRing} ${styles.hoverShadow} md:px-6 md:py-6`}
     >
       {children}
     </article>
@@ -700,6 +700,7 @@ export default function EstateSubstationPerformanceSection({
               ref={(node) => {
                 cardRefs.current[index] = node;
               }}
+              className="h-full"
             >
               <PerformanceCardRenderer card={card} index={index} />
             </div>
