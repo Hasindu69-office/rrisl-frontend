@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import Button from '@/app/components/ui/Button';
 
 export interface PublicationCardItem {
   id: string;
@@ -44,18 +45,7 @@ export default function PublicationCard({
     useFallbackImage && item.fallbackImageSrc ? item.fallbackImageSrc : item.imageSrc;
   const useUnoptimized = resolvedImageSrc.includes('localhost');
   const buttonClassName =
-    'inline-flex !h-[42px] !w-[138px] items-center justify-center rounded-[999px] border border-[#A1DF0A] px-0 py-0 text-[13px] font-medium text-[#A1DF0A] transition-colors hover:bg-[#2E7D32]/90 hover:text-white focus:outline-none focus:ring-2 focus:ring-[#A1DF0A] focus:ring-offset-2';
-
-  useEffect(() => {
-    if (hasLocalhostUrl) {
-      const hostname = window.location.hostname;
-      const isRemoteAccess = hostname !== 'localhost' && hostname !== '127.0.0.1';
-
-      if (isRemoteAccess) {
-        setUseFallbackImage(true);
-      }
-    }
-  }, [hasLocalhostUrl]);
+    '!h-[42px] !w-[138px] !rounded-[999px] px-0 py-0 text-[13px] font-medium';
 
   return (
     <article
@@ -94,26 +84,29 @@ export default function PublicationCard({
           {item.title}
         </h3>
 
-        <div className="mb-[18px] mt-2 flex justify-center">
+        <div className="mb-[18px] mt-6 flex justify-center">
           {hasDocument ? (
             item.openInNewTab ? (
               <a
                 href={item.readMoreHref}
                 target="_blank"
                 rel="noreferrer"
-                className={buttonClassName}
                 aria-label={item.readMoreAriaLabel || `${buttonLabel} for ${item.title}`}
               >
-                {buttonLabel}
+                <Button type="button" variant="outline" size="sm" className={buttonClassName}>
+                  {buttonLabel}
+                </Button>
               </a>
             ) : (
-              <Link href={item.readMoreHref} className={buttonClassName}>
-                {buttonLabel}
+              <Link href={item.readMoreHref}>
+                <Button type="button" variant="outline" size="sm" className={buttonClassName}>
+                  {buttonLabel}
+                </Button>
               </Link>
             )
           ) : (
             <span
-              className={`${buttonClassName} cursor-not-allowed border-[#A1DF0A]/50 text-[#A1DF0A]/60 hover:bg-transparent hover:text-[#A1DF0A]/60`}
+              className="inline-flex !h-[42px] !w-[138px] cursor-not-allowed items-center justify-center rounded-[999px] border border-[#A1DF0A]/50 px-0 py-0 text-[13px] font-medium text-[#A1DF0A]/60"
               aria-disabled="true"
             >
               {buttonLabel}

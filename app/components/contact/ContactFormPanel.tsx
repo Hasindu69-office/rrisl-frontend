@@ -7,6 +7,7 @@ import type {
   InputHTMLAttributes,
 } from 'react';
 
+import Button from '@/app/components/ui/Button';
 import { useContactFormSubmission } from '@/app/hooks/useContactFormSubmission';
 import type { ContactFormPanelProps } from '@/app/lib/contact/pageData';
 
@@ -393,13 +394,15 @@ export default function ContactFormPanel({ labels, subjectOptions }: ContactForm
         </div>
 
         <div className="mt-auto flex justify-end pt-12">
-          <button
+          <Button
             type="submit"
             disabled={isSubmitting}
-            className="inline-flex min-h-[54px] min-w-[180px] items-center justify-center rounded-[5px] bg-[#2E7D32] px-8 py-3 text-[18px] font-medium text-white transition-colors hover:bg-[#27692A] focus:outline-none focus:ring-2 focus:ring-[#2E7D32] focus:ring-offset-2"
+            variant="primary"
+            size="md"
+            className="min-h-[54px] min-w-[180px] !rounded-[5px] px-8 py-3 text-[18px] font-medium disabled:cursor-not-allowed disabled:opacity-70"
           >
             {isSubmitting ? 'Sending...' : labels.buttonLabel}
-          </button>
+          </Button>
         </div>
       </form>
     </div>

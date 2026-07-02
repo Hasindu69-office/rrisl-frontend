@@ -1,4 +1,5 @@
 import { ArrowDownToLine, FileText } from 'lucide-react';
+import Button from '@/app/components/ui/Button';
 
 interface VacancyAttachmentLinkProps {
   buttonLabel: string;
@@ -27,10 +28,18 @@ export default function VacancyAttachmentLink({
         <a
           href={href}
           download
-          className="inline-flex min-h-[46px] items-center justify-center gap-3 rounded-[8px] bg-[#2E7D32] px-5 text-sm font-semibold text-white transition hover:bg-[#256A2A] focus:outline-none focus:ring-2 focus:ring-[#2E7D32] focus:ring-offset-2"
         >
-          <ArrowDownToLine className="h-4 w-4" strokeWidth={2.2} aria-hidden="true" />
-          <span>{buttonLabel}</span>
+          <Button
+            type="button"
+            variant="primary"
+            size="sm"
+            className="min-h-[46px] gap-3 !rounded-[8px] px-5 text-sm font-semibold"
+          >
+            <span className="inline-flex items-center gap-3">
+              <ArrowDownToLine className="h-4 w-4" strokeWidth={2.2} aria-hidden="true" />
+              <span>{buttonLabel}</span>
+            </span>
+          </Button>
         </a>
       </div>
     </section>

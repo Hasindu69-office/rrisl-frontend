@@ -16,6 +16,7 @@ import {
   X,
 } from 'lucide-react';
 import { isLocalhostAssetUrl } from '@/app/lib/strapi';
+import Button from '@/app/components/ui/Button';
 import GradientTag from '@/app/components/ui/GradientTag';
 import GradientTitle from '@/app/components/ui/GradientTitle';
 import type { RubberPriceEntry, RubberPricesSectionContent } from '@/app/lib/types';
@@ -122,10 +123,19 @@ function RubberPricePreviewCard({
             href={entry.imageSrc}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 self-start rounded-full bg-[#0F3F1D] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#1A5A2A] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2E7D32] focus-visible:ring-offset-4 sm:px-5"
+            className="self-start"
           >
-            <span>{content.openFullSheetButtonLabel}</span>
-            <ExternalLink className="h-4 w-4" strokeWidth={2.1} aria-hidden="true" />
+            <Button
+              type="button"
+              variant="primary"
+              size="sm"
+              className="min-h-11 gap-2 !rounded-full !bg-[#0F3F1D] px-4 py-3 text-sm font-semibold sm:px-5"
+            >
+              <span className="inline-flex items-center gap-2">
+                <span>{content.openFullSheetButtonLabel}</span>
+                <ExternalLink className="h-4 w-4" strokeWidth={2.1} aria-hidden="true" />
+              </span>
+            </Button>
           </a>
         </div>
       </div>
@@ -558,10 +568,19 @@ function RubberPriceViewerModal({
               href={entry.imageSrc}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex min-h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-[#0F3F1D] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#1A5A2A] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2E7D32] focus-visible:ring-offset-2 sm:w-auto"
+              className="w-full sm:w-auto"
             >
-              <span>{content.openFullSheetButtonLabel}</span>
-              <ExternalLink className="h-4 w-4" strokeWidth={2.1} aria-hidden="true" />
+              <Button
+                type="button"
+                variant="primary"
+                size="sm"
+                className="min-h-11 w-full gap-2 !rounded-full !bg-[#0F3F1D] px-5 py-3 text-sm font-semibold sm:w-auto"
+              >
+                <span className="inline-flex items-center gap-2">
+                  <span>{content.openFullSheetButtonLabel}</span>
+                  <ExternalLink className="h-4 w-4" strokeWidth={2.1} aria-hidden="true" />
+                </span>
+              </Button>
             </a>
 
             <div className="inline-flex items-center gap-2 rounded-full border border-[#D6E5CF] bg-white/85 px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-[#1E6B2F]">

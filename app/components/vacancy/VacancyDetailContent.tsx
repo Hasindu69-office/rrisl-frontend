@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { BriefcaseBusiness, Check, Clock3, MapPin, WalletCards } from 'lucide-react';
+import Button from '@/app/components/ui/Button';
 import VacancyApplicationForm from './VacancyApplicationForm';
 import VacancyAttachmentLink from './VacancyAttachmentLink';
 import VacancyOverviewPanel from './VacancyOverviewPanel';
@@ -107,10 +108,17 @@ export default function VacancyDetailContent({
 
         <Link
           href="#apply-form"
-          className="hidden min-h-[46px] items-center justify-center rounded-[7px] bg-[#2E7D32] px-8 text-sm font-semibold text-white transition hover:bg-[#256A2A] focus:outline-none focus:ring-2 focus:ring-[#2E7D32] focus:ring-offset-2 lg:inline-flex"
+          className="hidden lg:inline-flex"
           aria-label={`Apply for ${job.title}`}
         >
-          {labels.applyJobLabel}
+          <Button
+            type="button"
+            variant="primary"
+            size="sm"
+            className="min-h-[46px] !rounded-[7px] px-8 text-sm font-semibold"
+          >
+            {labels.applyJobLabel}
+          </Button>
         </Link>
       </div>
 
