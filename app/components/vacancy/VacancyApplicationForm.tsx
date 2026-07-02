@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import { ArrowRight } from 'lucide-react';
+import Button from '@/app/components/ui/Button';
 import { createVacancyApplication } from '@/app/lib/strapi';
 import type { VacancyDetailLabelsViewModel } from '@/app/lib/vacancy/pageData';
 
@@ -319,15 +320,19 @@ export default function VacancyApplicationForm({
           ) : null}
         </div>
 
-        <button
+        <Button
           type="submit"
           disabled={isSubmitting}
-          className="inline-flex min-h-[52px] items-center justify-center gap-4 rounded-[2px] bg-[#2E7D32] px-6 text-sm font-medium text-white transition hover:bg-[#256A2A] focus:outline-none focus:ring-2 focus:ring-[#2E7D32] focus:ring-offset-2"
+          variant="primary"
+          size="md"
+          className="min-h-[52px] gap-4 !rounded-[2px] px-6 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-70"
           aria-label={`Send application for ${jobTitle}`}
         >
-          <span>{isSubmitting ? 'Sending...' : submitLabel}</span>
-          <ArrowRight className="h-4 w-4" strokeWidth={2.2} aria-hidden="true" />
-        </button>
+          <span className="inline-flex items-center gap-4">
+            <span>{isSubmitting ? 'Sending...' : submitLabel}</span>
+            <ArrowRight className="h-4 w-4" strokeWidth={2.2} aria-hidden="true" />
+          </span>
+        </Button>
       </form>
     </section>
   );

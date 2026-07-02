@@ -13,6 +13,7 @@ import type {
 } from '@/app/lib/types';
 import { addLocaleToUrl } from '@/app/lib/locale';
 import { isLocalhostAssetUrl } from '@/app/lib/strapi';
+import Button from '@/app/components/ui/Button';
 
 interface NavigationProps {
   menuItems: MenuItem[];
@@ -504,10 +505,18 @@ function DesktopMenuEntry({
                         href={getLocalizedUrl(activeResearchCategory.url)}
                         target={activeResearchCategory.target || '_self'}
                         onClick={onCloseAll}
-                        className="inline-flex items-center gap-2 rounded-full bg-[#0F3F1D] px-5 py-3 text-sm font-semibold text-white transition duration-200 hover:bg-[#2E7D32] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2E7D32] focus-visible:ring-offset-2"
                       >
-                        {researchManagersMenuCopy.cta}
-                        <ArrowRight className="h-4 w-4" strokeWidth={2.2} aria-hidden="true" />
+                        <Button
+                          type="button"
+                          variant="primary"
+                          size="sm"
+                          className="gap-2 !rounded-full !bg-[#0F3F1D] px-5 py-3 text-sm font-semibold"
+                        >
+                          <span className="inline-flex items-center gap-2">
+                            <span>{researchManagersMenuCopy.cta}</span>
+                            <ArrowRight className="h-4 w-4" strokeWidth={2.2} aria-hidden="true" />
+                          </span>
+                        </Button>
                       </Link>
                       <p className="max-w-[260px] text-xs font-semibold uppercase tracking-[0.12em] text-[#6A7A70]">
                         {researchManagersMenuCopy.label}

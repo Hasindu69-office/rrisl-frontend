@@ -132,7 +132,7 @@ const WhoWeAreSection = ({
               style={{ lineHeight: '130%' }}
             />
 
-            <p className="text-[#000000] text-lg md:text-xl leading-relaxed max-w-xl text-justify">
+            <p className="text-lg md:text-[16px] lg:text-[16px] leading-relaxed max-w-xl text-justify">
               {description}
             </p>
           </div>

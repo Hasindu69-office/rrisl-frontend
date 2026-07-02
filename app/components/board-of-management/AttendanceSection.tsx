@@ -51,9 +51,13 @@ export default function AttendanceSection({
             />
           </div>
         ) : (
-          <div className="mx-auto mt-10 grid max-w-[380px] grid-cols-2 place-items-center gap-x-4 gap-y-5 md:mt-12 md:max-w-[560px] md:grid-cols-2 md:gap-x-8 md:gap-y-8 lg:max-w-[1450px] lg:grid-cols-3 lg:gap-x-[110px] lg:gap-y-[45px]">
+          <div className="mx-auto mt-10 flex max-w-[380px] flex-wrap justify-start gap-x-4 gap-y-5 md:mt-12 md:max-w-[560px] md:gap-x-8 md:gap-y-8 lg:max-w-[1450px] lg:gap-x-[40px] lg:gap-y-[45px]">
             {members.map((member) => (
-              <div key={member.name} data-department-reveal>
+              <div
+                key={member.name}
+                className="w-[calc((100%_-_1rem)/2)] max-w-[176px] md:w-[230px] md:max-w-none lg:w-[calc((100%_-_5rem)/3)] lg:max-w-[410px]"
+                data-department-reveal
+              >
                 <BoardMemberCard member={member} />
               </div>
             ))}

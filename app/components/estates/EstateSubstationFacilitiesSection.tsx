@@ -39,7 +39,7 @@ function FacilityCard({
   const useUnoptimizedIcon = isLocalhostAssetUrl(iconSrc);
 
   return (
-    <article className="rounded-[16px] border border-[#E7EED6] bg-white px-5 py-6 shadow-[0_14px_32px_rgba(15,63,29,0.05)] md:rounded-[20px] md:px-7 md:py-8">
+    <article className="h-full rounded-[16px] border border-[#E7EED6] bg-white px-5 py-6 shadow-[0_14px_32px_rgba(15,63,29,0.05)] md:rounded-[20px] md:px-7 md:py-8">
       <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#A1DF0A] md:h-[48px] md:w-[48px]">
         <Image
           src={iconSrc}
@@ -197,14 +197,15 @@ export default function EstateSubstationFacilitiesSection({
 
           <div className="mt-7 grid gap-4 md:mt-9 md:grid-cols-2 md:gap-6">
             {content.cards.map((card, index) => (
-              <article
+              <div
                 key={`${card.title}-${card.description}`}
                 ref={(node) => {
                   cardRefs.current[index] = node;
                 }}
+                className="h-full"
               >
                 <FacilityCard {...card} />
-              </article>
+              </div>
             ))}
           </div>
         </div>

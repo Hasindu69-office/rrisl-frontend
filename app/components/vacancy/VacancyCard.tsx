@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { BriefcaseBusiness, Clock3, WalletCards, MapPin } from 'lucide-react';
+import Button from '@/app/components/ui/Button';
 import type { VacancyListItemViewModel } from '@/app/lib/vacancy/pageData';
 
 interface VacancyCardProps {
@@ -82,10 +83,16 @@ export default function VacancyCard({ job, jobDetailsLabel, locale }: VacancyCar
         <div className="flex shrink-0 justify-start lg:justify-end">
           <Link
             href={buildVacancyDetailHref(job.slug, locale)}
-            className="inline-flex min-h-[40px] items-center justify-center rounded-[7px] bg-[#2E7D32] px-5 text-sm font-semibold text-white transition hover:bg-[#256A2A] focus:outline-none focus:ring-2 focus:ring-[#2E7D32] focus:ring-offset-2"
             aria-label={`View details for ${job.title}`}
           >
-            {jobDetailsLabel}
+            <Button
+              type="button"
+              variant="primary"
+              size="sm"
+              className="min-h-[40px] !rounded-[7px] px-5 text-sm font-semibold"
+            >
+              {jobDetailsLabel}
+            </Button>
           </Link>
         </div>
       </div>

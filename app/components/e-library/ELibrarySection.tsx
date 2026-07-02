@@ -629,7 +629,7 @@ export default function ELibrarySection({
                         <article
                           key={item.id}
                           aria-hidden="true"
-                          className="invisible rounded-[20px] border border-transparent px-2.5 pb-5 pt-0.5 md:px-3 md:pb-5"
+                          className="invisible h-full min-h-[360px] rounded-[20px] border border-transparent px-2.5 pb-5 pt-0.5 md:min-h-[390px] md:px-3 md:pb-5"
                         />
                       );
                     }
@@ -640,6 +640,7 @@ export default function ELibrarySection({
                       <div
                         key={publication.id}
                         data-library-card
+                        className="h-full"
                       >
                         <PublicationCard item={publication} buttonLabel={readMoreLabel} />
                       </div>

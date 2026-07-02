@@ -4,6 +4,7 @@ import { useLayoutEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Search, ChevronDown } from 'lucide-react';
+import Button from '@/app/components/ui/Button';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -110,13 +111,17 @@ export default function VacancySearchBar({
             />
           </div>
 
-          <button
+          <Button
             type="submit"
-            className="inline-flex h-[60px] shrink-0 items-center justify-center gap-3 rounded-[22px] bg-[#2E7D32] px-7 text-[18px] font-semibold text-white transition hover:bg-[#256A2A] focus:outline-none focus:ring-2 focus:ring-[#2E7D32] focus:ring-offset-2 sm:rounded-l-none sm:rounded-r-[22px]"
+            variant="primary"
+            size="md"
+            className="h-[60px] shrink-0 gap-3 !rounded-[22px] px-7 text-[18px] font-semibold sm:!rounded-l-none sm:!rounded-r-[22px]"
           >
-            <Search className="h-5 w-5" strokeWidth={2.4} aria-hidden="true" />
-            <span>{searchButtonLabel}</span>
-          </button>
+            <span className="inline-flex items-center gap-3">
+              <Search className="h-5 w-5" strokeWidth={2.4} aria-hidden="true" />
+              <span>{searchButtonLabel}</span>
+            </span>
+          </Button>
         </form>
       </div>
     </section>

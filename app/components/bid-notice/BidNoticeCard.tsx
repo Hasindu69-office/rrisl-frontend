@@ -1,4 +1,5 @@
 import React from 'react';
+import Button from '@/app/components/ui/Button';
 
 interface BidNoticeCardProps {
   title: string;
@@ -64,10 +65,16 @@ const BidNoticeCard: React.FC<BidNoticeCardProps> = ({
             href={readMoreHref}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex !w-auto min-h-12 items-center justify-center rounded-[30px] border border-[#A1DF0A] px-6 text-xs font-bold text-[#A1DF0A] transition-colors hover:bg-[#2E7D32]/90 hover:text-white focus:outline-none focus:ring-2 focus:ring-[#A1DF0A] focus:ring-offset-2 md:!h-[45px] md:px-8 md:text-sm"
             aria-label={`Open tender document for ${title}`}
           >
-            {readMoreLabel}
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="!w-auto min-h-12 px-6 text-xs font-bold md:!h-[45px] md:px-8 md:text-sm"
+            >
+              {readMoreLabel}
+            </Button>
           </a>
         ) : (
           <span
