@@ -1,4 +1,11 @@
+'use client';
+
+import { useLayoutEffect, useRef } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import type { LocationCardData, LocationDetail } from './locationData';
+
+gsap.registerPlugin(ScrollTrigger);
 
 function PhoneIcon() {
   return (
@@ -64,19 +71,107 @@ export default function LocationCard({
   mapTitle,
   details,
 }: LocationCardData) {
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const headingRef = useRef<HTMLHeadingElement | null>(null);
+  const cardRef = useRef<HTMLDivElement | null>(null);
   const isMapLeft = orientation === 'map-left';
 
+  useLayoutEffect(() => {
+    if (
+      typeof window === 'undefined' ||
+      !sectionRef.current ||
+      !headingRef.current ||
+      !cardRef.current
+    ) {
+      return;
+    }
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
+
+    const sectionNode = sectionRef.current;
+    const headingNode = headingRef.current;
+    const cardNode = cardRef.current;
+
+    const context = gsap.context(() => {
+      const panes = gsap.utils.toArray<HTMLElement>('[data-location-card-pane]', cardNode);
+
+      gsap.set(headingNode, { autoAlpha: 0, y: 24 });
+      gsap.set(cardNode, { autoAlpha: 0, y: 28 });
+
+      if (panes.length > 0) {
+        gsap.set(panes, { autoAlpha: 0, y: 20 });
+      }
+
+      ScrollTrigger.create({
+        trigger: sectionNode,
+        start: 'top 82%',
+        once: true,
+        onEnter: () => {
+          const timeline = gsap.timeline({
+            defaults: {
+              ease: 'power3.out',
+            },
+          });
+
+          timeline.to(headingNode, {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.72,
+            clearProps: 'opacity,visibility,transform',
+          });
+
+          timeline.to(
+            cardNode,
+            {
+              autoAlpha: 1,
+              y: 0,
+              duration: 0.76,
+              clearProps: 'opacity,visibility,transform',
+            },
+            '-=0.38'
+          );
+
+          if (panes.length > 0) {
+            timeline.to(
+              panes,
+              {
+                autoAlpha: 1,
+                y: 0,
+                duration: 0.64,
+                stagger: 0.08,
+                clearProps: 'opacity,visibility,transform',
+              },
+              '-=0.42'
+            );
+          }
+        },
+      });
+
+      ScrollTrigger.refresh();
+    }, sectionNode);
+
+    return () => context.revert();
+  }, []);
+
   return (
-    <section className="mt-16 md:mt-20">
-      <h2 className="text-[34px] font-semibold leading-[1.2] tracking-[-0.02em] text-[#0F3F1D] md:text-[48px]">
+    <section ref={sectionRef} className="mt-16 md:mt-20">
+      <h2
+        ref={headingRef}
+        className="text-[34px] font-semibold leading-[1.2] tracking-[-0.02em] text-[#0F3F1D] md:text-[48px]"
+      >
         {titlePart1} <span className="bg-gradient-to-r from-[#20C997] to-[#A1DF0A] bg-clip-text text-transparent"> {titlePart2}</span>
       </h2>
 
-      <div className="mt-10 overflow-hidden rounded-[30px] border-b border-transparent bg-white shadow-[0_24px_70px_rgba(0,0,0,0.08)] transition-colors duration-200 hover:border-[rgba(46,125,50,0.27)]">
+      <div
+        ref={cardRef}
+        className="mt-10 overflow-hidden rounded-[30px] border-b border-transparent bg-white shadow-[0_24px_70px_rgba(0,0,0,0.08)] transition-colors duration-200 hover:border-[rgba(46,125,50,0.27)]"
+      >
         <div className={`grid min-h-[380px] ${isMapLeft ? 'lg:grid-cols-[1.1fr_120px_1fr]' : 'lg:grid-cols-[1fr_120px_1.1fr]'}`}>
           {isMapLeft ? (
             <>
-              <div className="relative min-h-[380px] overflow-hidden bg-[#DDE6DD]">
+              <div data-location-card-pane className="relative min-h-[380px] overflow-hidden bg-[#DDE6DD]">
                 <iframe
                   src={mapSrc}
                   title={mapTitle}
@@ -88,7 +183,7 @@ export default function LocationCard({
                 />
               </div>
 
-              <div className="relative hidden items-center justify-center overflow-hidden bg-white lg:flex py-8">
+              <div className="relative hidden items-center justify-center overflow-hidden bg-white py-8 lg:flex">
                 <span
                   className="pointer-events-none rotate-180 text-[64px] font-light tracking-[-0.04em] text-transparent [writing-mode:vertical-rl]"
                   style={{ WebkitTextStroke: '1.5px rgba(46, 125, 50, 0.75)' }}
@@ -97,7 +192,7 @@ export default function LocationCard({
                 </span>
               </div>
 
-              <div className="relative flex items-center bg-white px-6 py-12 md:px-8 md:py-14 lg:px-10 lg:py-16">
+              <div data-location-card-pane className="relative flex items-center bg-white px-6 py-12 md:px-8 md:py-14 lg:px-10 lg:py-16">
                 <div
                   className="pointer-events-none absolute inset-0 opacity-[0.08]"
                   style={{
@@ -118,7 +213,7 @@ export default function LocationCard({
             </>
           ) : (
             <>
-              <div className="relative flex items-center bg-white px-6 py-12 md:px-8 md:py-14 lg:px-10 lg:py-16">
+              <div data-location-card-pane className="relative flex items-center bg-white px-6 py-12 md:px-8 md:py-14 lg:px-10 lg:py-16">
                 <div
                   className="pointer-events-none absolute inset-0 opacity-[0.08]"
                   style={{
@@ -137,7 +232,7 @@ export default function LocationCard({
                 </div>
               </div>
 
-              <div className="relative hidden items-center justify-center overflow-hidden bg-white lg:flex py-8">
+              <div className="relative hidden items-center justify-center overflow-hidden bg-white py-8 lg:flex">
                 <span
                   className="pointer-events-none rotate-180 text-[64px] font-light tracking-[-0.04em] text-transparent [writing-mode:vertical-rl]"
                   style={{ WebkitTextStroke: '1.5px rgba(46, 125, 50, 0.75)' }}
@@ -146,7 +241,7 @@ export default function LocationCard({
                 </span>
               </div>
 
-              <div className="relative min-h-[380px] overflow-hidden bg-[#DDE6DD]">
+              <div data-location-card-pane className="relative min-h-[380px] overflow-hidden bg-[#DDE6DD]">
                 <iframe
                   src={mapSrc}
                   title={mapTitle}

@@ -1,12 +1,23 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import Image from 'next/image';
 import { Camera, ChevronLeft, ChevronRight, Images, X } from 'lucide-react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { isLocalhostAssetUrl } from '@/app/lib/strapi';
 import GradientTag from '@/app/components/ui/GradientTag';
 import GradientTitle from '@/app/components/ui/GradientTitle';
 import type { PhotoGalleryAlbumViewModel } from '@/app/lib/photo-gallery/pageData';
+
+gsap.registerPlugin(ScrollTrigger);
 
 interface PhotoAlbumShowcaseProps {
   album: PhotoGalleryAlbumViewModel;
@@ -25,6 +36,7 @@ function PhotoTile({
     <button
       type="button"
       onClick={onOpen}
+      data-photo-gallery-reveal
       className="group relative block w-full cursor-pointer overflow-hidden rounded-[26px] bg-[#DDE6DD] text-left shadow-[0_18px_50px_rgba(15,63,29,0.08)] outline-none transition duration-300 hover:-translate-y-1 hover:shadow-[0_26px_70px_rgba(15,63,29,0.16)] focus-visible:ring-2 focus-visible:ring-[#2E7D32] focus-visible:ring-offset-4"
       aria-label={`View ${photo.accessibilityLabel}`}
     >
@@ -52,6 +64,10 @@ export default function PhotoAlbumShowcase({
   const [activePhotoIndex, setActivePhotoIndex] = useState<number | null>(null);
   const [isLightboxVisible, setIsLightboxVisible] = useState(false);
   const [isClosingLightbox, setIsClosingLightbox] = useState(false);
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const introRef = useRef<HTMLDivElement | null>(null);
+  const statsRef = useRef<HTMLElement | null>(null);
+  const gridRef = useRef<HTMLDivElement | null>(null);
   const featuredPhotos = album.photos.slice(0, 3);
   const activePhoto = useMemo(
     () =>
@@ -61,10 +77,10 @@ export default function PhotoAlbumShowcase({
     [activePhotoIndex, album.photos]
   );
 
-  const closeLightbox = () => {
+  const closeLightbox = useCallback(() => {
     setIsClosingLightbox(true);
     setIsLightboxVisible(false);
-  };
+  }, []);
 
   const openLightbox = (index: number) => {
     setActivePhotoIndex(index);
@@ -74,7 +90,7 @@ export default function PhotoAlbumShowcase({
     });
   };
 
-  const showPreviousPhoto = () => {
+  const showPreviousPhoto = useCallback(() => {
     setActivePhotoIndex((currentIndex) => {
       if (currentIndex === null || album.photos.length === 0) {
         return currentIndex;
@@ -82,9 +98,9 @@ export default function PhotoAlbumShowcase({
 
       return (currentIndex - 1 + album.photos.length) % album.photos.length;
     });
-  };
+  }, [album.photos.length]);
 
-  const showNextPhoto = () => {
+  const showNextPhoto = useCallback(() => {
     setActivePhotoIndex((currentIndex) => {
       if (currentIndex === null || album.photos.length === 0) {
         return currentIndex;
@@ -92,7 +108,7 @@ export default function PhotoAlbumShowcase({
 
       return (currentIndex + 1) % album.photos.length;
     });
-  };
+  }, [album.photos.length]);
 
   useEffect(() => {
     if (activePhotoIndex === null) {
@@ -122,7 +138,7 @@ export default function PhotoAlbumShowcase({
       document.body.style.overflow = previousOverflow;
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [activePhotoIndex, album.photos.length]);
+  }, [activePhotoIndex, album.photos.length, closeLightbox, showNextPhoto, showPreviousPhoto]);
 
   useEffect(() => {
     if (!isClosingLightbox) {
@@ -137,12 +153,126 @@ export default function PhotoAlbumShowcase({
     return () => window.clearTimeout(timeout);
   }, [isClosingLightbox]);
 
+  useLayoutEffect(() => {
+    if (
+      typeof window === 'undefined' ||
+      !sectionRef.current ||
+      !introRef.current ||
+      !statsRef.current
+    ) {
+      return;
+    }
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
+
+    const sectionNode = sectionRef.current;
+    const introNode = introRef.current;
+    const statsNode = statsRef.current;
+    const gridItems = gridRef.current
+      ? gsap.utils.toArray<HTMLElement>('[data-photo-gallery-reveal]', gridRef.current)
+      : [];
+    const featuredItems = gsap.utils.toArray<HTMLElement>(
+      '[data-photo-gallery-featured]',
+      statsNode
+    );
+
+    const context = gsap.context(() => {
+      gsap.set([introNode, statsNode], {
+        autoAlpha: 0,
+        y: 28,
+      });
+
+      if (featuredItems.length > 0) {
+        gsap.set(featuredItems, {
+          autoAlpha: 0,
+          y: 16,
+        });
+      }
+
+      if (gridItems.length > 0) {
+        gsap.set(gridItems, {
+          autoAlpha: 0,
+          y: 30,
+        });
+      }
+
+      const timeline = gsap.timeline({
+        paused: true,
+        defaults: {
+          ease: 'power3.out',
+        },
+      });
+
+      timeline.to(introNode, {
+        autoAlpha: 1,
+        y: 0,
+        duration: 0.78,
+        clearProps: 'opacity,visibility,transform',
+      });
+
+      timeline.to(
+        statsNode,
+        {
+          autoAlpha: 1,
+          y: 0,
+          duration: 0.76,
+          clearProps: 'opacity,visibility,transform',
+        },
+        '-=0.48'
+      );
+
+      if (featuredItems.length > 0) {
+        timeline.to(
+          featuredItems,
+          {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.58,
+            stagger: 0.07,
+            clearProps: 'opacity,visibility,transform',
+          },
+          '-=0.32'
+        );
+      }
+
+      if (gridItems.length > 0) {
+        timeline.to(
+          gridItems,
+          {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.72,
+            stagger: 0.055,
+            clearProps: 'opacity,visibility,transform',
+          },
+          '-=0.2'
+        );
+      }
+
+      ScrollTrigger.create({
+        trigger: sectionNode,
+        start: 'top 84%',
+        once: true,
+        onEnter: () => timeline.play(0),
+      });
+
+      ScrollTrigger.refresh();
+    }, sectionNode);
+
+    return () => context.revert();
+  }, [album.photos.length]);
+
   return (
-    <section className="bg-white px-4 pb-72 pt-12 md:px-6 md:pb-72 md:pt-16 lg:px-36 lg:pb-84 lg:pt-20">
+    <section
+      ref={sectionRef}
+      className="bg-white px-4 pb-72 pt-12 md:px-6 md:pb-72 md:pt-16 lg:px-36 lg:pb-84 lg:pt-20"
+    >
       <div className="mx-auto w-full max-w-[1480px]">
         <div className="grid gap-8 lg:grid-cols-[minmax(0,0.78fr)_minmax(360px,0.42fr)] lg:items-end">
           <div>
-            <div className="max-w-[760px]">
+            <div ref={introRef} className="max-w-[760px]">
               <GradientTag
                 text={album.labels.photos}
                 className="inline-block"
@@ -166,7 +296,10 @@ export default function PhotoAlbumShowcase({
             </div>
           </div>
 
-          <aside className="rounded-[28px] border border-[#E5EBDD] bg-[#F6F8F3] p-5 shadow-[0_18px_50px_rgba(15,63,29,0.06)]">
+          <aside
+            ref={statsRef}
+            className="rounded-[28px] border border-[#E5EBDD] bg-[#F6F8F3] p-5 shadow-[0_18px_50px_rgba(15,63,29,0.06)]"
+          >
             <div className="flex items-center gap-3">
               <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#A1DF0A] text-[#0F3F1D]">
                 <Images className="h-5 w-5" strokeWidth={2.2} aria-hidden="true" />
@@ -185,6 +318,7 @@ export default function PhotoAlbumShowcase({
               {featuredPhotos.map((photo) => (
                 <div
                   key={photo.id}
+                  data-photo-gallery-featured
                   className="relative aspect-square overflow-hidden rounded-[16px] bg-[#DDE6DD]"
                 >
                   <Image
@@ -201,7 +335,7 @@ export default function PhotoAlbumShowcase({
           </aside>
         </div>
 
-        <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+        <div ref={gridRef} className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-4 lg:gap-6">
           {album.photos.map((photo, index) => (
             <PhotoTile
               key={photo.id}

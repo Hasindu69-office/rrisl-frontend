@@ -90,7 +90,10 @@ function ContactRow({ item }: { item: SubStationContact }) {
 
 export default function SubStationCard({ name, subtitle, contacts }: SubStationCardData) {
   return (
-    <article className="relative overflow-hidden rounded-[24px] border-b border-transparent bg-white px-5 py-6 shadow-[0_20px_55px_rgba(0,0,0,0.06)] transition-colors duration-200 hover:border-[rgba(46,125,50,0.27)] md:px-7 md:py-8">
+    <article
+      data-substation-card
+      className="relative h-full overflow-hidden rounded-[24px] border-b border-transparent bg-white px-5 py-6 shadow-[0_20px_55px_rgba(0,0,0,0.06)] transition-colors duration-200 hover:border-[rgba(46,125,50,0.27)] md:px-7 md:py-8"
+    >
       <div
         className="pointer-events-none absolute inset-0 opacity-[0.08]"
         style={{

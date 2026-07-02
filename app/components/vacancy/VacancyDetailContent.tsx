@@ -24,7 +24,7 @@ function VacancySectionList({
   items: string[];
 }) {
   return (
-    <section className="mt-10">
+    <section className="mt-10" data-vacancy-detail-reveal>
       <h2 className="text-[24px] font-semibold text-[#111827]">{title}</h2>
       <ul className="mt-5 space-y-4">
         {items.map((item) => (
@@ -68,7 +68,10 @@ export default function VacancyDetailContent({
 
   return (
     <div className="min-w-0">
-      <div className="flex flex-col gap-6 border-b border-[#E5E7EB] pb-8 lg:flex-row lg:items-start lg:justify-between">
+      <div
+        className="flex flex-col gap-6 border-b border-[#E5E7EB] pb-8 lg:flex-row lg:items-start lg:justify-between"
+        data-vacancy-detail-reveal
+      >
         <div className="min-w-0 flex-1">
           <div className="flex items-start gap-4">
             <div className="relative mt-1 h-10 w-10 shrink-0 overflow-hidden rounded-full ring-1 ring-[#B5C0C9]">
@@ -111,7 +114,7 @@ export default function VacancyDetailContent({
         </Link>
       </div>
 
-      <div className="mt-8 lg:hidden">
+      <div className="mt-8 lg:hidden" data-vacancy-detail-reveal>
         <VacancyOverviewPanel
           heading={labels.overviewTitle}
           job={job}
@@ -119,7 +122,7 @@ export default function VacancyDetailContent({
         />
       </div>
 
-      <section className="mt-10">
+      <section className="mt-10" data-vacancy-detail-reveal>
         <h2 className="text-[24px] font-semibold text-[#111827]">{labels.descriptionTitle}</h2>
         <div className="mt-5 space-y-4 text-[15px] leading-7 text-[#4B5563]">
           {job.description.map((paragraph) => (
@@ -131,23 +134,27 @@ export default function VacancyDetailContent({
       <VacancySectionList title={labels.responsibilitiesTitle} items={job.responsibilities} />
       <VacancySectionList title={labels.skillsTitle} items={job.skills} />
       {job.noticeDocumentUrl ? (
-        <VacancyAttachmentLink
-          buttonLabel={labels.downloadButtonLabel}
-          href={job.noticeDocumentUrl}
-          title={labels.downloadNoticeTitle}
-        />
+        <div data-vacancy-detail-reveal>
+          <VacancyAttachmentLink
+            buttonLabel={labels.downloadButtonLabel}
+            href={job.noticeDocumentUrl}
+            title={labels.downloadNoticeTitle}
+          />
+        </div>
       ) : null}
-      <VacancyApplicationForm
-        contactNumberLabel={labels.contactNumberLabel}
-        cvLabel={labels.cvLabel}
-        emailLabel={labels.emailLabel}
-        fullNameLabel={labels.fullNameLabel}
-        heading={labels.applyFormTitle}
-        jobTitle={job.title}
-        slug={job.slug}
-        submitLabel={labels.submitLabel}
-        validationLabels={detailLabels.validationLabels}
-      />
+      <div data-vacancy-detail-reveal>
+        <VacancyApplicationForm
+          contactNumberLabel={labels.contactNumberLabel}
+          cvLabel={labels.cvLabel}
+          emailLabel={labels.emailLabel}
+          fullNameLabel={labels.fullNameLabel}
+          heading={labels.applyFormTitle}
+          jobTitle={job.title}
+          slug={job.slug}
+          submitLabel={labels.submitLabel}
+          validationLabels={detailLabels.validationLabels}
+        />
+      </div>
     </div>
   );
 }
