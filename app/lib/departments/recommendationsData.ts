@@ -1,5 +1,7 @@
 import type {
+  DepartmentRecommendationGroup,
   DepartmentRecommendationImageCard,
+  DepartmentRecommendationItem,
   DepartmentRecommendationSection,
   DepartmentRecommendationTableCard,
   DepartmentSingleTypePage,
@@ -34,10 +36,23 @@ export type DepartmentRecommendationBlock =
       note?: string;
     };
 
+export interface DepartmentRecommendationBriefItem {
+  id: string;
+  title: string;
+  description?: string;
+}
+
+export interface DepartmentRecommendationGroupView {
+  id: string;
+  title: string;
+  items: DepartmentRecommendationBriefItem[];
+}
+
 export interface DepartmentRecommendationsContent {
   eyebrow: string;
   title: string;
   highlightedText: string;
+  groups: DepartmentRecommendationGroupView[];
   blocks: DepartmentRecommendationBlock[];
 }
 
@@ -47,6 +62,10 @@ function slugify(value: string): string {
     .trim()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
+}
+
+function sortBySortOrder<T extends { sortorder?: number | null }>(items: T[]): T[] {
+  return [...items].sort((left, right) => (left.sortorder || 0) - (right.sortorder || 0));
 }
 
 function splitCsvLine(line: string): string[] {
@@ -135,6 +154,47 @@ async function fetchRecommendationCsv(csvUrl: string): Promise<string> {
   }
 
   return response.text();
+}
+
+function mapRecommendationItems(
+  items: DepartmentRecommendationItem[] | null | undefined
+): DepartmentRecommendationBriefItem[] {
+  return sortBySortOrder(items || [])
+    .map((item): DepartmentRecommendationBriefItem | null => {
+      const title = item.title?.trim();
+
+      if (!title) {
+        return null;
+      }
+
+      return {
+        id: item.id ? String(item.id) : slugify(title),
+        title,
+        description: item.description?.trim() || undefined,
+      };
+    })
+    .filter((item): item is DepartmentRecommendationBriefItem => Boolean(item));
+}
+
+function mapRecommendationGroups(
+  groups: DepartmentRecommendationGroup[] | null | undefined
+): DepartmentRecommendationGroupView[] {
+  return sortBySortOrder(groups || [])
+    .map((group): DepartmentRecommendationGroupView | null => {
+      const title = group.title?.trim();
+      const items = mapRecommendationItems(group.items);
+
+      if (!title || items.length === 0) {
+        return null;
+      }
+
+      return {
+        id: group.id ? String(group.id) : slugify(title),
+        title,
+        items,
+      };
+    })
+    .filter((group): group is DepartmentRecommendationGroupView => Boolean(group));
 }
 
 function mapImageCard(card: DepartmentRecommendationImageCard): DepartmentRecommendationBlock | null {
@@ -271,26 +331,38 @@ export async function mapDepartmentRecommendations(
   }
 
   const fallbackSection = fallbackPage?.recommendationsection;
-  const blocks = await mapRecommendationBlocks(section, fallbackSection);
+  const useGroups =
+    section.includegroups === true ||
+    (section.includegroups == null && Boolean(section.recommendationgroups?.length));
 
-  if (blocks.length === 0) {
+  const groups = useGroups
+    ? mapRecommendationGroups(
+        section.recommendationgroups?.length
+          ? section.recommendationgroups
+          : fallbackSection?.recommendationgroups
+      )
+    : [];
+
+  const blocks =
+    groups.length > 0 ? [] : await mapRecommendationBlocks(section, fallbackSection);
+
+  if (groups.length === 0 && blocks.length === 0) {
     return null;
   }
 
   const header = section.sectionheader || fallbackSection?.sectionheader;
   const title =
-    header?.title && header.title.trim().length > 0
-      ? header.title
-      : 'Recommendations';
+    header?.title && header.title.trim().length > 0 ? header.title : 'New Recommendations';
   const highlightedText =
     header?.hightlightedtext && header.hightlightedtext.trim().length > 0
       ? header.hightlightedtext
       : '';
 
   return {
-    eyebrow: header?.eyebrow?.trim() || 'Recommendations',
+    eyebrow: header?.eyebrow?.trim() || 'New Recommendations',
     title,
     highlightedText,
+    groups,
     blocks,
   };
 }

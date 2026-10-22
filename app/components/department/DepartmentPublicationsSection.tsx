@@ -26,7 +26,7 @@ interface DepartmentPublicationsSectionProps {
  * and leaves the left content area ready for the publication list UI in the next step.
  */
 export default function DepartmentPublicationsSection({
-  title = 'Our Publications',
+  title = 'Publications',
   leftBackgroundImageSrc,
   leftBackgroundImageAlt,
   rightBackgroundImageSrc,

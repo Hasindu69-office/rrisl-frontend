@@ -84,6 +84,7 @@ export default async function DepartmentPage({
             titlePart2={introduction.titlePart2}
             titleLineBreak={false}
             description={introduction.description}
+            closingDescription={introduction.closingDescription}
             points={introduction.points}
             videoUrl={introduction.videoUrl}
             videoTitle={introduction.videoTitle}
@@ -99,6 +100,9 @@ export default async function DepartmentPage({
             titlePart1={services.titlePart1}
             titlePart2={services.titlePart2}
             items={services.items}
+            categoryLinks={services.categoryLinks}
+            serviceGroups={services.serviceGroups}
+            locale={locale}
             containerClassName="w-[85%]"
           />
         </DepartmentAnimatedSection>
@@ -111,6 +115,7 @@ export default async function DepartmentPage({
             titlePart1={researchStaff.titlePart1}
             titlePart2={researchStaff.titlePart2}
             staff={researchStaff.staff}
+            technicalStaffGroups={researchStaff.technicalStaffGroups}
             containerClassName="w-[85%]"
           />
         </DepartmentAnimatedSection>
@@ -132,6 +137,7 @@ export default async function DepartmentPage({
         <DepartmentAnimatedSection>
           <DepartmentCurrentProjectsSection
             sectionId="current-projects"
+            layout="list"
             tagText={currentProjects.tagText}
             titlePart1={currentProjects.titlePart1}
             titlePart2={currentProjects.titlePart2}

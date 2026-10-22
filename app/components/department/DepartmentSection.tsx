@@ -16,6 +16,7 @@ interface DepartmentSectionProps {
     titlePart2: string | React.ReactNode;
     titleLineBreak?: boolean;
     description: string;
+    closingDescription?: string;
     points: Array<string | DepartmentSectionPoint>;
     imageSrc?: string;
     imageAlt?: string;
@@ -67,6 +68,7 @@ export default function DepartmentSection({
     titlePart2,
     titleLineBreak = true,
     description,
+    closingDescription,
     points,
     imageSrc,
     imageAlt,
@@ -134,6 +136,12 @@ export default function DepartmentSection({
                                 );
                             })}
                         </ul>
+
+                        {closingDescription ? (
+                            <p className="text-justify text-[16px] leading-[1.7] text-gray-700 md:text-[16px] lg:max-w-[640px] lg:text-[16px] lg:leading-[1.7]">
+                                {closingDescription}
+                            </p>
+                        ) : null}
                     </div>
 
                     {/* Media Side */}

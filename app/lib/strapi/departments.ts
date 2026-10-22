@@ -35,38 +35,49 @@ function buildDepartmentQuery(locale: string, availableFields?: DepartmentFieldS
   setPopulate('servicesection', 'populate[servicesection][populate][sectionheader]');
   setPopulate('servicesection', 'populate[servicesection][populate][servicecards][populate][icon]');
   setPopulate('servicesection', 'populate[servicesection][populate][servicecards][populate][image]');
+  setPopulate('servicesection', 'populate[servicesection][populate][categorylinks]');
+  setPopulate('servicesection', 'populate[servicesection][populate][servicegroups][populate][images]');
+  setPopulate(
+    'servicesection',
+    'populate[servicesection][populate][servicegroups][populate][items][populate][images]'
+  );
+  setPopulate(
+    'servicesection',
+    'populate[servicesection][populate][servicegroups][populate][items][populate][details]'
+  );
   setPopulate('researchstaffsection', 'populate[researchstaffsection][populate][sectionheader]');
   setPopulate('researchstaffsection', 'populate[researchstaffsection][populate][staff][populate][email]');
   setPopulate('researchstaffsection', 'populate[researchstaffsection][populate][staff][populate][paragraph]');
   setPopulate('researchstaffsection', 'populate[researchstaffsection][populate][staff][populate][portrait]');
   setPopulate(
-    'researchhighlightssection',
-    'populate[researchhighlightssection][populate][researchhighlightcards][populate][icon]'
+    'researchstaffsection',
+    'populate[researchstaffsection][populate][technicalstaffgroups][populate][members]'
   );
   setPopulate(
     'researchhighlightssection',
-    'populate[researchhighlightssection][populate][researchhighlightcards][populate][cards][populate][paragraph]'
-  );
-  setPopulate(
-    'researchhighlightssection',
-    'populate[researchhighlightssection][populate][researchhighlightcards][populate][cards][populate][points]'
-  );
-  setPopulate(
-    'researchhighlightssection',
-    'populate[researchhighlightssection][populate][researchhighlightcards][populate][cards][populate][galleryimages]'
+    'populate[researchhighlightssection][populate][researchhighlightcards][populate][image]'
   );
   setPopulate('currentresearchprojectsection', 'populate[currentresearchprojectsection][populate][sectionheader]');
   setPopulate(
     'currentresearchprojectsection',
     'populate[currentresearchprojectsection][populate][researchprojects][populate][image]'
   );
+  setPopulate(
+    'currentresearchprojectsection',
+    'populate[currentresearchprojectsection][populate][researchprojects][populate][galleryimages]'
+  );
   setPopulate('awardssection', 'populate[awardssection][populate][sectionheader]');
-  setPopulate('awardssection', 'populate[awardssection][populate][cards]');
+  setPopulate('awardssection', 'populate[awardssection][populate][cards][populate][image]');
   setPopulate('publicationssection', 'populate[publicationssection][populate][rightimage]');
   setPopulate('publicationssection', 'populate[publicationssection][populate][publications][populate][points]');
   setPopulate('achievementssection', 'populate[achievementssection][populate][sectionheader]');
+  setPopulate('achievementssection', 'populate[achievementssection][populate][sectionicon]');
   setPopulate('achievementssection', 'populate[achievementssection][populate][achievements]');
   setPopulate('recommendationsection', 'populate[recommendationsection][populate][sectionheader]');
+  setPopulate(
+    'recommendationsection',
+    'populate[recommendationsection][populate][recommendationgroups][populate][items]'
+  );
   setPopulate('recommendationsection', 'populate[recommendationsection][populate][imagecard][populate][image]');
   setPopulate('recommendationsection', 'populate[recommendationsection][populate][points][populate][points]');
   setPopulate('recommendationsection', 'populate[recommendationsection][populate][tablecards][populate][csvfile]');
@@ -86,6 +97,10 @@ function buildDepartmentHomepageProjectsQuery(locale: string): string {
     'populate[currentresearchprojectsection][populate][researchprojects][populate][image]',
     'true'
   );
+  params.set(
+    'populate[currentresearchprojectsection][populate][researchprojects][populate][galleryimages]',
+    'true'
+  );
 
   return params.toString();
 }
@@ -101,7 +116,7 @@ async function fetchDepartmentPage(
   const apiSlug = getDepartmentApiSlug(slug);
   const baseQueryString = buildDepartmentBaseQuery(locale);
   const baseUrl = baseQueryString ? `/api/${apiSlug}?${baseQueryString}` : `/api/${apiSlug}`;
-  const baseResponse = await fetchStrapi<any>(baseUrl);
+  const baseResponse = await fetchStrapi<unknown>(baseUrl);
   const basePage = unwrapSingleEntity<DepartmentSingleTypePage>(baseResponse);
 
   if (basePage?.slug && basePage.slug !== slug && basePage.slug !== apiSlug) {
@@ -115,7 +130,7 @@ async function fetchDepartmentPage(
   const availableFields = new Set(Object.keys(basePage));
   const queryString = buildDepartmentQuery(locale, availableFields);
   const url = queryString ? `/api/${apiSlug}?${queryString}` : `/api/${apiSlug}`;
-  const response = await fetchStrapi<any>(url);
+  const response = await fetchStrapi<unknown>(url);
   const page = unwrapSingleEntity<DepartmentSingleTypePage>(response) ?? basePage;
 
   if (page?.slug && page.slug !== slug && page.slug !== apiSlug) {
@@ -145,7 +160,7 @@ async function fetchDepartmentHomepageCurrentProjects(
   const apiSlug = getDepartmentApiSlug(slug);
   const baseQueryString = buildDepartmentBaseQuery(locale);
   const baseUrl = baseQueryString ? `/api/${apiSlug}?${baseQueryString}` : `/api/${apiSlug}`;
-  const baseResponse = await fetchStrapi<any>(baseUrl);
+  const baseResponse = await fetchStrapi<unknown>(baseUrl);
   const basePage = unwrapSingleEntity<DepartmentSingleTypePage>(baseResponse);
 
   if (!basePage) {
@@ -162,7 +177,7 @@ async function fetchDepartmentHomepageCurrentProjects(
 
   const queryString = buildDepartmentHomepageProjectsQuery(locale);
   const url = queryString ? `/api/${apiSlug}?${queryString}` : `/api/${apiSlug}`;
-  const response = await fetchStrapi<any>(url);
+  const response = await fetchStrapi<unknown>(url);
   const page = unwrapSingleEntity<DepartmentSingleTypePage>(response) ?? basePage;
 
   if (page.slug && page.slug !== slug && page.slug !== apiSlug) {

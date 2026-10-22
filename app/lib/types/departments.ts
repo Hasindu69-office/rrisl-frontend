@@ -19,6 +19,7 @@ export interface DepartmentIntroductionSection {
   id: number;
   sectionheader?: SectionHeader | null;
   paragraph?: string | null;
+  closingparagraph?: string | null;
   points?: DepartmentPoint[] | null;
   videotitle?: string | null;
   url?: string | null;
@@ -33,10 +34,48 @@ export interface DepartmentServiceCard {
   sortorder?: number | null;
 }
 
+export interface DepartmentServiceCategoryLink {
+  id: number;
+  servicekey?: string | null;
+  title?: string | null;
+  url?: string | null;
+  sortorder?: number | null;
+}
+
+export interface DepartmentServiceDetail {
+  id: number;
+  label?: string | null;
+  value?: string | null;
+  sortorder?: number | null;
+}
+
+export interface DepartmentStructuredServiceItem {
+  id: number;
+  servicekey?: string | null;
+  title?: string | null;
+  description?: string | null;
+  url?: string | null;
+  images?: StrapiImage[] | null;
+  details?: DepartmentServiceDetail[] | null;
+  sortorder?: number | null;
+}
+
+export interface DepartmentServiceGroup {
+  id: number;
+  servicekey?: string | null;
+  title?: string | null;
+  description?: string | null;
+  images?: StrapiImage[] | null;
+  items?: DepartmentStructuredServiceItem[] | null;
+  sortorder?: number | null;
+}
+
 export interface DepartmentServiceSection {
   id: number;
   sectionheader?: SectionHeader | null;
   servicecards?: DepartmentServiceCard[] | null;
+  categorylinks?: DepartmentServiceCategoryLink[] | null;
+  servicegroups?: DepartmentServiceGroup[] | null;
 }
 
 export interface DepartmentStaffEmail {
@@ -59,39 +98,31 @@ export interface DepartmentStaffCard {
   portrait?: StrapiImage | null;
 }
 
+export interface DepartmentTechnicalStaffMember {
+  id: number;
+  name?: string | null;
+  qualifications?: string | null;
+}
+
+export interface DepartmentTechnicalStaffGroup {
+  id: number;
+  title?: string | null;
+  members?: DepartmentTechnicalStaffMember[] | null;
+}
+
 export interface DepartmentResearchStaffSection {
   id: number;
   sectionheader?: SectionHeader | null;
   staff?: DepartmentStaffCard[] | null;
-}
-
-export interface DepartmentHighlightParagraph {
-  id: number;
-  paragraph?: string | null;
-}
-
-export interface DepartmentHighlightPoint {
-  id: number;
-  label?: string | null;
-}
-
-export interface DepartmentHighlightSubcard {
-  id: number;
-  subtitle?: string | null;
-  paragraph?: DepartmentHighlightParagraph[] | null;
-  points?: DepartmentHighlightPoint[] | null;
-  needimages?: boolean | null;
-  galleryimages?: StrapiImage[] | null;
-  sortorder?: number | null;
+  technicalstaffgroups?: DepartmentTechnicalStaffGroup[] | null;
 }
 
 export interface DepartmentResearchHighlightCard {
   id: number;
   title?: string | null;
   description?: string | null;
-  icon?: StrapiImage | null;
-  subtopicpresent?: boolean | null;
-  cards?: DepartmentHighlightSubcard[] | null;
+  researchteam?: string | null;
+  image?: StrapiImage | null;
   sortorder?: number | null;
 }
 
@@ -104,7 +135,15 @@ export interface DepartmentResearchHighlightsSection {
 export interface DepartmentCurrentResearchProjectCard {
   id: number;
   title?: string | null;
+  description?: string | null;
+  objectives?: string | null;
+  site?: string | null;
+  startdate?: string | null;
+  enddate?: string | null;
+  principalinvestigator?: string | null;
+  coinvestigators?: string | null;
   image?: StrapiImage | null;
+  galleryimages?: StrapiImage[] | null;
   sortorder?: number | null;
   includeinhomepage?: boolean | null;
 }
@@ -115,17 +154,20 @@ export interface DepartmentCurrentResearchProjectSection {
   researchprojects?: DepartmentCurrentResearchProjectCard[] | null;
 }
 
-export interface DepartmentAwardsTimelineCard {
+export interface DepartmentAwardCard {
   id: number;
   title?: string | null;
-  date?: string | null;
-  description?: string | null;
+  officers?: string | null;
+  details?: string | null;
+  year?: number | null;
+  image?: StrapiImage | null;
+  sortorder?: number | null;
 }
 
 export interface DepartmentAwardsSection {
   id: number;
   sectionheader?: SectionHeader | null;
-  cards?: DepartmentAwardsTimelineCard[] | null;
+  cards?: DepartmentAwardCard[] | null;
 }
 
 export interface DepartmentPublicationCard {
@@ -144,6 +186,7 @@ export interface DepartmentPublicationsSection {
 
 export interface DepartmentAchievementCard {
   id: number;
+  category?: string | null;
   achievement?: string | null;
   sortorder?: number | null;
 }
@@ -152,6 +195,7 @@ export interface DepartmentAchievementSection {
   id: number;
   sectionheader?: SectionHeader | null;
   outlinetext?: string | null;
+  sectionicon?: StrapiImage | null;
   achievements?: DepartmentAchievementCard[] | null;
 }
 
@@ -169,9 +213,25 @@ export interface DepartmentRecommendationTableCard {
   csvfile?: StrapiImage | null;
 }
 
+export interface DepartmentRecommendationItem {
+  id: number;
+  title?: string | null;
+  description?: string | null;
+  sortorder?: number | null;
+}
+
+export interface DepartmentRecommendationGroup {
+  id: number;
+  title?: string | null;
+  items?: DepartmentRecommendationItem[] | null;
+  sortorder?: number | null;
+}
+
 export interface DepartmentRecommendationSection {
   id: number;
   sectionheader?: SectionHeader | null;
+  includegroups?: boolean | null;
+  recommendationgroups?: DepartmentRecommendationGroup[] | null;
   applyimagecard?: boolean | null;
   imagecard?: DepartmentRecommendationImageCard[] | null;
   includepoints?: boolean | null;
