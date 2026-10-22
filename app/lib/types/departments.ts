@@ -34,10 +34,48 @@ export interface DepartmentServiceCard {
   sortorder?: number | null;
 }
 
+export interface DepartmentServiceCategoryLink {
+  id: number;
+  servicekey?: string | null;
+  title?: string | null;
+  url?: string | null;
+  sortorder?: number | null;
+}
+
+export interface DepartmentServiceDetail {
+  id: number;
+  label?: string | null;
+  value?: string | null;
+  sortorder?: number | null;
+}
+
+export interface DepartmentStructuredServiceItem {
+  id: number;
+  servicekey?: string | null;
+  title?: string | null;
+  description?: string | null;
+  url?: string | null;
+  images?: StrapiImage[] | null;
+  details?: DepartmentServiceDetail[] | null;
+  sortorder?: number | null;
+}
+
+export interface DepartmentServiceGroup {
+  id: number;
+  servicekey?: string | null;
+  title?: string | null;
+  description?: string | null;
+  images?: StrapiImage[] | null;
+  items?: DepartmentStructuredServiceItem[] | null;
+  sortorder?: number | null;
+}
+
 export interface DepartmentServiceSection {
   id: number;
   sectionheader?: SectionHeader | null;
   servicecards?: DepartmentServiceCard[] | null;
+  categorylinks?: DepartmentServiceCategoryLink[] | null;
+  servicegroups?: DepartmentServiceGroup[] | null;
 }
 
 export interface DepartmentStaffEmail {

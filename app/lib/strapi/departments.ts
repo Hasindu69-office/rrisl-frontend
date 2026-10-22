@@ -35,6 +35,16 @@ function buildDepartmentQuery(locale: string, availableFields?: DepartmentFieldS
   setPopulate('servicesection', 'populate[servicesection][populate][sectionheader]');
   setPopulate('servicesection', 'populate[servicesection][populate][servicecards][populate][icon]');
   setPopulate('servicesection', 'populate[servicesection][populate][servicecards][populate][image]');
+  setPopulate('servicesection', 'populate[servicesection][populate][categorylinks]');
+  setPopulate('servicesection', 'populate[servicesection][populate][servicegroups][populate][images]');
+  setPopulate(
+    'servicesection',
+    'populate[servicesection][populate][servicegroups][populate][items][populate][images]'
+  );
+  setPopulate(
+    'servicesection',
+    'populate[servicesection][populate][servicegroups][populate][items][populate][details]'
+  );
   setPopulate('researchstaffsection', 'populate[researchstaffsection][populate][sectionheader]');
   setPopulate('researchstaffsection', 'populate[researchstaffsection][populate][staff][populate][email]');
   setPopulate('researchstaffsection', 'populate[researchstaffsection][populate][staff][populate][paragraph]');

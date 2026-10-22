@@ -7,7 +7,13 @@ import type { DepartmentAwardsTimelineItem } from '@/app/components/department/D
 import type { DepartmentAchievementCardItem } from '@/app/components/department/DepartmentAchievementSection';
 import type { DepartmentCurrentProjectItem } from '@/app/components/department/DepartmentCurrentProjectsSection';
 import type { DepartmentPublicationSectionItem } from '@/app/components/department/DepartmentPublicationsSection';
-import type { DepartmentServiceItem } from '@/app/components/department/DepartmentServicesSection';
+import type {
+  DepartmentServiceCategoryItem,
+  DepartmentServiceGroupItem,
+  DepartmentServiceItem,
+  DepartmentServiceMediaItem,
+  DepartmentStructuredServiceItem,
+} from '@/app/components/department/DepartmentServicesSection';
 import type { DepartmentStaffMember } from '@/app/components/department/DepartmentStaffSection';
 import type { DepartmentTechnicalStaffGroupItem } from '@/app/components/department/DepartmentStaffSection';
 import type { DepartmentSectionPoint } from '@/app/components/department/DepartmentSection';
@@ -32,6 +38,7 @@ import type {
   DepartmentStaffCard,
   DepartmentTechnicalStaffGroup,
   DepartmentSingleTypePage,
+  StrapiImage,
 } from '@/app/lib/types';
 import { getOptimizedImageUrl, getStrapiImageUrl } from '@/app/lib/strapi';
 
@@ -58,6 +65,8 @@ export interface DepartmentServicesViewModel {
   titlePart1: string;
   titlePart2: string;
   items: DepartmentServiceItem[];
+  categoryLinks: DepartmentServiceCategoryItem[];
+  serviceGroups: DepartmentServiceGroupItem[];
 }
 
 export interface DepartmentResearchStaffViewModel {
@@ -260,6 +269,128 @@ function mapServiceCards(
       ...card,
       number: formatServiceNumber(sortorder, index),
     }));
+}
+
+function mapServiceImages(
+  images: StrapiImage[] | null | undefined,
+  fallbackImages: StrapiImage[] | null | undefined,
+  fallbackAlt: string = 'Service image'
+): DepartmentServiceMediaItem[] {
+  const source = images?.length ? images : fallbackImages || [];
+
+  return source
+    .map((image, index) => {
+      const src =
+        getOptimizedImageUrl(image, 'large') ||
+        getOptimizedImageUrl(image, 'medium') ||
+        getStrapiImageUrl(image);
+
+      if (!src) return null;
+
+      return {
+        id: image.documentId || String(image.id || index),
+        src,
+        alt: image.alternativeText?.trim() || fallbackAlt,
+      };
+    })
+    .filter((image): image is DepartmentServiceMediaItem => Boolean(image));
+}
+
+function omitSortorder<T extends { sortorder: number }>(item: T): Omit<T, 'sortorder'> {
+  const { sortorder, ...rest } = item;
+  void sortorder;
+  return rest;
+}
+
+function mapServiceCategoryLinks(
+  localized: DepartmentServiceSection['categorylinks'],
+  fallback: DepartmentServiceSection['categorylinks']
+): DepartmentServiceCategoryItem[] {
+  const links = localized?.length ? localized : fallback || [];
+
+  return links
+    .map((link, index) => {
+      const title = link?.title?.trim();
+      const url = link?.url?.trim();
+      if (!title || !url) return null;
+
+      return {
+        key: link.servicekey?.trim() || slugify(title) || `service-category-${index}`,
+        title,
+        url,
+        sortorder: link.sortorder ?? Number.MAX_SAFE_INTEGER,
+      };
+    })
+    .filter((link): link is DepartmentServiceCategoryItem & { sortorder: number } => Boolean(link))
+    .sort((left, right) => left.sortorder - right.sortorder)
+    .map(omitSortorder);
+}
+
+function mapStructuredServiceItems(
+  localized: NonNullable<DepartmentServiceSection['servicegroups']>[number]['items'],
+  fallback: NonNullable<DepartmentServiceSection['servicegroups']>[number]['items']
+): DepartmentStructuredServiceItem[] {
+  const items = localized?.length ? localized : fallback || [];
+
+  return items
+    .map((item, index) => {
+      const title = item?.title?.trim();
+      if (!title) return null;
+      const fallbackItem = fallback?.find(
+        (candidate) => candidate?.servicekey && candidate.servicekey === item.servicekey
+      );
+      const detailsSource = item.details?.length ? item.details : fallbackItem?.details || [];
+      const details = detailsSource
+        .map((detail) => ({
+          label: detail?.label?.trim() || '',
+          value: detail?.value?.trim() || '',
+          sortorder: detail?.sortorder ?? Number.MAX_SAFE_INTEGER,
+        }))
+        .filter((detail) => detail.label && detail.value)
+        .sort((left, right) => left.sortorder - right.sortorder)
+        .map(omitSortorder);
+
+      return {
+        key: item.servicekey?.trim() || slugify(title) || `service-item-${index}`,
+        title,
+        description: item.description?.trim() || fallbackItem?.description?.trim() || undefined,
+        url: item.url?.trim() || fallbackItem?.url?.trim() || undefined,
+        images: mapServiceImages(item.images, fallbackItem?.images, title),
+        details,
+        sortorder: item.sortorder ?? Number.MAX_SAFE_INTEGER,
+      };
+    })
+    .filter((item) => item !== null)
+    .sort((left, right) => left.sortorder - right.sortorder)
+    .map(omitSortorder);
+}
+
+function mapServiceGroups(
+  localized: DepartmentServiceSection['servicegroups'],
+  fallback: DepartmentServiceSection['servicegroups']
+): DepartmentServiceGroupItem[] {
+  const groups = localized?.length ? localized : fallback || [];
+
+  return groups
+    .map((group, index) => {
+      const title = group?.title?.trim();
+      if (!title) return null;
+      const fallbackGroup = fallback?.find(
+        (candidate) => candidate?.servicekey && candidate.servicekey === group.servicekey
+      );
+
+      return {
+        key: group.servicekey?.trim() || slugify(title) || `service-group-${index}`,
+        title,
+        description: group.description?.trim() || fallbackGroup?.description?.trim() || undefined,
+        images: mapServiceImages(group.images, fallbackGroup?.images, title),
+        items: mapStructuredServiceItems(group.items, fallbackGroup?.items),
+        sortorder: group.sortorder ?? Number.MAX_SAFE_INTEGER,
+      };
+    })
+    .filter((group) => group !== null)
+    .sort((left, right) => left.sortorder - right.sortorder)
+    .map(omitSortorder);
 }
 
 function slugify(value: string): string {
@@ -708,8 +839,16 @@ export function mapDepartmentServices(
   const highlightedText = header?.hightlightedtext || '';
   const titleParts = splitTitle(title, highlightedText);
   const items = mapServiceCards(section.servicecards, fallbackPage?.servicesection?.servicecards);
+  const categoryLinks = mapServiceCategoryLinks(
+    section.categorylinks,
+    fallbackPage?.servicesection?.categorylinks
+  );
+  const serviceGroups = mapServiceGroups(
+    section.servicegroups,
+    fallbackPage?.servicesection?.servicegroups
+  );
 
-  if (items.length === 0) {
+  if (items.length === 0 && categoryLinks.length === 0 && serviceGroups.length === 0) {
     return null;
   }
 
@@ -717,6 +856,8 @@ export function mapDepartmentServices(
     tagText: header?.eyebrow?.trim() || 'Main objective',
     ...titleParts,
     items,
+    categoryLinks,
+    serviceGroups,
   };
 }
 
