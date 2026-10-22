@@ -40,6 +40,10 @@ function buildDepartmentQuery(locale: string, availableFields?: DepartmentFieldS
   setPopulate('researchstaffsection', 'populate[researchstaffsection][populate][staff][populate][paragraph]');
   setPopulate('researchstaffsection', 'populate[researchstaffsection][populate][staff][populate][portrait]');
   setPopulate(
+    'researchstaffsection',
+    'populate[researchstaffsection][populate][technicalstaffgroups][populate][members]'
+  );
+  setPopulate(
     'researchhighlightssection',
     'populate[researchhighlightssection][populate][researchhighlightcards][populate][icon]'
   );
@@ -101,7 +105,7 @@ async function fetchDepartmentPage(
   const apiSlug = getDepartmentApiSlug(slug);
   const baseQueryString = buildDepartmentBaseQuery(locale);
   const baseUrl = baseQueryString ? `/api/${apiSlug}?${baseQueryString}` : `/api/${apiSlug}`;
-  const baseResponse = await fetchStrapi<any>(baseUrl);
+  const baseResponse = await fetchStrapi<unknown>(baseUrl);
   const basePage = unwrapSingleEntity<DepartmentSingleTypePage>(baseResponse);
 
   if (basePage?.slug && basePage.slug !== slug && basePage.slug !== apiSlug) {
@@ -115,7 +119,7 @@ async function fetchDepartmentPage(
   const availableFields = new Set(Object.keys(basePage));
   const queryString = buildDepartmentQuery(locale, availableFields);
   const url = queryString ? `/api/${apiSlug}?${queryString}` : `/api/${apiSlug}`;
-  const response = await fetchStrapi<any>(url);
+  const response = await fetchStrapi<unknown>(url);
   const page = unwrapSingleEntity<DepartmentSingleTypePage>(response) ?? basePage;
 
   if (page?.slug && page.slug !== slug && page.slug !== apiSlug) {
@@ -145,7 +149,7 @@ async function fetchDepartmentHomepageCurrentProjects(
   const apiSlug = getDepartmentApiSlug(slug);
   const baseQueryString = buildDepartmentBaseQuery(locale);
   const baseUrl = baseQueryString ? `/api/${apiSlug}?${baseQueryString}` : `/api/${apiSlug}`;
-  const baseResponse = await fetchStrapi<any>(baseUrl);
+  const baseResponse = await fetchStrapi<unknown>(baseUrl);
   const basePage = unwrapSingleEntity<DepartmentSingleTypePage>(baseResponse);
 
   if (!basePage) {
@@ -162,7 +166,7 @@ async function fetchDepartmentHomepageCurrentProjects(
 
   const queryString = buildDepartmentHomepageProjectsQuery(locale);
   const url = queryString ? `/api/${apiSlug}?${queryString}` : `/api/${apiSlug}`;
-  const response = await fetchStrapi<any>(url);
+  const response = await fetchStrapi<unknown>(url);
   const page = unwrapSingleEntity<DepartmentSingleTypePage>(response) ?? basePage;
 
   if (page.slug && page.slug !== slug && page.slug !== apiSlug) {

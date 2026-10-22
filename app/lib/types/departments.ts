@@ -19,6 +19,7 @@ export interface DepartmentIntroductionSection {
   id: number;
   sectionheader?: SectionHeader | null;
   paragraph?: string | null;
+  closingparagraph?: string | null;
   points?: DepartmentPoint[] | null;
   videotitle?: string | null;
   url?: string | null;
@@ -59,10 +60,23 @@ export interface DepartmentStaffCard {
   portrait?: StrapiImage | null;
 }
 
+export interface DepartmentTechnicalStaffMember {
+  id: number;
+  name?: string | null;
+  qualifications?: string | null;
+}
+
+export interface DepartmentTechnicalStaffGroup {
+  id: number;
+  title?: string | null;
+  members?: DepartmentTechnicalStaffMember[] | null;
+}
+
 export interface DepartmentResearchStaffSection {
   id: number;
   sectionheader?: SectionHeader | null;
   staff?: DepartmentStaffCard[] | null;
+  technicalstaffgroups?: DepartmentTechnicalStaffGroup[] | null;
 }
 
 export interface DepartmentHighlightParagraph {

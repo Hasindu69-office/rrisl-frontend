@@ -9,6 +9,7 @@ import type { DepartmentCurrentProjectItem } from '@/app/components/department/D
 import type { DepartmentPublicationSectionItem } from '@/app/components/department/DepartmentPublicationsSection';
 import type { DepartmentServiceItem } from '@/app/components/department/DepartmentServicesSection';
 import type { DepartmentStaffMember } from '@/app/components/department/DepartmentStaffSection';
+import type { DepartmentTechnicalStaffGroupItem } from '@/app/components/department/DepartmentStaffSection';
 import type { DepartmentSectionPoint } from '@/app/components/department/DepartmentSection';
 import type {
   DepartmentAchievementCard,
@@ -29,6 +30,7 @@ import type {
   DepartmentServiceCard,
   DepartmentServiceSection,
   DepartmentStaffCard,
+  DepartmentTechnicalStaffGroup,
   DepartmentSingleTypePage,
 } from '@/app/lib/types';
 import { getOptimizedImageUrl, getStrapiImageUrl } from '@/app/lib/strapi';
@@ -45,6 +47,7 @@ export interface DepartmentIntroductionViewModel {
   titlePart1: string;
   titlePart2: string;
   description: string;
+  closingDescription?: string;
   points: DepartmentSectionPoint[];
   videoUrl?: string;
   videoTitle: string;
@@ -62,6 +65,7 @@ export interface DepartmentResearchStaffViewModel {
   titlePart1: string;
   titlePart2: string;
   staff: DepartmentStaffMember[];
+  technicalStaffGroups: DepartmentTechnicalStaffGroupItem[];
 }
 
 export interface DepartmentResearchHighlightsViewModel {
@@ -341,6 +345,44 @@ function mapStaffCards(
       };
     })
     .filter((member): member is DepartmentStaffMember => Boolean(member));
+}
+
+function mapTechnicalStaffGroups(
+  localizedGroups: DepartmentTechnicalStaffGroup[] | null | undefined,
+  fallbackGroups: DepartmentTechnicalStaffGroup[] | null | undefined
+): DepartmentTechnicalStaffGroupItem[] {
+  const groups = localizedGroups?.length ? localizedGroups : fallbackGroups || [];
+
+  return groups
+    .map((group): DepartmentTechnicalStaffGroupItem | null => {
+      const title = group?.title?.trim();
+      const members = (group?.members || [])
+        .map((member) => {
+          const name = member?.name?.trim();
+
+          if (!name) {
+            return null;
+          }
+
+          return {
+            id: String(member.id),
+            name,
+            qualifications: member.qualifications?.trim() || undefined,
+          };
+        })
+        .filter((member): member is NonNullable<typeof member> => Boolean(member));
+
+      if (!title || members.length === 0) {
+        return null;
+      }
+
+      return {
+        id: String(group.id),
+        title,
+        members,
+      };
+    })
+    .filter((group): group is DepartmentTechnicalStaffGroupItem => Boolean(group));
 }
 
 function mapHighlightImages(
@@ -623,6 +665,8 @@ export function mapDepartmentIntroduction(
   const highlightedText = header?.hightlightedtext || '';
   const titleParts = splitTitle(title, highlightedText);
   const description = section.paragraph?.trim() || fallbackSection?.paragraph?.trim() || '';
+  const closingDescription =
+    section.closingparagraph?.trim() || fallbackSection?.closingparagraph?.trim() || undefined;
 
   if (!title && !description) {
     return null;
@@ -632,6 +676,7 @@ export function mapDepartmentIntroduction(
     tagText: header?.eyebrow?.trim() || 'Main objective',
     ...titleParts,
     description,
+    closingDescription,
     points: mapDepartmentPoints(section.points, fallbackSection?.points),
     videoUrl: section.url?.trim() || fallbackSection?.url?.trim() || undefined,
     videoTitle:
@@ -697,8 +742,12 @@ export function mapDepartmentResearchStaff(
   const highlightedText = header?.hightlightedtext || '';
   const titleParts = splitTitle(title, highlightedText);
   const staff = mapStaffCards(section.staff, fallbackPage?.researchstaffsection?.staff);
+  const technicalStaffGroups = mapTechnicalStaffGroups(
+    section.technicalstaffgroups,
+    fallbackPage?.researchstaffsection?.technicalstaffgroups
+  );
 
-  if (staff.length === 0) {
+  if (staff.length === 0 && technicalStaffGroups.length === 0) {
     return null;
   }
 
@@ -706,6 +755,7 @@ export function mapDepartmentResearchStaff(
     tagText: header?.eyebrow?.trim() || 'Research Staff',
     ...titleParts,
     staff,
+    technicalStaffGroups,
   };
 }
 

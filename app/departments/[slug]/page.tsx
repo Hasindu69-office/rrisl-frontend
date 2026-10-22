@@ -84,6 +84,7 @@ export default async function DepartmentPage({
             titlePart2={introduction.titlePart2}
             titleLineBreak={false}
             description={introduction.description}
+            closingDescription={introduction.closingDescription}
             points={introduction.points}
             videoUrl={introduction.videoUrl}
             videoTitle={introduction.videoTitle}
@@ -111,6 +112,7 @@ export default async function DepartmentPage({
             titlePart1={researchStaff.titlePart1}
             titlePart2={researchStaff.titlePart2}
             staff={researchStaff.staff}
+            technicalStaffGroups={researchStaff.technicalStaffGroups}
             containerClassName="w-[85%]"
           />
         </DepartmentAnimatedSection>
