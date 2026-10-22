@@ -137,6 +137,7 @@ export default async function DepartmentPage({
         <DepartmentAnimatedSection>
           <DepartmentCurrentProjectsSection
             sectionId="current-projects"
+            layout="list"
             tagText={currentProjects.tagText}
             titlePart1={currentProjects.titlePart1}
             titlePart2={currentProjects.titlePart2}

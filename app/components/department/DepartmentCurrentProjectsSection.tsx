@@ -2,17 +2,31 @@
 
 import Image from 'next/image';
 import React, { startTransition, useEffect, useRef, useState } from 'react';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ChevronDown } from 'lucide-react';
 import GradientTag from '../ui/GradientTag';
 import GradientTitle from '../ui/GradientTitle';
 import { isLocalhostAssetUrl } from '@/app/lib/strapi';
+
+export interface DepartmentCurrentProjectGalleryItem {
+  id: string;
+  src: string;
+  alt: string;
+}
 
 export interface DepartmentCurrentProjectItem {
   id: string;
   title: string;
   href?: string;
-  imageSrc: string;
-  imageAlt: string;
+  description?: string;
+  objectives?: string;
+  site?: string;
+  startDate?: string;
+  endDate?: string;
+  principalInvestigator?: string;
+  coInvestigators?: string;
+  imageSrc?: string;
+  imageAlt?: string;
+  gallery?: DepartmentCurrentProjectGalleryItem[];
   departmentName?: string;
 }
 
@@ -23,6 +37,7 @@ interface DepartmentCurrentProjectsSectionProps {
   projects: DepartmentCurrentProjectItem[];
   containerClassName?: string;
   sectionId?: string;
+  layout?: 'slider' | 'list';
   autoSlide?: boolean;
   autoSlideIntervalMs?: number;
 }
@@ -56,11 +71,29 @@ function getTrackGap(viewportWidth: number) {
   return MOBILE_GAP;
 }
 
+function formatProjectDate(value?: string) {
+  if (!value) {
+    return null;
+  }
+
+  const parsed = new Date(value);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return value;
+  }
+
+  return parsed.toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+}
+
 function ProjectCard({
   project,
   staggered,
 }: {
-  project: DepartmentCurrentProjectItem;
+  project: DepartmentCurrentProjectItem & { imageSrc: string };
   staggered: boolean;
 }) {
   const useUnoptimizedImage = isLocalhostAssetUrl(project.imageSrc);
@@ -68,7 +101,7 @@ function ProjectCard({
     <div className="relative h-full w-full">
       <Image
         src={project.imageSrc}
-        alt={project.imageAlt}
+        alt={project.imageAlt || project.title}
         fill
         className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
         sizes="(max-width: 767px) 78vw, (max-width: 1279px) 44vw, 24vw"
@@ -118,9 +151,217 @@ function ProjectCard({
   );
 }
 
+function ProjectGallery({
+  images,
+  title,
+}: {
+  images: DepartmentCurrentProjectGalleryItem[];
+  title: string;
+}) {
+  if (images.length === 0) {
+    return null;
+  }
+
+  const columnClass =
+    images.length === 1
+      ? 'max-w-[280px] grid-cols-1'
+      : images.length === 2
+        ? 'max-w-[560px] grid-cols-2'
+        : 'grid-cols-2 md:grid-cols-3 xl:grid-cols-4';
+
+  return (
+    <div className={`grid w-full gap-3 ${columnClass}`} aria-label={`${title} gallery`}>
+      {images.map((image) => (
+        <div
+          key={image.id}
+          className="relative aspect-[4/3] w-full overflow-hidden rounded-[14px] border border-[#DDE9D8] bg-[#EAF4E5] shadow-[0_8px_20px_rgba(15,63,29,0.06)]"
+        >
+          <Image
+            src={image.src}
+            alt={image.alt}
+            fill
+            className="object-cover transition duration-500 hover:scale-[1.02]"
+            sizes="(max-width: 767px) 45vw, (max-width: 1279px) 30vw, 22vw"
+            unoptimized={isLocalhostAssetUrl(image.src)}
+          />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ProjectDetailListItem({
+  project,
+  isOpen,
+  onToggle,
+}: {
+  project: DepartmentCurrentProjectItem;
+  isOpen: boolean;
+  onToggle: () => void;
+}) {
+  const panelId = `department-project-panel-${project.id}`;
+  const triggerId = `department-project-trigger-${project.id}`;
+  const detailItems = [
+    { label: 'Objectives', value: project.objectives },
+    { label: 'Site', value: project.site },
+    { label: 'Date of commencing', value: formatProjectDate(project.startDate) },
+    { label: 'Expected date of end', value: formatProjectDate(project.endDate) },
+    { label: 'Principal Investigator (PI)', value: project.principalInvestigator },
+    { label: 'Co-Investigators (CoI)', value: project.coInvestigators },
+  ].filter((item): item is { label: string; value: string } => Boolean(item.value));
+
+  const galleryImages = [
+    ...(project.imageSrc
+      ? [
+          {
+            id: `${project.id}-cover`,
+            src: project.imageSrc,
+            alt: project.imageAlt || project.title,
+          },
+        ]
+      : []),
+    ...(project.gallery || []),
+  ];
+
+  const hasPanelContent =
+    Boolean(project.description) || detailItems.length > 0 || galleryImages.length > 0;
+
+  return (
+    <article className="overflow-hidden rounded-[22px] border border-[#DCE9D5] bg-white shadow-[0_16px_40px_rgba(15,63,29,0.06)]">
+      <button
+        id={triggerId}
+        type="button"
+        aria-expanded={isOpen}
+        aria-controls={panelId}
+        onClick={onToggle}
+        className="flex w-full cursor-pointer items-center justify-between gap-5 px-5 py-5 text-left outline-none transition hover:bg-[#FAFCF8] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#2E7D32] md:px-7 md:py-6"
+      >
+        <h4 className="text-[17px] font-semibold leading-[1.45] text-[#153C21] md:text-[20px]">
+          {project.title}
+        </h4>
+        <span
+          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#EFF8E9] text-[#2E7D32] transition-transform duration-300 ${
+            isOpen ? 'rotate-180' : ''
+          }`}
+        >
+          <ChevronDown className="h-5 w-5" aria-hidden="true" />
+        </span>
+      </button>
+
+      <div
+        id={panelId}
+        role="region"
+        aria-labelledby={triggerId}
+        className={`grid transition-[grid-template-rows,opacity] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+          isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
+        }`}
+      >
+        <div className="overflow-hidden">
+          <div className="border-t border-[#E7EFE2] px-5 py-6 md:px-7 md:py-7">
+            {hasPanelContent ? (
+              <>
+                {project.description ? (
+                  <p className="mb-5 whitespace-pre-line text-[15px] leading-[1.8] text-[#35473A] md:text-[16px]">
+                    {project.description}
+                  </p>
+                ) : null}
+
+                {detailItems.length > 0 ? (
+                  <dl className="grid gap-4 md:grid-cols-2">
+                    {detailItems.map((detail) => (
+                      <div
+                        key={`${project.id}-${detail.label}`}
+                        className="rounded-[16px] border border-[#E3EDDE] bg-[#F8FBF6] p-4 md:p-5"
+                      >
+                        <dt className="text-[12px] font-semibold uppercase tracking-[0.12em] text-[#2E7D32]">
+                          {detail.label}
+                        </dt>
+                        <dd className="mt-2 whitespace-pre-line text-[14px] leading-[1.75] text-[#2F4034] md:text-[15px]">
+                          {detail.value}
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                ) : null}
+
+                {galleryImages.length > 0 ? (
+                  <div className={detailItems.length > 0 || project.description ? 'mt-6' : ''}>
+                    <ProjectGallery images={galleryImages} title={project.title} />
+                  </div>
+                ) : null}
+              </>
+            ) : (
+              <p className="text-[15px] leading-[1.8] text-[#5A6B5F]">
+                Project details will be added soon.
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function ProjectsListLayout({
+  tagText,
+  titlePart1,
+  titlePart2,
+  projects,
+  containerClassName,
+  sectionId,
+}: {
+  tagText: string;
+  titlePart1: string | React.ReactNode;
+  titlePart2: string | React.ReactNode;
+  projects: DepartmentCurrentProjectItem[];
+  containerClassName: string;
+  sectionId?: string;
+}) {
+  const [openProjectId, setOpenProjectId] = useState<string | null>(null);
+
+  return (
+    <section id={sectionId} className="scroll-mt-28 bg-[#F5F9F2] py-16 md:py-20 lg:py-24">
+      <div className={`mx-auto max-w-[1440px] px-4 md:px-6 lg:px-8 ${containerClassName}`}>
+        <div className="text-center" data-department-reveal>
+          <GradientTag
+            text={tagText}
+            backgroundColor="transparent"
+            className="inline-block"
+            padding="px-4 py-1"
+          />
+
+          <GradientTitle
+            part1={titlePart1}
+            part2={titlePart2}
+            lineBreak={false}
+            part1Color="dark-green"
+            size="custom"
+            customSize="clamp(28px, 4vw, 50px)"
+            align="center"
+            className="mt-5 font-bold leading-[1.15]"
+          />
+        </div>
+
+        <div className="mt-10 space-y-4 md:mt-12 md:space-y-5" data-department-reveal>
+          {projects.map((project) => (
+            <ProjectDetailListItem
+              key={project.id}
+              project={project}
+              isOpen={openProjectId === project.id}
+              onToggle={() =>
+                setOpenProjectId((current) => (current === project.id ? null : project.id))
+              }
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /**
- * Reusable department projects slider with alternating card positions.
- * Default state prioritizes text readability; hover reveals the image beneath the gradient.
+ * Department / homepage current projects.
+ * `layout="slider"` keeps the image carousel; `layout="list"` shows expandable project details.
  */
 export default function DepartmentCurrentProjectsSection({
   tagText,
@@ -129,6 +370,7 @@ export default function DepartmentCurrentProjectsSection({
   projects,
   containerClassName = '',
   sectionId,
+  layout = 'slider',
   autoSlide = false,
   autoSlideIntervalMs = DEFAULT_AUTO_SLIDE_INTERVAL_MS,
 }: DepartmentCurrentProjectsSectionProps) {
@@ -138,7 +380,16 @@ export default function DepartmentCurrentProjectsSection({
   const [isAutoSlidePaused, setIsAutoSlidePaused] = useState(false);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
+  const sliderProjects = projects.filter(
+    (project): project is DepartmentCurrentProjectItem & { imageSrc: string } =>
+      Boolean(project.imageSrc)
+  );
+
   useEffect(() => {
+    if (layout !== 'slider') {
+      return;
+    }
+
     const node = viewportRef.current;
 
     if (!node) {
@@ -160,15 +411,15 @@ export default function DepartmentCurrentProjectsSection({
     return () => {
       observer.disconnect();
     };
-  }, []);
+  }, [layout]);
 
   const visibleCardCount = getVisibleCardCount(viewportWidth);
   const effectiveVisibleCardCount = Math.max(
     1,
-    Math.min(visibleCardCount, projects.length)
+    Math.min(visibleCardCount, sliderProjects.length)
   );
   const trackGap = getTrackGap(viewportWidth);
-  const maxIndex = Math.max(0, projects.length - effectiveVisibleCardCount);
+  const maxIndex = Math.max(0, sliderProjects.length - effectiveVisibleCardCount);
   const boundedActiveIndex = Math.min(activeIndex, maxIndex);
   const canSlide = maxIndex > 0;
   const cardWidth =
@@ -199,7 +450,7 @@ export default function DepartmentCurrentProjectsSection({
   };
 
   useEffect(() => {
-    if (!autoSlide || typeof window === 'undefined') {
+    if (layout !== 'slider' || !autoSlide || typeof window === 'undefined') {
       return;
     }
 
@@ -214,10 +465,11 @@ export default function DepartmentCurrentProjectsSection({
     return () => {
       motionQuery.removeEventListener('change', syncMotionPreference);
     };
-  }, [autoSlide]);
+  }, [autoSlide, layout]);
 
   useEffect(() => {
     if (
+      layout !== 'slider' ||
       !autoSlide ||
       !canSlide ||
       isAutoSlidePaused ||
@@ -245,9 +497,31 @@ export default function DepartmentCurrentProjectsSection({
     autoSlideIntervalMs,
     canSlide,
     isAutoSlidePaused,
+    layout,
     maxIndex,
     prefersReducedMotion,
   ]);
+
+  if (layout === 'list') {
+    if (projects.length === 0) {
+      return null;
+    }
+
+    return (
+      <ProjectsListLayout
+        tagText={tagText}
+        titlePart1={titlePart1}
+        titlePart2={titlePart2}
+        projects={projects}
+        containerClassName={containerClassName}
+        sectionId={sectionId}
+      />
+    );
+  }
+
+  if (sliderProjects.length === 0) {
+    return null;
+  }
 
   const handleAutoSlidePause = () => {
     if (!autoSlide) {
@@ -340,7 +614,7 @@ export default function DepartmentCurrentProjectsSection({
                 transform: `translateX(-${translateX}px)`,
               }}
             >
-              {projects.map((project, index) => (
+              {sliderProjects.map((project, index) => (
                 <div
                   key={project.id}
                   className="shrink-0"

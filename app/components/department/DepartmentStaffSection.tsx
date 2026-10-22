@@ -54,35 +54,33 @@ function DepartmentStaffCard({
       type="button"
       data-department-reveal
       onClick={(event) => onOpen(event.currentTarget)}
-      className="group mx-auto flex h-full min-h-[440px] w-full max-w-full cursor-pointer flex-col overflow-hidden rounded-[30px] border border-[#DFE9D9] bg-white text-left shadow-[0_14px_40px_rgba(15,63,29,0.06)] transition duration-300 ease-out hover:-translate-y-1 hover:border-[#BFD6B3] hover:shadow-[0_24px_58px_rgba(15,63,29,0.13)] focus:outline-none focus-visible:-translate-y-1 focus-visible:ring-2 focus-visible:ring-[#2E7D32] focus-visible:ring-offset-4"
+      className="group mx-auto flex h-full w-full max-w-[340px] cursor-pointer flex-col overflow-hidden rounded-[24px] border border-[#DFE9D9] bg-white text-left shadow-[0_12px_32px_rgba(15,63,29,0.06)] transition duration-300 ease-out hover:-translate-y-1 hover:border-[#BFD6B3] hover:shadow-[0_20px_44px_rgba(15,63,29,0.12)] focus:outline-none focus-visible:-translate-y-1 focus-visible:ring-2 focus-visible:ring-[#2E7D32] focus-visible:ring-offset-4"
       aria-label={`View profile of ${member.name}`}
     >
-      <div className="relative mx-5 mt-5 h-[250px] overflow-hidden rounded-[24px] bg-[radial-gradient(circle_at_top,_rgba(161,223,10,0.20),_rgba(32,201,151,0.08)_44%,_#F1F6ED_100%)] md:h-[270px]">
-        <div className="relative mx-auto h-full w-[82%] max-w-[280px]">
-          <Image
-            src={member.imageSrc}
-            alt={member.imageAlt}
-            fill
-            className="object-contain object-center transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04] group-focus-visible:scale-[1.04]"
-            sizes="(max-width: 767px) 74vw, (max-width: 1279px) 36vw, 22vw"
-            unoptimized={useUnoptimizedImage}
-          />
-        </div>
+      <div className="relative mx-4 mt-4 h-[180px] overflow-hidden rounded-[18px] bg-[#EAF4E5] sm:h-[190px]">
+        <Image
+          src={member.imageSrc}
+          alt={member.imageAlt}
+          fill
+          className="object-cover object-[center_20%] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03] group-focus-visible:scale-[1.03]"
+          sizes="(max-width: 767px) 70vw, 340px"
+          unoptimized={useUnoptimizedImage}
+        />
       </div>
 
-      <div className="flex flex-1 flex-col px-6 pb-6 pt-5">
-        <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-[#2E7D32]">
+      <div className="flex flex-1 flex-col px-5 pb-5 pt-4">
+        <p className="line-clamp-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#2E7D32]">
           {member.role}
         </p>
-        <h3 className="mt-2 text-[20px] font-semibold leading-[1.25] text-[#0F3F1D] md:text-[21px]">
+        <h3 className="mt-1.5 text-[18px] font-semibold leading-[1.3] text-[#0F3F1D] md:text-[19px]">
           {member.name}
         </h3>
         {member.credentials ? (
-          <p className="mt-2 text-[14px] leading-6 text-[#607067]">
+          <p className="mt-1.5 line-clamp-2 text-[13px] leading-5 text-[#607067]">
             {member.credentials}
           </p>
         ) : null}
-        <span className="mt-auto pt-5 text-[13px] font-semibold text-[#28733A] transition-colors group-hover:text-[#0F3F1D]">
+        <span className="mt-4 text-[13px] font-semibold text-[#28733A] transition-colors group-hover:text-[#0F3F1D]">
           View profile <span aria-hidden="true">→</span>
         </span>
       </div>
@@ -150,13 +148,13 @@ function DepartmentStaffProfileModal({
         </button>
 
         <aside className="relative overflow-visible bg-[radial-gradient(circle_at_top_left,_rgba(161,223,10,0.18),_rgba(32,201,151,0.08)_32%,_transparent_64%),linear-gradient(180deg,#10341B_0%,#184727_100%)] px-6 pb-6 pt-8 text-white lg:w-[360px] lg:overflow-hidden lg:px-8 lg:pb-8 lg:pt-12">
-          <div className="relative h-[160px] w-[160px] overflow-hidden rounded-[30px] border border-white/20 bg-white/12 shadow-[0_20px_50px_rgba(0,0,0,0.20)] sm:h-[180px] sm:w-[180px]">
+          <div className="relative h-[140px] w-[140px] overflow-hidden rounded-[22px] border border-white/20 bg-white/12 shadow-[0_16px_40px_rgba(0,0,0,0.20)] sm:h-[152px] sm:w-[152px]">
             <Image
               src={member.imageSrc}
               alt={member.imageAlt}
               fill
-              className="object-contain object-top"
-              sizes="(max-width: 639px) 160px, 180px"
+              className="object-cover object-[center_20%]"
+              sizes="(max-width: 639px) 140px, 152px"
               priority
               unoptimized={useUnoptimizedImage}
             />
@@ -164,7 +162,7 @@ function DepartmentStaffProfileModal({
 
           <h3
             id={`department-staff-title-${member.id || member.name}`}
-            className="mt-3 text-[28px] font-semibold leading-[1.14]"
+            className="mt-5 text-[24px] font-semibold leading-[1.2] md:text-[26px]"
           >
             {member.role}
           </h3>
@@ -306,7 +304,7 @@ export default function DepartmentStaffSection({
               </p>
             </div>
 
-            <div className="mt-8 grid grid-cols-1 gap-7 md:grid-cols-2 md:gap-8 xl:grid-cols-3 xl:gap-10">
+            <div className="mt-8 flex flex-wrap justify-center gap-5 md:gap-6">
               {staff.map((member) => (
                 <DepartmentStaffCard
                   key={member.id || member.name}

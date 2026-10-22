@@ -5,9 +5,11 @@ import React, { useEffect, useState } from 'react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import GradientTag from '../ui/GradientTag';
 import GradientTitle from '../ui/GradientTitle';
+import { isLocalhostAssetUrl } from '@/app/lib/strapi';
 
 export interface DepartmentAchievementCardItem {
   id: string;
+  category?: string;
   text: string;
 }
 
@@ -27,8 +29,7 @@ const DESKTOP_BREAKPOINT = 1024;
 const AUTO_SLIDE_INTERVAL_MS = 4500;
 
 /**
- * Reusable department showcase shell for achievement-style sections.
- * Supports a simple paged slider with two cards on desktop.
+ * Department achievements showcase with category-aware cards.
  */
 export default function DepartmentAchievementSection({
   tagText,
@@ -36,13 +37,14 @@ export default function DepartmentAchievementSection({
   titlePart2 = 'Achievements',
   illustrationSrc,
   illustrationAlt,
-  outlineText = 'Our Achievements',
+  outlineText = 'Achievements',
   items = [],
   children,
   containerClassName = '',
 }: DepartmentAchievementSectionProps) {
   const [visibleCount, setVisibleCount] = useState(1);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const useUnoptimizedIllustration = isLocalhostAssetUrl(illustrationSrc);
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -135,7 +137,10 @@ export default function DepartmentAchievementSection({
         </div>
 
         <div className="relative mt-10 md:mt-12">
-          <div data-department-reveal className="pointer-events-none absolute bottom-[72px] left-[-56px] z-[2] h-[300px] w-[220px] md:bottom-[56px] md:left-[-72px] md:h-[380px] md:w-[280px] lg:bottom-[72px] lg:left-[calc(9%-200px)] lg:h-[540px] lg:w-[400px]">
+          <div
+            data-department-reveal
+            className="pointer-events-none absolute bottom-[72px] left-[-56px] z-[2] h-[300px] w-[220px] md:bottom-[56px] md:left-[-72px] md:h-[380px] md:w-[280px] lg:bottom-[72px] lg:left-[calc(9%-200px)] lg:h-[540px] lg:w-[400px]"
+          >
             <Image
               src={illustrationSrc}
               alt={illustrationAlt}
@@ -143,6 +148,7 @@ export default function DepartmentAchievementSection({
               priority={false}
               className="object-contain object-left-bottom opacity-10 md:opacity-45 lg:opacity-60"
               sizes="(max-width: 767px) 160px, (max-width: 1023px) 280px, 400px"
+              unoptimized={useUnoptimizedIllustration}
             />
           </div>
 
@@ -166,7 +172,7 @@ export default function DepartmentAchievementSection({
               </div>
 
               <div className="relative z-[1] min-h-[280px] md:min-h-[320px] lg:min-h-[424px]">
-                {(items.length > 0 || children) ? (
+                {items.length > 0 || children ? (
                   <div className="relative z-[1] mt-[36px] w-full pb-[74px] md:mt-[72px] md:pb-[120px] lg:mt-[100px] lg:pb-0">
                     {items.length > 0 ? (
                       <div className="overflow-hidden">
@@ -177,14 +183,17 @@ export default function DepartmentAchievementSection({
                           }}
                         >
                           {items.map((item) => (
-                          <article
-                            key={item.id}
-                            className="w-full shrink-0 rounded-[28px] bg-white px-6 py-6 shadow-[0_4px_4px_rgba(0,0,0,0.18)] md:px-7 md:py-7 lg:w-[calc((100%-1.75rem)/2)]"
-                          >
-                            <p className="text-[18px] leading-[1.8] text-black">
-                              {item.text}
-                            </p>
-                          </article>
+                            <article
+                              key={item.id}
+                              className="w-full shrink-0 rounded-[28px] bg-white px-6 py-6 shadow-[0_4px_4px_rgba(0,0,0,0.18)] md:px-7 md:py-7 lg:w-[calc((100%-1.75rem)/2)]"
+                            >
+                              {item.category ? (
+                                <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#2E7D32]">
+                                  {item.category}
+                                </p>
+                              ) : null}
+                              <p className="text-[18px] leading-[1.8] text-black">{item.text}</p>
+                            </article>
                           ))}
                         </div>
                       </div>

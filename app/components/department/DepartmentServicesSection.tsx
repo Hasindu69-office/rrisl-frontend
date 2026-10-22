@@ -69,16 +69,36 @@ function localizeUrl(url: string, locale: string) {
   return url.startsWith('http') || url.startsWith('//') ? url : addLocaleToUrl(url, locale);
 }
 
-function ServiceMediaGallery({ images, title }: { images: DepartmentServiceMediaItem[]; title: string }) {
+function ServiceMediaGallery({
+  images,
+  title,
+  layout = 'section',
+}: {
+  images: DepartmentServiceMediaItem[];
+  title: string;
+  /** section = up to 4/row; item = max 2/row for card sub-items */
+  layout?: 'section' | 'item';
+}) {
   if (images.length === 0) return null;
 
+  const columnClass =
+    layout === 'item'
+      ? images.length === 1
+        ? 'max-w-[280px] grid-cols-1'
+        : 'grid-cols-2'
+      : images.length === 1
+        ? 'max-w-[280px] grid-cols-1'
+        : images.length === 2
+          ? 'max-w-[560px] grid-cols-2'
+          : 'grid-cols-2 md:grid-cols-3 xl:grid-cols-4';
+
+  const sizes =
+    layout === 'item'
+      ? '(max-width: 1023px) 42vw, 14vw'
+      : '(max-width: 767px) 45vw, (max-width: 1279px) 30vw, 22vw';
+
   return (
-    <div
-      className={`grid gap-3 ${
-        images.length === 1 ? 'max-w-[280px] grid-cols-1' : 'max-w-[640px] grid-cols-2'
-      }`}
-      aria-label={`${title} gallery`}
-    >
+    <div className={`grid w-full gap-3 ${columnClass}`} aria-label={`${title} gallery`}>
       {images.map((image) => (
         <div
           key={image.id}
@@ -89,7 +109,7 @@ function ServiceMediaGallery({ images, title }: { images: DepartmentServiceMedia
             alt={image.alt}
             fill
             className="object-cover transition duration-500 hover:scale-[1.02]"
-            sizes="(max-width: 639px) 42vw, 280px"
+            sizes={sizes}
             unoptimized={isLocalhostAssetUrl(image.src)}
           />
         </div>
@@ -158,7 +178,11 @@ function LaboratoryServiceCard({ item, locale, isOpen, onToggle }: { item: Depar
                 ))}
               </dl>
             ) : null}
-            {item.images.length > 0 ? <div className="mt-6"><ServiceMediaGallery images={item.images} title={item.title} /></div> : null}
+            {item.images.length > 0 ? (
+              <div className="mt-6">
+                <ServiceMediaGallery images={item.images} title={item.title} layout="item" />
+              </div>
+            ) : null}
             {item.url ? (
               <Link href={localizeUrl(item.url, locale)} className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#0F4B24] px-5 py-2.5 text-[14px] font-semibold text-white transition hover:bg-[#2E7D32] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2E7D32] focus-visible:ring-offset-2">
                 View all testing services <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
@@ -176,7 +200,11 @@ function StandardServiceCard({ item }: { item: DepartmentStructuredServiceItem }
     <article className="overflow-hidden rounded-[22px] border border-[#DDE9D8] bg-white p-5 shadow-[0_16px_38px_rgba(15,63,29,0.06)] md:p-6">
       <h4 className="text-[18px] font-semibold leading-[1.4] text-[#153C21] md:text-[20px]">{item.title}</h4>
       {item.description ? <p className="mt-4 whitespace-pre-line text-[15px] leading-[1.8] text-[#3D4E41]">{item.description}</p> : null}
-      {item.images.length > 0 ? <div className="mt-5"><ServiceMediaGallery images={item.images} title={item.title} /></div> : null}
+      {item.images.length > 0 ? (
+        <div className="mt-5">
+          <ServiceMediaGallery images={item.images} title={item.title} layout="item" />
+        </div>
+      ) : null}
     </article>
   );
 }

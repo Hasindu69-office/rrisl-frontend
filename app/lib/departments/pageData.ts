@@ -1,9 +1,6 @@
 import type { BreadcrumbItem } from '@/app/components/shared/Breadcrumb';
-import type {
-  DepartmentResearchHighlightImage,
-  DepartmentResearchHighlightItem,
-} from '@/app/components/department/DepartmentResearchHighlightsSection';
-import type { DepartmentAwardsTimelineItem } from '@/app/components/department/DepartmentAwardsTimelineSection';
+import type { DepartmentResearchHighlightItem } from '@/app/components/department/DepartmentResearchHighlightsSection';
+import type { DepartmentAwardItem } from '@/app/components/department/DepartmentAwardsTimelineSection';
 import type { DepartmentAchievementCardItem } from '@/app/components/department/DepartmentAchievementSection';
 import type { DepartmentCurrentProjectItem } from '@/app/components/department/DepartmentCurrentProjectsSection';
 import type { DepartmentPublicationSectionItem } from '@/app/components/department/DepartmentPublicationsSection';
@@ -20,9 +17,8 @@ import type { DepartmentSectionPoint } from '@/app/components/department/Departm
 import type {
   DepartmentAchievementCard,
   DepartmentAchievementSection,
+  DepartmentAwardCard,
   DepartmentAwardsSection,
-  DepartmentAwardsTimelineCard,
-  DepartmentHighlightSubcard,
   DepartmentCurrentResearchProjectCard,
   DepartmentCurrentResearchProjectSection,
   DepartmentIntroductionSection,
@@ -95,7 +91,7 @@ export interface DepartmentAwardsTimelineViewModel {
   tagText: string;
   titlePart1: string;
   titlePart2: string;
-  items: DepartmentAwardsTimelineItem[];
+  items: DepartmentAwardItem[];
 }
 
 export interface DepartmentPublicationsViewModel {
@@ -516,12 +512,45 @@ function mapTechnicalStaffGroups(
     .filter((group): group is DepartmentTechnicalStaffGroupItem => Boolean(group));
 }
 
-function mapHighlightImages(
-  images: DepartmentHighlightSubcard['galleryimages'],
+function mapHighlightCards(
+  localizedCards: DepartmentResearchHighlightCard[] | null | undefined,
+  fallbackCards: DepartmentResearchHighlightCard[] | null | undefined
+): DepartmentResearchHighlightItem[] {
+  const cards = localizedCards?.length ? localizedCards : fallbackCards || [];
+
+  return sortBySortOrder(cards)
+    .map((card): DepartmentResearchHighlightItem | null => {
+      const title = card.title?.trim();
+      const description = card.description?.trim();
+
+      if (!title || !description) {
+        return null;
+      }
+
+      const imageSrc =
+        getOptimizedImageUrl(card.image, 'large') ||
+        getOptimizedImageUrl(card.image, 'medium') ||
+        getStrapiImageUrl(card.image) ||
+        undefined;
+
+      return {
+        id: card.id ? String(card.id) : slugify(title),
+        title,
+        description,
+        researchTeam: card.researchteam?.trim() || undefined,
+        imageSrc,
+        imageAlt: card.image?.alternativeText || title,
+      };
+    })
+    .filter((highlight): highlight is DepartmentResearchHighlightItem => Boolean(highlight));
+}
+
+function mapProjectGalleryImages(
+  images: DepartmentCurrentResearchProjectCard['galleryimages'],
   title: string
-): DepartmentResearchHighlightImage[] {
+): NonNullable<DepartmentCurrentProjectItem['gallery']> {
   return (images || [])
-    .map((image, index): DepartmentResearchHighlightImage | null => {
+    .map((image, index) => {
       const src =
         getOptimizedImageUrl(image, 'large') ||
         getOptimizedImageUrl(image, 'medium') ||
@@ -532,175 +561,97 @@ function mapHighlightImages(
       }
 
       return {
+        id: image.id ? String(image.id) : `${slugify(title)}-gallery-${index + 1}`,
         src,
-        alt: image.alternativeText || title,
-        title: image.caption || image.alternativeText || `${title} image ${index + 1}`,
+        alt: image.alternativeText || `${title} image ${index + 1}`,
       };
     })
-    .filter((image): image is DepartmentResearchHighlightImage => Boolean(image));
-}
-
-function mapHighlightSubcards(
-  localizedCards: DepartmentHighlightSubcard[] | null | undefined,
-  fallbackCards: DepartmentHighlightSubcard[] | null | undefined
-): DepartmentResearchHighlightItem['sections'] {
-  const cards = localizedCards?.length ? localizedCards : fallbackCards || [];
-
-  return sortBySortOrder(cards)
-    .map((card): NonNullable<DepartmentResearchHighlightItem['sections']>[number] | null => {
-      const heading = card.subtitle?.trim();
-      const paragraphs =
-        card.paragraph
-          ?.map((item) => item?.paragraph?.trim())
-          .filter((paragraph): paragraph is string => Boolean(paragraph)) || [];
-      const items =
-        card.points
-          ?.map((item) => item?.label?.trim())
-          .filter((label): label is string => Boolean(label)) || [];
-      const images =
-        card.needimages === true ? mapHighlightImages(card.galleryimages, heading || 'Research highlight') : [];
-
-      if (!heading && paragraphs.length === 0 && items.length === 0 && images.length === 0) {
-        return null;
-      }
-
-      return {
-        id: card.id ? String(card.id) : slugify(heading || paragraphs[0] || 'highlight-subcard'),
-        heading,
-        body: paragraphs.join(' '),
-        items,
-        images,
-      };
-    })
-    .filter((section): section is NonNullable<DepartmentResearchHighlightItem['sections']>[number] =>
-      Boolean(section)
+    .filter((image): image is NonNullable<DepartmentCurrentProjectItem['gallery']>[number] =>
+      Boolean(image)
     );
-}
-
-function mapHighlightCards(
-  localizedCards: DepartmentResearchHighlightCard[] | null | undefined,
-  fallbackCards: DepartmentResearchHighlightCard[] | null | undefined
-): DepartmentResearchHighlightItem[] {
-  const cards = localizedCards?.length ? localizedCards : fallbackCards || [];
-
-  return sortBySortOrder(cards)
-    .map((card): DepartmentResearchHighlightItem | null => {
-      const summary = card.title?.trim();
-
-      if (!summary) {
-        return null;
-      }
-
-      const iconSrc =
-        getOptimizedImageUrl(card.icon, 'thumbnail') ||
-        getOptimizedImageUrl(card.icon, 'small') ||
-        getStrapiImageUrl(card.icon) ||
-        undefined;
-      const sections =
-        card.subtopicpresent === true
-          ? mapHighlightSubcards(card.cards, fallbackCards?.find((item) => item.id === card.id)?.cards)
-          : [];
-
-      return {
-        id: card.id ? String(card.id) : slugify(summary),
-        summary,
-        details: card.description?.trim() || undefined,
-        sections,
-        iconSrc,
-        iconAlt: card.icon?.alternativeText || summary,
-      };
-    })
-    .filter((highlight): highlight is DepartmentResearchHighlightItem => Boolean(highlight));
 }
 
 function mapCurrentProjectCards(
   localizedProjects: DepartmentCurrentResearchProjectCard[] | null | undefined,
   fallbackProjects: DepartmentCurrentResearchProjectCard[] | null | undefined,
   departmentName: string,
-  slug: string
+  _slug: string
 ): DepartmentCurrentProjectItem[] {
   const projects = localizedProjects?.length ? localizedProjects : fallbackProjects || [];
 
   return sortBySortOrder(projects)
     .map((project): DepartmentCurrentProjectItem | null => {
       const title = project.title?.trim();
+
+      if (!title) {
+        return null;
+      }
+
       const imageSrc =
         getOptimizedImageUrl(project.image, 'large') ||
         getOptimizedImageUrl(project.image, 'medium') ||
-        getStrapiImageUrl(project.image);
-
-      if (!title || !imageSrc) {
-        return null;
-      }
+        getStrapiImageUrl(project.image) ||
+        undefined;
 
       return {
         id: project.id ? String(project.id) : slugify(title),
         title,
+        description: project.description?.trim() || undefined,
+        objectives: project.objectives?.trim() || undefined,
+        site: project.site?.trim() || undefined,
+        startDate: project.startdate?.trim() || undefined,
+        endDate: project.enddate?.trim() || undefined,
+        principalInvestigator: project.principalinvestigator?.trim() || undefined,
+        coInvestigators: project.coinvestigators?.trim() || undefined,
         imageSrc,
         imageAlt: project.image?.alternativeText || title,
+        gallery: mapProjectGalleryImages(project.galleryimages, title),
         departmentName,
       };
     })
     .filter((project): project is DepartmentCurrentProjectItem => Boolean(project));
 }
 
-function getYearFromDate(date: string): string {
-  const year = date.slice(0, 4);
-  return /^\d{4}$/.test(year) ? year : date;
-}
-
-function mapAwardsTimelineCards(
-  localizedCards: DepartmentAwardsTimelineCard[] | null | undefined,
-  fallbackCards: DepartmentAwardsTimelineCard[] | null | undefined
-): DepartmentAwardsTimelineItem[] {
+function mapAwardCards(
+  localizedCards: DepartmentAwardCard[] | null | undefined,
+  fallbackCards: DepartmentAwardCard[] | null | undefined
+): DepartmentAwardItem[] {
   const cards = localizedCards?.length ? localizedCards : fallbackCards || [];
 
   return [...cards]
-    .map((card): (DepartmentAwardsTimelineCard & {
-      title: string;
-      date: string;
-      description: string;
-    }) | null => {
+    .map((card): DepartmentAwardItem | null => {
       const title = card.title?.trim();
-      const date = card.date?.trim();
-      const description = card.description?.trim();
+      const details = card.details?.trim();
+      const year = typeof card.year === 'number' ? card.year : Number(card.year);
 
-      if (!title || !date || !description) {
+      if (!title || !details || !Number.isFinite(year)) {
         return null;
       }
 
-      return {
-        ...card,
-        title,
-        date,
-        description,
-      };
-    })
-    .filter(
-      (
-        card
-      ): card is DepartmentAwardsTimelineCard & {
-        title: string;
-        date: string;
-        description: string;
-      } => Boolean(card)
-    )
-    .sort((left, right) => left.date.localeCompare(right.date))
-    .map((card, index) => {
-      const textBlock = {
-        variant: 'text' as const,
-        lines: [getYearFromDate(card.date), card.title],
-      };
-      const cardBlock = {
-        variant: 'card' as const,
-        content: card.description,
-      };
+      const imageSrc =
+        getOptimizedImageUrl(card.image, 'medium') ||
+        getOptimizedImageUrl(card.image, 'small') ||
+        getStrapiImageUrl(card.image) ||
+        undefined;
 
       return {
-        id: card.id ? String(card.id) : slugify(`${card.date}-${card.title}`),
-        top: index % 2 === 0 ? textBlock : cardBlock,
-        bottom: index % 2 === 0 ? cardBlock : textBlock,
+        id: card.id ? String(card.id) : slugify(`${year}-${title}`),
+        title,
+        officers: card.officers?.trim() || undefined,
+        details,
+        year,
+        imageSrc,
+        imageAlt: card.image?.alternativeText || title,
+        sortorder: card.sortorder ?? 0,
       };
+    })
+    .filter((card): card is DepartmentAwardItem => Boolean(card))
+    .sort((left, right) => {
+      if (right.year !== left.year) {
+        return right.year - left.year;
+      }
+
+      return (left.sortorder ?? 0) - (right.sortorder ?? 0);
     });
 }
 
@@ -747,6 +698,7 @@ function mapAchievementCards(
 
       return {
         id: card.id ? String(card.id) : slugify(text),
+        category: card.category?.trim() || undefined,
         text,
       };
     })
@@ -1004,14 +956,14 @@ export function mapDepartmentAwardsTimeline(
   const title = header?.title || '';
   const highlightedText = header?.hightlightedtext || '';
   const titleParts = splitTitle(title, highlightedText);
-  const items = mapAwardsTimelineCards(section.cards, fallbackPage?.awardssection?.cards);
+  const items = mapAwardCards(section.cards, fallbackPage?.awardssection?.cards);
 
   if (items.length === 0) {
     return null;
   }
 
   return {
-    tagText: header?.eyebrow?.trim() || 'Awards & Achievements',
+    tagText: header?.eyebrow?.trim() || 'Awards',
     ...titleParts,
     items,
   };
@@ -1054,7 +1006,7 @@ export function mapDepartmentPublications(
     title:
       section.sectiontitle?.trim() ||
       fallbackPage?.publicationssection?.sectiontitle?.trim() ||
-      'Our Publications',
+      'Publications',
     leftBackgroundImageSrc: DEPARTMENT_PUBLICATIONS_FALLBACK.leftBackgroundImageSrc,
     leftBackgroundImageAlt: DEPARTMENT_PUBLICATIONS_FALLBACK.leftBackgroundImageAlt,
     rightBackgroundImageSrc,
@@ -1096,15 +1048,24 @@ export function mapDepartmentAchievements(
     return null;
   }
 
+  const sectionIcon =
+    section.sectionicon || fallbackPage?.achievementssection?.sectionicon || null;
+  const illustrationSrc =
+    getOptimizedImageUrl(sectionIcon, 'large') ||
+    getOptimizedImageUrl(sectionIcon, 'medium') ||
+    getStrapiImageUrl(sectionIcon) ||
+    '/images/departments/Handwireframesection.png';
+
   return {
     tagText: header?.eyebrow?.trim() || 'Achievements',
     ...titleParts,
     outlineText:
       section.outlinetext?.trim() ||
       fallbackPage?.achievementssection?.outlinetext?.trim() ||
-      'Our Achievements',
-    illustrationSrc: '/images/departments/Handwireframesection.png',
-    illustrationAlt: 'Illustrated hand holding an achievement medal',
+      'Achievements',
+    illustrationSrc,
+    illustrationAlt:
+      sectionIcon?.alternativeText || 'Illustrated icon for department achievements',
     items,
   };
 }

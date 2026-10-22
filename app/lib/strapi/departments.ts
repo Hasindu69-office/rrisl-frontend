@@ -55,32 +55,29 @@ function buildDepartmentQuery(locale: string, availableFields?: DepartmentFieldS
   );
   setPopulate(
     'researchhighlightssection',
-    'populate[researchhighlightssection][populate][researchhighlightcards][populate][icon]'
-  );
-  setPopulate(
-    'researchhighlightssection',
-    'populate[researchhighlightssection][populate][researchhighlightcards][populate][cards][populate][paragraph]'
-  );
-  setPopulate(
-    'researchhighlightssection',
-    'populate[researchhighlightssection][populate][researchhighlightcards][populate][cards][populate][points]'
-  );
-  setPopulate(
-    'researchhighlightssection',
-    'populate[researchhighlightssection][populate][researchhighlightcards][populate][cards][populate][galleryimages]'
+    'populate[researchhighlightssection][populate][researchhighlightcards][populate][image]'
   );
   setPopulate('currentresearchprojectsection', 'populate[currentresearchprojectsection][populate][sectionheader]');
   setPopulate(
     'currentresearchprojectsection',
     'populate[currentresearchprojectsection][populate][researchprojects][populate][image]'
   );
+  setPopulate(
+    'currentresearchprojectsection',
+    'populate[currentresearchprojectsection][populate][researchprojects][populate][galleryimages]'
+  );
   setPopulate('awardssection', 'populate[awardssection][populate][sectionheader]');
-  setPopulate('awardssection', 'populate[awardssection][populate][cards]');
+  setPopulate('awardssection', 'populate[awardssection][populate][cards][populate][image]');
   setPopulate('publicationssection', 'populate[publicationssection][populate][rightimage]');
   setPopulate('publicationssection', 'populate[publicationssection][populate][publications][populate][points]');
   setPopulate('achievementssection', 'populate[achievementssection][populate][sectionheader]');
+  setPopulate('achievementssection', 'populate[achievementssection][populate][sectionicon]');
   setPopulate('achievementssection', 'populate[achievementssection][populate][achievements]');
   setPopulate('recommendationsection', 'populate[recommendationsection][populate][sectionheader]');
+  setPopulate(
+    'recommendationsection',
+    'populate[recommendationsection][populate][recommendationgroups][populate][items]'
+  );
   setPopulate('recommendationsection', 'populate[recommendationsection][populate][imagecard][populate][image]');
   setPopulate('recommendationsection', 'populate[recommendationsection][populate][points][populate][points]');
   setPopulate('recommendationsection', 'populate[recommendationsection][populate][tablecards][populate][csvfile]');
@@ -98,6 +95,10 @@ function buildDepartmentHomepageProjectsQuery(locale: string): string {
   params.set('populate[currentresearchprojectsection][populate][sectionheader]', 'true');
   params.set(
     'populate[currentresearchprojectsection][populate][researchprojects][populate][image]',
+    'true'
+  );
+  params.set(
+    'populate[currentresearchprojectsection][populate][researchprojects][populate][galleryimages]',
     'true'
   );
 
