@@ -13,21 +13,24 @@ interface FooterMainProps {
   locale: string;
 }
 
-function resolveBrowserImageUrl(src: string) {
-  if (!src || typeof window === 'undefined') {
+function resolveConfiguredImageUrl(src: string) {
+  if (!src) {
     return src;
   }
 
   try {
     const url = new URL(src);
-    const currentHostname = window.location.hostname;
     const isLocalStrapiHost = url.hostname === 'localhost' || url.hostname === '127.0.0.1';
-    const isRemoteFrontendHost =
-      currentHostname !== 'localhost' && currentHostname !== '127.0.0.1';
+    const configuredStrapiUrl = process.env.NEXT_PUBLIC_STRAPI_API_URL;
 
-    if (isLocalStrapiHost && isRemoteFrontendHost) {
-      url.hostname = currentHostname;
-      return url.toString();
+    if (isLocalStrapiHost && configuredStrapiUrl) {
+      const configuredUrl = new URL(configuredStrapiUrl);
+      const isRemoteStrapiHost =
+        configuredUrl.hostname !== 'localhost' && configuredUrl.hostname !== '127.0.0.1';
+
+      if (isRemoteStrapiHost) {
+        return new URL(`${url.pathname}${url.search}${url.hash}`, configuredUrl.origin).toString();
+      }
     }
 
     return src;
@@ -48,8 +51,8 @@ export default function FooterMain({ config, locale }: FooterMainProps) {
     socialLinks,
     rightsText,
   } = config;
-  const resolvedBackgroundImageSrc = resolveBrowserImageUrl(backgroundImage.src);
-  const resolvedLogoSrc = resolveBrowserImageUrl(logo.src);
+  const resolvedBackgroundImageSrc = resolveConfiguredImageUrl(backgroundImage.src);
+  const resolvedLogoSrc = resolveConfiguredImageUrl(logo.src);
   const useNativeBackgroundImage = !resolvedBackgroundImageSrc.startsWith('/');
   const useNativeLogoImage = !resolvedLogoSrc.startsWith('/');
 
