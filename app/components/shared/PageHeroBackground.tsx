@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { isLocalhostAssetUrl } from '@/app/lib/strapi';
 
@@ -17,14 +17,22 @@ export default function PageHeroBackground({
 }: PageHeroBackgroundProps) {
   const resolvedSrc = src || fallbackSrc;
   const hasLocalhostUrl = isLocalhostAssetUrl(resolvedSrc);
-  const [useFallback, setUseFallback] = useState(() => {
-    if (typeof window !== 'undefined' && hasLocalhostUrl) {
-      const hostname = window.location.hostname;
-      return hostname !== 'localhost' && hostname !== '127.0.0.1';
+  const [useFallback, setUseFallback] = useState(!src);
+
+  useEffect(() => {
+    if (!src) {
+      setUseFallback(true);
+      return;
     }
 
-    return !src;
-  });
+    if (!hasLocalhostUrl) {
+      setUseFallback(false);
+      return;
+    }
+
+    const hostname = window.location.hostname;
+    setUseFallback(hostname !== 'localhost' && hostname !== '127.0.0.1');
+  }, [hasLocalhostUrl, src]);
 
   const activeSrc = useFallback ? fallbackSrc : resolvedSrc;
   const useUnoptimized = isLocalhostAssetUrl(activeSrc);
