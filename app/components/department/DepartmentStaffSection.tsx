@@ -290,18 +290,10 @@ export default function DepartmentStaffSection({
 
         {staff.length > 0 ? (
           <div className="mt-12 md:mt-14">
-            <div className="flex items-end justify-between gap-6 border-b border-[#DDE8D7] pb-4" data-department-reveal>
-              <div>
-                <p className="text-[12px] font-semibold uppercase tracking-[0.16em] text-[#4B8B52]">
-                  Profiles
-                </p>
-                <h3 className="mt-1 text-[25px] font-semibold text-[#0F3F1D] md:text-[30px]">
-                  Research Staff
-                </h3>
-              </div>
-              <p className="hidden max-w-[420px] text-right text-[14px] leading-6 text-[#66756C] md:block">
-                Select a profile to view qualifications, experience, and current research focus.
-              </p>
+            <div className="border-b border-[#DDE8D7] pb-4" data-department-reveal>
+              <h3 className="text-[25px] font-semibold text-[#0F3F1D] md:text-[30px]">
+                Research Staff
+              </h3>
             </div>
 
             <div className="mt-8 flex flex-wrap justify-center gap-5 md:gap-6">
@@ -319,10 +311,7 @@ export default function DepartmentStaffSection({
         {technicalStaffGroups.length > 0 ? (
           <div className="mt-16 md:mt-20" data-department-reveal>
             <div className="border-b border-[#DDE8D7] pb-4">
-              <p className="text-[12px] font-semibold uppercase tracking-[0.16em] text-[#4B8B52]">
-                Department Directory
-              </p>
-              <h3 className="mt-1 text-[25px] font-semibold text-[#0F3F1D] md:text-[30px]">
+              <h3 className="text-[25px] font-semibold text-[#0F3F1D] md:text-[30px]">
                 Technical Staff
               </h3>
             </div>

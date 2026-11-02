@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import React, { startTransition, useEffect, useRef, useState } from 'react';
-import { ArrowLeft, ArrowRight, ChevronDown } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ChevronDown, Users } from 'lucide-react';
 import GradientTag from '../ui/GradientTag';
 import GradientTitle from '../ui/GradientTitle';
 import { isLocalhostAssetUrl } from '@/app/lib/strapi';
@@ -18,12 +18,7 @@ export interface DepartmentCurrentProjectItem {
   title: string;
   href?: string;
   description?: string;
-  objectives?: string;
-  site?: string;
-  startDate?: string;
-  endDate?: string;
-  principalInvestigator?: string;
-  coInvestigators?: string;
+  researchTeam?: string;
   imageSrc?: string;
   imageAlt?: string;
   gallery?: DepartmentCurrentProjectGalleryItem[];
@@ -69,24 +64,6 @@ function getTrackGap(viewportWidth: number) {
   }
 
   return MOBILE_GAP;
-}
-
-function formatProjectDate(value?: string) {
-  if (!value) {
-    return null;
-  }
-
-  const parsed = new Date(value);
-
-  if (Number.isNaN(parsed.getTime())) {
-    return value;
-  }
-
-  return parsed.toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  });
 }
 
 function ProjectCard({
@@ -201,14 +178,6 @@ function ProjectDetailListItem({
 }) {
   const panelId = `department-project-panel-${project.id}`;
   const triggerId = `department-project-trigger-${project.id}`;
-  const detailItems = [
-    { label: 'Objectives', value: project.objectives },
-    { label: 'Site', value: project.site },
-    { label: 'Date of commencing', value: formatProjectDate(project.startDate) },
-    { label: 'Expected date of end', value: formatProjectDate(project.endDate) },
-    { label: 'Principal Investigator (PI)', value: project.principalInvestigator },
-    { label: 'Co-Investigators (CoI)', value: project.coInvestigators },
-  ].filter((item): item is { label: string; value: string } => Boolean(item.value));
 
   const galleryImages = [
     ...(project.imageSrc
@@ -224,7 +193,7 @@ function ProjectDetailListItem({
   ];
 
   const hasPanelContent =
-    Boolean(project.description) || detailItems.length > 0 || galleryImages.length > 0;
+    Boolean(project.description) || Boolean(project.researchTeam) || galleryImages.length > 0;
 
   return (
     <article className="overflow-hidden rounded-[22px] border border-[#DCE9D5] bg-white shadow-[0_16px_40px_rgba(15,63,29,0.06)]">
@@ -266,26 +235,31 @@ function ProjectDetailListItem({
                   </p>
                 ) : null}
 
-                {detailItems.length > 0 ? (
-                  <dl className="grid gap-4 md:grid-cols-2">
-                    {detailItems.map((detail) => (
-                      <div
-                        key={`${project.id}-${detail.label}`}
-                        className="rounded-[16px] border border-[#E3EDDE] bg-[#F8FBF6] p-4 md:p-5"
-                      >
-                        <dt className="text-[12px] font-semibold uppercase tracking-[0.12em] text-[#2E7D32]">
-                          {detail.label}
-                        </dt>
-                        <dd className="mt-2 whitespace-pre-line text-[14px] leading-[1.75] text-[#2F4034] md:text-[15px]">
-                          {detail.value}
-                        </dd>
-                      </div>
-                    ))}
-                  </dl>
+                {project.researchTeam ? (
+                  <div
+                    className={`flex gap-4 rounded-[16px] border border-[#E3EDDE] bg-[#F8FBF6] p-4 md:p-5 ${
+                      galleryImages.length > 0 ? 'mb-5' : ''
+                    }`}
+                  >
+                    <span
+                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[12px] bg-[#EFF8E9] text-[#2E7D32]"
+                      aria-hidden="true"
+                    >
+                      <Users className="h-5 w-5" />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-[#2E7D32]">
+                        Research Team
+                      </p>
+                      <p className="mt-2 text-[14px] leading-[1.75] text-[#2F4034] md:text-[15px]">
+                        {project.researchTeam}
+                      </p>
+                    </div>
+                  </div>
                 ) : null}
 
                 {galleryImages.length > 0 ? (
-                  <div className={detailItems.length > 0 || project.description ? 'mt-6' : ''}>
+                  <div className={project.description || project.researchTeam ? 'mt-6' : ''}>
                     <ProjectGallery images={galleryImages} title={project.title} />
                   </div>
                 ) : null}

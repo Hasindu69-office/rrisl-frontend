@@ -90,6 +90,7 @@ html {
 
 .location-details-scroll::-webkit-scrollbar {
   width: 5px;
+  height: 5px;
 }
 
 .location-details-scroll::-webkit-scrollbar-track {

@@ -1,11 +1,8 @@
 import type { BreadcrumbItem } from '@/app/components/shared/Breadcrumb';
 import type { DepartmentResearchHighlightItem } from '@/app/components/department/DepartmentResearchHighlightsSection';
-import type { DepartmentAwardItem } from '@/app/components/department/DepartmentAwardsTimelineSection';
-import type { DepartmentAchievementCardItem } from '@/app/components/department/DepartmentAchievementSection';
 import type { DepartmentCurrentProjectItem } from '@/app/components/department/DepartmentCurrentProjectsSection';
 import type { DepartmentPublicationSectionItem } from '@/app/components/department/DepartmentPublicationsSection';
 import type {
-  DepartmentServiceCategoryItem,
   DepartmentServiceGroupItem,
   DepartmentServiceItem,
   DepartmentServiceMediaItem,
@@ -15,10 +12,7 @@ import type { DepartmentStaffMember } from '@/app/components/department/Departme
 import type { DepartmentTechnicalStaffGroupItem } from '@/app/components/department/DepartmentStaffSection';
 import type { DepartmentSectionPoint } from '@/app/components/department/DepartmentSection';
 import type {
-  DepartmentAchievementCard,
   DepartmentAchievementSection,
-  DepartmentAwardCard,
-  DepartmentAwardsSection,
   DepartmentCurrentResearchProjectCard,
   DepartmentCurrentResearchProjectSection,
   DepartmentIntroductionSection,
@@ -61,7 +55,6 @@ export interface DepartmentServicesViewModel {
   titlePart1: string;
   titlePart2: string;
   items: DepartmentServiceItem[];
-  categoryLinks: DepartmentServiceCategoryItem[];
   serviceGroups: DepartmentServiceGroupItem[];
 }
 
@@ -87,14 +80,14 @@ export interface DepartmentCurrentProjectsViewModel {
   projects: DepartmentCurrentProjectItem[];
 }
 
-export interface DepartmentAwardsTimelineViewModel {
+export interface DepartmentPublicationsViewModel {
   tagText: string;
   titlePart1: string;
   titlePart2: string;
-  items: DepartmentAwardItem[];
+  sections: DepartmentPublicationSectionItem[];
 }
 
-export interface DepartmentPublicationsViewModel {
+export interface DepartmentAchievementsViewModel {
   title: string;
   leftBackgroundImageSrc: string;
   leftBackgroundImageAlt: string;
@@ -103,21 +96,11 @@ export interface DepartmentPublicationsViewModel {
   sections: DepartmentPublicationSectionItem[];
 }
 
-export interface DepartmentAchievementsViewModel {
-  tagText: string;
-  titlePart1: string;
-  titlePart2: string;
-  outlineText: string;
-  illustrationSrc: string;
-  illustrationAlt: string;
-  items: DepartmentAchievementCardItem[];
-}
-
-const DEPARTMENT_PUBLICATIONS_FALLBACK = {
+const DEPARTMENT_ACHIEVEMENTS_FALLBACK = {
   leftBackgroundImageSrc: '/images/departments/bgdotsourpublications.png',
-  leftBackgroundImageAlt: 'Decorative dotted background for publications',
+  leftBackgroundImageAlt: 'Decorative dotted background for achievements',
   rightBackgroundImageSrc: '/images/departments/bgimgourpulications.jpg',
-  rightBackgroundImageAlt: 'Publications section background',
+  rightBackgroundImageAlt: 'Achievements section background',
 };
 
 const DEPARTMENT_HERO_FALLBACK: DepartmentHeroViewModel = {
@@ -298,30 +281,6 @@ function omitSortorder<T extends { sortorder: number }>(item: T): Omit<T, 'sorto
   return rest;
 }
 
-function mapServiceCategoryLinks(
-  localized: DepartmentServiceSection['categorylinks'],
-  fallback: DepartmentServiceSection['categorylinks']
-): DepartmentServiceCategoryItem[] {
-  const links = localized?.length ? localized : fallback || [];
-
-  return links
-    .map((link, index) => {
-      const title = link?.title?.trim();
-      const url = link?.url?.trim();
-      if (!title || !url) return null;
-
-      return {
-        key: link.servicekey?.trim() || slugify(title) || `service-category-${index}`,
-        title,
-        url,
-        sortorder: link.sortorder ?? Number.MAX_SAFE_INTEGER,
-      };
-    })
-    .filter((link): link is DepartmentServiceCategoryItem & { sortorder: number } => Boolean(link))
-    .sort((left, right) => left.sortorder - right.sortorder)
-    .map(omitSortorder);
-}
-
 function mapStructuredServiceItems(
   localized: NonNullable<DepartmentServiceSection['servicegroups']>[number]['items'],
   fallback: NonNullable<DepartmentServiceSection['servicegroups']>[number]['items']
@@ -350,7 +309,6 @@ function mapStructuredServiceItems(
         key: item.servicekey?.trim() || slugify(title) || `service-item-${index}`,
         title,
         description: item.description?.trim() || fallbackItem?.description?.trim() || undefined,
-        url: item.url?.trim() || fallbackItem?.url?.trim() || undefined,
         images: mapServiceImages(item.images, fallbackItem?.images, title),
         details,
         sortorder: item.sortorder ?? Number.MAX_SAFE_INTEGER,
@@ -597,12 +555,7 @@ function mapCurrentProjectCards(
         id: project.id ? String(project.id) : slugify(title),
         title,
         description: project.description?.trim() || undefined,
-        objectives: project.objectives?.trim() || undefined,
-        site: project.site?.trim() || undefined,
-        startDate: project.startdate?.trim() || undefined,
-        endDate: project.enddate?.trim() || undefined,
-        principalInvestigator: project.principalinvestigator?.trim() || undefined,
-        coInvestigators: project.coinvestigators?.trim() || undefined,
+        researchTeam: project.researchteam?.trim() || undefined,
         imageSrc,
         imageAlt: project.image?.alternativeText || title,
         gallery: mapProjectGalleryImages(project.galleryimages, title),
@@ -612,62 +565,84 @@ function mapCurrentProjectCards(
     .filter((project): project is DepartmentCurrentProjectItem => Boolean(project));
 }
 
-function mapAwardCards(
-  localizedCards: DepartmentAwardCard[] | null | undefined,
-  fallbackCards: DepartmentAwardCard[] | null | undefined
-): DepartmentAwardItem[] {
-  const cards = localizedCards?.length ? localizedCards : fallbackCards || [];
+/**
+ * Publication year for descending sort:
+ * prefer "Published in YYYY", else first (YYYY), else highest standalone year.
+ */
+export function extractPublicationYear(text: string): number | null {
+  if (!text) {
+    return null;
+  }
 
-  return [...cards]
-    .map((card): DepartmentAwardItem | null => {
-      const title = card.title?.trim();
-      const details = card.details?.trim();
-      const year = typeof card.year === 'number' ? card.year : Number(card.year);
+  const publishedInMatch = text.match(/Published\s+in\s+(19|20)\d{2}/i);
+  if (publishedInMatch) {
+    const year = Number(publishedInMatch[0].match(/(19|20)\d{2}/)?.[0]);
+    if (Number.isFinite(year)) {
+      return year;
+    }
+  }
 
-      if (!title || !details || !Number.isFinite(year)) {
-        return null;
+  const parentheticalMatch = text.match(/\((19|20)\d{2}\)/);
+  if (parentheticalMatch) {
+    const year = Number(parentheticalMatch[0].replace(/[()]/g, ''));
+    if (Number.isFinite(year)) {
+      return year;
+    }
+  }
+
+  const standaloneYears = [...text.matchAll(/\b((?:19|20)\d{2})\b/g)].map((match) =>
+    Number(match[1])
+  );
+  if (standaloneYears.length === 0) {
+    return null;
+  }
+
+  return Math.max(...standaloneYears);
+}
+
+function sortEntriesByYearDescending(entries: string[]): string[] {
+  return [...entries]
+    .map((entry, index) => ({ entry, index, year: extractPublicationYear(entry) }))
+    .sort((left, right) => {
+      if (left.year == null && right.year == null) {
+        return left.index - right.index;
       }
 
-      const imageSrc =
-        getOptimizedImageUrl(card.image, 'medium') ||
-        getOptimizedImageUrl(card.image, 'small') ||
-        getStrapiImageUrl(card.image) ||
-        undefined;
+      if (left.year == null) {
+        return 1;
+      }
 
-      return {
-        id: card.id ? String(card.id) : slugify(`${year}-${title}`),
-        title,
-        officers: card.officers?.trim() || undefined,
-        details,
-        year,
-        imageSrc,
-        imageAlt: card.image?.alternativeText || title,
-        sortorder: card.sortorder ?? 0,
-      };
-    })
-    .filter((card): card is DepartmentAwardItem => Boolean(card))
-    .sort((left, right) => {
+      if (right.year == null) {
+        return -1;
+      }
+
       if (right.year !== left.year) {
         return right.year - left.year;
       }
 
-      return (left.sortorder ?? 0) - (right.sortorder ?? 0);
-    });
+      return left.index - right.index;
+    })
+    .map((item) => item.entry);
 }
 
 function mapPublicationCards(
   localizedCards: DepartmentPublicationCard[] | null | undefined,
-  fallbackCards: DepartmentPublicationCard[] | null | undefined
+  fallbackCards: DepartmentPublicationCard[] | null | undefined,
+  options?: { sortEntriesByYearDesc?: boolean }
 ): DepartmentPublicationSectionItem[] {
   const cards = localizedCards?.length ? localizedCards : fallbackCards || [];
+  const sortEntriesByYearDesc = options?.sortEntriesByYearDesc === true;
 
   return sortBySortOrder(cards)
     .map((card): DepartmentPublicationSectionItem | null => {
       const label = card.title?.trim();
-      const entries =
+      const rawEntries =
         card.points
           ?.map((item) => item?.paragraph?.trim())
           .filter((entry): entry is string => Boolean(entry)) || [];
+      const entries = sortEntriesByYearDesc
+        ? sortEntriesByYearDescending(rawEntries)
+        : rawEntries;
 
       if (!label || entries.length === 0) {
         return null;
@@ -680,29 +655,6 @@ function mapPublicationCards(
       };
     })
     .filter((section): section is DepartmentPublicationSectionItem => Boolean(section));
-}
-
-function mapAchievementCards(
-  localizedCards: DepartmentAchievementCard[] | null | undefined,
-  fallbackCards: DepartmentAchievementCard[] | null | undefined
-): DepartmentAchievementCardItem[] {
-  const cards = localizedCards?.length ? localizedCards : fallbackCards || [];
-
-  return sortBySortOrder(cards)
-    .map((card): DepartmentAchievementCardItem | null => {
-      const text = card.achievement?.trim();
-
-      if (!text) {
-        return null;
-      }
-
-      return {
-        id: card.id ? String(card.id) : slugify(text),
-        category: card.category?.trim() || undefined,
-        text,
-      };
-    })
-    .filter((item): item is DepartmentAchievementCardItem => Boolean(item));
 }
 
 export function mapDepartmentHero(
@@ -791,16 +743,12 @@ export function mapDepartmentServices(
   const highlightedText = header?.hightlightedtext || '';
   const titleParts = splitTitle(title, highlightedText);
   const items = mapServiceCards(section.servicecards, fallbackPage?.servicesection?.servicecards);
-  const categoryLinks = mapServiceCategoryLinks(
-    section.categorylinks,
-    fallbackPage?.servicesection?.categorylinks
-  );
   const serviceGroups = mapServiceGroups(
     section.servicegroups,
     fallbackPage?.servicesection?.servicegroups
   );
 
-  if (items.length === 0 && categoryLinks.length === 0 && serviceGroups.length === 0) {
+  if (items.length === 0 && serviceGroups.length === 0) {
     return null;
   }
 
@@ -808,7 +756,6 @@ export function mapDepartmentServices(
     tagText: header?.eyebrow?.trim() || 'Main objective',
     ...titleParts,
     items,
-    categoryLinks,
     serviceGroups,
   };
 }
@@ -935,40 +882,6 @@ export function mapDepartmentCurrentProjects(
   };
 }
 
-export function mapDepartmentAwardsTimeline(
-  localizedPage: DepartmentSingleTypePage | null | undefined,
-  fallbackPage?: DepartmentSingleTypePage | null
-): DepartmentAwardsTimelineViewModel | null {
-  const isPresent = localizedPage?.awardtimelinepresent ?? fallbackPage?.awardtimelinepresent;
-
-  if (isPresent !== true) {
-    return null;
-  }
-
-  const section: DepartmentAwardsSection | null | undefined =
-    localizedPage?.awardssection || fallbackPage?.awardssection;
-
-  if (!section) {
-    return null;
-  }
-
-  const header = section.sectionheader || fallbackPage?.awardssection?.sectionheader;
-  const title = header?.title || '';
-  const highlightedText = header?.hightlightedtext || '';
-  const titleParts = splitTitle(title, highlightedText);
-  const items = mapAwardCards(section.cards, fallbackPage?.awardssection?.cards);
-
-  if (items.length === 0) {
-    return null;
-  }
-
-  return {
-    tagText: header?.eyebrow?.trim() || 'Awards',
-    ...titleParts,
-    items,
-  };
-}
-
 export function mapDepartmentPublications(
   localizedPage: DepartmentSingleTypePage | null | undefined,
   fallbackPage?: DepartmentSingleTypePage | null
@@ -988,32 +901,23 @@ export function mapDepartmentPublications(
 
   const sections = mapPublicationCards(
     section.publications,
-    fallbackPage?.publicationssection?.publications
+    fallbackPage?.publicationssection?.publications,
+    { sortEntriesByYearDesc: true }
   );
 
   if (sections.length === 0) {
     return null;
   }
 
-  const rightImage = section.rightimage || fallbackPage?.publicationssection?.rightimage || null;
-  const rightBackgroundImageSrc =
-    getOptimizedImageUrl(rightImage, 'large') ||
-    getOptimizedImageUrl(rightImage, 'medium') ||
-    getStrapiImageUrl(rightImage) ||
-    DEPARTMENT_PUBLICATIONS_FALLBACK.rightBackgroundImageSrc;
+  const sectionTitle =
+    section.sectiontitle?.trim() ||
+    fallbackPage?.publicationssection?.sectiontitle?.trim() ||
+    'Publications';
 
   return {
-    title:
-      section.sectiontitle?.trim() ||
-      fallbackPage?.publicationssection?.sectiontitle?.trim() ||
-      'Publications',
-    leftBackgroundImageSrc: DEPARTMENT_PUBLICATIONS_FALLBACK.leftBackgroundImageSrc,
-    leftBackgroundImageAlt: DEPARTMENT_PUBLICATIONS_FALLBACK.leftBackgroundImageAlt,
-    rightBackgroundImageSrc,
-    rightBackgroundImageAlt:
-      section.rightimage?.alternativeText ||
-      fallbackPage?.publicationssection?.rightimage?.alternativeText ||
-      DEPARTMENT_PUBLICATIONS_FALLBACK.rightBackgroundImageAlt,
+    tagText: 'Publications',
+    titlePart1: sectionTitle.toLowerCase() === 'publications' ? 'Our' : sectionTitle,
+    titlePart2: sectionTitle.toLowerCase() === 'publications' ? 'Publications' : '',
     sections,
   };
 }
@@ -1035,37 +939,34 @@ export function mapDepartmentAchievements(
     return null;
   }
 
-  const header = section.sectionheader || fallbackPage?.achievementssection?.sectionheader;
-  const title = header?.title || '';
-  const highlightedText = header?.hightlightedtext || '';
-  const titleParts = splitTitle(title, highlightedText);
-  const items = mapAchievementCards(
-    section.achievements,
-    fallbackPage?.achievementssection?.achievements
+  const sections = mapPublicationCards(
+    section.categories,
+    fallbackPage?.achievementssection?.categories
   );
 
-  if (items.length === 0) {
+  if (sections.length === 0) {
     return null;
   }
 
-  const sectionIcon =
-    section.sectionicon || fallbackPage?.achievementssection?.sectionicon || null;
-  const illustrationSrc =
-    getOptimizedImageUrl(sectionIcon, 'large') ||
-    getOptimizedImageUrl(sectionIcon, 'medium') ||
-    getStrapiImageUrl(sectionIcon) ||
-    '/images/departments/Handwireframesection.png';
+  const rightImage = section.rightimage || fallbackPage?.achievementssection?.rightimage || null;
+  const rightBackgroundImageSrc =
+    getOptimizedImageUrl(rightImage, 'large') ||
+    getOptimizedImageUrl(rightImage, 'medium') ||
+    getStrapiImageUrl(rightImage) ||
+    DEPARTMENT_ACHIEVEMENTS_FALLBACK.rightBackgroundImageSrc;
 
   return {
-    tagText: header?.eyebrow?.trim() || 'Achievements',
-    ...titleParts,
-    outlineText:
-      section.outlinetext?.trim() ||
-      fallbackPage?.achievementssection?.outlinetext?.trim() ||
-      'Achievements',
-    illustrationSrc,
-    illustrationAlt:
-      sectionIcon?.alternativeText || 'Illustrated icon for department achievements',
-    items,
+    title:
+      section.sectiontitle?.trim() ||
+      fallbackPage?.achievementssection?.sectiontitle?.trim() ||
+      'Our Achievements',
+    leftBackgroundImageSrc: DEPARTMENT_ACHIEVEMENTS_FALLBACK.leftBackgroundImageSrc,
+    leftBackgroundImageAlt: DEPARTMENT_ACHIEVEMENTS_FALLBACK.leftBackgroundImageAlt,
+    rightBackgroundImageSrc,
+    rightBackgroundImageAlt:
+      section.rightimage?.alternativeText ||
+      fallbackPage?.achievementssection?.rightimage?.alternativeText ||
+      DEPARTMENT_ACHIEVEMENTS_FALLBACK.rightBackgroundImageAlt,
+    sections,
   };
 }
