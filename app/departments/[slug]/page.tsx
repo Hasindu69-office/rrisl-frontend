@@ -6,15 +6,13 @@ import DepartmentServicesSection from '../../components/department/DepartmentSer
 import DepartmentStaffSection from '../../components/department/DepartmentStaffSection';
 import DepartmentResearchHighlightsSection from '../../components/department/DepartmentResearchHighlightsSection';
 import DepartmentCurrentProjectsSection from '../../components/department/DepartmentCurrentProjectsSection';
-import DepartmentAwardsTimelineSection from '../../components/department/DepartmentAwardsTimelineSection';
 import DepartmentPublicationsSection from '../../components/department/DepartmentPublicationsSection';
-import DepartmentAchievementSection from '../../components/department/DepartmentAchievementSection';
+import DepartmentTopicAccordionPanel from '../../components/department/DepartmentTopicAccordionPanel';
 import DepartmentRecommendationsSection from '../../components/department/DepartmentRecommendationsSection';
 import { normalizeLocale } from '../../lib/locale';
 import { getDepartmentPage } from '../../lib/strapi';
 import {
   mapDepartmentAchievements,
-  mapDepartmentAwardsTimeline,
   mapDepartmentCurrentProjects,
   mapDepartmentHero,
   mapDepartmentIntroduction,
@@ -61,10 +59,9 @@ export default async function DepartmentPage({
     fallbackDepartmentPage,
     slug
   );
-  const awardsTimeline = mapDepartmentAwardsTimeline(departmentPage, fallbackDepartmentPage);
   const publications = mapDepartmentPublications(departmentPage, fallbackDepartmentPage);
   const achievements = mapDepartmentAchievements(departmentPage, fallbackDepartmentPage);
-  const recommendations = await mapDepartmentRecommendations(departmentPage, fallbackDepartmentPage);
+  const recommendations = mapDepartmentRecommendations(departmentPage, fallbackDepartmentPage);
 
   return (
     <div className="min-h-screen bg-white pb-56 md:pb-64 lg:pb-72">
@@ -88,21 +85,6 @@ export default async function DepartmentPage({
             points={introduction.points}
             videoUrl={introduction.videoUrl}
             videoTitle={introduction.videoTitle}
-            containerClassName="w-[85%]"
-          />
-        </DepartmentAnimatedSection>
-      ) : null}
-
-      {services ? (
-        <DepartmentAnimatedSection>
-          <DepartmentServicesSection
-            tagText={services.tagText}
-            titlePart1={services.titlePart1}
-            titlePart2={services.titlePart2}
-            items={services.items}
-            categoryLinks={services.categoryLinks}
-            serviceGroups={services.serviceGroups}
-            locale={locale}
             containerClassName="w-[85%]"
           />
         </DepartmentAnimatedSection>
@@ -146,13 +128,35 @@ export default async function DepartmentPage({
         </DepartmentAnimatedSection>
       ) : null}
 
-      {awardsTimeline ? (
+      {recommendations ? (
+        <DepartmentAnimatedSection>
+          <DepartmentRecommendationsSection content={recommendations} />
+        </DepartmentAnimatedSection>
+      ) : null}
+
+      {services ? (
+        <DepartmentAnimatedSection>
+          <DepartmentServicesSection
+            tagText={services.tagText}
+            titlePart1={services.titlePart1}
+            titlePart2={services.titlePart2}
+            items={services.items}
+            serviceGroups={services.serviceGroups}
+            locale={locale}
+            containerClassName="w-[85%]"
+          />
+        </DepartmentAnimatedSection>
+      ) : null}
+
+      {achievements ? (
         <DepartmentAnimatedSection y={30} duration={0.9}>
-          <DepartmentAwardsTimelineSection
-            tagText={awardsTimeline.tagText}
-            titlePart1={awardsTimeline.titlePart1}
-            titlePart2={awardsTimeline.titlePart2}
-            items={awardsTimeline.items}
+          <DepartmentTopicAccordionPanel
+            title={achievements.title}
+            leftBackgroundImageSrc={achievements.leftBackgroundImageSrc}
+            leftBackgroundImageAlt={achievements.leftBackgroundImageAlt}
+            rightBackgroundImageSrc={achievements.rightBackgroundImageSrc}
+            rightBackgroundImageAlt={achievements.rightBackgroundImageAlt}
+            sections={achievements.sections}
           />
         </DepartmentAnimatedSection>
       ) : null}
@@ -160,33 +164,12 @@ export default async function DepartmentPage({
       {publications ? (
         <DepartmentAnimatedSection y={30} duration={0.9}>
           <DepartmentPublicationsSection
-            title={publications.title}
-            leftBackgroundImageSrc={publications.leftBackgroundImageSrc}
-            leftBackgroundImageAlt={publications.leftBackgroundImageAlt}
-            rightBackgroundImageSrc={publications.rightBackgroundImageSrc}
-            rightBackgroundImageAlt={publications.rightBackgroundImageAlt}
+            tagText={publications.tagText}
+            titlePart1={publications.titlePart1}
+            titlePart2={publications.titlePart2}
             sections={publications.sections}
+            containerClassName="w-[85%]"
           />
-        </DepartmentAnimatedSection>
-      ) : null}
-
-      {achievements ? (
-        <DepartmentAnimatedSection>
-          <DepartmentAchievementSection
-            tagText={achievements.tagText}
-            titlePart1={achievements.titlePart1}
-            titlePart2={achievements.titlePart2}
-            outlineText={achievements.outlineText}
-            illustrationSrc={achievements.illustrationSrc}
-            illustrationAlt={achievements.illustrationAlt}
-            items={achievements.items}
-          />
-        </DepartmentAnimatedSection>
-      ) : null}
-
-      {recommendations ? (
-        <DepartmentAnimatedSection>
-          <DepartmentRecommendationsSection content={recommendations} />
         </DepartmentAnimatedSection>
       ) : null}
     </div>

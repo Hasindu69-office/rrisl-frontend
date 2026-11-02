@@ -34,14 +34,6 @@ export interface DepartmentServiceCard {
   sortorder?: number | null;
 }
 
-export interface DepartmentServiceCategoryLink {
-  id: number;
-  servicekey?: string | null;
-  title?: string | null;
-  url?: string | null;
-  sortorder?: number | null;
-}
-
 export interface DepartmentServiceDetail {
   id: number;
   label?: string | null;
@@ -54,7 +46,6 @@ export interface DepartmentStructuredServiceItem {
   servicekey?: string | null;
   title?: string | null;
   description?: string | null;
-  url?: string | null;
   images?: StrapiImage[] | null;
   details?: DepartmentServiceDetail[] | null;
   sortorder?: number | null;
@@ -74,7 +65,6 @@ export interface DepartmentServiceSection {
   id: number;
   sectionheader?: SectionHeader | null;
   servicecards?: DepartmentServiceCard[] | null;
-  categorylinks?: DepartmentServiceCategoryLink[] | null;
   servicegroups?: DepartmentServiceGroup[] | null;
 }
 
@@ -136,12 +126,7 @@ export interface DepartmentCurrentResearchProjectCard {
   id: number;
   title?: string | null;
   description?: string | null;
-  objectives?: string | null;
-  site?: string | null;
-  startdate?: string | null;
-  enddate?: string | null;
-  principalinvestigator?: string | null;
-  coinvestigators?: string | null;
+  researchteam?: string | null;
   image?: StrapiImage | null;
   galleryimages?: StrapiImage[] | null;
   sortorder?: number | null;
@@ -152,22 +137,6 @@ export interface DepartmentCurrentResearchProjectSection {
   id: number;
   sectionheader?: SectionHeader | null;
   researchprojects?: DepartmentCurrentResearchProjectCard[] | null;
-}
-
-export interface DepartmentAwardCard {
-  id: number;
-  title?: string | null;
-  officers?: string | null;
-  details?: string | null;
-  year?: number | null;
-  image?: StrapiImage | null;
-  sortorder?: number | null;
-}
-
-export interface DepartmentAwardsSection {
-  id: number;
-  sectionheader?: SectionHeader | null;
-  cards?: DepartmentAwardCard[] | null;
 }
 
 export interface DepartmentPublicationCard {
@@ -184,33 +153,11 @@ export interface DepartmentPublicationsSection {
   publications?: DepartmentPublicationCard[] | null;
 }
 
-export interface DepartmentAchievementCard {
-  id: number;
-  category?: string | null;
-  achievement?: string | null;
-  sortorder?: number | null;
-}
-
 export interface DepartmentAchievementSection {
   id: number;
-  sectionheader?: SectionHeader | null;
-  outlinetext?: string | null;
-  sectionicon?: StrapiImage | null;
-  achievements?: DepartmentAchievementCard[] | null;
-}
-
-export interface DepartmentRecommendationImageCard {
-  id: number;
-  title?: string | null;
-  subtitle?: string | null;
-  image?: StrapiImage | null;
-}
-
-export interface DepartmentRecommendationTableCard {
-  id: number;
-  title?: string | null;
-  description?: string | null;
-  csvfile?: StrapiImage | null;
+  sectiontitle?: string | null;
+  rightimage?: StrapiImage | null;
+  categories?: DepartmentPublicationCard[] | null;
 }
 
 export interface DepartmentRecommendationItem {
@@ -230,14 +177,7 @@ export interface DepartmentRecommendationGroup {
 export interface DepartmentRecommendationSection {
   id: number;
   sectionheader?: SectionHeader | null;
-  includegroups?: boolean | null;
   recommendationgroups?: DepartmentRecommendationGroup[] | null;
-  applyimagecard?: boolean | null;
-  imagecard?: DepartmentRecommendationImageCard[] | null;
-  includepoints?: boolean | null;
-  points?: DepartmentPublicationCard[] | null;
-  includetable?: boolean | null;
-  tablecards?: DepartmentRecommendationTableCard[] | null;
 }
 
 export interface DepartmentSingleTypePage {
@@ -250,7 +190,6 @@ export interface DepartmentSingleTypePage {
   researchstaffpresent?: boolean | null;
   researchhighlightspresent?: boolean | null;
   currentprojectpresent?: boolean | null;
-  awardtimelinepresent?: boolean | null;
   publicationspresent?: boolean | null;
   achievementspresent?: boolean | null;
   recommendationsectionpresent?: boolean | null;
@@ -260,7 +199,6 @@ export interface DepartmentSingleTypePage {
   researchstaffsection?: DepartmentResearchStaffSection | null;
   researchhighlightssection?: DepartmentResearchHighlightsSection | null;
   currentresearchprojectsection?: DepartmentCurrentResearchProjectSection | null;
-  awardssection?: DepartmentAwardsSection | null;
   publicationssection?: DepartmentPublicationsSection | null;
   achievementssection?: DepartmentAchievementSection | null;
   recommendationsection?: DepartmentRecommendationSection | null;

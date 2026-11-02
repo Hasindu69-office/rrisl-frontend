@@ -35,7 +35,6 @@ function buildDepartmentQuery(locale: string, availableFields?: DepartmentFieldS
   setPopulate('servicesection', 'populate[servicesection][populate][sectionheader]');
   setPopulate('servicesection', 'populate[servicesection][populate][servicecards][populate][icon]');
   setPopulate('servicesection', 'populate[servicesection][populate][servicecards][populate][image]');
-  setPopulate('servicesection', 'populate[servicesection][populate][categorylinks]');
   setPopulate('servicesection', 'populate[servicesection][populate][servicegroups][populate][images]');
   setPopulate(
     'servicesection',
@@ -66,21 +65,15 @@ function buildDepartmentQuery(locale: string, availableFields?: DepartmentFieldS
     'currentresearchprojectsection',
     'populate[currentresearchprojectsection][populate][researchprojects][populate][galleryimages]'
   );
-  setPopulate('awardssection', 'populate[awardssection][populate][sectionheader]');
-  setPopulate('awardssection', 'populate[awardssection][populate][cards][populate][image]');
   setPopulate('publicationssection', 'populate[publicationssection][populate][rightimage]');
   setPopulate('publicationssection', 'populate[publicationssection][populate][publications][populate][points]');
-  setPopulate('achievementssection', 'populate[achievementssection][populate][sectionheader]');
-  setPopulate('achievementssection', 'populate[achievementssection][populate][sectionicon]');
-  setPopulate('achievementssection', 'populate[achievementssection][populate][achievements]');
+  setPopulate('achievementssection', 'populate[achievementssection][populate][rightimage]');
+  setPopulate('achievementssection', 'populate[achievementssection][populate][categories][populate][points]');
   setPopulate('recommendationsection', 'populate[recommendationsection][populate][sectionheader]');
   setPopulate(
     'recommendationsection',
     'populate[recommendationsection][populate][recommendationgroups][populate][items]'
   );
-  setPopulate('recommendationsection', 'populate[recommendationsection][populate][imagecard][populate][image]');
-  setPopulate('recommendationsection', 'populate[recommendationsection][populate][points][populate][points]');
-  setPopulate('recommendationsection', 'populate[recommendationsection][populate][tablecards][populate][csvfile]');
 
   return params.toString();
 }

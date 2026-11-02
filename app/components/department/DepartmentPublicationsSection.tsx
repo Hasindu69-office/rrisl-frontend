@@ -1,9 +1,9 @@
 'use client';
 
-import Image from 'next/image';
-import React, { useEffect, useRef, useState } from 'react';
-import { Minus, Plus } from 'lucide-react';
-import { isLocalhostAssetUrl } from '@/app/lib/strapi';
+import React, { useState } from 'react';
+import { ChevronDown } from 'lucide-react';
+import GradientTag from '../ui/GradientTag';
+import GradientTitle from '../ui/GradientTitle';
 
 export interface DepartmentPublicationSectionItem {
   id: string;
@@ -12,226 +12,142 @@ export interface DepartmentPublicationSectionItem {
 }
 
 interface DepartmentPublicationsSectionProps {
+  tagText?: string;
+  titlePart1?: string | React.ReactNode;
+  titlePart2?: string | React.ReactNode;
+  /** @deprecated Prefer tagText + title parts; kept for transitional callers */
   title?: string;
-  leftBackgroundImageSrc: string;
-  leftBackgroundImageAlt: string;
-  rightBackgroundImageSrc: string;
-  rightBackgroundImageAlt: string;
   sections: DepartmentPublicationSectionItem[];
+  containerClassName?: string;
+  sectionId?: string;
+}
+
+function PublicationCategoryItem({
+  section,
+  isOpen,
+  onToggle,
+}: {
+  section: DepartmentPublicationSectionItem;
+  isOpen: boolean;
+  onToggle: () => void;
+}) {
+  const panelId = `department-publication-panel-${section.id}`;
+  const triggerId = `department-publication-trigger-${section.id}`;
+
+  return (
+    <article className="overflow-hidden rounded-[22px] border border-[#DCE9D5] bg-white shadow-[0_16px_40px_rgba(15,63,29,0.06)]">
+      <button
+        id={triggerId}
+        type="button"
+        aria-expanded={isOpen}
+        aria-controls={panelId}
+        onClick={onToggle}
+        className="flex w-full cursor-pointer items-center justify-between gap-5 px-5 py-5 text-left outline-none transition hover:bg-[#FAFCF8] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#2E7D32] md:px-7 md:py-6"
+      >
+        <h4 className="min-w-0 break-words text-[17px] font-semibold leading-[1.45] text-[#153C21] md:text-[20px]">
+          {section.label}
+        </h4>
+        <span
+          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#EFF8E9] text-[#2E7D32] transition-transform duration-300 ${
+            isOpen ? 'rotate-180' : ''
+          }`}
+        >
+          <ChevronDown className="h-5 w-5" aria-hidden="true" />
+        </span>
+      </button>
+
+      <div
+        id={panelId}
+        role="region"
+        aria-labelledby={triggerId}
+        className={`grid transition-[grid-template-rows,opacity] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+          isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
+        }`}
+      >
+        <div className="min-h-0 overflow-hidden">
+          <div className="border-t border-[#E7EFE2] px-5 py-6 md:px-7 md:py-7">
+            {section.entries.length > 0 ? (
+              <ul className="location-details-scroll max-h-[min(60vh,420px)] space-y-4 overflow-y-auto overscroll-contain pr-2">
+                {section.entries.map((entry) => (
+                  <li
+                    key={entry}
+                    className="flex gap-3 text-[14px] leading-[1.8] text-[#35473A] md:text-[15px] md:leading-[1.85]"
+                  >
+                    <span
+                      className="mt-2 h-2 w-2 shrink-0 rounded-full bg-[#2E7D32]"
+                      aria-hidden="true"
+                    />
+                    <span className="min-w-0 break-words">{entry}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-[15px] leading-[1.8] text-[#5A6B5F]">
+                Publication details will be added soon.
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+    </article>
+  );
 }
 
 /**
- * Reusable department publications section shell.
- * This initial version matches the two-panel background treatment from the design
- * and leaves the left content area ready for the publication list UI in the next step.
+ * Publications list: category topics expand like current research projects.
  */
 export default function DepartmentPublicationsSection({
+  tagText = 'Publications',
+  titlePart1,
+  titlePart2,
   title = 'Publications',
-  leftBackgroundImageSrc,
-  leftBackgroundImageAlt,
-  rightBackgroundImageSrc,
-  rightBackgroundImageAlt,
   sections,
+  containerClassName = '',
+  sectionId,
 }: DepartmentPublicationsSectionProps) {
-  const [activeSectionId, setActiveSectionId] = useState<string | null>(null);
-  const [windowWidth, setWindowWidth] = useState(1440);
-  const accordionViewportRef = useRef<HTMLDivElement | null>(null);
-  const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
-  const useUnoptimizedLeftImage = isLocalhostAssetUrl(leftBackgroundImageSrc);
-  const useUnoptimizedRightImage = isLocalhostAssetUrl(rightBackgroundImageSrc);
+  const [openSectionId, setOpenSectionId] = useState<string | null>(null);
 
-  const handleToggle = (sectionId: string) => {
-    setActiveSectionId((currentId) => (currentId === sectionId ? null : sectionId));
-  };
+  if (sections.length === 0) {
+    return null;
+  }
 
-  useEffect(() => {
-    if (typeof window === 'undefined') {
-      return;
-    }
-
-    const syncWindowWidth = () => {
-      setWindowWidth(window.innerWidth);
-    };
-
-    syncWindowWidth();
-    window.addEventListener('resize', syncWindowWidth);
-
-    return () => {
-      window.removeEventListener('resize', syncWindowWidth);
-    };
-  }, []);
-
-  const isDesktop = windowWidth >= 1024;
-
-  useEffect(() => {
-    if (!activeSectionId) {
-      return;
-    }
-
-    const viewportNode = accordionViewportRef.current;
-    const activeSectionNode = sectionRefs.current[activeSectionId];
-
-    if (!viewportNode || !activeSectionNode) {
-      return;
-    }
-
-    const animationFrameId = window.requestAnimationFrame(() => {
-      const viewportRect = viewportNode.getBoundingClientRect();
-      const sectionRect = activeSectionNode.getBoundingClientRect();
-      const currentScrollTop = viewportNode.scrollTop;
-      const topOffset = sectionRect.top - viewportRect.top;
-      const bottomOffset = sectionRect.bottom - viewportRect.bottom;
-
-      if (topOffset < 0) {
-        viewportNode.scrollTo({
-          top: Math.max(currentScrollTop + topOffset - 12, 0),
-          behavior: 'smooth',
-        });
-        return;
-      }
-
-      if (bottomOffset > 0) {
-        viewportNode.scrollTo({
-          top: currentScrollTop + bottomOffset + 12,
-          behavior: 'smooth',
-        });
-      }
-    });
-
-    return () => {
-      window.cancelAnimationFrame(animationFrameId);
-    };
-  }, [activeSectionId]);
+  const resolvedTitlePart1 = titlePart1 ?? 'Our';
+  const resolvedTitlePart2 = titlePart2 ?? title;
 
   return (
-    <section>
-      <div className="grid overflow-hidden lg:grid-cols-2">
-        <div className="order-2 relative min-h-[320px] overflow-hidden md:min-h-[420px] lg:order-1 lg:min-h-[520px]">
-          <div
-            className="absolute inset-0"
-            style={{
-              background: 'linear-gradient(90deg, #577905 0%, #A1DF0A 100%)',
-            }}
+    <section id={sectionId} className="scroll-mt-28 bg-white py-16 md:py-20 lg:py-24">
+      <div className={`mx-auto max-w-[1440px] px-4 md:px-6 lg:px-8 ${containerClassName}`}>
+        <div className="text-center" data-department-reveal>
+          <GradientTag
+            text={tagText}
+            backgroundColor="transparent"
+            className="inline-block"
+            padding="px-4 py-1"
           />
 
-          <Image
-            src={leftBackgroundImageSrc}
-            alt={leftBackgroundImageAlt}
-            fill
-            className="object-cover opacity-25 mix-blend-screen"
-            sizes="(max-width: 1023px) 100vw, 50vw"
-            priority={false}
-            unoptimized={useUnoptimizedLeftImage}
+          <GradientTitle
+            part1={resolvedTitlePart1}
+            part2={resolvedTitlePart2}
+            lineBreak={false}
+            part1Color="dark-green"
+            size="custom"
+            customSize="clamp(28px, 4vw, 50px)"
+            align="center"
+            className="mt-5 font-bold leading-[1.15]"
           />
-
-          <div className="relative z-[1] flex h-full w-full items-center justify-center px-4 py-8 md:px-6 md:py-10 lg:p-10">
-            <div className="w-full max-w-[640px] lg:max-w-[500px]" data-department-reveal>
-              <div
-                ref={accordionViewportRef}
-                className={`overflow-y-auto pr-2 [scrollbar-color:#A1DF0A_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar]:w-[5px] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#A1DF0A] [&::-webkit-scrollbar-track]:bg-transparent ${
-                  isDesktop ? 'max-h-[380px]' : 'max-h-[360px] md:max-h-[420px]'
-                }`}
-              >
-                <div className="space-y-4 md:space-y-5 lg:space-y-6">
-                {sections.map((section) => {
-                  const isActive = section.id === activeSectionId;
-                  const buttonId = `publication-trigger-${section.id}`;
-                  const panelId = `publication-panel-${section.id}`;
-
-                  return (
-                    <article
-                      key={section.id}
-                      data-department-reveal
-                      ref={(node) => {
-                        sectionRefs.current[section.id] = node;
-                      }}
-                      className={`overflow-hidden rounded-[30px] border transition-[background-color,border-color,box-shadow] duration-300 ${
-                        isActive
-                          ? 'border-transparent bg-white text-black shadow-[0_14px_40px_rgba(49,81,4,0.16)]'
-                          : 'border-[0.5px] border-white bg-transparent text-white hover:border-[#0F3F1D]'
-                      }`}
-                    >
-                      <button
-                        id={buttonId}
-                        type="button"
-                        onClick={() => handleToggle(section.id)}
-                        aria-expanded={isActive}
-                        aria-controls={panelId}
-                        className={`flex w-full items-center justify-between px-5 py-3.5 text-left transition duration-300 md:px-6 md:py-4 ${
-                          isActive ? 'text-black' : 'text-white'
-                        }`}
-                      >
-                        <span className="text-[15px] font-semibold leading-none md:text-[16px]">
-                          {section.label}
-                        </span>
-
-                        <span
-                          className={`flex h-7 w-7 items-center justify-center rounded-full shadow-[0_6px_16px_rgba(50,82,4,0.16)] md:h-8 md:w-8 ${
-                            isActive ? 'bg-[#F4F8EC] text-[#7E8C66]' : 'bg-white text-[#6C9808]'
-                          }`}
-                        >
-                          {isActive ? (
-                            <Minus className="h-4 w-4" strokeWidth={2.5} />
-                          ) : (
-                            <Plus className="h-4 w-4" strokeWidth={2.5} />
-                          )}
-                        </span>
-                      </button>
-
-                      <div
-                        id={panelId}
-                        role="region"
-                        aria-labelledby={buttonId}
-                        aria-hidden={!isActive}
-                        className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out ${
-                          isActive ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
-                        }`}
-                      >
-                        <div className="overflow-hidden">
-                          <div className="px-5 pb-4 text-black md:px-7 md:pb-5">
-                            <div className="border-t border-[#E6E6E6]" />
-
-                            <div className="mt-4 max-h-[180px] overflow-y-auto pr-3 [scrollbar-color:#A1DF0A_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar]:w-[5px] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#A1DF0A] [&::-webkit-scrollbar-track]:bg-transparent md:max-h-[220px] lg:max-h-[132px]">
-                              <ul className="space-y-1.5">
-                                {section.entries.map((entry) => (
-                                  <li
-                                    key={entry}
-                                    className="ml-5 list-disc text-[13px] leading-[1.85] md:text-[15px] md:leading-[1.9]"
-                                  >
-                                    {entry}
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </article>
-                  );
-                })}
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
 
-        <div className="order-1 relative min-h-[240px] overflow-hidden md:min-h-[320px] lg:order-2 lg:min-h-[520px]">
-          <Image
-            src={rightBackgroundImageSrc}
-            alt={rightBackgroundImageAlt}
-            fill
-            className="object-cover"
-            sizes="(max-width: 1023px) 100vw, 50vw"
-            unoptimized={useUnoptimizedRightImage}
-          />
-
-          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.04)_0%,rgba(0,0,0,0.34)_100%)]" />
-
-          <div className="relative z-[1] flex h-full items-end px-4 pb-5 md:px-6 md:pb-7 lg:px-7 lg:pb-7" data-department-reveal>
-            <h2 className="mb-0 max-w-[14ch] text-[30px] font-bold leading-[1.02] text-white md:text-[38px] lg:mb-[80px] lg:text-[50px]">
-              {title}
-            </h2>
-          </div>
+        <div className="mt-10 space-y-4 md:mt-12 md:space-y-5" data-department-reveal>
+          {sections.map((section) => (
+            <PublicationCategoryItem
+              key={section.id}
+              section={section}
+              isOpen={openSectionId === section.id}
+              onToggle={() =>
+                setOpenSectionId((current) => (current === section.id ? null : section.id))
+              }
+            />
+          ))}
         </div>
       </div>
     </section>
