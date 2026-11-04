@@ -32,6 +32,7 @@ function buildDepartmentQuery(locale: string, availableFields?: DepartmentFieldS
   setPopulate('pagehero', 'populate[pagehero][populate][Breadcrumb]');
   setPopulate('introductionsection', 'populate[introductionsection][populate][sectionheader]');
   setPopulate('introductionsection', 'populate[introductionsection][populate][points][populate][icon]');
+  setPopulate('introductionsection', 'populate[introductionsection][populate][videothumbnail]');
   setPopulate('servicesection', 'populate[servicesection][populate][sectionheader]');
   setPopulate('servicesection', 'populate[servicesection][populate][servicecards][populate][icon]');
   setPopulate('servicesection', 'populate[servicesection][populate][servicecards][populate][image]');
