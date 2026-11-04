@@ -48,6 +48,7 @@ export interface DepartmentIntroductionViewModel {
   points: DepartmentSectionPoint[];
   videoUrl?: string;
   videoTitle: string;
+  videoThumbnailUrl?: string;
 }
 
 export interface DepartmentServicesViewModel {
@@ -718,6 +719,12 @@ export function mapDepartmentIntroduction(
       section.videotitle?.trim() ||
       fallbackSection?.videotitle?.trim() ||
       'Department video',
+    videoThumbnailUrl:
+      (section.includethumbnail ?? fallbackSection?.includethumbnail) === true
+        ? getOptimizedImageUrl(section.videothumbnail || fallbackSection?.videothumbnail, 'large') ||
+          getStrapiImageUrl(section.videothumbnail || fallbackSection?.videothumbnail) ||
+          undefined
+        : undefined,
   };
 }
 

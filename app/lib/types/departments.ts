@@ -22,6 +22,8 @@ export interface DepartmentIntroductionSection {
   closingparagraph?: string | null;
   points?: DepartmentPoint[] | null;
   videotitle?: string | null;
+  includethumbnail?: boolean | null;
+  videothumbnail?: StrapiImage | null;
   url?: string | null;
 }
 

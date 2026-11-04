@@ -22,6 +22,7 @@ interface DepartmentSectionProps {
     imageAlt?: string;
     videoUrl?: string;
     videoTitle?: string;
+    videoThumbnailUrl?: string;
     reverse?: boolean;
     containerClassName?: string;
 }
@@ -62,6 +63,16 @@ function normalizeYouTubeEmbedUrl(url: string) {
     return null;
 }
 
+function isDirectVideoUrl(url: string) {
+    try {
+        const parsed = new URL(url);
+        return (parsed.protocol === 'https:' || parsed.protocol === 'http:') &&
+            /\.(mp4|webm|ogg)$/i.test(parsed.pathname);
+    } catch {
+        return false;
+    }
+}
+
 export default function DepartmentSection({
     tagText,
     titlePart1,
@@ -74,10 +85,12 @@ export default function DepartmentSection({
     imageAlt,
     videoUrl,
     videoTitle = 'Department video',
+    videoThumbnailUrl,
     reverse = false,
     containerClassName = '',
 }: DepartmentSectionProps) {
     const embedUrl = videoUrl ? normalizeYouTubeEmbedUrl(videoUrl) : null;
+    const directVideoUrl = videoUrl && isDirectVideoUrl(videoUrl) ? videoUrl : null;
 
     return (
         <section className="py-16 md:py-24">
@@ -146,16 +159,28 @@ export default function DepartmentSection({
 
                     {/* Media Side */}
                     <div className="w-full lg:w-1/2" data-department-reveal>
-                        {embedUrl ? (
+                        {embedUrl || directVideoUrl ? (
                             <div className="relative mx-auto aspect-video w-full max-w-[560px] overflow-hidden rounded-[24px] border border-[#DDE6D7] bg-[#07170E] shadow-[0_18px_50px_rgba(15,63,29,0.14)] md:max-w-[720px] md:rounded-[30px] lg:max-w-none">
-                                <iframe
-                                    src={embedUrl}
-                                    title={videoTitle}
-                                    className="h-full w-full"
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                                    allowFullScreen
-                                    loading="lazy"
-                                />
+                                {embedUrl ? (
+                                    <iframe
+                                        src={embedUrl}
+                                        title={videoTitle}
+                                        className="h-full w-full"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                        allowFullScreen
+                                        loading="lazy"
+                                    />
+                                ) : (
+                                    <video
+                                        src={directVideoUrl || undefined}
+                                        poster={videoThumbnailUrl}
+                                        aria-label={videoTitle}
+                                        className="h-full w-full"
+                                        controls
+                                        playsInline
+                                        preload="metadata"
+                                    />
+                                )}
                             </div>
                         ) : imageSrc ? (
                             <div className="relative mx-auto aspect-[4/3] w-full max-w-[560px] md:max-w-[720px] lg:max-w-none">

@@ -85,6 +85,7 @@ export default async function DepartmentPage({
             points={introduction.points}
             videoUrl={introduction.videoUrl}
             videoTitle={introduction.videoTitle}
+            videoThumbnailUrl={introduction.videoThumbnailUrl}
             containerClassName="w-[85%]"
           />
         </DepartmentAnimatedSection>
