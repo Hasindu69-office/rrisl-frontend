@@ -79,14 +79,17 @@ export default async function DepartmentPage({
             tagText={introduction.tagText}
             titlePart1={introduction.titlePart1}
             titlePart2={introduction.titlePart2}
-            titleLineBreak={false}
             description={introduction.description}
             closingDescription={introduction.closingDescription}
             points={introduction.points}
             videoUrl={introduction.videoUrl}
             videoTitle={introduction.videoTitle}
             videoThumbnailUrl={introduction.videoThumbnailUrl}
-            containerClassName="w-[85%]"
+            backgroundImageSrc={introduction.backgroundImageSrc}
+            featureImageSrc={introduction.featureImageSrc}
+            featureImageAlt={introduction.featureImageAlt}
+            departmentSlug={slug}
+            locale={locale}
           />
         </DepartmentAnimatedSection>
       ) : null}

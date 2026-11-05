@@ -49,6 +49,9 @@ export interface DepartmentIntroductionViewModel {
   videoUrl?: string;
   videoTitle: string;
   videoThumbnailUrl?: string;
+  backgroundImageSrc: string;
+  featureImageSrc: string;
+  featureImageAlt: string;
 }
 
 export interface DepartmentServicesViewModel {
@@ -725,6 +728,18 @@ export function mapDepartmentIntroduction(
           getStrapiImageUrl(section.videothumbnail || fallbackSection?.videothumbnail) ||
           undefined
         : undefined,
+    backgroundImageSrc:
+      getOptimizedImageUrl(section.backgroundimage || fallbackSection?.backgroundimage, 'large') ||
+      getStrapiImageUrl(section.backgroundimage || fallbackSection?.backgroundimage) ||
+      '/images/departments/Elegant Green Gradient Waves.webp',
+    featureImageSrc:
+      getOptimizedImageUrl(section.featureimage || fallbackSection?.featureimage, 'large') ||
+      getStrapiImageUrl(section.featureimage || fallbackSection?.featureimage) ||
+      '/images/departments/Rubber Tree Latex Tapping Close-Up.webp',
+    featureImageAlt:
+      section.featureimage?.alternativeText ||
+      fallbackSection?.featureimage?.alternativeText ||
+      'Latex flowing from a tapped rubber tree into a collection cup',
   };
 }
 
