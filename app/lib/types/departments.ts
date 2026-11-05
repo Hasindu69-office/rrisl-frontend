@@ -20,6 +20,8 @@ export interface DepartmentIntroductionSection {
   sectionheader?: SectionHeader | null;
   paragraph?: string | null;
   closingparagraph?: string | null;
+  backgroundimage?: StrapiImage | null;
+  featureimage?: StrapiImage | null;
   points?: DepartmentPoint[] | null;
   videotitle?: string | null;
   includethumbnail?: boolean | null;
