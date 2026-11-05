@@ -102,7 +102,6 @@ export default async function DepartmentPage({
             titlePart2={researchStaff.titlePart2}
             staff={researchStaff.staff}
             technicalStaffGroups={researchStaff.technicalStaffGroups}
-            containerClassName="w-[85%]"
           />
         </DepartmentAnimatedSection>
       ) : null}
