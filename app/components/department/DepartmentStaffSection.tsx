@@ -1,11 +1,12 @@
 'use client';
 
 import Image from 'next/image';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { X } from 'lucide-react';
+import React, { useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from 'react';
+import { ClipboardList, FlaskConical, Microscope, Settings, Sprout, UserRound, UsersRound, X } from 'lucide-react';
 import GradientTag from '../ui/GradientTag';
 import GradientTitle from '../ui/GradientTitle';
 import { isLocalhostAssetUrl } from '@/app/lib/strapi';
+import styles from './DepartmentStaffSection.module.css';
 
 export interface DepartmentStaffMember {
   id?: string;
@@ -40,6 +41,22 @@ interface DepartmentStaffSectionProps {
   containerClassName?: string;
 }
 
+const mobileCarouselMedia = '(max-width: 639px)';
+
+function subscribeMobileCarousel(onChange: () => void) {
+  const media = window.matchMedia(mobileCarouselMedia);
+  media.addEventListener('change', onChange);
+  return () => media.removeEventListener('change', onChange);
+}
+
+function getMobileCarouselSnapshot() {
+  return window.matchMedia(mobileCarouselMedia).matches;
+}
+
+function getMobileCarouselServerSnapshot() {
+  return false;
+}
+
 function DepartmentStaffCard({
   member,
   onOpen,
@@ -48,43 +65,90 @@ function DepartmentStaffCard({
   onOpen: (trigger: HTMLButtonElement) => void;
 }) {
   const useUnoptimizedImage = isLocalhostAssetUrl(member.imageSrc);
+  const gradientId = useId().replaceAll(':', '');
+  const hexagonPath = 'M 128 6 Q 140 -1 152 6 L 268 72 Q 278 78 278 91 L 278 229 Q 278 242 268 248 L 152 314 Q 140 321 128 314 L 12 248 Q 2 242 2 229 L 2 91 Q 2 78 12 72 Z';
 
   return (
     <button
       type="button"
       data-department-reveal
       onClick={(event) => onOpen(event.currentTarget)}
-      className="group mx-auto flex h-full w-full max-w-[340px] cursor-pointer flex-col overflow-hidden rounded-[24px] border border-[#DFE9D9] bg-white text-left shadow-[0_12px_32px_rgba(15,63,29,0.06)] transition duration-300 ease-out hover:-translate-y-1 hover:border-[#BFD6B3] hover:shadow-[0_20px_44px_rgba(15,63,29,0.12)] focus:outline-none focus-visible:-translate-y-1 focus-visible:ring-2 focus-visible:ring-[#2E7D32] focus-visible:ring-offset-4"
+      className={`${styles.researchCard} group relative isolate flex shrink-0 cursor-pointer flex-col items-center justify-start text-center focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#0F3F1D]`}
       aria-label={`View profile of ${member.name}`}
     >
-      <div className="relative mx-4 mt-4 h-[180px] overflow-hidden rounded-[18px] bg-[#EAF4E5] sm:h-[190px]">
+      <svg className={styles.cardShape} viewBox="0 0 280 320" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#88c900" />
+            <stop offset="45%" stopColor="#378a05" />
+            <stop offset="100%" stopColor="#124d0b" />
+          </linearGradient>
+        </defs>
+        <path d={hexagonPath} fill="rgba(255,255,255,0.94)" />
+        <path className={styles.cardHoverFill} d={hexagonPath} fill={`url(#${gradientId})`} />
+        <path d={hexagonPath} fill="none" stroke="#8DCA18" strokeWidth="1.6" vectorEffect="non-scaling-stroke" />
+      </svg>
+      <div className={`${styles.portrait} relative z-10 mt-4 overflow-hidden`}>
         <Image
           src={member.imageSrc}
           alt={member.imageAlt}
           fill
-          className="object-cover object-[center_20%] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03] group-focus-visible:scale-[1.03]"
-          sizes="(max-width: 767px) 70vw, 340px"
+          className="object-cover object-[center_20%] transition-transform duration-500 ease-out group-hover:scale-105 group-focus-visible:scale-105"
+          sizes="(max-width: 319px) 78vw, 230px"
           unoptimized={useUnoptimizedImage}
         />
       </div>
-
-      <div className="flex flex-1 flex-col px-5 pb-5 pt-4">
-        <p className="line-clamp-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#2E7D32]">
-          {member.role}
-        </p>
-        <h3 className="mt-1.5 text-[18px] font-semibold leading-[1.3] text-[#0F3F1D] md:text-[19px]">
+      <div className="relative z-10 flex w-full flex-1 flex-col items-center px-5 pb-14 pt-0 sm:px-6">
+        <h3 className="max-w-[220px] break-words text-[16px] font-bold leading-[1.2] text-[#102817] transition-colors group-hover:text-white group-focus-visible:text-white">
           {member.name}
         </h3>
-        {member.credentials ? (
-          <p className="mt-1.5 line-clamp-2 text-[13px] leading-5 text-[#607067]">
-            {member.credentials}
-          </p>
-        ) : null}
-        <span className="mt-4 text-[13px] font-semibold text-[#28733A] transition-colors group-hover:text-[#0F3F1D]">
-          View profile <span aria-hidden="true">→</span>
-        </span>
+        <p className="mt-2 max-w-[180px] break-words text-[11px] font-semibold uppercase leading-[1.25] text-[#27342A] transition-colors group-hover:text-white group-focus-visible:text-white">
+          {member.role}
+        </p>
       </div>
     </button>
+  );
+}
+
+function renderTechnicalGroupIcon(title: string) {
+  const normalized = title.toLowerCase();
+  const iconProps = { size: 32, strokeWidth: 1.8 };
+  if (normalized.includes('experiment')) return <FlaskConical {...iconProps} />;
+  if (normalized.includes('technical')) return <Settings {...iconProps} />;
+  if (normalized.includes('field')) return <Sprout {...iconProps} />;
+  if (normalized.includes('laborat')) return <Microscope {...iconProps} />;
+  if (normalized.includes('support')) return <ClipboardList {...iconProps} />;
+  return <UsersRound {...iconProps} />;
+}
+
+function TechnicalStaffGroup({ group }: { group: DepartmentTechnicalStaffGroupItem }) {
+  return (
+    <article className="min-w-0" data-department-reveal>
+      <div className="mb-3 flex min-h-[66px] items-center gap-4">
+        <span className={`${styles.groupEmblem} flex h-[60px] w-[92px] shrink-0 items-center justify-center text-white`} aria-hidden="true">
+          {renderTechnicalGroupIcon(group.title)}
+        </span>
+        <div className="min-w-0 flex-1 self-end border-b border-[#7AC826] pb-1">
+          <h4 className="text-[19px] font-bold leading-tight text-[#102B18] md:text-[21px]">{group.title}</h4>
+          <p className="text-[14px] font-medium text-[#386D38]">
+            {group.members.length} {group.members.length === 1 ? 'Officer' : 'Officers'}
+          </p>
+        </div>
+      </div>
+      <ul className={`grid gap-2 ${group.members.length >= 5 ? styles.denseMemberGrid : ''}`}>
+        {group.members.map((member) => (
+          <li key={member.id || member.name} className={`${styles.memberRow} flex min-h-10 min-w-0 items-center gap-3 rounded-full bg-white/90 py-1 pl-1.5 pr-4`}>
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#EDF6DA] bg-[#F6FBE8] text-[#73BD00] shadow-[0_1px_3px_rgba(34,70,25,0.05)]" aria-hidden="true">
+              <UserRound size={19} strokeWidth={2} />
+            </span>
+            <span className="min-w-0 text-[14px] leading-[1.25]">
+              <span className="font-semibold text-[#17281B]">{member.name}</span>
+              {member.qualifications ? <span className="ml-2 text-[13px] font-medium text-[#34466C]">{member.qualifications}</span> : null}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </article>
   );
 }
 
@@ -236,7 +300,17 @@ export default function DepartmentStaffSection({
 }: DepartmentStaffSectionProps) {
   const [activeStaffId, setActiveStaffId] = useState<string | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [activeSlide, setActiveSlide] = useState(0);
+  const isMobileCarousel = useSyncExternalStore(
+    subscribeMobileCarousel,
+    getMobileCarouselSnapshot,
+    getMobileCarouselServerSnapshot
+  );
   const activeTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const carouselRef = useRef<HTMLDivElement | null>(null);
+  const touchStartXRef = useRef<number | null>(null);
+  const carouselInteractedRef = useRef(false);
+  const visibleSlide = activeSlide % Math.max(staff.length, 1);
 
   const activeMember = useMemo(
     () =>
@@ -245,6 +319,31 @@ export default function DepartmentStaffSection({
         : null,
     [activeStaffId, staff]
   );
+
+  useEffect(() => {
+    if (staff.length < 2 || activeStaffId || !isMobileCarousel) return;
+
+    const timer = window.setInterval(() => {
+      if (
+        carouselInteractedRef.current ||
+        document.visibilityState !== 'visible' ||
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+        (document.activeElement && carouselRef.current?.contains(document.activeElement))
+      ) return;
+
+      setActiveSlide((current) => (current + 1) % staff.length);
+    }, 5000);
+
+    return () => window.clearInterval(timer);
+  }, [activeStaffId, isMobileCarousel, staff.length]);
+
+  const handleTouchEnd = (endX: number) => {
+    if (touchStartXRef.current === null || staff.length < 2) return;
+    const movement = endX - touchStartXRef.current;
+    touchStartXRef.current = null;
+    if (Math.abs(movement) < 45) return;
+    setActiveSlide((current) => (current + (movement < 0 ? 1 : staff.length - 1)) % staff.length);
+  };
 
   const openProfile = (member: DepartmentStaffMember, trigger: HTMLButtonElement) => {
     activeTriggerRef.current = trigger;
@@ -266,8 +365,8 @@ export default function DepartmentStaffSection({
   };
 
   return (
-    <section className="bg-white py-16 md:py-20 lg:py-24">
-      <div className={`mx-auto max-w-[1440px] px-4 md:px-6 lg:px-8 ${containerClassName}`}>
+    <section className={`${styles.section} relative py-14 md:py-16 lg:py-20`}>
+      <div className={`relative mx-auto w-full max-w-[1200px] px-4 sm:px-6 lg:px-8 ${containerClassName}`}>
         <div className="flex flex-col items-center text-center" data-department-reveal>
           <GradientTag
             text={tagText}
@@ -284,69 +383,68 @@ export default function DepartmentStaffSection({
             size="custom"
             customSize="clamp(28px, 4vw, 50px)"
             align="center"
-            className="mt-5 font-bold leading-[1.15]"
+            className="mt-3 font-bold leading-[1.15]"
           />
         </div>
 
         {staff.length > 0 ? (
-          <div className="mt-12 md:mt-14">
-            <div className="border-b border-[#DDE8D7] pb-4" data-department-reveal>
-              <h3 className="text-[25px] font-semibold text-[#0F3F1D] md:text-[30px]">
-                Research Staff
-              </h3>
-            </div>
-
-            <div className="mt-8 flex flex-wrap justify-center gap-5 md:gap-6">
-              {staff.map((member) => (
-                <DepartmentStaffCard
-                  key={member.id || member.name}
-                  member={member}
-                  onOpen={(trigger) => openProfile(member, trigger)}
-                />
-              ))}
+          <div className="mt-7 md:mt-10">
+            <div
+              ref={carouselRef}
+              className={`${styles.researchCarousel} mx-auto max-w-[960px]`}
+              role="region"
+              aria-label="Research staff profiles"
+              aria-roledescription={isMobileCarousel ? 'carousel' : undefined}
+              onPointerDown={() => { carouselInteractedRef.current = true; }}
+              onTouchStart={(event) => { touchStartXRef.current = event.touches[0]?.clientX ?? null; }}
+              onTouchEnd={(event) => { handleTouchEnd(event.changedTouches[0]?.clientX ?? 0); }}
+            >
+              <div
+                className={`${styles.researchTrack} flex flex-wrap justify-start gap-x-3 gap-y-3 sm:justify-center sm:gap-x-4 sm:gap-y-4`}
+                style={{ '--slide-offset': `-${visibleSlide * 100}%` } as React.CSSProperties}
+              >
+                {staff.map((member, index) => (
+                  <div
+                    className={styles.researchSlide}
+                    key={member.id || member.name}
+                    inert={isMobileCarousel && visibleSlide !== index}
+                  >
+                    <DepartmentStaffCard
+                      member={member}
+                      onOpen={(trigger) => openProfile(member, trigger)}
+                    />
+                  </div>
+                ))}
+              </div>
+              {staff.length > 1 ? (
+                <div className={`${styles.carouselDots} mt-4 flex flex-wrap items-center justify-center gap-1`} role="group" aria-label="Choose research staff profile">
+                  {staff.map((member, index) => (
+                    <button
+                      key={member.id || member.name}
+                      type="button"
+                      className={`${styles.carouselDot} ${visibleSlide === index ? styles.carouselDotActive : ''} flex h-9 w-9 cursor-pointer items-center justify-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F3F1D]`}
+                      aria-label={`Show ${member.name}`}
+                      aria-current={visibleSlide === index ? 'true' : undefined}
+                      onClick={() => {
+                        carouselInteractedRef.current = true;
+                        setActiveSlide(index);
+                      }}
+                    >
+                      <span aria-hidden="true" />
+                    </button>
+                  ))}
+                </div>
+              ) : null}
             </div>
           </div>
         ) : null}
 
         {technicalStaffGroups.length > 0 ? (
-          <div className="mt-16 md:mt-20" data-department-reveal>
-            <div className="border-b border-[#DDE8D7] pb-4">
-              <h3 className="text-[25px] font-semibold text-[#0F3F1D] md:text-[30px]">
-                Technical Staff
-              </h3>
-            </div>
-
-            <div className="mt-8 grid grid-cols-1 gap-7 lg:grid-cols-2 lg:gap-9">
+          <div className="mt-12 md:mt-16" data-department-reveal>
+            <h3 className="text-[28px] font-bold text-[#102B18] md:text-[34px]">Technical Staff</h3>
+            <div className="mt-4 grid grid-cols-1 gap-x-12 gap-y-7 lg:grid-cols-2 lg:gap-y-9">
               {technicalStaffGroups.map((group) => (
-                <article
-                  key={group.id || group.title}
-                  className="overflow-hidden rounded-[28px] border border-[#DFE9D9] bg-[#F8FBF6] shadow-[0_16px_45px_rgba(15,63,29,0.06)]"
-                >
-                  <div className="bg-[linear-gradient(135deg,#123B20_0%,#24663A_100%)] px-6 py-5 text-white md:px-7">
-                    <h4 className="text-[20px] font-semibold md:text-[22px]">{group.title}</h4>
-                    <p className="mt-1 text-[13px] text-white/70">
-                      {group.members.length} {group.members.length === 1 ? 'officer' : 'officers'}
-                    </p>
-                  </div>
-
-                  <ul className="divide-y divide-[#DFE9D9] px-5 md:px-6">
-                    {group.members.map((member) => (
-                      <li key={member.id || member.name} className="flex items-start gap-4 py-5">
-                        <span className="mt-1.5 h-2.5 w-2.5 flex-none rounded-full bg-[linear-gradient(135deg,#20C997,#A1DF0A)] shadow-[0_0_0_5px_rgba(46,125,50,0.08)]" aria-hidden="true" />
-                        <div className="min-w-0 flex-1">
-                          <p className="text-[16px] font-semibold leading-6 text-[#173C22]">
-                            {member.name}
-                          </p>
-                          {member.qualifications ? (
-                            <p className="mt-1 text-[14px] leading-6 text-[#66756C]">
-                              {member.qualifications}
-                            </p>
-                          ) : null}
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </article>
+                <TechnicalStaffGroup key={group.id || group.title} group={group} />
               ))}
             </div>
           </div>
