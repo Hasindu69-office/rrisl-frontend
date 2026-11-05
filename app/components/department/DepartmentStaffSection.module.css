@@ -69,7 +69,46 @@
 }
 
 .memberRow {
+  position: relative;
   overflow-wrap: anywhere;
+  border: 1px solid rgb(105 166 64 / 0.1);
+  box-shadow: 0 1px 4px rgb(32 57 32 / 0.05);
+  transition: box-shadow 200ms ease;
+}
+
+.memberRow::before,
+.memberRow::after {
+  position: absolute;
+  inset: -1px;
+  border: 1px solid #91c95a;
+  border-radius: inherit;
+  content: '';
+  pointer-events: none;
+  transition: clip-path 1200ms linear;
+}
+
+.memberRow::before {
+  border-bottom-color: transparent;
+  clip-path: inset(0 100% 50% 0);
+}
+
+.memberRow::after {
+  border-top-color: transparent;
+  clip-path: inset(50% 100% 0 0);
+}
+
+@media (hover: hover) {
+  .memberRow:hover {
+    box-shadow: 0 2px 7px rgb(40 89 29 / 0.07);
+  }
+
+  .memberRow:hover::before {
+    clip-path: inset(0 0 50% 0);
+  }
+
+  .memberRow:hover::after {
+    clip-path: inset(50% 0 0 0);
+  }
 }
 
 .groupEmblem {
@@ -136,7 +175,9 @@
 
 @media (prefers-reduced-motion: reduce) {
   .researchTrack,
-  .carouselDot span {
+  .carouselDot span,
+  .memberRow::before,
+  .memberRow::after {
     transition: none;
   }
 }

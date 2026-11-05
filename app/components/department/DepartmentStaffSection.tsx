@@ -137,8 +137,8 @@ function TechnicalStaffGroup({ group }: { group: DepartmentTechnicalStaffGroupIt
       </div>
       <ul className={`grid gap-2 ${group.members.length >= 5 ? styles.denseMemberGrid : ''}`}>
         {group.members.map((member) => (
-          <li key={member.id || member.name} className={`${styles.memberRow} flex min-h-10 min-w-0 items-center gap-3 rounded-full bg-white/90 py-1 pl-1.5 pr-4 shadow-[0_4px_12px_rgba(32,57,32,0.16)]`}>
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#EDF6DA] bg-[#F6FBE8] text-[#73BD00] shadow-[0_2px_5px_rgba(34,70,25,0.15)]" aria-hidden="true">
+          <li key={member.id || member.name} className={`${styles.memberRow} flex min-h-10 min-w-0 items-center gap-3 rounded-full bg-white/90 py-1 pl-1.5 pr-4`}>
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#EDF6DA] bg-[#F6FBE8] text-[#73BD00] shadow-[0_1px_3px_rgba(34,70,25,0.05)]" aria-hidden="true">
               <UserRound size={19} strokeWidth={2} />
             </span>
             <span className="min-w-0 text-[14px] leading-[1.25]">
