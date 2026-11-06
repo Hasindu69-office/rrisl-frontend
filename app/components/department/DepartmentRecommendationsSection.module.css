@@ -1,0 +1,629 @@
+.section {
+  position: relative;
+  isolation: isolate;
+  min-height: 650px;
+  overflow: hidden;
+  background: #f6fbf6 url('/images/departments/Dewy%20Seedling%20on%20Soft%20Green%20Waves.webp') center / cover no-repeat;
+  padding: clamp(48px, 4vw, 72px) 0;
+}
+
+.sectionPinScroll {
+  min-height: 0;
+  overflow: visible;
+  background: none;
+  padding: 0;
+}
+
+.scrollTrack {
+  position: relative;
+  width: 100%;
+}
+
+.stickyPanel {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  min-height: 100vh;
+  align-items: flex-start;
+  overflow: hidden;
+  background: #f6fbf6 url('/images/departments/Dewy%20Seedling%20on%20Soft%20Green%20Waves.webp') center / cover no-repeat;
+  padding: clamp(36px, 4.5vh, 64px) 0 clamp(28px, 3.5vh, 48px);
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 46%) minmax(0, 54%);
+  box-sizing: border-box;
+  width: min(94%, 1600px);
+  margin-inline: auto;
+  padding-inline: clamp(12px, 2vw, 32px);
+  column-gap: clamp(8px, 1.2vw, 20px);
+}
+
+.intro {
+  position: relative;
+  z-index: 1;
+  padding-top: clamp(16px, 2vw, 30px);
+}
+
+.heading {
+  margin-top: 20px;
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.045em;
+  color: #0f3f1d;
+}
+
+.groups {
+  display: grid;
+  gap: 44px;
+  box-sizing: border-box;
+  width: min(100%, 36rem);
+  min-width: 0;
+  margin-top: 24px;
+  margin-left: clamp(-48px, -3.5vw, -20px);
+  padding-right: clamp(20px, 2.2vw, 48px);
+  justify-self: stretch;
+}
+
+.group {
+  position: relative;
+  min-width: 0;
+}
+
+.groupTitle {
+  display: inline-block;
+  margin: 0 0 14px 42px;
+  border: 1px solid rgba(97, 184, 25, 0.35);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.88);
+  padding: 7px 17px;
+  color: #208a22;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.timelineShell {
+  position: relative;
+  min-width: 0;
+  padding-right: clamp(28px, 2.8vw, 52px);
+}
+
+.cardStack {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  gap: clamp(12px, 1.15vw, 18px);
+  justify-items: start;
+  overflow: visible;
+}
+
+.cardStackPinned {
+  --recommendation-visible-count: 5;
+  --recommendation-card-size: clamp(96px, 6.8vw, 112px);
+  --recommendation-gap: clamp(12px, 1.15vw, 18px);
+  --recommendation-border-y: 0px;
+  --recommendation-pad-top: 14px;
+  --recommendation-pad-bottom: 18px;
+  --recommendation-pad-left: 24px;
+  --recommendation-pad-right: clamp(36px, 3vw, 56px);
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  max-height: calc(
+    (var(--recommendation-card-size) + var(--recommendation-border-y))
+      * var(--recommendation-visible-count)
+      + var(--recommendation-gap) * (var(--recommendation-visible-count) - 1)
+      + var(--recommendation-pad-top)
+      + var(--recommendation-pad-bottom)
+  );
+  margin-left: 0;
+  padding: var(--recommendation-pad-top) var(--recommendation-pad-right) var(--recommendation-pad-bottom) var(--recommendation-pad-left);
+  overflow: hidden;
+  /* Middle of the pin-scroll: fade both edges so cards ease in/out. */
+  mask-image: linear-gradient(180deg, transparent 0%, #000 12%, #000 88%, transparent 100%);
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 12%, #000 88%, transparent 100%);
+}
+
+.cardStackPinned.isScrolledToStart {
+  mask-image: linear-gradient(180deg, #000 0%, #000 88%, transparent 100%);
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 88%, transparent 100%);
+}
+
+.cardStackPinned.isScrolledToEnd {
+  mask-image: linear-gradient(180deg, transparent 0%, #000 12%, #000 100%);
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 12%, #000 100%);
+}
+
+.cardStackPinned.isScrolledToStart.isScrolledToEnd {
+  mask-image: none;
+  -webkit-mask-image: none;
+}
+
+.cardStackTrack {
+  display: grid;
+  gap: clamp(12px, 1.15vw, 18px);
+  will-change: transform;
+}
+
+.arc {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.cardPosition {
+  position: relative;
+  z-index: 2;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: min(100%, 30.5rem);
+  min-width: 0;
+  overflow: visible;
+  will-change: transform;
+}
+
+.cardPosition:has(.popoverOpen) {
+  z-index: 5;
+}
+
+.connectorLayer {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.connectorLayer path {
+  fill: none;
+  stroke: #61b819;
+  stroke-width: 1.7px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.card {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  overflow: visible;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 14px 34px rgba(40, 86, 44, 0.08);
+  transition: background 220ms ease, box-shadow 220ms ease, transform 220ms ease;
+}
+
+.card:hover,
+.cardActive {
+  background: #fff;
+  box-shadow: 0 18px 40px rgba(40, 86, 44, 0.12);
+}
+
+.cardMain {
+  position: relative;
+  display: flex;
+  min-height: clamp(84px, 6vw, 100px);
+  align-items: center;
+  gap: clamp(12px, 1.1vw, 18px);
+  padding: 6px clamp(12px, 1.1vw, 18px) 6px 6px;
+}
+
+.numberBadge {
+  position: absolute;
+  z-index: 3;
+  top: -8px;
+  left: -8px;
+  display: flex;
+  width: clamp(52px, 4vw, 66px);
+  height: clamp(42px, 3.2vw, 52px);
+  align-items: center;
+  justify-content: center;
+  padding: 0 10px 7px 0;
+  color: #fff;
+  font-size: clamp(16px, 1.2vw, 21px);
+  font-weight: 700;
+  line-height: 1;
+  -webkit-mask-image: url('/images/departments/svg/Leaf.svg');
+  mask-image: url('/images/departments/svg/Leaf.svg');
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+}
+
+.numberBadgeOdd {
+  background-color: #0f3f1d;
+}
+
+.numberBadgeEven {
+  background-color: #96d21a;
+}
+
+.imagePlaceholder {
+  display: flex;
+  width: clamp(76px, 5.6vw, 92px);
+  height: clamp(76px, 5.6vw, 92px);
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 3px solid rgba(255, 255, 255, 0.95);
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 28%, #f4ffe8, #d7edc5 70%, #c6e6b8);
+  box-shadow: 0 8px 18px rgba(40, 86, 44, 0.08);
+}
+
+.placeholderLeaf {
+  width: 44%;
+  height: 44%;
+  background-color: #7cc51f;
+  opacity: 0.7;
+  -webkit-mask-image: url('/images/departments/svg/Leaf.svg');
+  mask-image: url('/images/departments/svg/Leaf.svg');
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+}
+
+.titleRule {
+  width: 2px;
+  height: 36px;
+  flex: none;
+  border-radius: 999px;
+  background: #61b819;
+}
+
+.cardTitle {
+  min-width: 0;
+  flex: 1;
+  margin: 0;
+  color: #0f3f1d;
+  font-size: clamp(15px, 1.05vw, 20px);
+  font-weight: 700;
+  line-height: 1.28;
+  letter-spacing: -0.03em;
+}
+
+.detailsAnchor {
+  position: relative;
+  z-index: 3;
+  flex: none;
+}
+
+.detailsButton {
+  display: flex;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 50%;
+  background: #e5f6d4;
+  color: #0f3f1d;
+  cursor: pointer;
+  transition: background 180ms ease, transform 180ms ease;
+}
+
+.detailsButton:hover {
+  background: #d2efb4;
+  transform: translateX(3px);
+}
+
+.detailsButton:focus-visible {
+  outline: 3px solid #177c32;
+  outline-offset: 4px;
+}
+
+.detailsButtonActive {
+  background: #d2efb4;
+}
+
+.popover {
+  position: fixed;
+  z-index: 40;
+  width: min(20rem, calc(100vw - 48px));
+  max-height: min(12.5rem, 42vh);
+  overflow-x: hidden;
+  overflow-y: auto;
+  border: 1px solid rgba(97, 184, 25, 0.22);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 18px 40px rgba(40, 86, 44, 0.14);
+  padding: 14px 16px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(6px);
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.popoverOpen {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(0);
+}
+
+.popover p {
+  margin: 0;
+  color: #344c3b;
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+@media (max-width: 1100px) {
+  .content {
+    grid-template-columns: minmax(0, 38%) minmax(0, 62%);
+    width: min(94%, 1200px);
+    padding-inline: clamp(16px, 2.5vw, 28px);
+    column-gap: 16px;
+  }
+
+  .groups {
+    width: 100%;
+    margin-top: 0;
+    margin-left: 0;
+    padding-right: 8px;
+  }
+
+  .groupTitle {
+    margin-left: 18px;
+  }
+
+  .cardStackPinned {
+    --recommendation-pad-left: 18px;
+    --recommendation-pad-right: 14px;
+    --recommendation-pad-top: 12px;
+    --recommendation-pad-bottom: 14px;
+  }
+
+  .cardPosition {
+    max-width: none;
+  }
+
+  .arc,
+  .connectorLayer {
+    display: none;
+  }
+
+  .timelineShell {
+    padding-right: 0;
+  }
+
+  .cardMain {
+    gap: 12px;
+  }
+
+  .numberBadge {
+    left: -4px;
+  }
+}
+
+@media (max-width: 850px) {
+  .section {
+    min-height: 0;
+    background-size: cover;
+    background-position: 28% bottom;
+    padding: 36px 0 48px;
+  }
+
+  .section::before {
+    position: absolute;
+    z-index: 0;
+    inset: 0;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.78) 0%,
+      rgba(246, 253, 247, 0.55) 45%,
+      rgba(246, 253, 247, 0.22) 100%
+    );
+    content: '';
+  }
+
+  .sectionPinScroll {
+    padding: 0;
+  }
+
+  .sectionPinScroll::before {
+    content: none;
+  }
+
+  .stickyPanel {
+    min-height: 100svh;
+    max-height: 100svh;
+    background-size: cover;
+    background-position: 28% bottom;
+    padding: 18px 0 24px;
+  }
+
+  .stickyPanel::before {
+    position: absolute;
+    z-index: 0;
+    inset: 0;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.8) 0%,
+      rgba(246, 253, 247, 0.5) 42%,
+      rgba(246, 253, 247, 0.18) 100%
+    );
+    content: '';
+  }
+
+  .content {
+    display: block;
+    width: min(90%, 660px);
+    padding-inline: 0;
+  }
+
+  .intro {
+    padding-top: 0;
+  }
+
+  .heading {
+    margin-top: 10px;
+  }
+
+  .groups {
+    width: 100%;
+    margin-top: 28px;
+    margin-left: 0;
+    padding-right: 0;
+    gap: 28px;
+  }
+
+  .groupTitle {
+    margin-left: 14px;
+  }
+
+  .cardPosition {
+    max-width: none;
+  }
+
+  .cardStackPinned {
+    --recommendation-card-size: 88px;
+    --recommendation-gap: 12px;
+    --recommendation-pad-left: 16px;
+    --recommendation-pad-right: 10px;
+    --recommendation-pad-top: 10px;
+    --recommendation-pad-bottom: 14px;
+  }
+
+  .cardMain {
+    min-height: 84px;
+  }
+
+  .cardTitle {
+    font-size: clamp(16px, 3vw, 20px);
+  }
+
+  .popover {
+    width: min(18rem, calc(100vw - 40px));
+  }
+}
+
+@media (max-width: 560px) {
+  .section {
+    background-size: cover;
+    background-position: 24% bottom;
+    padding: 24px 0 36px;
+  }
+
+  .stickyPanel {
+    background-size: cover;
+    background-position: 24% bottom;
+    padding: 12px 0 18px;
+  }
+
+  .content {
+    width: calc(100% - 32px);
+  }
+
+  .heading {
+    margin-top: 8px;
+    letter-spacing: -0.04em;
+  }
+
+  .groups {
+    margin-top: 22px;
+    gap: 24px;
+  }
+
+  .groupTitle {
+    margin: 0 0 14px 10px;
+    font-size: 10px;
+    padding: 6px 12px;
+  }
+
+  .cardStack,
+  .cardStackTrack {
+    gap: 12px;
+  }
+
+  .cardStackPinned {
+    --recommendation-card-size: 74px;
+    --recommendation-gap: 12px;
+    --recommendation-pad-left: 14px;
+    --recommendation-pad-right: 8px;
+    --recommendation-pad-top: 10px;
+    --recommendation-pad-bottom: 12px;
+  }
+
+  .card {
+    border-radius: 999px;
+  }
+
+  .cardMain {
+    min-height: 72px;
+    gap: 8px;
+    padding: 4px 8px 4px 4px;
+  }
+
+  .imagePlaceholder {
+    width: 62px;
+    height: 62px;
+  }
+
+  .numberBadge {
+    top: -5px;
+    left: -2px;
+    width: 44px;
+    height: 36px;
+    font-size: 13px;
+    padding: 0 6px 5px 0;
+  }
+
+  .titleRule {
+    height: 28px;
+  }
+
+  .detailsButton {
+    width: 32px;
+    height: 32px;
+  }
+
+  .cardTitle {
+    font-size: clamp(13px, 3.6vw, 16px);
+    line-height: 1.28;
+  }
+
+  .detailsButton svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .popover {
+    width: min(16.5rem, calc(100vw - 28px));
+    max-height: min(11rem, 38vh);
+    padding: 12px 14px;
+    border-radius: 16px;
+  }
+
+  .popover p {
+    font-size: 13px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .detailsButton,
+  .popover {
+    transition: none;
+  }
+
+  .popover {
+    transform: none;
+  }
+}
