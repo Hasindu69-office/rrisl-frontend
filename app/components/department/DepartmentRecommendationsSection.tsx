@@ -4,6 +4,7 @@ import { ArrowRight } from 'lucide-react';
 import {
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
   type CSSProperties,
@@ -367,28 +368,38 @@ function RecommendationCard({
   );
 }
 
-function RecommendationGroup({
-  group,
-  decorated,
+function flattenRecommendationItems(groups: DepartmentRecommendationGroupView[]) {
+  return groups.flatMap((group) =>
+    group.items.map((item) => ({
+      groupId: group.id,
+      item,
+    }))
+  );
+}
+
+function RecommendationsTimeline({
+  groups,
   isPinScroll,
   isDesktopTimeline,
   stackTranslateY,
   isScrolledToStart,
   isScrolledToEnd,
   onCardStepMeasured,
+  onOverflowMeasured,
 }: {
-  group: DepartmentRecommendationGroupView;
-  decorated: boolean;
+  groups: DepartmentRecommendationGroupView[];
   isPinScroll: boolean;
   isDesktopTimeline: boolean;
   stackTranslateY: number;
   isScrolledToStart: boolean;
   isScrolledToEnd: boolean;
   onCardStepMeasured?: (step: number) => void;
+  onOverflowMeasured?: (distance: number) => void;
 }) {
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const stackRef = useRef<HTMLDivElement | null>(null);
-  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const trackInnerRef = useRef<HTMLDivElement | null>(null);
+  const cardRefs = useRef<Map<string, HTMLDivElement | null>>(new Map());
   const hoverCloseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pinnedItemIdRef = useRef<string | null>(null);
   const scrollFrameRef = useRef<number | null>(null);
@@ -396,6 +407,10 @@ function RecommendationGroup({
   const [geometry, setGeometry] = useState<CurveGeometry | null>(null);
   const [openItemId, setOpenItemId] = useState<string | null>(null);
   const [pinnedItemId, setPinnedItemId] = useState<string | null>(null);
+
+  const flatItems = useMemo(() => flattenRecommendationItems(groups), [groups]);
+  const totalItemCount = flatItems.length;
+  const flatItemsKey = flatItems.map(({ item }) => item.id).join('|');
 
   const clearHoverCloseTimeout = () => {
     if (hoverCloseTimeoutRef.current) {
@@ -512,34 +527,47 @@ function RecommendationGroup({
     }
 
     const stack = stackRef.current;
-    const first = cardRefs.current[0];
-    const second = cardRefs.current[1];
-    const visibleLast = cardRefs.current[Math.min(VISIBLE_CAPACITY, group.items.length) - 1];
+    const first = cardRefs.current.get(flatItems[0]?.item.id || '');
+    const second = cardRefs.current.get(flatItems[1]?.item.id || '');
+    const visibleLastId = flatItems[Math.min(VISIBLE_CAPACITY, totalItemCount) - 1]?.item.id;
+    const visibleLast = visibleLastId ? cardRefs.current.get(visibleLastId) : null;
 
     if (!first) {
       return;
     }
 
     const measure = () => {
-      const step = second
-        ? second.offsetTop - first.offsetTop
+      const track = trackInnerRef.current;
+      const firstRect = first.getBoundingClientRect();
+      const secondRect = second?.getBoundingClientRect();
+      const step = secondRect
+        ? secondRect.top - firstRect.top
         : first.offsetHeight + 16;
 
       if (step > 0 && onCardStepMeasured) {
         onCardStepMeasured(step);
       }
 
-      // Size the pinned viewport from real card heights so the last visible card is not clipped.
-      if (visibleLast) {
+      // Size the pinned viewport from track top through the last visible card so the
+      // first category title stays in view with the opening cards.
+      if (track && visibleLast) {
         const computed = window.getComputedStyle(stack);
         const padY = (parseFloat(computed.paddingTop) || 0) + (parseFloat(computed.paddingBottom) || 0);
-        const contentHeight = visibleLast.offsetTop + visibleLast.offsetHeight - first.offsetTop;
-        const measured = Math.ceil(contentHeight + padY + 12);
+        const trackRect = track.getBoundingClientRect();
+        const lastRect = visibleLast.getBoundingClientRect();
+        const contentHeight = lastRect.bottom - trackRect.top;
+        // Extra bottom slack so the last connector/dot is not clipped by the viewport edge.
+        const measured = Math.ceil(contentHeight + padY + 36);
         // On narrow screens, keep room for the intro inside the sticky panel.
         const maxForViewport = window.matchMedia(NARROW_POPOVER_QUERY).matches
           ? Math.floor(window.innerHeight * 0.58)
           : Number.POSITIVE_INFINITY;
         stack.style.maxHeight = `${Math.min(measured, maxForViewport)}px`;
+      }
+
+      if (track && onOverflowMeasured) {
+        const distance = Math.max(0, track.scrollHeight - stack.clientHeight);
+        onOverflowMeasured(distance);
       }
     };
 
@@ -551,10 +579,18 @@ function RecommendationGroup({
       window.removeEventListener('resize', measure);
       window.removeEventListener('orientationchange', measure);
     };
-  }, [group.items.length, isPinScroll, onCardStepMeasured, stackTranslateY]);
+  }, [
+    flatItems,
+    flatItemsKey,
+    isPinScroll,
+    onCardStepMeasured,
+    onOverflowMeasured,
+    stackTranslateY,
+    totalItemCount,
+  ]);
 
   useLayoutEffect(() => {
-    if (!decorated || !viewportRef.current || !stackRef.current) {
+    if (!viewportRef.current || !stackRef.current) {
       return;
     }
 
@@ -569,14 +605,14 @@ function RecommendationGroup({
     }
 
     const update = () => {
-      const cards = group.items
-        .map((item, index) => {
-          const element = cardRefs.current[index];
+      const cards = flatItems
+        .map(({ item }) => {
+          const element = cardRefs.current.get(item.id);
           return element ? { element, itemId: item.id } : null;
         })
         .filter((card): card is { element: HTMLDivElement; itemId: string } => Boolean(card));
 
-      if (!isDesktopTimeline || cards.length !== group.items.length) {
+      if (!isDesktopTimeline || cards.length !== flatItems.length) {
         cards.forEach((card) => {
           card.element.style.transform = '';
         });
@@ -625,7 +661,7 @@ function RecommendationGroup({
         scrollFrameRef.current = null;
       }
     };
-  }, [decorated, group.items, isDesktopTimeline, isPinScroll, stackTranslateY]);
+  }, [flatItems, flatItemsKey, isDesktopTimeline, isPinScroll, stackTranslateY]);
 
   const stackClassName = [
     styles.cardStack,
@@ -644,34 +680,40 @@ function RecommendationGroup({
     (geometry?.cardOffsets || []).map((entry) => [entry.itemId, entry.offsetX])
   );
 
-  const cards = group.items.map((item, index) => {
-    const offsetX = offsetById.get(item.id) ?? 0;
+  const stackContent = groups.map((group) => (
+    <div key={group.id} className={styles.groupBlock}>
+      <h3 className={styles.groupTitle}>{group.title}</h3>
+      {group.items.map((item, index) => {
+        const offsetX = offsetById.get(item.id) ?? 0;
 
-    return (
-      <div
-        key={item.id}
-        ref={(node) => { cardRefs.current[index] = node; }}
-        className={styles.cardPosition}
-        style={offsetX ? { transform: `translateX(${offsetX}px)` } : undefined}
-      >
-        <RecommendationCard
-          item={item}
-          index={index}
-          groupId={group.id}
-          isOpen={openItemId === item.id}
-          isPinned={pinnedItemId === item.id}
-          onHoverOpen={() => openItem(item.id)}
-          onHoverClose={() => scheduleHoverClose(item.id)}
-          onTogglePin={() => togglePin(item.id)}
-          onDismiss={() => dismissItem(item.id)}
-        />
-      </div>
-    );
-  });
+        return (
+          <div
+            key={item.id}
+            ref={(node) => {
+              cardRefs.current.set(item.id, node);
+            }}
+            className={styles.cardPosition}
+            style={offsetX ? { transform: `translateX(${offsetX}px)` } : undefined}
+          >
+            <RecommendationCard
+              item={item}
+              index={index}
+              groupId={group.id}
+              isOpen={openItemId === item.id}
+              isPinned={pinnedItemId === item.id}
+              onHoverOpen={() => openItem(item.id)}
+              onHoverClose={() => scheduleHoverClose(item.id)}
+              onTogglePin={() => togglePin(item.id)}
+              onDismiss={() => dismissItem(item.id)}
+            />
+          </div>
+        );
+      })}
+    </div>
+  ));
 
   return (
-    <div className={styles.group}>
-      <h3 className={styles.groupTitle}>{group.title}</h3>
+    <div className={styles.timeline}>
       <div ref={viewportRef} className={styles.timelineShell}>
         {geometry ? (
           <>
@@ -710,13 +752,16 @@ function RecommendationGroup({
         <div ref={stackRef} className={stackClassName} style={stackStyle}>
           {isPinScroll ? (
             <div
+              ref={trackInnerRef}
               className={styles.cardStackTrack}
               style={{ transform: `translate3d(0, ${-stackTranslateY}px, 0)` }}
             >
-              {cards}
+              {stackContent}
             </div>
           ) : (
-            cards
+            <div ref={trackInnerRef} className={styles.cardStackTrack}>
+              {stackContent}
+            </div>
           )}
         </div>
       </div>
@@ -731,10 +776,12 @@ export default function DepartmentRecommendationsSection({
   const trackRef = useRef<HTMLDivElement | null>(null);
   const stickyRef = useRef<HTMLDivElement | null>(null);
   const frameRef = useRef<number | null>(null);
-  const firstGroup = content.groups[0];
-  const overflowCount = firstGroup
-    ? Math.max(0, firstGroup.items.length - VISIBLE_CAPACITY)
-    : 0;
+  const totalItemCount = content.groups.reduce(
+    (sum, group) => sum + group.items.length,
+    0
+  );
+  // Pin when cards alone exceed capacity; measured overflowDistance adds title travel.
+  const overflowCount = Math.max(0, totalItemCount - VISIBLE_CAPACITY);
   const isPinScroll = overflowCount > 0;
   const isDesktopTimeline = useMediaQuery(DESKTOP_TIMELINE_QUERY);
   const isNarrowLayout = useMediaQuery(NARROW_POPOVER_QUERY);
@@ -745,6 +792,7 @@ export default function DepartmentRecommendationsSection({
       ? 'clamp(26px, 6vw, 36px)'
       : 'clamp(30px, 3vw, 52px)';
   const [cardStep, setCardStep] = useState(110);
+  const [overflowDistance, setOverflowDistance] = useState(0);
   const [trackHeight, setTrackHeight] = useState<number | undefined>(undefined);
   const [stackTranslateY, setStackTranslateY] = useState(0);
   const [isScrolledToStart, setIsScrolledToStart] = useState(true);
@@ -752,6 +800,10 @@ export default function DepartmentRecommendationsSection({
 
   const handleCardStepMeasured = (step: number) => {
     setCardStep((current) => (Math.abs(current - step) < 0.5 ? current : step));
+  };
+
+  const handleOverflowMeasured = (distance: number) => {
+    setOverflowDistance((current) => (Math.abs(current - distance) < 0.5 ? current : distance));
   };
 
   useLayoutEffect(() => {
@@ -763,7 +815,10 @@ export default function DepartmentRecommendationsSection({
     const updateTrackHeight = () => {
       const stickyHeight = stickyRef.current?.offsetHeight || window.innerHeight;
       const scrollStep = Math.max(cardStep, window.innerHeight * SCROLL_STEP_VIEWPORT_RATIO);
-      setTrackHeight(stickyHeight + overflowCount * scrollStep);
+      const measuredSteps = cardStep > 0
+        ? Math.max(overflowCount, Math.ceil(overflowDistance / cardStep))
+        : overflowCount;
+      setTrackHeight(stickyHeight + measuredSteps * scrollStep);
     };
 
     updateTrackHeight();
@@ -778,7 +833,7 @@ export default function DepartmentRecommendationsSection({
       window.removeEventListener('resize', updateTrackHeight);
       window.removeEventListener('orientationchange', updateTrackHeight);
     };
-  }, [cardStep, isPinScroll, overflowCount]);
+  }, [cardStep, isPinScroll, overflowCount, overflowDistance]);
 
   useEffect(() => {
     if (!isPinScroll) {
@@ -799,8 +854,14 @@ export default function DepartmentRecommendationsSection({
       const trackRect = track.getBoundingClientRect();
       const range = Math.max(track.offsetHeight - sticky.offsetHeight, 1);
       const progress = clamp(-trackRect.top / range, 0, 1);
-      // Extra end travel so the final card clears the viewport bottom fully.
-      const maxTranslate = overflowCount * cardStep + Math.max(12, cardStep * 0.08);
+      // Prefer measured stack overflow so category titles are included in travel.
+      // Extra end travel keeps the last connector fully inside the viewport.
+      const endSlack = Math.max(28, cardStep * 0.22);
+      const estimatedTranslate = overflowCount * cardStep + endSlack;
+      const maxTranslate = Math.max(
+        overflowDistance + endSlack,
+        estimatedTranslate
+      );
 
       setStackTranslateY(progress * maxTranslate);
       setIsScrolledToStart(progress <= 0.08);
@@ -833,7 +894,7 @@ export default function DepartmentRecommendationsSection({
         frameRef.current = null;
       }
     };
-  }, [cardStep, isPinScroll, overflowCount]);
+  }, [cardStep, isPinScroll, overflowCount, overflowDistance]);
 
   const sectionClassName = [
     styles.section,
@@ -864,19 +925,16 @@ export default function DepartmentRecommendationsSection({
         />
       </div>
       <div className={styles.groups}>
-        {content.groups.map((group, index) => (
-          <RecommendationGroup
-            key={group.id}
-            group={group}
-            decorated={index === 0}
-            isPinScroll={index === 0 && isPinScroll}
-            isDesktopTimeline={index === 0 && isDesktopTimeline}
-            stackTranslateY={index === 0 ? stackTranslateY : 0}
-            isScrolledToStart={index === 0 ? isScrolledToStart : true}
-            isScrolledToEnd={index === 0 && isScrolledToEnd}
-            onCardStepMeasured={index === 0 ? handleCardStepMeasured : undefined}
-          />
-        ))}
+        <RecommendationsTimeline
+          groups={content.groups}
+          isPinScroll={isPinScroll}
+          isDesktopTimeline={isDesktopTimeline}
+          stackTranslateY={stackTranslateY}
+          isScrolledToStart={isScrolledToStart}
+          isScrolledToEnd={isScrolledToEnd}
+          onCardStepMeasured={handleCardStepMeasured}
+          onOverflowMeasured={handleOverflowMeasured}
+        />
       </div>
     </div>
   );
