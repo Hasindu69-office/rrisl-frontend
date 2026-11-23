@@ -26,7 +26,8 @@
   display: flex;
   min-height: 100vh;
   align-items: flex-start;
-  overflow: hidden;
+  /* Keep visible so arc/connectors to the left of the card column are not clipped. */
+  overflow: visible;
   background: #f6fbf6 url('/images/departments/Dewy%20Seedling%20on%20Soft%20Green%20Waves.webp') center / cover no-repeat;
   padding: clamp(36px, 4.5vh, 64px) 0 clamp(28px, 3.5vh, 48px);
 }
@@ -59,7 +60,6 @@
 
 .groups {
   display: grid;
-  gap: 44px;
   box-sizing: border-box;
   width: min(100%, 36rem);
   min-width: 0;
@@ -69,14 +69,28 @@
   justify-self: stretch;
 }
 
-.group {
+.timeline {
   position: relative;
   min-width: 0;
+  width: 100%;
+  overflow: visible;
+}
+
+.groupBlock {
+  display: grid;
+  gap: clamp(12px, 1.15vw, 18px);
+  justify-items: start;
+  min-width: 0;
+  width: 100%;
+}
+
+.groupBlock + .groupBlock {
+  margin-top: clamp(8px, 0.8vw, 14px);
 }
 
 .groupTitle {
   display: inline-block;
-  margin: 0 0 14px 42px;
+  margin: 0;
   border: 1px solid rgba(97, 184, 25, 0.35);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.88);
@@ -91,6 +105,10 @@
 .timelineShell {
   position: relative;
   min-width: 0;
+  overflow: visible;
+  /* Extra left room so the arc stroke + connector dots are not clipped. */
+  padding-left: clamp(28px, 2.4vw, 44px);
+  margin-left: clamp(-28px, -2.4vw, -20px);
   padding-right: clamp(28px, 2.8vw, 52px);
 }
 
@@ -121,6 +139,7 @@
       + var(--recommendation-gap) * (var(--recommendation-visible-count) - 1)
       + var(--recommendation-pad-top)
       + var(--recommendation-pad-bottom)
+      + 40px
   );
   margin-left: 0;
   padding: var(--recommendation-pad-top) var(--recommendation-pad-right) var(--recommendation-pad-bottom) var(--recommendation-pad-left);
@@ -128,6 +147,11 @@
   /* Middle of the pin-scroll: fade both edges so cards ease in/out. */
   mask-image: linear-gradient(180deg, transparent 0%, #000 12%, #000 88%, transparent 100%);
   -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 12%, #000 88%, transparent 100%);
+}
+
+.cardStackPinned .groupTitle {
+  /* Align with the card column (leaf badge overhang sits outside the pill). */
+  margin-left: clamp(8px, 0.6vw, 12px);
 }
 
 .cardStackPinned.isScrolledToStart {
@@ -379,8 +403,9 @@
     padding-right: 8px;
   }
 
+  .cardStackPinned .groupTitle,
   .groupTitle {
-    margin-left: 18px;
+    margin-left: 8px;
   }
 
   .cardStackPinned {
@@ -481,11 +506,15 @@
     margin-top: 28px;
     margin-left: 0;
     padding-right: 0;
-    gap: 28px;
   }
 
+  .cardStackPinned .groupTitle,
   .groupTitle {
-    margin-left: 14px;
+    margin-left: 6px;
+  }
+
+  .groupBlock + .groupBlock {
+    margin-top: 20px;
   }
 
   .cardPosition {
@@ -538,18 +567,23 @@
 
   .groups {
     margin-top: 22px;
-    gap: 24px;
   }
 
+  .cardStackPinned .groupTitle,
   .groupTitle {
-    margin: 0 0 14px 10px;
+    margin-left: 4px;
     font-size: 10px;
     padding: 6px 12px;
   }
 
+  .groupBlock,
   .cardStack,
   .cardStackTrack {
     gap: 12px;
+  }
+
+  .groupBlock + .groupBlock {
+    margin-top: 16px;
   }
 
   .cardStackPinned {
