@@ -211,36 +211,43 @@ function DepartmentStaffProfileModal({
           <X className="h-5 w-5" strokeWidth={2.1} aria-hidden="true" />
         </button>
 
-        <aside className="relative overflow-visible bg-[radial-gradient(circle_at_top_left,_rgba(161,223,10,0.18),_rgba(32,201,151,0.08)_32%,_transparent_64%),linear-gradient(180deg,#10341B_0%,#184727_100%)] px-6 pb-6 pt-8 text-white lg:w-[360px] lg:overflow-hidden lg:px-8 lg:pb-8 lg:pt-12">
-          <div className="relative h-[140px] w-[140px] overflow-hidden rounded-[22px] border border-white/20 bg-white/12 shadow-[0_16px_40px_rgba(0,0,0,0.20)] sm:h-[152px] sm:w-[152px]">
-            <Image
-              src={member.imageSrc}
-              alt={member.imageAlt}
-              fill
-              className="object-cover object-[center_20%]"
-              sizes="(max-width: 639px) 140px, 152px"
-              priority
-              unoptimized={useUnoptimizedImage}
-            />
+        <aside className={`${styles.profileAside} relative flex min-h-0 flex-col overflow-visible bg-[radial-gradient(circle_at_top_left,_rgba(161,223,10,0.18),_rgba(32,201,151,0.08)_32%,_transparent_64%),linear-gradient(180deg,#10341B_0%,#184727_100%)] px-6 pb-6 pt-8 text-white lg:w-[360px] lg:overflow-hidden lg:px-8 lg:pb-8 lg:pt-12`}>
+          <div className="shrink-0">
+            <div className="relative h-[140px] w-[140px] overflow-hidden rounded-[22px] border border-white/20 bg-white/12 shadow-[0_16px_40px_rgba(0,0,0,0.20)] sm:h-[152px] sm:w-[152px]">
+              <Image
+                src={member.imageSrc}
+                alt={member.imageAlt}
+                fill
+                className="object-cover object-[center_20%]"
+                sizes="(max-width: 639px) 140px, 152px"
+                priority
+                unoptimized={useUnoptimizedImage}
+              />
+            </div>
+
+            <h3
+              id={`department-staff-title-${member.id || member.name}`}
+              className="mt-5 text-[24px] font-semibold leading-[1.2] md:text-[26px]"
+            >
+              {member.role}
+            </h3>
+            <p className="mt-4 text-[21px] font-semibold leading-[1.25] text-white">
+              {member.name}
+            </p>
           </div>
 
-          <h3
-            id={`department-staff-title-${member.id || member.name}`}
-            className="mt-5 text-[24px] font-semibold leading-[1.2] md:text-[26px]"
-          >
-            {member.role}
-          </h3>
-          <p className="mt-4 text-[21px] font-semibold leading-[1.25] text-white">
-            {member.name}
-          </p>
           {member.credentials ? (
-            <p className="mt-3 text-[15px] leading-7 text-white/76">
-              {member.credentials}
-            </p>
-          ) : null}
+            <div className={`${styles.profileCredentials} mt-3 min-h-0 flex-1 overflow-y-auto pr-1`}>
+              <p className="text-[15px] leading-7 text-white/76">
+                {member.credentials}
+              </p>
+            </div>
+          ) : (
+            <div className="min-h-0 flex-1" aria-hidden="true" />
+          )}
 
           {member.emails && member.emails.length > 0 ? (
-            <div className="mt-6 space-y-3 border-t border-white/12 pt-6">
+            <div className="mt-6 shrink-0 space-y-3 border-t border-white/12 pt-6">
               {member.emails.map((email) => (
                 <a
                   key={email}
