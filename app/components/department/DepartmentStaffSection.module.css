@@ -68,6 +68,30 @@
   mask-image: radial-gradient(ellipse 60% 74% at 50% 30%, #000 32%, transparent 94%);
 }
 
+.profileCredentials {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(217, 245, 204, 0.45) transparent;
+}
+
+.profileCredentials::-webkit-scrollbar {
+  width: 6px;
+}
+
+.profileCredentials::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.profileCredentials::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(217, 245, 204, 0.4);
+}
+
+@media (min-width: 1024px) {
+  .profileAside {
+    max-height: inherit;
+  }
+}
+
 .memberRow {
   position: relative;
   overflow-wrap: anywhere;
