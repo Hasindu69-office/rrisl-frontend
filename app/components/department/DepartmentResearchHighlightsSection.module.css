@@ -1,0 +1,134 @@
+.growthRing {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 1px solid rgba(161, 223, 10, 0.28);
+  opacity: 0;
+  transform: scale(0.55);
+}
+
+.growthRingPrimary {
+  animation: highlightGrowthPulse 3.6s ease-out infinite;
+}
+
+.growthRingSecondary {
+  animation: highlightGrowthPulse 3.6s ease-out 1.2s infinite;
+}
+
+.growthRingTertiary {
+  animation: highlightGrowthPulse 3.6s ease-out 2.4s infinite;
+}
+
+.sproutEmblem {
+  animation: highlightSproutBreathe 3.2s ease-in-out infinite;
+}
+
+.seedParticle {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 9999px;
+  background: rgba(161, 223, 10, 0.55);
+  box-shadow: 0 0 10px rgba(161, 223, 10, 0.35);
+  opacity: 0;
+}
+
+.seedParticleOne {
+  left: 18%;
+  bottom: 34%;
+  animation: highlightSeedDrift 5.5s ease-in-out 0.4s infinite;
+}
+
+.seedParticleTwo {
+  right: 16%;
+  bottom: 42%;
+  width: 4px;
+  height: 4px;
+  animation: highlightSeedDrift 6.2s ease-in-out 1.8s infinite;
+}
+
+.seedParticleThree {
+  left: 46%;
+  bottom: 28%;
+  width: 3px;
+  height: 3px;
+  animation: highlightSeedDrift 4.8s ease-in-out 3s infinite;
+}
+
+@keyframes highlightGrowthPulse {
+  0% {
+    opacity: 0;
+    transform: scale(0.55);
+  }
+
+  18% {
+    opacity: 0.55;
+  }
+
+  70% {
+    opacity: 0.12;
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.55);
+  }
+}
+
+@keyframes highlightSproutBreathe {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+
+  50% {
+    transform: translateY(-4px) scale(1.04);
+  }
+}
+
+@keyframes highlightSeedDrift {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0) scale(0.7);
+  }
+
+  20% {
+    opacity: 0.7;
+  }
+
+  70% {
+    opacity: 0.35;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate3d(8px, -54px, 0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .growthRingPrimary,
+  .growthRingSecondary,
+  .growthRingTertiary,
+  .sproutEmblem,
+  .seedParticleOne,
+  .seedParticleTwo,
+  .seedParticleThree {
+    animation: none;
+  }
+
+  .growthRingPrimary {
+    opacity: 0.28;
+    transform: scale(1.05);
+  }
+
+  .growthRingSecondary,
+  .growthRingTertiary,
+  .seedParticle {
+    opacity: 0;
+  }
+
+  .sproutEmblem {
+    transform: none;
+  }
+}

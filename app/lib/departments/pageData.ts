@@ -478,10 +478,12 @@ function mapHighlightCards(
   localizedCards: DepartmentResearchHighlightCard[] | null | undefined,
   fallbackCards: DepartmentResearchHighlightCard[] | null | undefined
 ): DepartmentResearchHighlightItem[] {
-  const cards = localizedCards?.length ? localizedCards : fallbackCards || [];
+  const usingLocalized = Boolean(localizedCards?.length);
+  const cards = usingLocalized ? localizedCards || [] : fallbackCards || [];
+  const sortedFallbackCards = sortBySortOrder(fallbackCards || []);
 
   return sortBySortOrder(cards)
-    .map((card): DepartmentResearchHighlightItem | null => {
+    .map((card, index): DepartmentResearchHighlightItem | null => {
       const title = card.title?.trim();
       const description = card.description?.trim();
 
@@ -489,10 +491,13 @@ function mapHighlightCards(
         return null;
       }
 
+      const fallbackImage = usingLocalized ? sortedFallbackCards[index]?.image : null;
+      const image = card.image || fallbackImage || null;
+
       const imageSrc =
-        getOptimizedImageUrl(card.image, 'large') ||
-        getOptimizedImageUrl(card.image, 'medium') ||
-        getStrapiImageUrl(card.image) ||
+        getOptimizedImageUrl(image, 'large') ||
+        getOptimizedImageUrl(image, 'medium') ||
+        getStrapiImageUrl(image) ||
         undefined;
 
       return {
@@ -501,7 +506,7 @@ function mapHighlightCards(
         description,
         researchTeam: card.researchteam?.trim() || undefined,
         imageSrc,
-        imageAlt: card.image?.alternativeText || title,
+        imageAlt: image?.alternativeText || title,
       };
     })
     .filter((highlight): highlight is DepartmentResearchHighlightItem => Boolean(highlight));
