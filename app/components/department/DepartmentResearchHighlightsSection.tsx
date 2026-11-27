@@ -1,11 +1,12 @@
 'use client';
 
 import Image from 'next/image';
-import { ChevronDown } from 'lucide-react';
-import React, { useId, useState } from 'react';
+import { ChevronDown, Sprout } from 'lucide-react';
+import React, { useEffect, useId, useState } from 'react';
 import GradientTag from '../ui/GradientTag';
 import GradientTitle from '../ui/GradientTitle';
 import { isLocalhostAssetUrl } from '@/app/lib/strapi';
+import styles from './DepartmentResearchHighlightsSection.module.css';
 
 export interface DepartmentResearchHighlightItem {
   id: string;
@@ -24,17 +25,72 @@ interface DepartmentResearchHighlightsSectionProps {
   containerClassName?: string;
 }
 
+function formatHighlightIndex(index: number): string {
+  return String(index + 1).padStart(2, '0');
+}
+
+function HighlightPlaceholder({
+  index,
+  showMotif = true,
+}: {
+  index?: number;
+  showMotif?: boolean;
+}) {
+  return (
+    <div
+      aria-hidden="true"
+      className="absolute inset-0 overflow-hidden bg-[linear-gradient(155deg,#124D22_0%,#0B3B1B_58%,#082812_100%)]"
+    >
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_85%_15%,rgba(161,223,10,0.22),transparent_55%)]" />
+
+      {typeof index === 'number' ? (
+        <div className="absolute left-5 top-5 z-[1] flex h-9 min-w-9 items-center justify-center rounded-full border border-white/15 bg-white/10 px-2.5 text-[12px] font-semibold tracking-[0.04em] text-[#D5F08B] md:left-6 md:top-6">
+          {formatHighlightIndex(index)}
+        </div>
+      ) : null}
+
+      {showMotif ? (
+        <div className="absolute inset-x-0 top-[28%] z-[1] flex justify-center md:top-[30%]">
+          <div className="relative flex h-14 w-14 items-center justify-center md:h-16 md:w-16">
+            <span className={`${styles.growthRing} ${styles.growthRingPrimary}`} />
+            <span className={`${styles.growthRing} ${styles.growthRingSecondary}`} />
+            <span className={`${styles.growthRing} ${styles.growthRingTertiary}`} />
+            <span className={`${styles.seedParticle} ${styles.seedParticleOne}`} />
+            <span className={`${styles.seedParticle} ${styles.seedParticleTwo}`} />
+            <span className={`${styles.seedParticle} ${styles.seedParticleThree}`} />
+            <div
+              className={`${styles.sproutEmblem} relative z-[1] flex h-full w-full items-center justify-center rounded-full border border-white/15 bg-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.18)] backdrop-blur-[2px]`}
+            >
+              <Sprout className="h-7 w-7 text-[#A1DF0A] md:h-8 md:w-8" strokeWidth={1.75} />
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 function HighlightImage({
   item,
+  hasImage,
   className,
   sizes,
+  index,
+  showPlaceholderChrome = true,
+  onImageError,
 }: {
   item: DepartmentResearchHighlightItem;
+  hasImage: boolean;
   className: string;
   sizes: string;
+  index?: number;
+  showPlaceholderChrome?: boolean;
+  onImageError?: () => void;
 }) {
-  if (!item.imageSrc) {
-    return <div className="absolute inset-0 bg-[rgba(161,223,10,0.11)]" />;
+  if (!hasImage || !item.imageSrc) {
+    return (
+      <HighlightPlaceholder index={index} showMotif={showPlaceholderChrome} />
+    );
   }
 
   return (
@@ -45,21 +101,35 @@ function HighlightImage({
       className={className}
       sizes={sizes}
       unoptimized={isLocalhostAssetUrl(item.imageSrc)}
+      onError={onImageError}
     />
   );
 }
 
 function ResearchHighlightCard({
   item,
+  index,
   isExpanded,
   onToggle,
 }: {
   item: DepartmentResearchHighlightItem;
+  index: number;
   isExpanded: boolean;
   onToggle: () => void;
 }) {
   const detailsId = useId();
-  const hasImage = Boolean(item.imageSrc);
+  const [failedImageSrc, setFailedImageSrc] = useState<string | null>(null);
+  const hasImage = Boolean(item.imageSrc) && failedImageSrc !== item.imageSrc;
+
+  useEffect(() => {
+    setFailedImageSrc(null);
+  }, [item.imageSrc]);
+
+  const handleImageError = () => {
+    if (item.imageSrc) {
+      setFailedImageSrc(item.imageSrc);
+    }
+  };
 
   return (
     <article data-department-reveal className="mx-auto w-full max-w-[420px] md:max-w-none">
@@ -68,19 +138,23 @@ function ResearchHighlightCard({
         <div className="relative h-[280px] overflow-hidden md:h-[300px]">
           <HighlightImage
             item={item}
+            hasImage={hasImage}
+            index={index}
             className="object-cover"
             sizes="(max-width: 767px) 100vw, 50vw"
+            onImageError={handleImageError}
           />
           {hasImage ? (
             <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(9,55,20,0.04)_20%,rgba(9,55,20,0.94)_100%)]" />
           ) : null}
 
           <div className="absolute inset-x-0 bottom-0 z-10 p-5 md:p-6">
-            <h3
-              className={`max-w-[26ch] text-[17px] font-semibold leading-[1.4] md:text-[18px] ${
-                hasImage ? 'text-white' : 'text-[#2E7D32]'
-              }`}
-            >
+            {!hasImage ? (
+              <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#A1DF0A]">
+                Research Highlight
+              </p>
+            ) : null}
+            <h3 className="max-w-[26ch] text-[17px] font-semibold leading-[1.4] text-white md:text-[18px]">
               {item.title}
             </h3>
           </div>
@@ -150,19 +224,23 @@ function ResearchHighlightCard({
           >
             <HighlightImage
               item={item}
+              hasImage={hasImage}
+              index={index}
               className="object-cover transition-transform duration-700 ease-out group-hover:scale-105 group-focus:scale-105 motion-reduce:transition-none"
               sizes="33vw"
+              onImageError={handleImageError}
             />
             {hasImage ? (
               <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(161,223,10,0)_0%,#093714_100%)]" />
             ) : null}
 
             <div className="relative z-10 flex h-full flex-col justify-end p-6">
-              <h3
-                className={`max-w-[22ch] text-[17px] font-semibold leading-[1.35] ${
-                  hasImage ? 'text-white' : 'text-[#2E7D32]'
-                }`}
-              >
+              {!hasImage ? (
+                <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#A1DF0A]">
+                  Research Highlight
+                </p>
+              ) : null}
+              <h3 className="max-w-[22ch] text-[17px] font-semibold leading-[1.35] text-white">
                 {item.title}
               </h3>
             </div>
@@ -176,8 +254,21 @@ function ResearchHighlightCard({
               transform: 'rotateY(180deg) translateZ(0)',
             }}
           >
-            <HighlightImage item={item} className="object-cover" sizes="33vw" />
-            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,75,36,0.45)_0%,rgba(8,40,18,0.88)_48%,rgba(8,40,18,0.96)_100%)]" />
+            {hasImage ? (
+              <>
+                <HighlightImage
+                  item={item}
+                  hasImage={hasImage}
+                  className="object-cover"
+                  sizes="33vw"
+                  showPlaceholderChrome={false}
+                  onImageError={handleImageError}
+                />
+                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,75,36,0.45)_0%,rgba(8,40,18,0.88)_48%,rgba(8,40,18,0.96)_100%)]" />
+              </>
+            ) : (
+              <div className="absolute inset-0 bg-[linear-gradient(180deg,#0F4B24_0%,#082812_100%)]" />
+            )}
 
             <div className="relative z-10 flex h-full min-h-0 flex-col px-6 pb-7 pt-7">
               <h3 className="shrink-0 text-[16px] font-semibold leading-[1.4] text-[#A1DF0A]">
@@ -250,10 +341,11 @@ export default function DepartmentResearchHighlightsSection({
         </div>
 
         <div className="mt-10 grid grid-cols-1 gap-8 md:mt-12 md:grid-cols-2 md:gap-10 xl:grid-cols-3 xl:gap-12">
-          {highlights.map((item) => (
+          {highlights.map((item, index) => (
             <ResearchHighlightCard
               key={item.id}
               item={item}
+              index={index}
               isExpanded={activeCard === item.id}
               onToggle={() => handleToggle(item.id)}
             />
